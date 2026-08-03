@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odoo I+D+E · Dashboard de formación del coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--odoo-primary:#714B67;--odoo-secondary:#017E84;--odoo-learning:#E46E78;--odoo-ready:#21B799;--odoo-gold:#E4A900;
+--bg:#FAFAFA;--bg-white:#fff;--bg-warm:#F5F0EE;--text-dark:#2D2D2D;--text-body:#4A4A4A;--text-muted:#8F8F8F;--border:#E8E0E5;--border-light:#F0EAEE;--shadow-sm:0 1px 3px rgba(113,75,103,.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text-body);line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 28px 80px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.brand{display:flex;flex-direction:column;line-height:1}
+.brand .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary);font-size:15px;margin-top:2px}
+h1{font-family:'Caveat',cursive;font-size:40px;font-weight:700;color:var(--text-dark);letter-spacing:-.01em}
+.sub{font-size:14px;color:var(--text-muted);margin-bottom:26px}
+.src-note{background:var(--bg-warm);border:1px dashed var(--border);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--text-muted);margin-bottom:26px}
+.src-note b{color:var(--text-dark)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat{background:var(--bg-white);border:1px solid var(--border-light);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm)}
+.stat .v{font-size:34px;font-weight:900;letter-spacing:-.02em;line-height:1}
+.stat .l{font-size:12px;color:var(--text-muted);margin-top:6px}
+h2{font-size:18px;color:var(--text-dark);margin:28px 0 12px;font-weight:700}
+table{width:100%;border-collapse:collapse;background:var(--bg-white);border:1px solid var(--border-light);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm);font-size:13.5px}
+thead th{background:var(--bg-warm);text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);padding:11px 14px;font-weight:700}
+td{padding:11px 14px;border-top:1px solid var(--border-light);vertical-align:top}
+tbody tr:hover{background:#FBFAF6}
+.tabular{font-variant-numeric:tabular-nums}
+.muted{color:var(--text-muted)}
+.bar{height:7px;border-radius:4px;background:var(--odoo-secondary);min-width:3px}
+.empty{background:var(--bg-white);border:1px solid var(--border-light);border-radius:14px;padding:40px;text-align:center;color:var(--text-muted);font-size:14px;box-shadow:var(--shadow-sm)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.btn{background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:820px){.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <img src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" alt="Odoo" height="26">
+      <span class="ide">I+D+E Spain</span>
+    </div>
+    <a class="btn ghost" href="index.html">← Volver a la formación</a>
+  </header>
+  <h1>Dashboard de formación</h1>
+  <p class="sub">Quién entra, qué ve y cuánto tiempo dedica a cada charla.</p>
+
+  <div class="src-note" id="srcNote"></div>
+
+  <div class="toolbar">
+    <button class="btn" id="reload">Actualizar</button>
+    <button class="btn ghost" id="export">Exportar CSV</button>
+    <button class="btn ghost" id="clearLocal">Borrar datos locales</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+/* Misma URL que en la formación. Vacío = lee los datos de ESTE navegador (modo local). */
+const TRACK_URL = "";
+
+function fmtDur(s){s=Math.round(s||0);if(s<60)return s+'s';const m=Math.floor(s/60);if(m<60)return m+'m '+(s%60)+'s';const h=Math.floor(m/60);return h+'h '+(m%60)+'m'}
+function fmtDate(iso){try{const d=new Date(iso);return d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}catch(e){return iso}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function loadEvents(){
+  return new Promise(function(resolve){
+    if(TRACK_URL){
+      const cb='__coachcb'+Date.now();
+      const s=document.createElement('script');
+      window[cb]=function(data){resolve({events:Array.isArray(data)?data:(data.events||[]),source:'remote'});try{delete window[cb]}catch(e){}s.remove()};
+      s.onerror=function(){resolve({events:[],source:'error'});s.remove()};
+      s.src=TRACK_URL+(TRACK_URL.indexOf('?')>-1?'&':'?')+'callback='+cb;
+      document.body.appendChild(s);
+      setTimeout(function(){if(window[cb]){resolve({events:[],source:'error'});try{delete window[cb]}catch(e){}}},9000);
+    }else{
+      let ev=[];try{ev=JSON.parse(localStorage.getItem('coach_events')||'[]')}catch(e){}
+      resolve({events:ev,source:'local'});
+    }
+  });
+}
+
+function render({events,source}){
+  const note=document.getElementById('srcNote');
+  if(source==='remote')note.innerHTML='<b>Fuente:</b> servidor compartido (todos los usuarios). '+events.length+' eventos.';
+  else if(source==='error')note.innerHTML='<b>Aviso:</b> no se pudo leer el servidor. Revisa la URL de tracking.';
+  else note.innerHTML='<b>Modo local:</b> muestra solo la actividad de este navegador ('+events.length+' eventos). Para ver a todo el equipo, configura el backend (ver README) y pega la URL en <b>TRACK_URL</b> aquí y en la formación.';
+
+  // agregados
+  const users={},videos={},sections={};
+  events.forEach(function(e){
+    const em=e.email||('anon:'+(e.sid||'?'));
+    if(!users[em])users[em]={name:e.name||'—',email:e.email||'(sin email)',first:e.ts,last:e.ts,sids:new Set(),videos:0,watch:0,sections:new Set()};
+    const u=users[em];if(e.ts<u.first)u.first=e.ts;if(e.ts>u.last)u.last=e.ts;if(e.sid)u.sids.add(e.sid);
+    if(e.ev==='video_open')u.videos++;
+    if(e.ev==='video_watch'){u.watch+=(e.data&&e.data.seconds)||0}
+    if(e.ev==='section_view'&&e.data&&e.data.id)u.sections.add(e.data.id);
+    if(e.ev==='video_open'&&e.data){const id=e.data.id||'?';if(!videos[id])videos[id]={title:e.data.title||id,opens:0,seconds:0};videos[id].opens++}
+    if(e.ev==='video_watch'&&e.data){const id=e.data.id||'?';if(!videos[id])videos[id]={title:e.data.title||id,opens:0,seconds:0};videos[id].seconds+=e.data.seconds||0}
+    if(e.ev==='section_view'&&e.data&&e.data.id){sections[e.data.id]=(sections[e.data.id]||0)+1}
+  });
+  const uList=Object.values(users).sort((a,b)=>b.last.localeCompare(a.last));
+  const vList=Object.values(videos).sort((a,b)=>b.seconds-a.seconds);
+  const sList=Object.entries(sections).sort((a,b)=>b[1]-a[1]);
+  const totalWatch=vList.reduce((a,v)=>a+v.seconds,0);
+  const totalOpens=vList.reduce((a,v)=>a+v.opens,0);
+
+  document.getElementById('stats').innerHTML=
+    stat(uList.filter(u=>u.email!=='(sin email)').length,'Coaches registrados','var(--odoo-primary)')+
+    stat(uList.reduce((a,u)=>a+u.sids.size,0),'Sesiones','var(--odoo-secondary)')+
+    stat(totalOpens,'Vídeos abiertos','var(--odoo-gold)')+
+    stat(fmtDur(totalWatch),'Tiempo en vídeos','var(--odoo-ready)');
+
+  if(events.length===0){document.getElementById('content').innerHTML='<div class="empty">Aún no hay actividad registrada. Entra en la formación, regístrate y abre alguna charla; vuelve aquí y pulsa Actualizar.</div>';return}
+
+  let html='<h2>Coaches</h2><table><thead><tr><th>Nombre</th><th>Email</th><th>Sesiones</th><th>Vídeos</th><th>Tiempo vídeos</th><th>Secciones</th><th>Última visita</th></tr></thead><tbody>';
+  uList.forEach(function(u){html+='<tr><td>'+esc(u.name)+'</td><td class="muted">'+esc(u.email)+'</td><td class="tabular">'+u.sids.size+'</td><td class="tabular">'+u.videos+'</td><td class="tabular">'+fmtDur(u.watch)+'</td><td class="tabular">'+u.sections.size+'</td><td class="muted">'+fmtDate(u.last)+'</td></tr>'});
+  html+='</tbody></table>';
+
+  html+='<div class="grid2"><div><h2>Charlas más vistas</h2>';
+  if(vList.length){const max=Math.max.apply(null,vList.map(v=>v.seconds))||1;html+='<table><thead><tr><th>Charla</th><th>Aperturas</th><th>Tiempo</th></tr></thead><tbody>';
+    vList.forEach(function(v){html+='<tr><td>'+esc(v.title)+'<div class="bar" style="width:'+Math.max(3,Math.round(v.seconds/max*100))+'%;margin-top:5px"></div></td><td class="tabular">'+v.opens+'</td><td class="tabular">'+fmtDur(v.seconds)+'</td></tr>'});
+    html+='</tbody></table>';}else html+='<div class="empty">Sin vídeos abiertos aún.</div>';
+  html+='</div><div><h2>Secciones más vistas</h2>';
+  if(sList.length){html+='<table><thead><tr><th>Sección</th><th>Vistas</th></tr></thead><tbody>';sList.forEach(function(s){html+='<tr><td>'+esc(s[0])+'</td><td class="tabular">'+s[1]+'</td></tr>'});html+='</tbody></table>';}else html+='<div class="empty">Sin datos.</div>';
+  html+='</div></div>';
+
+  document.getElementById('content').innerHTML=html;
+  window.__events=events;
+}
+function stat(v,l,c){return '<div class="stat"><div class="v" style="color:'+c+'">'+v+'</div><div class="l">'+l+'</div></div>'}
+
+function toCSV(events){const rows=[['ts','email','name','ev','id','title','seconds','sid','path']];events.forEach(function(e){rows.push([e.ts,e.email||'',e.name||'',e.ev,(e.data&&e.data.id)||'',(e.data&&e.data.title)||'',(e.data&&e.data.seconds)||'',e.sid||'',e.path||''])});return rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n')}
+
+document.getElementById('reload').addEventListener('click',function(){loadEvents().then(render)});
+document.getElementById('export').addEventListener('click',function(){const ev=window.__events||[];const blob=new Blob([toCSV(ev)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='formacion-coach-tracking.csv';a.click()});
+document.getElementById('clearLocal').addEventListener('click',function(){if(confirm('¿Borrar los eventos guardados en este navegador?')){localStorage.removeItem('coach_events');loadEvents().then(render)}});
+
+loadEvents().then(render);
+</script>
+</body>
+</html>

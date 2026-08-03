@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odoo I+D+E Spain | Guía del Coach · Acompañar a los nuevos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --odoo-primary:#714B67; --odoo-secondary:#017E84; --odoo-grey:#8F8F8F;
+  --odoo-learning:#E46E78; --odoo-ready:#21B799; --odoo-silver:#5B899E; --odoo-gold:#E4A900;
+  --bg:#FAFAFA; --bg-white:#FFFFFF; --bg-warm:#F5F0EE;
+  --text-dark:#2D2D2D; --text-body:#4A4A4A; --text-muted:#8F8F8F;
+  --border:#E8E0E5; --border-light:#F0EAEE;
+  --shadow-sm:0 1px 3px rgba(113,75,103,0.06); --shadow-md:0 4px 16px rgba(113,75,103,0.08);
+  --radius:16px; --radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+.hand{font-family:'Caveat',cursive}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:10px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(250,250,250,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-light)}
+.nav-links{display:flex;gap:2px;list-style:none}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:8px;transition:all .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--odoo-primary);background:rgba(113,75,103,0.06)}
+.nav-progress{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--odoo-primary),var(--odoo-secondary));transition:width .15s}
+.logo-lockup{display:flex;flex-direction:column;align-items:center;line-height:1}
+.logo-lockup .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary)}
+.flag{position:relative}
+.flag svg{position:absolute;right:-2px;top:-2px;width:10px;height:7px}
+
+section{max-width:1100px;margin:0 auto;padding:100px 40px 60px}
+.section-tag{font-family:'Caveat',cursive;font-size:52px;font-weight:700;color:var(--odoo-secondary);margin-bottom:4px;line-height:1.1}
+.section-title{font-size:clamp(28px,3.5vw,40px);font-weight:800;color:var(--text-dark);letter-spacing:-0.03em;line-height:1.15;margin-bottom:12px}
+.section-desc{font-size:16px;color:var(--text-body);max-width:640px;line-height:1.7;margin-bottom:48px}
+
+.card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:28px;transition:all .25s;box-shadow:var(--shadow-sm)}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mb{margin-bottom:16px}
+
+.source,.src{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);font-style:italic;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-light);width:100%}
+
+.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:100vh;padding-top:80px}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:900;color:var(--text-dark);letter-spacing:-0.04em;line-height:1.1;margin-bottom:20px}
+.hero h1 .hand-accent{font-family:'Caveat',cursive;color:var(--odoo-secondary);font-size:1.15em}
+.hero .subtitle{font-size:18px;color:var(--text-body);max-width:600px;line-height:1.7;margin-bottom:48px}
+.hero-meta{display:flex;gap:48px}
+.hero-meta-item{text-align:center}
+.hero-meta-item .val{font-size:26px;font-weight:800;letter-spacing:-0.02em}
+.hero-meta-item .lab{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px}
+
+.tag-pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:12px}
+
+.pillar-items{list-style:none;margin-top:12px}
+.pillar-items li{padding:5px 0;font-size:14px;display:flex;align-items:flex-start;gap:8px}
+.pillar-items li::before{content:'→';color:var(--odoo-secondary);font-weight:600;flex-shrink:0}
+
+.callout{border-left:3px solid;padding:16px 20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:14.5px;line-height:1.65}
+.callout h4{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:6px}
+.callout-warm{border-color:var(--odoo-gold);background:rgba(228,169,0,0.06)}
+.callout-info{border-color:var(--odoo-secondary);background:rgba(1,126,132,0.05)}
+.callout-alert{border-color:var(--odoo-learning);background:rgba(228,110,120,0.06)}
+.callout-primary{border-color:var(--odoo-primary);background:rgba(113,75,103,0.05)}
+
+.note-card{background:var(--bg-warm);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:24px}
+.note-card .note-title{font-family:'Caveat',cursive;font-size:26px;font-weight:600;color:var(--odoo-primary);margin-bottom:8px;line-height:1.1}
+
+.impact-card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);display:flex;gap:20px;align-items:center;transition:all .25s}
+.impact-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.impact-num{flex-shrink:0;text-align:center;min-width:84px}
+.impact-num .v{font-size:44px;font-weight:900;line-height:1;letter-spacing:-0.03em}
+.impact-card h4{font-size:15px;color:var(--text-dark);margin-bottom:4px}
+.impact-card p{font-size:13px;color:var(--text-body);line-height:1.55}
+.impact-card a{font-size:11px;text-decoration:none;margin-top:6px;display:inline-block}
+
+.data-table{width:100%;border-collapse:collapse;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.data-table th,.data-table td{padding:12px 16px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--border-light);vertical-align:top}
+.data-table thead th{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-warm)}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table .highlight{color:var(--odoo-secondary);font-weight:700}
+.data-table tbody th{font-weight:700;color:var(--odoo-primary);white-space:nowrap;font-size:13.5px}
+
+/* PILLAR CARDS */
+.pcard{border-top:3px solid;padding-bottom:20px}
+.pcard .pnum{font-family:'Caveat',cursive;font-size:34px;font-weight:700;line-height:1}
+.pcard h3{font-size:18px;margin:2px 0 6px}
+.pcard p{font-size:14px}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.compare .col{border-radius:var(--radius);padding:24px;border:1px solid var(--border-light)}
+.compare .yes{background:rgba(33,183,153,0.05);border-color:rgba(33,183,153,0.25)}
+.compare .no{background:rgba(228,110,120,0.05);border-color:rgba(228,110,120,0.25)}
+.compare h4{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.compare .yes h4{color:var(--odoo-ready)}
+.compare .no h4{color:var(--odoo-learning)}
+.compare ul{list-style:none}
+.compare li{position:relative;padding-left:22px;margin-bottom:10px;font-size:14px;line-height:1.5}
+.compare .yes li::before{content:'✓';position:absolute;left:0;color:var(--odoo-ready);font-weight:800}
+.compare .no li::before{content:'✕';position:absolute;left:0;color:var(--odoo-learning);font-weight:800}
+
+/* STEPS */
+ol.steps{counter-reset:s;list-style:none;margin-top:8px}
+ol.steps li{position:relative;padding-left:50px;margin-bottom:16px;min-height:34px;font-size:14.5px}
+ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;width:34px;height:34px;border-radius:10px;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-size:20px;font-weight:700;display:grid;place-items:center}
+ol.steps li strong{display:block;color:var(--text-dark);margin-bottom:1px}
+
+/* QUESTION BANK */
+.qbank{columns:2;column-gap:28px}
+.qgroup{break-inside:avoid;margin-bottom:20px}
+.qgroup h4{font-family:'Caveat',cursive;font-size:22px;font-weight:600;color:var(--odoo-primary);margin-bottom:6px}
+.qgroup ol{margin:0;padding-left:20px}
+.qgroup li{margin-bottom:6px;font-size:14.5px;line-height:1.45}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:36px;margin-top:8px}
+.timeline::before{content:'';position:absolute;left:13px;top:6px;bottom:6px;width:2px;background:linear-gradient(to bottom,var(--odoo-silver),var(--odoo-secondary),var(--odoo-learning),var(--odoo-gold),var(--odoo-ready),var(--odoo-primary))}
+.tl-item{position:relative;margin-bottom:20px;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);padding:20px 22px}
+.tl-item::before{content:'';position:absolute;left:-30px;top:22px;width:14px;height:14px;border-radius:50%;border:3px solid;background:var(--bg)}
+.tl-item.hot{border-color:rgba(228,110,120,0.35);background:rgba(228,110,120,0.05)}
+.tl-when{font-family:'Caveat',cursive;font-size:20px;font-weight:600;line-height:1;margin-bottom:4px}
+.tl-item h4{font-size:16px;font-weight:700;color:var(--text-dark);margin-bottom:8px}
+.tl-item .row{font-size:13.5px;margin-bottom:5px;line-height:1.5}
+.tl-item .row b{color:var(--text-dark)}
+.tl-item .alert{font-size:12.5px;color:var(--odoo-learning);font-weight:600;margin-top:6px}
+
+/* FICHA / TEMPLATE */
+.ficha{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow-sm)}
+.ficha h3{font-size:18px;color:var(--text-dark);margin-bottom:2px}
+.ficha .fmeta{font-size:12.5px;color:var(--text-muted);margin-bottom:18px}
+.fline{border-bottom:1px dashed var(--border-light);padding:10px 0;display:flex;gap:14px;align-items:baseline}
+.fline .fl-label{font-weight:700;min-width:160px;color:var(--odoo-primary);font-size:13.5px}
+.fline .fl-fill{flex:1;color:var(--text-muted);font-size:13.5px}
+.fbox{border:1px solid var(--border-light);border-radius:10px;padding:16px 18px;background:var(--bg-warm);font-size:14px;line-height:1.6;color:var(--text-dark)}
+.check{display:flex;align-items:baseline;gap:10px;padding:8px 0;font-size:13.5px;color:var(--text-dark)}
+.check .box{width:16px;height:16px;border:2px solid var(--odoo-secondary);border-radius:4px;flex-shrink:0}
+
+/* CHEAT */
+.cheat{background:var(--odoo-primary);color:#fff;border-radius:20px;padding:44px}
+.cheat .section-tag{color:#Ebc9dd}
+.cheat .section-title{color:#fff}
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 34px;margin-top:8px}
+.cheat .ci{border-top:1px solid rgba(255,255,255,0.2);padding-top:12px}
+.cheat .ci b{display:block;font-family:'Caveat',cursive;font-size:22px;font-weight:600;margin-bottom:1px;color:#fff}
+.cheat .ci span{font-size:14px;color:rgba(255,255,255,0.85)}
+
+.cta-box{background:var(--bg-white);border:2px solid var(--odoo-primary);border-radius:20px;padding:48px;text-align:center;box-shadow:0 8px 32px rgba(113,75,103,0.1)}
+.cta-box .hand{font-size:34px;color:var(--odoo-primary);margin-bottom:10px}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .5s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+.printbtn{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;background:var(--odoo-primary);border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 24px rgba(113,75,103,0.3);transition:all .3s}
+.printbtn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(113,75,103,0.4);background:var(--odoo-secondary)}
+
+footer{text-align:left;max-width:1100px;margin:0 auto;padding:40px;font-size:13px;color:var(--text-muted);border-top:1px solid var(--border-light)}
+footer h3{font-size:20px;color:var(--text-dark);margin-bottom:6px}
+footer .bib{columns:2;column-gap:32px;margin-top:16px}
+footer .bib p{break-inside:avoid;margin-bottom:10px;font-size:13px;line-height:1.5}
+
+/* PERFIL / VISUALES */
+.viz{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.viz svg{max-width:100%;height:auto}
+.viz-cap{font-size:12px;color:var(--text-muted);margin-top:14px;text-align:center;max-width:320px}
+.quad2{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.quad2 .q{border-radius:var(--radius-sm);padding:16px;color:#fff}
+.quad2 .q b{display:block;font-family:'Caveat',cursive;font-size:23px;line-height:1;margin-bottom:3px}
+.quad2 .q span{font-size:12.5px;line-height:1.45;opacity:.96}
+.johari .q{background:var(--bg-warm);color:var(--text-dark);border:1px solid var(--border)}
+.johari .q.open{background:rgba(1,126,132,0.10);border-color:rgba(1,126,132,0.35)}
+.johari .q b{color:var(--odoo-primary)}
+.zones-wrap{width:300px;height:300px;position:relative;margin:0 auto}
+.zone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:flex-start;justify-content:center;text-align:center;font-weight:700}
+.z1{width:300px;height:300px;background:rgba(228,110,120,0.14);border:2px solid var(--odoo-learning);color:var(--odoo-learning);padding-top:12px;font-size:12px}
+.z2{width:210px;height:210px;background:rgba(228,169,0,0.16);border:2px solid var(--odoo-gold);color:#9a6a12;padding-top:14px;font-size:12px}
+.z3{width:120px;height:120px;background:rgba(33,183,153,0.20);border:2px solid var(--odoo-ready);color:#127d63;align-items:center;padding:0;font-size:12px}
+.emo-wheel{width:250px;height:250px;border-radius:50%;position:relative;margin:0 auto;box-shadow:var(--shadow-sm);background:conic-gradient(#E4A900 0deg 45deg,#8FBF3F 45deg 90deg,#21B799 90deg 135deg,#5B899E 135deg 180deg,#5A6BC4 180deg 225deg,#9B6BC4 225deg 270deg,#E46E78 270deg 315deg,#E39A3F 315deg 360deg)}
+.emo-c{position:absolute;inset:30%;background:var(--bg-white);border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-primary);font-size:19px;line-height:1.05;box-shadow:var(--shadow-sm)}
+.emo-lbl{position:absolute;left:50%;top:50%;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);white-space:nowrap;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-98px) rotate(calc(-1 * var(--a)))}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:flex;flex-direction:column;background:var(--bg-white);border:1px solid var(--border-light);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow-sm);flex:1;min-width:200px}
+.chip b{font-size:14px;color:var(--text-dark)}
+.chip span{font-size:12.5px;color:var(--text-muted);margin-top:3px;line-height:1.45}
+.gfx{height:62px;margin:2px 0 12px;display:flex;align-items:center;justify-content:center;background:var(--bg-warm);border-radius:10px;padding:4px}
+.gfx svg{height:100%;width:auto;max-width:100%}
+a.src{text-decoration:none;transition:color .2s,border-color .2s}
+a.src:hover{color:var(--odoo-primary);border-top-color:var(--odoo-primary)}
+
+/* ==== PLATAFORMA (registro · recursos · vídeo · dashboard) ==== */
+body.locked{overflow:hidden}
+.reg-overlay{position:fixed;inset:0;z-index:2000;background:rgba(45,45,45,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+.reg-overlay.hide{display:none}
+.reg-box{background:var(--bg-white);border-radius:20px;max-width:440px;width:100%;padding:36px 32px;box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
+.reg-box .rlogo{height:38px;margin-bottom:14px}
+.reg-box .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary);font-size:16px;display:block;margin-top:-8px;margin-bottom:16px}
+.reg-box h2{font-size:24px;color:var(--text-dark);margin-bottom:6px}
+.reg-box .rsub{font-size:14px;color:var(--text-body);margin-bottom:20px}
+.reg-box input[type=text],.reg-box input[type=email]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:15px;margin-bottom:12px;outline:none}
+.reg-box input:focus{border-color:var(--odoo-primary)}
+.reg-consent{display:flex;gap:9px;align-items:flex-start;text-align:left;font-size:11.5px;color:var(--text-muted);margin-bottom:18px;line-height:1.5}
+.reg-consent input{width:auto;margin:2px 0 0;flex-shrink:0}
+.reg-box button{width:100%;background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:13px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .2s}
+.reg-box button:hover{background:#5d3e56}
+.reg-box .err{color:var(--odoo-learning);font-size:12px;margin-bottom:10px;min-height:15px;font-weight:600}
+.userchip{position:fixed;bottom:24px;left:24px;z-index:60;background:var(--bg-white);border:1px solid var(--border-light);border-radius:999px;padding:8px 15px;font-size:12.5px;color:var(--text-body);box-shadow:var(--shadow-sm);display:none;align-items:center;gap:8px}
+.userchip .dot{width:8px;height:8px;border-radius:50%;background:var(--odoo-ready)}
+.rsrc-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-light)}
+.rsrc{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:600;border-radius:8px;padding:6px 11px;cursor:pointer;border:1px solid var(--border);background:var(--bg-white);color:var(--text-body);text-decoration:none;transition:all .2s}
+.rsrc:hover{border-color:var(--odoo-primary);color:var(--odoo-primary)}
+.rsrc.play{background:var(--odoo-primary);border-color:var(--odoo-primary);color:#fff}
+.rsrc.play:hover{background:#5d3e56;color:#fff}
+.rsrc.book:hover{border-color:var(--odoo-gold);color:var(--odoo-gold)}
+.vmodal{position:fixed;inset:0;z-index:1500;background:rgba(45,45,45,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.vmodal.open{display:flex}
+.vmodal-box{background:#000;border-radius:16px;width:min(900px,100%);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden}
+.vmodal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;background:var(--bg-white)}
+.vmodal-head h4{font-size:15px;color:var(--text-dark)}
+.vmodal-head .close{background:none;border:none;font-size:26px;color:var(--text-muted);cursor:pointer;line-height:1;padding:0 4px}
+.vmodal-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.vmodal-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.dna-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dna-field label{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--odoo-primary);margin-bottom:6px}
+.dna-field input,.dna-field textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;outline:none;background:var(--bg-white);color:var(--text-dark)}
+.dna-field input:focus,.dna-field textarea:focus{border-color:var(--odoo-primary)}
+.dna-field textarea{min-height:66px;resize:vertical}
+.tierpick{display:flex;gap:6px;flex-wrap:wrap}
+.tierpick label{cursor:pointer}
+.tierpick input{display:none}
+.tierpick span{display:inline-block;padding:7px 15px;border:1px solid var(--border);border-radius:999px;font-size:13px;font-weight:600;color:var(--text-body);transition:all .15s}
+.tierpick input:checked+span{background:var(--odoo-secondary);border-color:var(--odoo-secondary);color:#fff}
+.dna-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.dna-btn{background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer}
+.dna-btn.ghost{background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)}
+.dna-saved{font-size:13px;color:var(--odoo-ready);font-weight:600}
+@media(max-width:800px){.dna-grid{grid-template-columns:1fr}}
+
+@media(max-width:800px){
+  section{padding:80px 20px 40px}
+  .grid-3,.grid-4,.grid-2,.compare,.cheat-grid{grid-template-columns:1fr}
+  .qbank{columns:1}
+  .hero-meta{flex-direction:column;gap:16px}
+  .nav-links{display:none}
+  .section-tag{font-size:36px}
+  footer .bib{columns:1}
+}
+
+@media print{
+  nav,.printbtn{display:none}
+  body{background:#fff}
+  section{padding:24px 40px;break-inside:avoid;min-height:auto}
+  .hero{min-height:auto;padding:20px 40px}
+  .reveal{opacity:1;transform:none}
+  .card,.impact-card,.tl-item,.ficha,.data-table{box-shadow:none}
+  .cheat{background:#fff;color:var(--text-dark);border:2px solid var(--odoo-primary)}
+  .cheat .section-title,.cheat .ci b{color:var(--text-dark)}
+  .cheat .ci span{color:var(--text-muted)}
+  a{color:var(--text-dark)}
+}
+</style>
+</head>
+<body>
+
+<!-- REGISTRO -->
+<div class="reg-overlay" id="regOverlay">
+  <div class="reg-box">
+    <img class="rlogo" src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" alt="Odoo">
+    <span class="ide">I+D+E Spain</span>
+    <h2>Formación del Coach</h2>
+    <p class="rsub">Acompañamiento Odoo I+D+E. Identifícate para entrar y que quede registrado tu progreso.</p>
+    <form id="regForm">
+      <div class="err" id="regErr"></div>
+      <input id="regName" type="text" placeholder="Tu nombre" autocomplete="name">
+      <input id="regMail" type="email" placeholder="Tu email de Odoo" autocomplete="email">
+      <label class="reg-consent"><input type="checkbox" id="regConsent"><span>Acepto que se registren mi nombre, email y actividad formativa (vídeos y secciones vistas) con fines internos de seguimiento del equipo Odoo I+D+E. No se comparte con terceros.</span></label>
+      <button type="submit">Entrar a la formación</button>
+    </form>
+  </div>
+</div>
+
+<nav>
+  <div class="logo-lockup">
+    <img src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" alt="Odoo" height="24" style="display:block">
+    <span class="ide" style="font-size:13px;margin-top:1px">I+D+E <span class="flag">Spain<svg viewBox="0 0 10 7"><rect width="10" height="2" fill="#AA151B"/><rect y="2" width="10" height="3" fill="#F1BF00"/><rect y="5" width="10" height="2" fill="#AA151B"/></svg></span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#inicio" class="active">Inicio</a></li>
+    <li><a href="#rol">El rol</a></li>
+    <li><a href="#adn">ADN</a></li>
+    <li><a href="#pilares">Pilares</a></li>
+    <li><a href="#expertos">Técnicas</a></li>
+    <li><a href="#perfil">Perfil</a></li>
+    <li><a href="#herramientas">Herramientas</a></li>
+    <li><a href="#calendario">Calendario</a></li>
+    <li><a href="#metas">Metas</a></li>
+    <li><a href="#rutinas">Rutinas</a></li>
+    <li><a href="#plantillas">Plantillas</a></li>
+    <li><a href="#chuleta">Chuleta</a></li>
+    <li><a href="#avanzado">Avanzado</a></li>
+  </ul>
+  <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div style="margin-bottom:44px;display:flex;flex-direction:column;align-items:center;line-height:1">
+    <img src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" alt="Odoo" height="56" style="display:block">
+    <span class="ide" style="font-size:22px;margin-top:4px">I+D+E <span class="flag">Spain<svg viewBox="0 0 14 10" style="width:14px;height:10px;transform:rotate(-15deg)"><rect width="14" height="2.8" rx="0.5" fill="#AA151B"/><rect y="2.8" width="14" height="4.4" fill="#F1BF00"/><rect y="7.2" width="14" height="2.8" rx="0.5" fill="#AA151B"/></svg></span></span>
+  </div>
+  <h1>Guía del<br><span class="hand-accent">Coach de los que llegan</span></h1>
+  <p class="subtitle">Cómo apoyar, motivar y acompañar a un compañero nuevo durante sus primeros 6 meses. Sin operativa. Solo presencia, confianza y humanidad.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-primary)">6 meses</div><div class="lab">De acompañamiento</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-secondary)">4 pilares</div><div class="lab">Confianza · Escucha · Motivación · Acompañamiento</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-gold)">+25</div><div class="lab">Técnicas de autores</div></div>
+  </div>
+  <p style="margin-top:44px;font-family:'Caveat',cursive;font-size:18px;color:var(--odoo-primary);opacity:0.75">Acompañamiento Odoo I+D+E · antes del paso a Partner Manager · revisión por hitos</p>
+</section>
+
+<!-- 1. EL ROL -->
+<section id="rol">
+  <div class="reveal">
+    <div class="section-tag">¿Por qué existe este rol?</div>
+    <h2 class="section-title">Tu trabajo no es enseñarle a vender. Es que no se sienta solo.</h2>
+    <p class="section-desc">Cuando alguien entra nuevo en el equipo pasa al menos 6 meses en venta directa antes de dar el salto al equipo de Partner Manager. En esos meses tú no eres su jefe ni su formador: eres la cara amiga, la persona de confianza, el que le da la bienvenida de verdad. Los datos dicen por qué importa tanto.</p>
+  </div>
+
+  <div class="grid-3 reveal" style="margin-bottom:20px">
+    <div class="impact-card" style="border-left:4px solid var(--odoo-learning);flex-direction:column;align-items:flex-start;text-align:left">
+      <div class="impact-num" style="min-width:auto"><span class="v" style="color:var(--odoo-learning)">~90%</span></div>
+      <div>
+        <h4>Deciden pronto si se quedan</h4>
+        <p>Casi 9 de cada 10 personas deciden si siguen o se van en sus primeros 6 meses. Lo que hagas esas primeras semanas pesa más que cualquier formación posterior.</p>
+        <a href="https://www.shrm.org/topics-tools/topics/onboarding" target="_blank" rel="noopener" style="color:var(--odoo-learning)">→ SHRM · Onboarding</a>
+      </div>
+    </div>
+    <div class="impact-card" style="border-left:4px solid var(--odoo-secondary);flex-direction:column;align-items:flex-start;text-align:left">
+      <div class="impact-num" style="min-width:auto"><span class="v" style="color:var(--odoo-secondary)">+</span></div>
+      <div>
+        <h4>Cuanto más contacto, mejor</h4>
+        <p>Los nuevos que ven a menudo a su acompañante en los primeros 90 días se sienten más productivos y más satisfechos. La cercanía humana es la que retiene.</p>
+        <a href="https://hbr.org/2019/06/every-new-employee-needs-an-onboarding-buddy" target="_blank" rel="noopener" style="color:var(--odoo-secondary)">→ Estudio Microsoft · HBR 2019</a>
+      </div>
+    </div>
+    <div class="impact-card" style="border-left:4px solid var(--odoo-gold);flex-direction:column;align-items:flex-start;text-align:left">
+      <div class="impact-num" style="min-width:auto"><span class="v" style="color:var(--odoo-gold)">12%</span></div>
+      <div>
+        <h4>Casi nadie lo hace bien</h4>
+        <p>Solo el 12% cree que su empresa acoge bien a los nuevos, y coger ritmo lleva meses. Un compañero que sostenga el ánimo marca la diferencia entre quedarse o rendirse.</p>
+        <a href="https://www.gallup.com/workplace/235121/why-onboarding-experience-key-retention.aspx" target="_blank" rel="noopener" style="color:var(--odoo-gold)">→ Gallup · Onboarding</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-info reveal">
+    <h4>La regla que lo resume todo</h4>
+    <p>Cuando pase al equipo de Partner Manager llegará el onboarding de verdad: operativa, cómo gestionar partners, expectativas del puesto. <strong>Eso no es cosa tuya ahora.</strong> Tu misión hoy es una sola: que confíe en ti, se sienta parte del equipo y sepa que no está solo.</p>
+  </div>
+</section>
+
+<!-- 2. QUÉ ERES Y QUÉ NO -->
+<section id="eres">
+  <div class="reveal">
+    <div class="section-tag">Tu papel, claro</div>
+    <h2 class="section-title">Qué eres y qué no eres</h2>
+    <p class="section-desc">Tener la línea clara te protege a ti y protege al nuevo. Eres un compañero entre iguales, no una figura de autoridad.</p>
+  </div>
+
+  <div class="compare reveal">
+    <div class="col yes">
+      <h4>Sí eres</h4>
+      <ul>
+        <li>Un <strong>compañero</strong> de igual a igual que acompaña.</li>
+        <li>Una <strong>persona segura</strong> para las preguntas «tontas».</li>
+        <li>Apoyo <strong>emocional y motivacional</strong> en los altibajos.</li>
+        <li>Alguien que <strong>escucha</strong> más de lo que habla.</li>
+        <li>La puerta de entrada al <strong>equipo y su gente</strong>.</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h4>No eres</h4>
+      <ul>
+        <li>Su <strong>jefe</strong> ni quien evalúa su rendimiento.</li>
+        <li>Su <strong>formador de operativa</strong> (eso llega en PM).</li>
+        <li>Quien le <strong>resuelve</strong> los problemas por él.</li>
+        <li>Un <strong>terapeuta</strong>: si hay un tema serio, se deriva.</li>
+        <li>Alguien que <strong>juzga</strong> o compara con otros.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-warm reveal" style="margin-top:16px">
+    <h4>El límite importante</h4>
+    <p>Puedes escuchar y, con cuidado, compartir tu experiencia («a mí me pasó, y lo que a mí me funcionó fue…»), pero sin imponerla. Si aparece sufrimiento emocional serio, ansiedad o un problema personal grave: <strong>escucha con humanidad, no diagnostiques, no des soluciones y deriva</strong> a quien corresponda.</p>
+  </div>
+</section>
+
+<!-- 2B. ADN DEL COACHEE -->
+<section id="adn">
+  <div class="reveal">
+    <div class="section-tag">Paso 1 · antes de empezar</div>
+    <h2 class="section-title">El ADN de tu coachee</h2>
+    <p class="section-desc">Antes de la primera sesión, define quién es tu persona. Es el mismo marco de ADN que usamos en el equipo: fortalezas, áreas de mejora, objetivos y tier. Rellénalo y lo tendrás como brújula durante los 6 meses. Se guarda en tu navegador.</p>
+  </div>
+  <div class="card reveal">
+    <form id="dnaForm">
+      <div class="dna-grid" style="margin-bottom:16px">
+        <div class="dna-field"><label>Nombre del coachee</label><input id="dnaName" type="text" placeholder="Nombre y apellido"></div>
+        <div class="dna-field"><label>Fecha de incorporación</label><input id="dnaStart" type="date"></div>
+        <div class="dna-field"><label>Cartera (nº de partners)</label><input id="dnaCartera" type="number" min="0" placeholder="p. ej. 18"></div>
+        <div class="dna-field"><label>Territorio / foco</label><input id="dnaTerr" type="text" placeholder="p. ej. Levante + retail"></div>
+      </div>
+      <div class="dna-field" style="margin-bottom:16px"><label>Tier objetivo</label>
+        <div class="tierpick">
+          <label><input type="radio" name="dnaTier" value="Learning"><span>Learning</span></label>
+          <label><input type="radio" name="dnaTier" value="Ready"><span>Ready</span></label>
+          <label><input type="radio" name="dnaTier" value="Silver"><span>Silver</span></label>
+          <label><input type="radio" name="dnaTier" value="Gold"><span>Gold</span></label>
+        </div>
+      </div>
+      <div class="dna-grid" style="margin-bottom:16px">
+        <div class="dna-field"><label>Fortalezas</label><textarea id="dnaStrengths" placeholder="Qué se le da bien de forma natural"></textarea></div>
+        <div class="dna-field"><label>Áreas de mejora</label><textarea id="dnaImprove" placeholder="Dónde puede crecer"></textarea></div>
+      </div>
+      <div class="dna-field"><label>Objetivos de estos meses (integración, no ventas)</label><textarea id="dnaGoals" placeholder="p. ej. conocer a 8 compañeros · perder el miedo a preguntar · sentirse del equipo"></textarea></div>
+      <div class="dna-field" style="margin-top:16px"><label>Notas de perfil (Eneagrama / DISC / lo que observes)</label><textarea id="dnaProfile" placeholder="p. ej. Eneatipo 6 (Leal) · DISC S · necesita seguridad y reglas claras"></textarea></div>
+      <div class="dna-actions">
+        <button type="submit" class="dna-btn">Guardar ADN</button>
+        <button type="button" class="dna-btn ghost" id="dnaClear">Vaciar</button>
+        <span class="dna-saved" id="dnaSaved"></span>
+      </div>
+    </form>
+  </div>
+  <div class="callout callout-info reveal" style="margin-top:16px">
+    <h4>Cómo usarlo</h4>
+    <p>Baja a la sección <strong>Perfil</strong> para identificar su eneatipo, su estilo DISC y en qué zona está, y vuelve aquí a anotarlo. Ese ADN es tu punto de partida: te dice cómo hablarle, qué le motiva y por dónde acompañarle.</p>
+  </div>
+</section>
+
+<!-- 3. LOS 4 PILARES -->
+<section id="pilares">
+  <div class="reveal">
+    <div class="section-tag">El marco</div>
+    <h2 class="section-title">Los 4 pilares del acompañamiento</h2>
+    <p class="section-desc">Todo lo que hagas cabe en cuatro palabras. Si dudas de qué hacer, vuelve aquí.</p>
+  </div>
+  <div class="grid-4 reveal">
+    <div class="card pcard" style="border-top-color:var(--odoo-primary)">
+      <div class="pnum" style="color:var(--odoo-primary)">01</div>
+      <h3 style="color:var(--odoo-primary)">Confianza</h3>
+      <p>Que se sienta seguro contigo. Se construye poco a poco, con gestos pequeños y cumpliendo lo que prometes.</p>
+    </div>
+    <div class="card pcard" style="border-top-color:var(--odoo-secondary)">
+      <div class="pnum" style="color:var(--odoo-secondary)">02</div>
+      <h3 style="color:var(--odoo-secondary)">Escucha</h3>
+      <p>Escuchar de verdad, sin juzgar y sin correr a dar soluciones. Preguntar más, aconsejar menos.</p>
+    </div>
+    <div class="card pcard" style="border-top-color:var(--odoo-gold)">
+      <div class="pnum" style="color:var(--odoo-gold)">03</div>
+      <h3 style="color:var(--odoo-gold)">Motivación</h3>
+      <p>Sostener el ánimo, celebrar los avances y reconectar con el porqué cuando llega el bajón.</p>
+    </div>
+    <div class="card pcard" style="border-top-color:var(--odoo-ready)">
+      <div class="pnum" style="color:var(--odoo-ready)">04</div>
+      <h3 style="color:var(--odoo-ready)">Acompañamiento</h3>
+      <p>Estar ahí de forma constante los 6 meses. Presencia, no presión. Que sepa que sigues.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4. TÉCNICAS -->
+<section id="expertos">
+  <div class="reveal">
+    <div class="section-tag">Las técnicas de los grandes</div>
+    <h2 class="section-title">Método con nombre y apellidos</h2>
+    <p class="section-desc">Cero teoría de relleno. Cada tarjeta es una técnica concreta de un autor reconocido y la frase o el gesto con el que la aplicas hoy con tu persona.</p>
+  </div>
+
+  <!-- CONFIANZA -->
+  <p class="hand reveal" style="font-size:28px;color:var(--odoo-primary);margin-bottom:14px">Para generar Confianza</p>
+  <div class="grid-3 reveal" style="margin-bottom:26px">
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Simon Sinek</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Círculo de Seguridad</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="27" r="23" fill="none" stroke="#714B67" stroke-width="2" opacity=".45"/><circle cx="60" cy="27" r="14" fill="#714B67" opacity=".1"/><circle cx="53" cy="27" r="3.4" fill="#714B67"/><circle cx="67" cy="24" r="3.4" fill="#714B67"/><circle cx="61" cy="33" r="3.4" fill="#714B67"/></svg></div>
+      <p style="font-size:13px">El líder crea un entorno donde los de dentro se sienten a salvo, y «come el último»: sirve antes a su gente.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> dale cobertura ante un fallo: «este error lo asumo yo, aún estás aprendiendo».</p>
+      <a class="src" href="https://www.ted.com/talks/simon_sinek_why_good_leaders_make_you_feel_safe" target="_blank" rel="noopener">Leaders Eat Last · charla TED ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Stephen Covey</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Cuenta Bancaria Emocional</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><rect x="35" y="15" width="50" height="26" rx="6" fill="#714B67" opacity=".1" stroke="#714B67" stroke-width="1.6"/><line x1="60" y1="15" x2="60" y2="41" stroke="#714B67" stroke-width="1.3" opacity=".5"/><text x="47" y="35" font-family="Inter,sans-serif" font-size="17" font-weight="800" fill="#714B67" text-anchor="middle">+</text><text x="72" y="34" font-family="Inter,sans-serif" font-size="14" font-weight="800" fill="#714B67" text-anchor="middle" opacity=".45">−</text></svg></div>
+      <p style="font-size:13px">La confianza es una cuenta: cumplir y cuidar son depósitos; fallar o faltar es un reintegro.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> haz depósitos pronto (cumple tu palabra, detalles) para tener saldo el día que toque corregir.</p>
+      <a class="src" href="https://es.wikipedia.org/wiki/Los_siete_h%C3%A1bitos_de_la_gente_altamente_efectiva" target="_blank" rel="noopener">Los 7 hábitos · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Dale Carnegie</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Su nombre y su mundo</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><rect x="34" y="12" width="52" height="30" rx="5" fill="#714B67" opacity=".1" stroke="#714B67" stroke-width="1.6"/><rect x="34" y="12" width="52" height="9" rx="4" fill="#714B67"/><line x1="43" y1="31" x2="77" y2="31" stroke="#714B67" stroke-width="2.4" stroke-linecap="round"/><line x1="43" y1="37" x2="64" y2="37" stroke="#714B67" stroke-width="2.4" stroke-linecap="round" opacity=".5"/></svg></div>
+      <p style="font-size:13px">Interés sincero, su nombre y hablar de lo que le importa a él abren a cualquiera.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> «Buenos días, Marta» + una pregunta por su afición. Y nunca le corrijas en público.</p>
+      <a class="src" href="https://es.wikipedia.org/wiki/C%C3%B3mo_ganar_amigos_e_influir_sobre_las_personas" target="_blank" rel="noopener">Cómo ganar amigos · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Brené Brown</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Empatía sin «al menos»</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="52" cy="27" r="15" fill="#714B67" opacity=".18" stroke="#714B67" stroke-width="1.6"/><circle cx="68" cy="27" r="15" fill="#714B67" opacity=".18" stroke="#714B67" stroke-width="1.6"/></svg></div>
+      <p style="font-size:13px">Conectar con su emoción, no arreglarla ni suavizarla con un «al menos…».</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> «Esto es duro y te entiendo; a mí también me temblaba la voz al principio.»</p>
+      <a class="src" href="https://www.youtube.com/watch?v=1Evwgu369Jw" target="_blank" rel="noopener">Brené Brown · vídeo sobre empatía ↗</a>
+    </div>
+  </div>
+
+  <!-- ESCUCHA -->
+  <p class="hand reveal" style="font-size:28px;color:var(--odoo-secondary);margin-bottom:14px">Para Escuchar</p>
+  <div class="grid-3 reveal" style="margin-bottom:26px">
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Nancy Kline</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">No interrumpas nunca</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="48" cy="27" r="5" fill="#017E84"/><path d="M58 17 A14 14 0 0 1 58 37" fill="none" stroke="#017E84" stroke-width="2" stroke-linecap="round"/><path d="M64 12 A21 21 0 0 1 64 42" fill="none" stroke="#017E84" stroke-width="2" stroke-linecap="round" opacity=".6"/><path d="M70 8 A27 27 0 0 1 70 46" fill="none" stroke="#017E84" stroke-width="2" stroke-linecap="round" opacity=".35"/></svg></div>
+      <p style="font-size:13px">Tu atención total, sin cortar, hace que la persona piense mejor por sí misma.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> «Cuéntame, yo no te corto. Cuando termines del todo, seguimos» — y aguanta el silencio.</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/Thinking_environment" target="_blank" rel="noopener">Entorno de Pensamiento · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Stephen Covey</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Entender antes de ser entendido</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="27" r="9" fill="#017E84" opacity=".15" stroke="#017E84" stroke-width="1.6"/><path d="M30 22 H48 M42 17 L48 22 L42 27" fill="none" stroke="#017E84" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M72 33 H90 M84 28 L90 33 L84 38" fill="none" stroke="#017E84" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/></svg></div>
+      <p style="font-size:13px">Hábito 5: escuchar para comprender, no para responder.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> antes de tu solución, refleja: «lo que me dices es que te sientes perdido, ¿es eso?».</p>
+      <a class="src" href="https://es.wikipedia.org/wiki/Los_siete_h%C3%A1bitos_de_la_gente_altamente_efectiva" target="_blank" rel="noopener">Los 7 hábitos · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Tim Gallwey</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Baja al juez interior</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><text x="52" y="35" font-family="Inter,sans-serif" font-size="21" font-weight="800" fill="#017E84" text-anchor="middle">P−I</text><path d="M76 35 V19 M71 24 L76 19 L81 24" fill="none" stroke="#017E84" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <p style="font-size:13px">Rendimiento = Potencial − Interferencia. El crítico interno estorba al que ya sabe hacerlo.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> «No es técnica, es tu juez interior. En la próxima llamada solo observa el tono del cliente, sin juzgarte.»</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/The_Inner_Game_of_Tennis" target="_blank" rel="noopener">The Inner Game of Tennis · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Michael Bungay Stanier</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">«¿Y qué más?»</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><g fill="none" stroke="#017E84" stroke-width="1.8"><rect x="30" y="22" width="20" height="15" rx="4" opacity=".35"/><rect x="43" y="18" width="22" height="16" rx="4" opacity=".6"/><rect x="57" y="13" width="27" height="18" rx="4"/></g><text x="70" y="26" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#017E84" text-anchor="middle">+</text></svg></div>
+      <p style="font-size:13px">La mejor pregunta del mundo: saca a la persona de su primera respuesta, siempre superficial.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> repítela 2-3 veces antes de opinar. Lo importante aparece en la tercera.</p>
+      <a class="src" href="https://www.youtube.com/watch?v=8IxKUUEsdQU" target="_blank" rel="noopener">The Coaching Habit · charla TEDx ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">John Whitmore</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">El modelo GROW</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><text x="60" y="28" font-family="Caveat,cursive" font-size="20" font-weight="700" fill="#017E84" text-anchor="middle">G→R→O→W</text><line x1="20" y1="39" x2="100" y2="39" stroke="#017E84" stroke-width="2" stroke-linecap="round" opacity=".3"/></svg></div>
+      <p style="font-size:13px">Mapa de conversación: Meta → Realidad → Opciones → Voluntad. Guías con preguntas.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> cierra con un número: «Del 1 al 10, ¿cuántas ganas tienes de hacerlo?».</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/GROW_model" target="_blank" rel="noopener">Modelo GROW · Wikipedia ↗</a>
+    </div>
+  </div>
+
+  <!-- MOTIVACIÓN -->
+  <p class="hand reveal" style="font-size:28px;color:var(--odoo-gold);margin-bottom:14px">Para Motivar</p>
+  <div class="grid-3 reveal" style="margin-bottom:26px">
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Tony Robbins</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Las 6 Necesidades Humanas</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><polygon points="60,8 82,20 82,40 60,52 38,40 38,20" fill="#E4A900" opacity=".14" stroke="#B5761F" stroke-width="1.8"/><text x="60" y="34" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="#B5761F" text-anchor="middle">6</text></svg></div>
+      <p style="font-size:13px">Toda conducta busca cubrir 6: certeza, variedad, importancia, conexión, crecimiento y contribución.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> «¿Qué necesitas hoy: saber que sale bien, sentir que importas o sentirte del equipo?» — y dáselo.</p>
+      <a class="src" href="https://www.ted.com/talks/tony_robbins_why_we_do_what_we_do" target="_blank" rel="noopener">Tony Robbins · charla TED ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Tony Robbins</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Mueve el cuerpo, cambia el estado</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><path d="M60 44 V16 M50 26 L60 14 L70 26" fill="none" stroke="#B5761F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#E4A900" stroke-width="2" stroke-linecap="round"><line x1="45" y1="13" x2="41" y2="9"/><line x1="75" y1="13" x2="79" y2="9"/><line x1="60" y1="8" x2="60" y2="3"/></g></svg></div>
+      <p style="font-size:13px">«El movimiento crea emoción»: cambiar la postura y moverse cambia el estado al instante.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> tras un rechazo: «Ponte de pie, hombros atrás, respira y camina 30 segundos conmigo. Luego hablamos.»</p>
+      <a class="src" href="https://www.ted.com/talks/tony_robbins_why_we_do_what_we_do" target="_blank" rel="noopener">Tony Robbins · charla TED ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Tony Robbins</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Cambia la pregunta</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><text x="38" y="36" font-family="Inter,sans-serif" font-size="24" font-weight="800" fill="#B5761F" text-anchor="middle">?</text><path d="M50 27 H66 M60 22 L66 27 L60 32" fill="none" stroke="#B5761F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/><circle cx="82" cy="24" r="9" fill="#E4A900" opacity=".2" stroke="#B5761F" stroke-width="1.6"/><line x1="79" y1="35" x2="85" y2="35" stroke="#B5761F" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <p style="font-size:13px">«La calidad de tu vida es la calidad de tus preguntas»: el cerebro responde a lo que le preguntas.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> sustituye su «¿por qué se me da fatal?» por «¿qué puedo mejorar en la próxima?».</p>
+      <a class="src" href="https://www.ted.com/talks/tony_robbins_why_we_do_what_we_do" target="_blank" rel="noopener">Tony Robbins · charla TED ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Mel Robbins</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Regla de los 5 segundos</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><text x="54" y="34" font-family="Inter,sans-serif" font-size="17" font-weight="800" fill="#B5761F" text-anchor="middle">5·4·3·2·1</text><path d="M90 28 H104 M99 23 L104 28 L99 33" fill="none" stroke="#B5761F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <p style="font-size:13px">Cuenta 5-4-3-2-1 y actúa antes de llegar al uno, para no dar tiempo a la excusa.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> antes de la llamada que le da miedo: «5-4-3-2-1 y descuelgas. No lo pienses más.»</p>
+      <a class="src" href="https://www.youtube.com/watch?v=Lp7E973zozc" target="_blank" rel="noopener">Mel Robbins · charla TEDx ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Carol Dweck</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">El poder del «todavía»</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><path d="M36 42 H48 V34 H60 V26 H72 V18 H84" fill="none" stroke="#B5761F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><text x="60" y="12" font-family="Caveat,cursive" font-size="16" font-weight="700" fill="#B5761F" text-anchor="middle">todavía</text></svg></div>
+      <p style="font-size:13px">Mentalidad de crecimiento: el «todavía no» convierte el fracaso en fase, no en veredicto.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> «No es "no sé cerrar", es "no sé cerrar todavía".» Y elogia el esfuerzo, no el talento.</p>
+      <a class="src" href="https://www.ted.com/talks/carol_dweck_the_power_of_believing_that_you_can_improve" target="_blank" rel="noopener">Mindset · charla TED ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Viktor Frankl</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">El «para qué» que sostiene</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="27" r="18" fill="#E4A900" opacity=".12" stroke="#B5761F" stroke-width="1.8"/><path d="M60 27 L67 15 L60 27 L53 39 Z" fill="#B5761F"/><circle cx="60" cy="27" r="2.4" fill="#B5761F"/></svg></div>
+      <p style="font-size:13px">Quien tiene un porqué soporta casi cualquier cómo; el sentido es el motor.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> «Recuérdame para qué empezaste esto. Ese es el motor los días malos.»</p>
+      <a class="src" href="https://es.wikipedia.org/wiki/El_hombre_en_busca_de_sentido" target="_blank" rel="noopener">El hombre en busca de sentido · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Simon Sinek</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Empieza por su porqué</h3>
+      <div class="gfx"><svg viewBox="0 0 130 60"><circle cx="65" cy="30" r="27" fill="none" stroke="#B5761F" stroke-width="1.6" opacity=".4"/><circle cx="65" cy="30" r="18" fill="none" stroke="#B5761F" stroke-width="1.6" opacity=".6"/><circle cx="65" cy="30" r="9" fill="#E4A900" opacity=".3" stroke="#B5761F" stroke-width="1.6"/><g font-family="Inter,sans-serif" font-weight="800" fill="#B5761F" text-anchor="middle"><text x="65" y="32" font-size="6">POR QUÉ</text><text x="65" y="16.5" font-size="6">CÓMO</text><text x="65" y="8.5" font-size="6">QUÉ</text></g></svg></div>
+      <p style="font-size:13px">El Círculo de Oro: el propósito (el porqué) va antes que el método y la tarea.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> 1ª semana: «¿Por qué quisiste esto, más allá del sueldo?» y conéctalo con el equipo.</p>
+      <a class="src" href="https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action" target="_blank" rel="noopener">Start With Why · charla TED ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Martin Seligman</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Las 3 P ante el rechazo</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><g font-family="Inter,sans-serif" font-weight="800" fill="#B5761F" text-anchor="middle"><circle cx="45" cy="27" r="11" fill="#E4A900" opacity=".15" stroke="#B5761F" stroke-width="1.4"/><text x="45" y="32" font-size="13">P</text><circle cx="65" cy="27" r="11" fill="#E4A900" opacity=".15" stroke="#B5761F" stroke-width="1.4"/><text x="65" y="32" font-size="13">P</text><circle cx="85" cy="27" r="11" fill="#E4A900" opacity=".15" stroke="#B5761F" stroke-width="1.4"/><text x="85" y="32" font-size="13">P</text></g></svg></div>
+      <p style="font-size:13px">Reencuadrar el «no»: no es permanente (es hoy), ni global (fue esa vez), ni todo culpa suya.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-gold)">Aplícalo:</strong> «No es que no valgas: esa llamada salió mal, y mañana es otra.»</p>
+      <a class="src" href="https://www.ted.com/talks/martin_seligman_the_new_era_of_positive_psychology" target="_blank" rel="noopener">Martin Seligman · charla TED ↗</a>
+    </div>
+  </div>
+
+  <!-- ACOMPAÑAMIENTO -->
+  <p class="hand reveal" style="font-size:28px;color:var(--odoo-ready);margin-bottom:14px">Para Acompañar</p>
+  <div class="grid-3 reveal">
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Robin Sharma</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Liderar sin cargo</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><path d="M60 9 l6 12.4 13.6 2 -9.8 9.6 2.3 13.5-12.1-6.4-12.1 6.4 2.3-13.5-9.8-9.6 13.6-2z" fill="#21B799" opacity=".22" stroke="#127D63" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+      <p style="font-size:13px">El liderazgo no depende del puesto; empieza por liderarte a ti mismo y trabajar con excelencia.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> «No necesitas galones para marcar la diferencia.» Anímale a proponer una mejora ya en su 1ª semana.</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/Robin_Sharma" target="_blank" rel="noopener">Robin Sharma · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Robin Sharma</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">El 1% diario</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><text x="52" y="34" font-family="Inter,sans-serif" font-size="18" font-weight="800" fill="#127D63" text-anchor="middle">1%</text><path d="M72 34 V18 M67 23 L72 18 L77 23" fill="none" stroke="#127D63" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <p style="font-size:13px">Fórmula 20/20/20 y victorias diminutas: mejoras pequeñas que se acumulan.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> «una mejora del 1% al día»: que aprenda una cosa nueva cada jornada y la anote.</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/The_5am_Club" target="_blank" rel="noopener">The 5 AM Club · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Robin Sharma</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">¿Víctima o líder?</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><path d="M48 14 V40 M43 35 L48 40 L53 35" fill="none" stroke="#127D63" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".4"/><path d="M72 40 V14 M67 19 L72 14 L77 19" fill="none" stroke="#127D63" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <p style="font-size:13px">El vocabulario que culpa a las circunstancias frente al que asume la responsabilidad.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> ante «es que no me lo explicaron»: «¿qué puedes hacer tú ahora para averiguarlo?».</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/Robin_Sharma" target="_blank" rel="noopener">Robin Sharma · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">John C. Maxwell</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Conecta antes de guiar</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="44" cy="35" r="7" fill="#21B799" opacity=".25" stroke="#127D63" stroke-width="1.6"/><circle cx="76" cy="35" r="7" fill="#21B799" opacity=".25" stroke="#127D63" stroke-width="1.6"/><line x1="51" y1="35" x2="69" y2="35" stroke="#127D63" stroke-width="2" stroke-linecap="round"/><path d="M60 14 c-3.2-4.5-10-1.2-10 3.2 0 4.4 10 9 10 9 s10-4.6 10-9c0-4.4-6.8-7.7-10-3.2z" fill="#21B799" opacity=".4" stroke="#127D63" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+      <p style="font-size:13px">La gente te sigue cuando siente que te importa, antes de que sepas más (los 5 niveles de liderazgo).</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> interésate por la persona (familia, nervios, fin de semana) antes de entrar en tareas.</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/John_C._Maxwell" target="_blank" rel="noopener">John C. Maxwell · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Jim Rohn</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">La media de cinco</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><g fill="#21B799" stroke="#127D63" stroke-width="1.4"><circle cx="40" cy="27" r="6"/><circle cx="52" cy="27" r="6"/><circle cx="64" cy="27" r="6"/><circle cx="76" cy="27" r="6"/><circle cx="88" cy="27" r="6"/></g></svg></div>
+      <p style="font-size:13px">Uno tiende a ser el promedio de las 5 personas con las que más tiempo pasa.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> empáréjalo desde el día 1 con los compañeros más motivados. «Rodéate de a quien quieres parecerte.»</p>
+      <a class="src" href="https://es.wikipedia.org/wiki/Jim_Rohn" target="_blank" rel="noopener">Jim Rohn · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Zig Ziglar</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Sírvele primero</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><path d="M42 21 a18 15 0 0 1 36 0" fill="none" stroke="#127D63" stroke-width="2.2" stroke-linecap="round"/><path d="M78 33 a18 15 0 0 1 -36 0" fill="none" stroke="#127D63" stroke-width="2.2" stroke-linecap="round" opacity=".55"/><path d="M78 22 l1 -7 -7 3z" fill="#127D63"/><path d="M42 32 l-1 7 7 -3z" fill="#127D63" opacity=".55"/></svg></div>
+      <p style="font-size:13px">«Tendrás todo lo que quieras si ayudas a bastantes personas a conseguir lo suyo.»</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> dilo explícito: «Mi trabajo estos meses es que tú triunfes; dime qué necesitas.»</p>
+      <a class="src" href="https://es.wikipedia.org/wiki/Zig_Ziglar" target="_blank" rel="noopener">Zig Ziglar · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Brendon Burchard</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Claridad y coraje</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="23" r="12" fill="#21B799" opacity=".2" stroke="#127D63" stroke-width="1.8"/><path d="M54 33 h12 M55 38 h10 M57 43 h6" fill="none" stroke="#127D63" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <p style="font-size:13px">De los 6 hábitos de alto rendimiento, los que más ayudan al acompañar: Claridad, Coraje y Energía.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> «¿Quién quieres ser en este equipo?» (claridad) y empújale con cariño a eso que le asusta (coraje).</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/Brendon_Burchard" target="_blank" rel="noopener">Brendon Burchard · Wikipedia ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Marshall Goldsmith</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Feedforward</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><path d="M34 27 H82 M72 17 L84 27 L72 37" fill="none" stroke="#127D63" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <p style="font-size:13px">El pasado no se cambia y duele; da 2 ideas para el futuro, la persona solo escucha y da las gracias.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> en vez de «tu presentación fue un lío» → «para la próxima, empieza por el resumen».</p>
+      <a class="src" href="https://www.marshallgoldsmith.com/post/try-feedforward-instead-of-feedback" target="_blank" rel="noopener">Feedforward ↗</a>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Kim Scott</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Evita la empatía ruinosa</h3>
+      <div class="gfx"><svg viewBox="0 0 120 54"><g stroke="#127D63" stroke-width="1.4"><rect x="45" y="10" width="15" height="15" fill="none"/><rect x="60" y="10" width="15" height="15" fill="#21B799" fill-opacity=".5"/><rect x="45" y="25" width="15" height="15" fill="none"/><rect x="60" y="25" width="15" height="15" fill="none"/></g></svg></div>
+      <p style="font-size:13px">Callar o edulcorar por no incomodar se siente amable, pero le niega lo que necesita.</p>
+      <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-ready)">Aplícalo:</strong> preocúpate de verdad y di las cosas con claridad. El silencio «por ser bueno» también hace daño.</p>
+      <a class="src" href="https://en.wikipedia.org/wiki/Radical_Candor" target="_blank" rel="noopener">Radical Candor · Wikipedia ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- 4B. PERFIL -->
+<section id="perfil">
+  <div class="reveal">
+    <div class="section-tag">Conoce a tu persona</div>
+    <h2 class="section-title">Herramientas para saber a quién acompañas</h2>
+    <p class="section-desc">Tests y mapas para entender su carácter, dónde está su esencia, su zona de confort y cómo guiarle. No son jaulas para clasificar: son espejos para la conversación. <strong>Cada herramienta enlaza a un recurso gratuito</strong> (test o ficha) por si quieres profundizar en esa área.</p>
+  </div>
+  <div class="callout callout-warm reveal" style="margin-bottom:40px">
+    <h4>Antes de empezar</h4>
+    <p>El Eneagrama, el DISC y el MBTI <strong>no son ciencia exacta</strong>. Úsalos como lenguaje común y punto de partida para conocer a la persona, nunca como una etiqueta rígida. La persona siempre es más que su tipo.</p>
+  </div>
+
+  <!-- ENEAGRAMA -->
+  <p class="hand reveal" style="font-size:30px;color:var(--odoo-primary);margin-bottom:6px">El Eneagrama · el mapa del «porqué» profundo</p>
+  <p class="section-desc reveal" style="margin-bottom:24px">Nueve tipos según el miedo y el deseo que mueven a cada persona por dentro (no lo que hace, sino por qué lo hace). El símbolo agrupa los tipos en 3 centros y los conecta con «flechas» de estrés y de crecimiento.</p>
+
+  <div class="grid-2 reveal" style="margin-bottom:24px">
+    <div class="viz">
+      <svg viewBox="0 0 300 300" width="300" role="img" aria-label="Símbolo del Eneagrama con 9 tipos">
+        <circle cx="150" cy="150" r="120" fill="none" stroke="#E8E0E5" stroke-width="2"/>
+        <polygon points="150,30 254,210 46,210" fill="none" stroke="#714B67" stroke-width="1.4" stroke-opacity="0.4"/>
+        <path d="M227,58 L191,263 L268,129 L73,58 L109,263 L32,129 Z" fill="none" stroke="#017E84" stroke-width="1.4" stroke-opacity="0.4"/>
+        <g font-family="Inter,sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">
+          <circle cx="227" cy="58" r="18" fill="#714B67"/><text x="227" y="58" dy=".35em">1</text>
+          <circle cx="268" cy="129" r="18" fill="#E46E78"/><text x="268" y="129" dy=".35em">2</text>
+          <circle cx="254" cy="210" r="18" fill="#E46E78"/><text x="254" y="210" dy=".35em">3</text>
+          <circle cx="191" cy="263" r="18" fill="#E46E78"/><text x="191" y="263" dy=".35em">4</text>
+          <circle cx="109" cy="263" r="18" fill="#017E84"/><text x="109" y="263" dy=".35em">5</text>
+          <circle cx="46" cy="210" r="18" fill="#017E84"/><text x="46" y="210" dy=".35em">6</text>
+          <circle cx="32" cy="129" r="18" fill="#017E84"/><text x="32" y="129" dy=".35em">7</text>
+          <circle cx="73" cy="58" r="18" fill="#714B67"/><text x="73" y="58" dy=".35em">8</text>
+          <circle cx="150" cy="30" r="18" fill="#714B67"/><text x="150" y="30" dy=".35em">9</text>
+        </g>
+      </svg>
+      <div class="viz-cap">Los 9 puntos, el triángulo (3-6-9) y las flechas internas que unen los tipos.</div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px;border-left:4px solid var(--odoo-primary)">
+        <h4 style="color:var(--odoo-primary);margin-bottom:2px">Centro instintivo · 8·9·1</h4>
+        <p style="font-size:13.5px">Van por el cuerpo, el control y la autonomía. Emoción de fondo: la ira.</p>
+      </div>
+      <div class="card" style="margin-bottom:12px;border-left:4px solid var(--odoo-learning)">
+        <h4 style="color:var(--odoo-learning);margin-bottom:2px">Centro emocional · 2·3·4</h4>
+        <p style="font-size:13.5px">Van por la imagen, el afecto y la identidad. Emoción de fondo: la vergüenza.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--odoo-secondary)">
+        <h4 style="color:var(--odoo-secondary);margin-bottom:2px">Centro mental · 5·6·7</h4>
+        <p style="font-size:13.5px">Van por la seguridad, la información y el análisis. Emoción de fondo: el miedo.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3 reveal" style="margin-bottom:16px">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#714B67;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">1</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Reformador</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> ser defectuoso. <strong>Deseo:</strong> ser íntegro y correcto.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#714B67">Acompáñale:</strong> feedback justo y concreto, reconoce su esfuerzo. No le corrijas en público; ayúdale a ver que «suficientemente bueno» ya vale.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#E46E78;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">2</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Ayudador</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> no ser querido, ser prescindible. <strong>Deseo:</strong> sentirse necesario.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#E46E78">Acompáñale:</strong> reconoce lo que aporta y enséñale a pedir para sí mismo. No abuses de su disponibilidad.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#E46E78;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">3</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Triunfador</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> fracasar, no valer sin logros. <strong>Deseo:</strong> sentirse valioso.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#E46E78">Acompáñale:</strong> dale metas y celebra hitos. No le humilles en público; recuérdale que vale aunque falle.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#E46E78;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">4</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Individualista</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> no tener identidad, ser corriente. <strong>Deseo:</strong> ser auténtico.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#E46E78">Acompáñale:</strong> escúchale y valida su emoción sin querer «arreglarla». No le compares ni le digas «no exageres».</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#017E84;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">5</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Investigador</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> ser invadido o incapaz. <strong>Deseo:</strong> ser competente y autónomo.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#017E84">Acompáñale:</strong> dale información, tiempo y espacio; avisa antes de exigir. No le abrumes con intensidad emocional.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#017E84;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">6</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Leal</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> quedarse sin apoyo, la incertidumbre. <strong>Deseo:</strong> seguridad y confianza.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#017E84">Acompáñale:</strong> sé coherente y cumple lo prometido; sé su apoyo estable. Refuerza su confianza en su propio criterio.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#017E84;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">7</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Entusiasta</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> quedar atrapado, el aburrimiento. <strong>Deseo:</strong> libertad y satisfacción.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#017E84">Acompáñale:</strong> mantén energía y opciones; ayúdale a terminar lo que empieza. No le encierres en críticas.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#714B67;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">8</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Desafiador</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> ser controlado o traicionado. <strong>Deseo:</strong> ser dueño de sí.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#714B67">Acompáñale:</strong> sé directo y honesto; se gana con verdad, no con adulación. Muéstrale que la vulnerabilidad no es debilidad.</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#714B67;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">9</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Pacificador</h3></div>
+      <p style="font-size:12.5px"><strong>Miedo:</strong> el conflicto, la separación. <strong>Deseo:</strong> paz y armonía.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#714B67">Acompáñale:</strong> pregúntale de verdad qué quiere y dale espacio; no le presiones. Ayúdale a priorizar y a decir lo que piensa.</p>
+    </div>
+  </div>
+  <div class="callout callout-info reveal" style="margin-bottom:44px">
+    <h4>Alas y flechas: leer al nuevo en contexto</h4>
+    <p>Cada tipo se matiza con un <strong>ala</strong> (un número vecino). Bajo <strong>estrés</strong> adopta lo peor de otro tipo (si «cambia raro» cuando aprieta, es señal, no un defecto de carácter). Cuando está <strong>seguro y en confianza</strong> adopta lo mejor de otro: esa es la dirección hacia la que empujar su crecimiento.</p>
+  </div>
+
+  <div class="rsrc-row reveal" style="border:none;padding-top:0;margin-bottom:44px;justify-content:flex-start">
+    <a class="rsrc play" href="https://testeneagrama.com/web/index.html" target="_blank" rel="noopener" style="text-decoration:none">Hacer el test de eneagrama ↗</a>
+    <a class="rsrc" href="https://es.wikipedia.org/wiki/Eneagrama_de_la_personalidad" target="_blank" rel="noopener">Ampliar ↗</a>
+  </div>
+
+  <!-- DISC -->
+  <p class="hand reveal" style="font-size:30px;color:var(--odoo-secondary);margin-bottom:6px">DISC · el estilo visible</p>
+  <p class="section-desc reveal" style="margin-bottom:20px">Cómo se comporta y se comunica en el día a día (el «cómo», no el «por qué»). Te dice cómo adaptar tu forma de hablarle.</p>
+  <div class="quad2 reveal" style="margin-bottom:8px">
+    <div class="q" style="background:var(--odoo-primary)"><b>D · Dominante</b><span>Directo, decidido, a resultados. Guíale: al grano, dale retos y control. No te enrolles ni le microgestiones.</span></div>
+    <div class="q" style="background:var(--odoo-gold)"><b>I · Influyente</b><span>Sociable, entusiasta, persuasivo. Guíale: energía y cercanía, reconócele en público. No le abrumes con datos.</span></div>
+    <div class="q" style="background:var(--odoo-secondary)"><b>C · Concienzudo</b><span>Analítico, preciso, exigente con la calidad. Guíale: datos, detalle y lógica; respeta su rigor. No le hagas improvisar.</span></div>
+    <div class="q" style="background:var(--odoo-ready)"><b>S · Estable</b><span>Tranquilo, leal, evita el conflicto. Guíale: calma, paciencia y seguridad. No le metas prisa ni cambios bruscos.</span></div>
+  </div>
+  <p class="viz-cap reveal" style="max-width:none;margin-bottom:20px">Ejes: arriba más activo, abajo más reservado · izquierda orientado a la tarea, derecha orientado a las personas.</p>
+  <p class="hand reveal" style="font-size:22px;color:var(--odoo-secondary);margin:0 0 6px">El mismo modelo, en colores</p>
+  <p class="section-desc reveal" style="margin-bottom:14px">Muchos equipos usan el DISC en lenguaje de colores (modelo Insights). Es lo mismo, más fácil de recordar de un vistazo.</p>
+  <div class="quad2 reveal" style="margin-bottom:12px">
+    <div class="q" style="background:#C0392B"><b>Rojo · Dominante</b><span>Directo, decidido, a resultados. Ve al grano y dale el control.</span></div>
+    <div class="q" style="background:#B8860B"><b>Amarillo · Influyente</b><span>Sociable, entusiasta, expresivo. Dale energía y reconocimiento.</span></div>
+    <div class="q" style="background:#2E6E9E"><b>Azul · Concienzudo</b><span>Analítico, preciso, reflexivo. Dale datos y tiempo.</span></div>
+    <div class="q" style="background:#1E8A6E"><b>Verde · Estable</b><span>Tranquilo, empático, colaborador. Dale calma y seguridad.</span></div>
+  </div>
+  <div class="rsrc-row reveal" style="border:none;padding-top:0;margin-bottom:44px;justify-content:flex-start">
+    <a class="rsrc" href="https://www.123test.com/disc-personality-test/" target="_blank" rel="noopener">Test DISC gratis ↗</a>
+  </div>
+
+  <!-- JOHARI + ZONAS -->
+  <div class="grid-2 reveal" style="margin-bottom:44px">
+    <div class="card">
+      <p class="hand" style="font-size:26px;color:var(--odoo-primary);margin-bottom:10px">Ventana de Johari</p>
+      <div class="quad2 johari" style="margin-bottom:14px">
+        <div class="q open"><b>Abierto</b><span>Yo sé + los demás saben. <strong>Objetivo: agrandarlo.</strong></span></div>
+        <div class="q"><b>Oculto</b><span>Yo sé + los demás no. Se reduce cuando él se abre.</span></div>
+        <div class="q"><b>Ciego</b><span>Otros ven + él no. Se reduce con tu feedback amable.</span></div>
+        <div class="q"><b>Desconocido</b><span>Nadie lo sabe aún. Aflora con el tiempo.</span></div>
+      </div>
+      <p style="font-size:13.5px">Cada conversación honesta (tú compartes de ti + das y pides feedback) <strong>agranda el área abierta</strong>: más confianza, menos máscara. Es la herramienta de la relación.</p>
+      <div class="rsrc-row"><a class="rsrc" href="https://es.wikipedia.org/wiki/Ventana_de_Johari" target="_blank" rel="noopener">Ampliar ↗</a></div>
+    </div>
+    <div class="card">
+      <p class="hand" style="font-size:26px;color:var(--odoo-ready);margin-bottom:10px">Las 3 zonas · dónde está hoy</p>
+      <div class="zones-wrap" style="height:270px">
+        <div class="zone z1" style="width:270px;height:270px">Pánico</div>
+        <div class="zone z2" style="width:186px;height:186px">Aprendizaje</div>
+        <div class="zone z3" style="width:104px;height:104px">Confort</div>
+      </div>
+      <p style="font-size:13.5px;margin-top:12px"><strong>Confort:</strong> seguro pero sin crecer. <strong>Aprendizaje:</strong> reto asumible, nervios sanos — <strong>aquí crece, es la zona objetivo.</strong> <strong>Pánico:</strong> se bloquea, no aprende. Empújale un paso fuera del confort, nunca dos; si ves pánico, baja el listón.</p>
+      <div class="rsrc-row"><a class="rsrc" href="https://es.wikipedia.org/wiki/Zona_de_confort" target="_blank" rel="noopener">Ampliar ↗</a></div>
+    </div>
+  </div>
+
+  <!-- EMOCIONES + IKIGAI -->
+  <div class="grid-2 reveal" style="margin-bottom:44px">
+    <div class="card" style="display:flex;flex-direction:column;align-items:center">
+      <p class="hand" style="font-size:26px;color:var(--odoo-learning);margin-bottom:16px;align-self:flex-start">Rueda de emociones</p>
+      <div class="emo-wheel">
+        <div class="emo-c">¿Dónde<br>estás hoy?</div>
+        <span class="emo-lbl" style="--a:22.5deg">Alegría</span>
+        <span class="emo-lbl" style="--a:67.5deg">Confianza</span>
+        <span class="emo-lbl" style="--a:112.5deg">Miedo</span>
+        <span class="emo-lbl" style="--a:157.5deg">Sorpresa</span>
+        <span class="emo-lbl" style="--a:202.5deg">Tristeza</span>
+        <span class="emo-lbl" style="--a:247.5deg">Aversión</span>
+        <span class="emo-lbl" style="--a:292.5deg">Ira</span>
+        <span class="emo-lbl" style="--a:337.5deg">Anticipación</span>
+      </div>
+      <p style="font-size:13.5px;margin-top:18px">En los check-ins, en vez de «¿estás bien?», enséñale la rueda: <strong>«¿dónde estás hoy?»</strong>. Poner nombre exacto a la emoción («no es enfado, es aprensión») ya calma y abre la conversación.</p>
+      <div class="rsrc-row" style="align-self:stretch"><a class="rsrc" href="https://es.wikipedia.org/wiki/Rueda_de_las_emociones" target="_blank" rel="noopener">Ampliar ↗</a></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;align-items:center">
+      <p class="hand" style="font-size:26px;color:var(--odoo-secondary);margin-bottom:6px;align-self:flex-start">Ikigai · su esencia</p>
+      <svg viewBox="0 0 300 300" width="270" role="img" aria-label="Diagrama Ikigai de cuatro círculos">
+        <g style="mix-blend-mode:multiply">
+          <circle cx="150" cy="106" r="86" fill="#E4A900" fill-opacity="0.28"/>
+          <circle cx="194" cy="150" r="86" fill="#017E84" fill-opacity="0.28"/>
+          <circle cx="150" cy="194" r="86" fill="#21B799" fill-opacity="0.28"/>
+          <circle cx="106" cy="150" r="86" fill="#714B67" fill-opacity="0.28"/>
+        </g>
+        <g font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#2D2D2D" text-anchor="middle">
+          <text x="150" y="52">Lo que AMAS</text>
+          <text x="150" y="256">Lo que te PAGAN</text>
+          <text x="58" y="152">Se te da BIEN</text>
+          <text x="244" y="152">El mundo NECESITA</text>
+        </g>
+        <text x="150" y="156" text-anchor="middle" font-family="Caveat,cursive" font-size="24" font-weight="700" fill="#714B67">IKIGAI</text>
+      </svg>
+      <p style="font-size:13px;margin-top:16px">Amas + se te da bien = <strong>Pasión</strong> · se te da bien + te pagan = <strong>Profesión</strong> · te pagan + se necesita = <strong>Vocación</strong> · se necesita + amas = <strong>Misión</strong>. Los cuatro juntos = su razón de ser. Úsalo para ayudarle a ver qué le motiva de verdad.</p>
+      <div class="rsrc-row" style="align-self:stretch"><a class="rsrc" href="https://es.wikipedia.org/wiki/Ikigai" target="_blank" rel="noopener">Ampliar ↗</a></div>
+    </div>
+  </div>
+
+  <!-- OTRAS -->
+  <p class="hand reveal" style="font-size:26px;color:var(--odoo-primary);margin-bottom:14px">Otras herramientas útiles</p>
+  <div class="chips reveal">
+    <a class="chip" href="https://bigfive-test.com/" target="_blank" rel="noopener" style="text-decoration:none"><b>Big Five / OCEAN · test gratis ↗</b><span>Apertura, responsabilidad, extraversión, amabilidad y estabilidad. El único modelo de personalidad con respaldo científico sólido.</span></a>
+    <a class="chip" href="https://high5test.com/" target="_blank" rel="noopener" style="text-decoration:none"><b>Fortalezas (HIGH5) · test gratis ↗</b><span>Identifica sus talentos dominantes para apoyarte en lo que ya se le da bien, no en sus defectos.</span></a>
+    <a class="chip" href="https://www.16personalities.com/es" target="_blank" rel="noopener" style="text-decoration:none"><b>16Personalities / MBTI · test gratis ↗</b><span>16 tipos en 4 ejes. Buen lenguaje común, pero poco fiable: úsalo solo como conversación.</span></a>
+    <a class="chip" href="https://www.viacharacter.org/" target="_blank" rel="noopener" style="text-decoration:none"><b>VIA · fortalezas de carácter · test gratis ↗</b><span>24 fortalezas (gratitud, valentía, curiosidad…). Gratis, para ver lo mejor de la persona.</span></a>
+  </div>
+</section>
+
+<!-- 5. HERRAMIENTAS -->
+<section id="herramientas">
+  <div class="reveal">
+    <div class="section-tag">Tu caja de herramientas</div>
+    <h2 class="section-title">Lo que usas en el día a día</h2>
+    <p class="section-desc">Cosas concretas que puedes aplicar hoy mismo en un café, una llamada o un mensaje.</p>
+  </div>
+
+  <div class="card reveal mb">
+    <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Herramienta 1</span>
+    <h3 style="color:var(--text-dark);font-size:19px;margin-bottom:8px">Las 7 preguntas mágicas</h3>
+    <p style="font-size:14px;margin-bottom:14px">Un buen encuentro cabe casi entero en estas siete preguntas. Haz una cada vez y espera la respuesta sin rellenar el silencio.</p>
+    <table class="data-table">
+      <thead><tr><th>Para qué</th><th>La pregunta</th></tr></thead>
+      <tbody>
+        <tr><th>Abrir</th><td>¿Qué te ronda la cabeza?</td></tr>
+        <tr><th>Profundizar</th><td>¿Y qué más? <span class="highlight">(repítela 2-3 veces: lo importante casi nunca es lo primero)</span></td></tr>
+        <tr><th>Enfocar</th><td>¿Cuál es aquí el verdadero reto para ti?</td></tr>
+        <tr><th>Ir al fondo</th><td>¿Qué es lo que quieres de verdad?</td></tr>
+        <tr><th>Ayudar</th><td>¿Cómo puedo ayudarte?</td></tr>
+        <tr><th>Priorizar</th><td>Si dices sí a esto, ¿a qué le estás diciendo que no?</td></tr>
+        <tr><th>Cerrar</th><td>¿Qué te ha resultado más útil de esta charla?</td></tr>
+      </tbody>
+    </table>
+    <span class="src">Michael Bungay Stanier · The Coaching Habit</span>
+  </div>
+
+  <div class="card reveal mb">
+    <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Herramienta 2</span>
+    <h3 style="color:var(--text-dark);font-size:19px;margin-bottom:8px">Una conversación con sentido en 20-30 min (modelo GROW)</h3>
+    <ol class="steps">
+      <li><strong>Meta (0-5 min)</strong>«¿Qué te gustaría sacar de esta charla? ¿Qué querrías que fuera distinto?»</li>
+      <li><strong>Realidad (5-13 min)</strong>«¿Cómo está la situación ahora mismo? ¿Qué has probado ya? ¿Qué te frena?» — No corras a las soluciones. Aguanta aquí.</li>
+      <li><strong>Opciones (13-22 min)</strong>«¿Qué podrías hacer? ¿Y qué más? Si no hubiera obstáculos, ¿qué harías?»</li>
+      <li><strong>Voluntad (22-30 min)</strong>«¿Qué vas a hacer y cuándo? Del 1 al 10, ¿cuántas ganas tienes? ¿Qué te subiría un punto?»</li>
+    </ol>
+  </div>
+
+  <div class="grid-2 reveal mb">
+    <div class="card" style="border-top:3px solid var(--odoo-learning)">
+      <span class="tag-pill" style="background:rgba(228,110,120,0.08);color:var(--odoo-learning)">Herramienta 3</span>
+      <h3 style="color:var(--text-dark);font-size:18px;margin-bottom:6px">Dar apoyo emocional de verdad</h3>
+      <p style="font-size:14px">El orden es sagrado: <strong>primero validar, después acompañar</strong>. Nunca empieces con «no pasa nada» o «anímate»: eso invalida.</p>
+      <ol class="steps" style="margin-top:12px">
+        <li><strong>Valida</strong>«Es normal que te sientas así.»</li>
+        <li><strong>Normaliza</strong>«Con los noes de hoy, cualquiera estaría frustrado.»</li>
+        <li><strong>Y solo entonces, acompaña</strong>«¿Qué te ayudaría ahora?»</li>
+      </ol>
+      <span class="src">Validación emocional (Linehan) y escucha empática (Rogers)</span>
+    </div>
+    <div class="card" style="border-top:3px solid var(--odoo-ready)">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.08);color:var(--odoo-ready)">Herramienta 4</span>
+      <h3 style="color:var(--text-dark);font-size:18px;margin-bottom:6px">Responder bien a una buena noticia</h3>
+      <p style="font-size:14px">Cuando cuente un logro, hay una forma que multiplica sus ganas de repetir: <strong>entusiasmo genuino + preguntar por el cómo</strong>.</p>
+      <ul class="pillar-items" style="margin-top:12px">
+        <li><strong>Sí:</strong>&nbsp;«¡Cerraste! Qué grande, ¿qué le dijiste para darle la vuelta?»</li>
+        <li><strong>Evita:</strong>&nbsp;«Ah, qué bien» (tibio) o «ya, pero no te confíes» (aguar la fiesta).</li>
+      </ul>
+      <span class="src">Respuesta activo-constructiva (Shelly Gable)</span>
+    </div>
+  </div>
+
+  <div class="callout callout-primary reveal mb" style="font-size:15px">
+    <h4>La regla de oro: 80 / 20</h4>
+    <p>En un buen encuentro, el nuevo habla el <strong>80%</strong> del tiempo y tú el <strong>20%</strong>. Y tu 20% es casi todo preguntas, no soluciones. Si acabas hablando tú más que él, has dejado de escuchar y has empezado a dar consejos.</p>
+  </div>
+
+  <div class="reveal">
+    <p class="hand" style="font-size:30px;color:var(--odoo-primary);margin-bottom:4px">Banco de 30 preguntas poderosas</p>
+    <p class="section-desc" style="margin-bottom:20px">Abiertas, cortas, empiezan por «qué» o «cómo» (evita «por qué», suena a juicio). Tenla a mano.</p>
+    <div class="card">
+      <div class="qbank">
+        <div class="qgroup"><h4>Para abrir</h4><ol>
+          <li>¿Qué te ronda la cabeza esta semana?</li>
+          <li>¿De qué te apetece que hablemos hoy?</li>
+          <li>¿Qué querrías que fuera distinto?</li>
+          <li>Si esta charla te sirviera, ¿qué habríamos resuelto al acabar?</li>
+        </ol></div>
+        <div class="qgroup"><h4>Motivación e ilusión</h4><ol start="5">
+          <li>¿Qué te enganchó de esto?</li>
+          <li>¿Cómo sería para ti que saliera bien?</li>
+          <li>¿Qué es lo que más te ilusiona ahora mismo?</li>
+          <li>¿Para qué es importante esto para ti?</li>
+          <li>¿Qué te daría energía esta semana?</li>
+        </ol></div>
+        <div class="qgroup"><h4>Dudas y miedos</h4><ol start="10">
+          <li>¿Qué es lo que más te preocupa?</li>
+          <li>¿Qué es lo peor que podría pasar? ¿Y cómo lo afrontarías?</li>
+          <li>¿Qué te está frenando de verdad?</li>
+          <li>¿Qué necesitarías para sentirte más seguro?</li>
+          <li>¿Qué te dices a ti mismo cuando aparece ese miedo?</li>
+          <li>¿Y qué más te ronda por ahí?</li>
+        </ol></div>
+        <div class="qgroup"><h4>Explorar la situación</h4><ol start="16">
+          <li>¿Cómo está la cosa ahora mismo, con sinceridad?</li>
+          <li>¿Qué has probado ya?</li>
+          <li>¿Qué funcionó y qué no?</li>
+          <li>¿Qué parte de esto sí depende de ti?</li>
+        </ol></div>
+        <div class="qgroup"><h4>Generar opciones</h4><ol start="20">
+          <li>¿Qué opciones ves?</li>
+          <li>Si no hubiera ningún obstáculo, ¿qué harías?</li>
+          <li>¿Qué le aconsejarías a un compañero en tu misma situación?</li>
+          <li>¿Y qué más podrías hacer?</li>
+          <li>¿Qué harías si supieras que no puedes fallar?</li>
+        </ol></div>
+        <div class="qgroup"><h4>Logros y aprendizaje</h4><ol start="25">
+          <li>¿De qué te sientes orgulloso esta semana?</li>
+          <li>¿Qué has aprendido que te sirva para la próxima vez?</li>
+          <li>¿Qué hiciste bien que igual no te has parado a reconocer?</li>
+        </ol></div>
+        <div class="qgroup"><h4>Próximos pasos</h4><ol start="28">
+          <li>¿Cuál es el primer paso, el más pequeño, que puedes dar?</li>
+          <li>¿Qué vas a hacer y para cuándo?</li>
+          <li>Del 1 al 10, ¿cuántas ganas tienes? ¿Qué te subiría un punto?</li>
+        </ol></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. SITUACIONES + ERRORES -->
+<section id="situaciones">
+  <div class="reveal">
+    <div class="section-tag">Cuando no sepas qué hacer</div>
+    <h2 class="section-title">Situaciones típicas y qué hacer</h2>
+    <p class="section-desc">Busca aquí la situación y tienes el guion.</p>
+  </div>
+  <div class="grid-3 reveal" style="margin-bottom:40px">
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">Dice «no valgo para esto»</h4><p style="font-size:14px">Reencuadra con las 3 P: es hoy (no siempre), fue esa llamada (no todo), había factores externos. «Esa llamada salió mal; tú no eres un fracaso.»</p></div>
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">Frustrado por los noes</h4><p style="font-size:14px">Valida antes de nada. «Con los rechazos de hoy, es normal.» Presencia y silencio antes que animar rápido. Luego, un pequeño avance del día.</p></div>
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">No pregunta por miedo</h4><p style="font-size:14px">Preautoriza: «Aquí no hay preguntas tontas; si tú te lo preguntas, otros tres también.» Cuenta un error tuyo para que vea que se admite.</p></div>
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">Se aísla</h4><p style="font-size:14px">Refuerza el vínculo: mensaje casi diario, comer juntos, presentarle a alguien. Mételo en la conversación informal del equipo.</p></div>
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">Consigue una victoria</h4><p style="font-size:14px">Respuesta activo-constructiva: entusiásmate de verdad y pregúntale cómo lo hizo. Reconócelo con el modelo SBI, concreto.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)"><h4 style="color:var(--odoo-learning);margin-bottom:6px">Aparece algo personal serio</h4><p style="font-size:14px">No es tu terreno. Escucha con cariño, no diagnostiques, no des soluciones y deriva. Acompañar no es cargar con todo.</p></div>
+  </div>
+
+  <div class="reveal">
+    <p class="hand" style="font-size:30px;color:var(--odoo-learning);margin-bottom:4px">Lo que NO debes hacer</p>
+    <p class="section-desc" style="margin-bottom:20px">Casi todos los errores nacen de las mejores intenciones. Por eso hay que vigilarlos.</p>
+  </div>
+  <div class="grid-3 reveal">
+    <div class="callout callout-alert"><h4>Correr a dar soluciones</h4><p>El «monstruo del consejo» que salta antes de entender. Párate y convierte el consejo en pregunta.</p></div>
+    <div class="callout callout-alert"><h4>Meterte en operativa</h4><p>No es tu papel ahora. Eso llega en Partner Manager. Tú acompañas a la persona.</p></div>
+    <div class="callout callout-alert"><h4>Juzgar o comparar</h4><p>«Es que fulano en su primera semana ya…». Mata la confianza al instante.</p></div>
+    <div class="callout callout-alert"><h4>Minimizar el bajón</h4><p>«No será para tanto», «anímate». Invalida lo que siente. Valida primero.</p></div>
+    <div class="callout callout-alert"><h4>Callar por no incomodar</h4><p>La «empatía ruinosa»: edulcorar tanto que no ayudas. Con cariño, pero con verdad.</p></div>
+    <div class="callout callout-alert"><h4>Hablar más que escuchar</h4><p>Si llevas tú la voz cantante, ya no es acompañamiento. Recuerda el 80/20.</p></div>
+    <div class="callout callout-alert"><h4>Prometer y no cumplir</h4><p>Cada promesa pequeña rota vacía el tarro de confianza. No prometas de más.</p></div>
+    <div class="callout callout-alert"><h4>Contar lo que te confió</h4><p>Ser la caja fuerte es innegociable. Si cotilleas de otros, le enseñas que lo harás de él.</p></div>
+    <div class="callout callout-alert"><h4>Hacer de terapeuta</h4><p>Ante un problema serio, deriva. Acompañar no es diagnosticar ni cargar con todo.</p></div>
+  </div>
+</section>
+
+<!-- 7. CALENDARIO -->
+<section id="calendario">
+  <div class="reveal">
+    <div class="section-tag">El calendario de 6 meses</div>
+    <h2 class="section-title">Cuándo, cada cuánto y con qué foco</h2>
+    <p class="section-desc">La regla que manda: <strong>mucho contacto al principio, que va bajando</strong>. El nuevo te necesita más cuando la incertidumbre y el riesgo de irse son máximos: las primeras semanas y el bajón del primer mes.</p>
+  </div>
+
+  <div class="timeline reveal">
+    <div class="tl-item" style="--c:var(--odoo-silver)"><span style="display:none"></span>
+      <div class="tl-when" style="color:var(--odoo-silver)">Antes del día 1</div>
+      <h4>Ponle cara antes de que empiece</h4>
+      <div class="row"><b>Frecuencia:</b> 1 contacto · <b>Foco:</b> bajar la ansiedad, «aquí me tienes»</div>
+      <p style="font-size:13.5px;margin-top:6px">Un mensaje o llamada breve: «Hola, soy tu acompañante estas primeras semanas. Sin agenda: soy tu persona para cualquier duda. Nos tomamos un café tu primer día.»</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-when" style="color:var(--odoo-secondary)">Semanas 1-2 · aterrizaje</div>
+      <h4>Conexión y seguridad, todos los días</h4>
+      <div class="row"><b>Frecuencia:</b> contacto diario o casi diario, breve · <b>Herramienta:</b> reconocer con SBI</div>
+      <p style="font-size:13.5px;margin-top:6px">Presentarle gente por su nombre, comer juntos, celebrar la primera micro-victoria. Aún no hay objetivos exigentes.</p>
+      <div class="alert">Alerta: se le ve perdido y no pregunta; «no quiero molestar».</div>
+    </div>
+    <div class="tl-item hot">
+      <div class="tl-when" style="color:var(--odoo-learning)">Semanas 3-4 → día 30 · el bajón</div>
+      <h4>Sostener la moral en el valle</h4>
+      <div class="row"><b>Frecuencia:</b> 2-3 encuentros cortos por semana · <b>Hito:</b> revisión de los 30 días</div>
+      <p style="font-size:13.5px;margin-top:6px"><strong>Es la ventana de mayor riesgo de abandono.</strong> Normaliza la duda: «Es normal sentirse así ahora». Reconoce el esfuerzo e introduce el Feedforward (dos ideas para adelante).</p>
+      <div class="alert">Alerta: cae la energía, se aísla, «esto no es para mí», primeras ausencias.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-when" style="color:var(--odoo-gold)">Días 30-60 · autonomía</div>
+      <h4>Que empiece a decidir por sí mismo</h4>
+      <div class="row"><b>Frecuencia:</b> 1-a-1 semanal (15-30 min) · <b>Herramienta:</b> modelo GROW</div>
+      <p style="font-size:13.5px;margin-top:6px"><b>Hito 60 días:</b> ¿la carga es razonable?, ¿le faltan recursos?, ¿cómo va con los compañeros? Deja que él elija el tema del encuentro.</p>
+      <div class="alert">Alerta: depende demasiado de ti, miedo a decidir, se compara y se hunde.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-when" style="color:var(--odoo-ready)">Días 60-90 · consolidación</div>
+      <h4>Que ya se sienta «de dentro»</h4>
+      <div class="row"><b>Frecuencia:</b> semanal, tendiendo a quincenal · <b>Hito:</b> cierre de los 90 días</div>
+      <p style="font-size:13.5px;margin-top:6px">Celebrar el hito de los 90 días; pedirle que ayude en algo a alguien aún más nuevo (la semilla de Greenleaf: que un día él también acompañe).</p>
+      <div class="alert">Alerta: estancamiento, desmotivación silenciosa, sensación de meseta.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-when" style="color:var(--odoo-primary)">Meses 4-6 · vuelo con red</div>
+      <h4>Autonomía real, tú eres la red de seguridad</h4>
+      <div class="row"><b>Frecuencia:</b> quincenal → mensual hacia el mes 6 · <b>Herramienta:</b> metas que él se autoevalúa</div>
+      <p style="font-size:13.5px;margin-top:6px"><b>Cierre de los 6 meses:</b> conversación de balance (dos ideas para su próxima etapa) y la pregunta de Greenleaf: ¿ha crecido, es más autónomo, podría ya acompañar a otro? Handoff cuidado al equipo de Partner Manager.</p>
+      <div class="alert">Alerta (todo el tramo): recaída, aislamiento, dejar de pedir ayuda por orgullo, agotamiento.</div>
+    </div>
+  </div>
+
+  <p class="hand reveal" style="font-size:26px;color:var(--odoo-primary);margin:36px 0 12px">Resumen de la cadencia</p>
+  <table class="data-table reveal">
+    <thead><tr><th>Etapa</th><th>Cuándo</th><th>Cada cuánto</th><th>Foco</th><th>Herramienta</th><th>Alerta principal</th></tr></thead>
+    <tbody>
+      <tr><th>0</th><td>Pre día 1</td><td>1 contacto</td><td>Bienvenida</td><td>Gesto de cercanía</td><td>—</td></tr>
+      <tr><th>1</th><td>Semanas 1-2</td><td>Diario</td><td>Conexión y seguridad</td><td>Elogio SBI</td><td>Se pierde y no pregunta</td></tr>
+      <tr style="background:rgba(228,110,120,0.06)"><th>2</th><td>Sem 3-4 → 30d</td><td class="highlight">2-3 / semana</td><td>Sostener el bajón</td><td>Feedforward</td><td class="highlight">Riesgo máximo de abandono</td></tr>
+      <tr><th>3</th><td>Días 30-60</td><td>Semanal</td><td>Autonomía</td><td>GROW</td><td>Dependencia, miedo a decidir</td></tr>
+      <tr><th>4</th><td>Días 60-90</td><td>Semanal → quincenal</td><td>Pertenencia</td><td>SBI + hito 90</td><td>Meseta, desmotivación</td></tr>
+      <tr><th>5</th><td>Meses 4-6</td><td>Quincenal → mensual</td><td>Vuelo con red</td><td>Metas autoevaluadas</td><td>Recaída, aislamiento</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid-3 reveal" style="margin-top:20px">
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><h4 class="hand" style="font-size:22px;color:var(--odoo-gold)">Hito 30 días</h4><p style="font-size:14px">«¿Qué es lo que más te gusta hasta ahora?» Aflorar dudas. Fijar una primera meta de integración.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h4 class="hand" style="font-size:22px;color:var(--odoo-secondary)">Hito 60 días</h4><p style="font-size:14px">Carga de trabajo, recursos, relaciones con compañeros, primeros logros.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-ready)"><h4 class="hand" style="font-size:22px;color:var(--odoo-ready)">Hito 90 días</h4><p style="font-size:14px">Cierre de la fase intensa. Se pasa a un ritmo más espaciado. Revisar metas.</p></div>
+  </div>
+</section>
+
+<!-- 8. METAS -->
+<section id="metas">
+  <div class="reveal">
+    <div class="section-tag">Las metas</div>
+    <h2 class="section-title">No son de ventas. Son de integración.</h2>
+    <p class="section-desc">Tú no pones objetivos de facturación. Pones metas de confianza, pertenencia y aprendizaje, y las mides por <strong>conductas que la persona controla</strong>, no por resultados que no puede forzar.</p>
+  </div>
+
+  <div class="grid-2 reveal mb">
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Metas SMART, en versión humana</span>
+      <h3 style="color:var(--text-dark);font-size:18px;margin-bottom:6px">Concretas y medibles por conducta</h3>
+      <p style="font-size:14px">Ejemplo: «Durante las próximas 4 semanas, tomaré un café con un compañero distinto cada semana.»</p>
+      <p style="font-size:14px;margin-top:10px">Lo medible es una acción que depende de él (cafés hechos), no cuánto le aprecian.</p>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">OKR de aprendizaje</span>
+      <h3 style="color:var(--text-dark);font-size:18px;margin-bottom:6px">Un objetivo que ilusiona + señales medibles</h3>
+      <p style="font-size:14px"><strong>Objetivo:</strong> «Sentirme seguro y parte del equipo en mis primeras semanas.»</p>
+      <ul class="pillar-items" style="margin-top:10px">
+        <li>Conocer por su nombre a 8 compañeros este mes.</li>
+        <li>Hacer 3 preguntas «sin miedo» por semana.</li>
+        <li>Acompañar a un veterano en 2 salidas.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-info reveal mb">
+    <h4>Cómo dar seguimiento sin agobiar</h4>
+    <p>Que se autoevalúe primero: «¿Qué progreso ya has hecho? Del 1 al 10, ¿cómo de comprometido estás?». Revisa la meta acordada, no cada uno de sus movimientos. El seguimiento es «¿dónde estamos respecto a lo que quedamos?», nunca «¿qué has hecho toda la semana?».</p>
+  </div>
+
+  <table class="data-table reveal">
+    <thead><tr><th>Etapa</th><th>Meta de integración</th><th>Cómo se mide</th></tr></thead>
+    <tbody>
+      <tr><th>Mes 1</th><td>Sentirse acogido y perder el miedo a preguntar</td><td>Conocer a 8 compañeros · 3 preguntas/semana sin miedo</td></tr>
+      <tr><th>Mes 2</th><td>Ganar confianza y empezar a proponer</td><td>Traer 1 idea propia al encuentro semanal</td></tr>
+      <tr><th>Mes 3</th><td>Sentirse parte del equipo</td><td>Participar en 2 momentos informales del equipo</td></tr>
+      <tr><th>Meses 4-6</th><td>Autonomía y pertenencia consolidadas</td><td>Resolver solo · pedir ayuda cuando toca · ayudar a otro nuevo</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 9B. RUTINAS -->
+<section id="rutinas">
+  <div class="reveal">
+    <div class="section-tag">Práctico · el día a día</div>
+    <h2 class="section-title">Rutinas y planificación del día</h2>
+    <p class="section-desc">Método, no misticismo. Técnicas prácticas de organización, foco y rutinas —las mismas que usan Tony Robbins, Robin Sharma y compañía— para arrancar con energía, priorizar lo que importa y sentirse realizado al terminar el día. Enséñaselas a tu coachee y aplícalas tú.</p>
+  </div>
+
+  <p class="hand reveal" style="font-size:26px;color:var(--odoo-gold);margin-bottom:14px">Arrancar el día</p>
+  <div class="grid-3 reveal" style="margin-bottom:28px">
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Tony Robbins</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Priming · 10 min de mañana</h3>
+      <p style="font-size:13px">Diez minutos al despertar: respiración, gratitud y visualización. Entras tú en el estado correcto antes de que el día te arrastre.</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="faTGTgid8Uc" data-title="Priming · Tony Robbins">Ver la charla</button><a class="rsrc book" href="https://www.amazon.es/s?k=Despertando+al+gigante+interior+Tony+Robbins" data-title="Despertando al gigante interior — Tony Robbins" target="_blank" rel="noopener">Libro en Amazon ↗</a></div>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(228,169,0,0.10);color:var(--odoo-gold)">Robin Sharma</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Fórmula 20/20/20</h3>
+      <p style="font-size:13px">La primera hora en tres bloques de 20 min: <strong>mover</strong> (ejercicio), <strong>reflexionar</strong> (silencio o diario) y <strong>crecer</strong> (aprender algo).</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="a6HoSGXg4Z0" data-title="Fórmula 20/20/20 · Robin Sharma">Ver la charla</button><a class="rsrc book" href="https://www.amazon.es/s?k=El+Club+de+las+5+de+la+manana+Robin+Sharma" data-title="El Club de las 5 de la mañana — Robin Sharma" target="_blank" rel="noopener">Libro en Amazon ↗</a></div>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">Objetivos del día</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Los 3 de hoy</h3>
+      <p style="font-size:13px">Antes de abrir el correo, escribe las 3 cosas que, si las haces hoy, el día habrá valido la pena. Sentirse realizado es cerrar esas 3, no vaciar la bandeja de entrada.</p>
+    </div>
+  </div>
+
+  <p class="hand reveal" style="font-size:26px;color:var(--odoo-secondary);margin-bottom:14px">Priorizar y enfocar</p>
+  <div class="grid-3 reveal">
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Brian Tracy</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Cómete la rana</h3>
+      <p style="font-size:13px">Haz primero la tarea más importante y más incómoda del día, a primera hora. Todo lo demás pesa menos después.</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="iDV1sSoL0_I" data-title="Cómete la rana · Brian Tracy">Ver la charla</button><a class="rsrc book" href="https://www.amazon.es/s?k=Traguese+ese+sapo+Brian+Tracy" data-title="¡Tráguese ese sapo! — Brian Tracy" target="_blank" rel="noopener">Libro en Amazon ↗</a></div>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Matriz de Eisenhower</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Urgente vs importante</h3>
+      <p style="font-size:13px">Clasifica cada tarea en urgente/importante. Haz lo importante no urgente antes de que se vuelva urgente; delega o elimina el ruido.</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="GE2VNw6zpeE" data-title="Matriz de Eisenhower">Ver el vídeo</button></div>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Método Ivy Lee</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Las 6 tareas de mañana</h3>
+      <p style="font-size:13px">Cada noche apunta las 6 tareas del día siguiente por orden de prioridad. Al día siguiente, de una en una, sin saltar a la 2 sin cerrar la 1.</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="JgbAdOhB-b0" data-title="Método Ivy Lee">Ver el vídeo</button></div>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Cal Newport</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Time-blocking</h3>
+      <p style="font-size:13px">Da a cada franja del día una tarea concreta en el calendario. Lo que no tiene bloque, no se hace. Es planificar el día antes de vivirlo.</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="ykNcnrNvpTI" data-title="Time-blocking · Cal Newport">Ver la charla</button><a class="rsrc book" href="https://www.amazon.es/s?k=Centrate+Deep+Work+Cal+Newport" data-title="Céntrate (Deep Work) — Cal Newport" target="_blank" rel="noopener">Libro en Amazon ↗</a></div>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Técnica Pomodoro</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Foco en bloques de 25</h3>
+      <p style="font-size:13px">25 minutos de foco total y 5 de descanso. Cada cuatro pomodoros, un descanso largo. El truco: nada de móvil durante los 25.</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="aQ_xKuXo0D0" data-title="Técnica Pomodoro">Ver el vídeo</button></div>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(33,183,153,0.10);color:var(--odoo-ready)">James Clear</span>
+      <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Hábitos atómicos · el 1%</h3>
+      <p style="font-size:13px">No dependas de la motivación: crea sistemas. Mejora un 1% cada día y haz que el buen hábito sea tan fácil que no puedas fallar.</p>
+      <div class="rsrc-row"><button class="rsrc play" data-yt="U_nzqnXWvSo" data-title="Hábitos atómicos · James Clear">Ver la charla</button><a class="rsrc book" href="https://www.amazon.es/s?k=Habitos+atomicos+James+Clear" data-title="Hábitos atómicos — James Clear" target="_blank" rel="noopener">Libro en Amazon ↗</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. PLANTILLAS -->
+<section id="plantillas">
+  <div class="reveal">
+    <div class="section-tag">Plantillas listas</div>
+    <h2 class="section-title">Para no partir de cero</h2>
+    <p class="section-desc">Imprime estas fichas o cópialas. Te ordenan sin quitarte naturalidad.</p>
+  </div>
+
+  <div class="grid-2 reveal mb">
+    <div class="ficha">
+      <h3>Ficha de encuentro</h3>
+      <div class="fmeta">Rellénala en 2 minutos después de cada café o llamada</div>
+      <div class="fline"><span class="fl-label">Nombre del nuevo</span><span class="fl-fill">·······················</span></div>
+      <div class="fline"><span class="fl-label">Fecha / etapa</span><span class="fl-fill">·······················</span></div>
+      <div class="fline"><span class="fl-label">¿Cómo lo he visto?</span><span class="fl-fill">ánimo, energía, señales</span></div>
+      <div class="fline"><span class="fl-label">Lo que me contó</span><span class="fl-fill">dudas, logros, preocupaciones</span></div>
+      <div class="fline"><span class="fl-label">Lo que le reconocí</span><span class="fl-fill">(SBI: situación + conducta + impacto)</span></div>
+      <div class="fline"><span class="fl-label">Qué acordamos</span><span class="fl-fill">próximo paso pequeño</span></div>
+      <div class="fline" style="border:none"><span class="fl-label">Señales de alerta</span><span class="fl-fill">¿algo que vigilar?</span></div>
+    </div>
+    <div class="ficha">
+      <h3>Primer mensaje de bienvenida</h3>
+      <div class="fmeta">Envíalo 2-4 días antes de su primer día</div>
+      <div class="fbox">«Hola [nombre], soy [tu nombre]. Voy a acompañarte estas primeras semanas en el equipo. Sin agenda ni exámenes: soy tu persona para cualquier duda, por pequeña que sea. Te he reservado un café el primer día a las 11:00 para conocernos. ¿Algo que te ronde antes de empezar? Bienvenido, me alegra mucho que estés aquí.»</div>
+      <span class="src">Ajusta el tono al tuyo. Lo importante es la calidez y el «no entras solo».</span>
+    </div>
+  </div>
+
+  <div class="ficha reveal">
+    <h3>Checklist de seguimiento de los 6 meses</h3>
+    <div class="fmeta">Marca cada hito según los vas cumpliendo</div>
+    <div class="grid-2" style="gap:2px 34px">
+      <div>
+        <div class="check"><span class="box"></span>Mensaje de bienvenida enviado antes del día 1</div>
+        <div class="check"><span class="box"></span>Café el primer día</div>
+        <div class="check"><span class="box"></span>Contacto casi diario las 2 primeras semanas</div>
+        <div class="check"><span class="box"></span>Le he presentado a gente por su nombre</div>
+        <div class="check"><span class="box"></span>Revisión de los 30 días hecha</div>
+        <div class="check"><span class="box"></span>Extra atención en el bajón (semanas 3-4)</div>
+      </div>
+      <div>
+        <div class="check"><span class="box"></span>Revisión de los 60 días hecha</div>
+        <div class="check"><span class="box"></span>Celebrado el hito de los 90 días</div>
+        <div class="check"><span class="box"></span>Metas de integración acordadas y revisadas</div>
+        <div class="check"><span class="box"></span>Le he pedido que ayude a otro más nuevo</div>
+        <div class="check"><span class="box"></span>Conversación de balance a los 6 meses</div>
+        <div class="check"><span class="box"></span>Handoff cuidado al equipo de Partner Manager</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. CHULETA -->
+<section id="chuleta">
+  <div class="cheat reveal">
+    <div class="section-tag">Para tener siempre a mano</div>
+    <h2 class="section-title">La chuleta de una página</h2>
+    <div class="cheat-grid">
+      <div class="ci"><b>Habla el 20%, escucha el 80%</b><span>Tu 20% son preguntas, no soluciones.</span></div>
+      <div class="ci"><b>Abre con</b><span>«¿Qué te ronda la cabeza?»</span></div>
+      <div class="ci"><b>Profundiza con</b><span>«¿Y qué más?» (repítelo 3 veces)</span></div>
+      <div class="ci"><b>Enfoca con</b><span>«¿Cuál es aquí el verdadero reto para ti?»</span></div>
+      <div class="ci"><b>Cierra con</b><span>«¿Qué te ha resultado más útil?»</span></div>
+      <div class="ci"><b>Antes de dar un consejo</b><span>párate y conviértelo en pregunta.</span></div>
+      <div class="ci"><b>Nunca juzgues</b><span>Valida primero, explora después.</span></div>
+      <div class="ci"><b>Ante el rechazo (3 P)</b><span>es hoy, fue esa vez, no es todo culpa tuya.</span></div>
+      <div class="ci"><b>Ante una victoria</b><span>entusiásmate y pregunta cómo lo hizo.</span></div>
+      <div class="ci"><b>Cumple lo pequeño</b><span>Cada promesa cumplida es una canica de confianza.</span></div>
+      <div class="ci"><b>Guarda lo que te cuente</b><span>Eres su caja fuerte.</span></div>
+      <div class="ci"><b>No eres terapeuta</b><span>Si hay algo serio: escucha, no diagnostiques, deriva.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10B. AVANZADO -->
+<section id="avanzado">
+  <div class="reveal">
+    <div class="section-tag">Para ir más allá</div>
+    <h2 class="section-title">De lo básico a lo avanzado</h2>
+    <p class="section-desc">Cuando domines lo básico, aquí tienes cómo profundizar: la biblioteca completa de los autores y los siguientes pasos de formación del equipo.</p>
+  </div>
+  <p class="hand reveal" style="font-size:26px;color:var(--odoo-primary);margin-bottom:14px">La biblioteca del coach</p>
+  <div id="bookshelf" class="grid-3 reveal"></div>
+  <p class="hand reveal" style="font-size:26px;color:var(--odoo-ready);margin:36px 0 14px">Siguientes pasos</p>
+  <div class="grid-3 reveal">
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">Sesiones 1-a-1</h4><p style="font-size:14px">Practica una conversación GROW real con un veterano que te dé feedback. Nada enseña más que rodar de verdad.</p></div>
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">Nanoformaciones</h4><p style="font-size:14px">Píldoras de 5-15 min sobre un tema concreto (escucha, feedback, motivación) cuando lo necesites, no todo de golpe.</p></div>
+    <div class="card"><h4 style="color:var(--text-dark);margin-bottom:6px">Formación bonificada</h4><p style="font-size:14px">El equipo puede financiar formación externa en coaching y comunicación vía FUNDAE. Habla con tu responsable si quieres ir más lejos.</p></div>
+  </div>
+</section>
+
+<!-- 11. CIERRE -->
+<section id="handoff">
+  <div class="reveal">
+    <div class="section-tag">El cierre</div>
+    <h2 class="section-title">La transición al equipo de Partner Manager</h2>
+    <p class="section-desc">A los 6 meses tu acompañamiento no termina de golpe: se transforma. Empieza la otra etapa, la del onboarding de verdad.</p>
+  </div>
+  <div class="grid-2 reveal mb">
+    <div class="card"><h4 style="color:var(--odoo-primary);margin-bottom:6px">Lo que cierras tú</h4><p style="font-size:14px">La conversación de balance: qué se lleva, de qué está orgulloso, dos ideas para su próxima etapa. Y la pregunta clave: ¿ha crecido, es más autónomo, podría ya acompañar a otro nuevo?</p></div>
+    <div class="card"><h4 style="color:var(--odoo-secondary);margin-bottom:6px">Lo que empieza en PM</h4><p style="font-size:14px">Ahí sí llega la formación de operativa, cómo gestionar partners, las expectativas del puesto: el onboarding formal de Partner Manager. Otro momento, otro tipo de apoyo.</p></div>
+  </div>
+  <div class="cta-box reveal">
+    <div class="hand">El mejor acompañante trabaja para volverse innecesario</div>
+    <p style="font-size:16px;max-width:560px;margin:0 auto;color:var(--text-body)">Tu éxito es que, un día, esa persona acompañe a otra. Ese es todo el sentido de este rol.</p>
+    <p style="margin-top:16px;font-size:13px;color:var(--text-muted)">Idea de Robert Greenleaf · liderazgo de servicio</p>
+  </div>
+</section>
+
+<footer>
+  <h3>Los expertos detrás de esta guía</h3>
+  <p style="max-width:660px">Todo lo que has leído se apoya en autores y estudios reconocidos. Si alguien del equipo quiere profundizar, estos son los libros y fuentes.</p>
+  <div class="bib">
+    <p><strong>Stephen M. R. Covey</strong> — The Speed of Trust (2006).</p>
+    <p><strong>Brené Brown</strong> — Dare to Lead (2018), «The Anatomy of Trust», RSA «Empathy».</p>
+    <p><strong>Amy Edmondson</strong> — The Fearless Organization (2018). Seguridad psicológica.</p>
+    <p><strong>Carl Rogers</strong> — On Becoming a Person (1961).</p>
+    <p><strong>Michael Bungay Stanier</strong> — The Coaching Habit (2016), The Advice Trap (2020).</p>
+    <p><strong>Sir John Whitmore</strong> — Coaching for Performance (1992). Modelo GROW.</p>
+    <p><strong>Daniel Pink</strong> — Drive (2009). Autonomía, maestría, propósito.</p>
+    <p><strong>Deci &amp; Ryan</strong> — Teoría de la Autodeterminación.</p>
+    <p><strong>Daniel Goleman</strong> — Inteligencia emocional (1995).</p>
+    <p><strong>Martin Seligman</strong> — Aprenda optimismo · La vida que florece (PERMA).</p>
+    <p><strong>Gallup</strong> — Q12 y CliftonStrengths.</p>
+    <p><strong>Shelly Gable</strong> — Respuesta activo-constructiva.</p>
+    <p><strong>Robert Greenleaf</strong> — Servant Leadership (1977).</p>
+    <p><strong>Kim Scott</strong> — Radical Candor (2017).</p>
+    <p><strong>Center for Creative Leadership</strong> — Modelo SBI.</p>
+    <p><strong>Marshall Goldsmith</strong> — Feedforward.</p>
+    <p><strong>Datos de onboarding</strong> — Gallup, SHRM, estudio Microsoft «buddy» (HBR, 2019).</p>
+  </div>
+  <p style="margin-top:28px;font-size:12px">Odoo I+D+E Spain · Guía del Coach · acompañamiento de los primeros 6 meses · documento de trabajo interno.</p>
+</footer>
+
+<button class="printbtn" onclick="window.print()"><span>Imprimir / Guardar PDF</span></button>
+
+<script>
+const navProgress=document.getElementById('navProgress');
+window.addEventListener('scroll',()=>{navProgress.style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'});
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-200)cur=s.id});navLinks.forEach(l=>{l.classList.remove('active');if(l.getAttribute('href')==='#'+cur)l.classList.add('active')})});
+const observer=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);observer.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();document.querySelector(this.getAttribute('href'))?.scrollIntoView({behavior:'smooth'})})});
+</script>
+
+<!-- MODAL DE VÍDEO -->
+<div class="vmodal" id="vmodal">
+  <div class="vmodal-box">
+    <div class="vmodal-head"><h4>Charla</h4><button class="close" aria-label="Cerrar">×</button></div>
+    <div class="vmodal-frame"></div>
+  </div>
+</div>
+<div class="userchip" id="userChip"><span class="dot"></span>Formación · <span class="uname"></span></div>
+
+<script>
+/* ===== Config plataforma ===== */
+// Para tracking real entre usuarios, pega aquí la URL del Web App de Google Apps Script (cuenta Odoo).
+// Vacío = solo se guarda en este navegador (modo demo, visible en dashboard.html).
+const TRACK_URL = "";
+const APP_ID = "coach-odoo-ide";
+
+/* ===== Tracking ===== */
+function nowISO(){return new Date().toISOString()}
+function sid(){let s=sessionStorage.getItem('coach_sid');if(!s){s='s_'+Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('coach_sid',s)}return s}
+let USER=null;try{USER=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
+function track(ev,data){
+  const rec={app:APP_ID,sid:sid(),email:USER?USER.email:null,name:USER?USER.name:null,ev:ev,data:data||{},ts:nowISO(),path:location.pathname};
+  try{const arr=JSON.parse(localStorage.getItem('coach_events')||'[]');arr.push(rec);localStorage.setItem('coach_events',JSON.stringify(arr.slice(-3000)))}catch(e){}
+  if(TRACK_URL){try{navigator.sendBeacon(TRACK_URL,new Blob([JSON.stringify(rec)],{type:'text/plain'}))}catch(e){}}
+}
+
+/* ===== Registro ===== */
+const overlay=document.getElementById('regOverlay');
+function showChip(){const c=document.getElementById('userChip');if(c&&USER){c.style.display='flex';c.querySelector('.uname').textContent=(USER.name||'').split(' ')[0]}}
+function unlock(){document.body.classList.remove('locked');overlay.classList.add('hide')}
+if(USER){unlock();showChip();track('page_open',{title:document.title})}else{document.body.classList.add('locked')}
+document.getElementById('regForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const n=document.getElementById('regName').value.trim();
+  const m=document.getElementById('regMail').value.trim();
+  const c=document.getElementById('regConsent').checked;
+  const err=document.getElementById('regErr');
+  if(n.length<2){err.textContent='Escribe tu nombre.';return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){err.textContent='Escribe un email válido.';return}
+  if(!c){err.textContent='Marca el consentimiento para continuar.';return}
+  USER={name:n,email:m,at:nowISO()};localStorage.setItem('coach_user',JSON.stringify(USER));
+  track('register',{name:n,email:m});track('page_open',{title:document.title});
+  unlock();showChip();
+});
+
+/* ===== Modal de vídeo ===== */
+const vm=document.getElementById('vmodal');let vOpen=null;
+function openVideo(id,title){
+  vm.querySelector('.vmodal-frame').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0&autoplay=1&modestbranding=1" title="'+(title||'')+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  vm.querySelector('h4').textContent=title||'Charla';
+  vm.classList.add('open');vOpen={id:id,title:title,start:Date.now()};
+  track('video_open',{id:id,title:title});
+}
+function closeVideo(){
+  if(vOpen){track('video_watch',{id:vOpen.id,title:vOpen.title,seconds:Math.round((Date.now()-vOpen.start)/1000)});vOpen=null}
+  vm.classList.remove('open');vm.querySelector('.vmodal-frame').innerHTML='';
+}
+vm.querySelector('.close').addEventListener('click',closeVideo);
+vm.addEventListener('click',e=>{if(e.target===vm)closeVideo()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&vm.classList.contains('open'))closeVideo()});
+document.addEventListener('click',function(e){
+  const b=e.target.closest('.rsrc[data-yt]');
+  if(b){e.preventDefault();openVideo(b.getAttribute('data-yt'),b.getAttribute('data-title'));return}
+  const lk=e.target.closest('a.rsrc, a.chip');
+  if(lk){track('link_click',{label:(lk.textContent||'').trim().slice(0,60),href:lk.getAttribute('href')})}
+});
+
+/* ===== Recursos por técnica: charla (popup) + libro (Amazon) ===== */
+const RES={
+ "Círculo de Seguridad":{yt:"lmyZMtPVodo",book:"Los líderes comen al final — Simon Sinek"},
+ "Cuenta Bancaria Emocional":{yt:"yOVWn8kE2rw",book:"Los 7 hábitos de la gente altamente efectiva — Stephen Covey"},
+ "Su nombre y su mundo":{yt:"sdqA7VX_-5c",book:"Cómo ganar amigos e influir sobre las personas — Dale Carnegie"},
+ "Empatía sin «al menos»":{yt:"1Evwgu369Jw",book:"El poder de ser vulnerable — Brené Brown"},
+ "No interrumpas nunca":{yt:"GmC82ZBBgFg",book:"Tiempo para pensar — Nancy Kline"},
+ "Entender antes de ser entendido":{yt:"yOVWn8kE2rw",book:"Los 7 hábitos de la gente altamente efectiva — Stephen Covey"},
+ "Baja al juez interior":{yt:"6O9y7vJPEOA",book:"El juego interior del tenis — Timothy Gallwey"},
+ "«¿Y qué más?»":{yt:"5gVTwb3ebAI",book:"El hábito Coaching — Michael Bungay Stanier"},
+ "El modelo GROW":{yt:"iyCroYn3Zr8",book:"Coaching: el método para mejorar el rendimiento de las personas — John Whitmore"},
+ "Las 6 Necesidades Humanas":{yt:"nf4oROvpp90",book:"Despertando al gigante interior — Tony Robbins"},
+ "Mueve el cuerpo, cambia el estado":{yt:"nf4oROvpp90",book:"Despertando al gigante interior — Tony Robbins"},
+ "Cambia la pregunta":{yt:"nf4oROvpp90",book:"Despertando al gigante interior — Tony Robbins"},
+ "Regla de los 5 segundos":{yt:"Lp7E973zozc",book:"El poder de los 5 segundos — Mel Robbins"},
+ "El poder del «todavía»":{yt:"_X0mgOOSpLU",book:"Mindset: la actitud del éxito — Carol Dweck"},
+ "El «para qué» que sostiene":{yt:"sd-1CjhbYPQ",book:"El hombre en busca de sentido — Viktor Frankl"},
+ "Empieza por su porqué":{yt:"qp0HIF3SfI4",book:"Empieza con el porqué — Simon Sinek"},
+ "Las 3 P ante el rechazo":{yt:"9FBxfd7DL3E",book:"Aprenda optimismo — Martin Seligman"},
+ "Liderar sin cargo":{yt:"a6HoSGXg4Z0",book:"El líder que no tenía cargo — Robin Sharma"},
+ "El 1% diario":{yt:"a6HoSGXg4Z0",book:"El Club de las 5 de la mañana — Robin Sharma"},
+ "¿Víctima o líder?":{yt:"a6HoSGXg4Z0",book:"El líder que no tenía cargo — Robin Sharma"},
+ "Conecta antes de guiar":{yt:"r_77uBbYhUg",book:"Los 5 niveles de liderazgo — John C. Maxwell"},
+ "La media de cinco":{yt:"Da0HgFxmADg",book:"Las 7 estrategias para alcanzar riqueza y felicidad — Jim Rohn"},
+ "Sírvele primero":{yt:"QA4gwXauNEU",book:"Nos vemos en la cumbre — Zig Ziglar"},
+ "Claridad y coraje":{yt:"pmxNHw8e1Fc",book:"Hábitos de alto rendimiento — Brendon Burchard"},
+ "Feedforward":{yt:"3WBeGAAYWg8",book:"Un nuevo impulso — Marshall Goldsmith"},
+ "Evita la empatía ruinosa":{yt:"vmxHUiiHgNk",book:"Sinceridad radical (Radical Candor) — Kim Scott"}
+};
+function amz(q){return "https://www.amazon.es/s?k="+encodeURIComponent(q)}
+document.querySelectorAll('#expertos .card').forEach(function(card){
+  const h=card.querySelector('h3');if(!h)return;
+  const key=h.textContent.trim();const r=RES[key];if(!r)return;
+  let info='';const src=card.querySelector('a.src');
+  if(src){info='<a class="rsrc" href="'+src.getAttribute('href')+'" target="_blank" rel="noopener">Ficha ↗</a>';src.remove()}
+  const row=document.createElement('div');row.className='rsrc-row';
+  row.innerHTML='<button class="rsrc play" data-yt="'+r.yt+'" data-title="'+key.replace(/"/g,'')+'">Ver la charla</button>'+
+    '<a class="rsrc book" href="'+amz(r.book)+'" data-title="'+r.book.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">Libro en Amazon ↗</a>'+info;
+  card.appendChild(row);
+});
+
+/* ===== ADN del coachee ===== */
+(function(){
+  const f=document.getElementById('dnaForm');if(!f)return;
+  const F={name:'dnaName',start:'dnaStart',cartera:'dnaCartera',terr:'dnaTerr',strengths:'dnaStrengths',improve:'dnaImprove',goals:'dnaGoals',profile:'dnaProfile'};
+  let d={};try{d=JSON.parse(localStorage.getItem('coach_dna')||'{}')}catch(e){}
+  Object.keys(F).forEach(function(k){const el=document.getElementById(F[k]);if(el&&d[k]!=null)el.value=d[k]});
+  if(d.tier){const t=document.querySelector('input[name=dnaTier][value="'+d.tier+'"]');if(t)t.checked=true}
+  f.addEventListener('submit',function(e){e.preventDefault();const out={};Object.keys(F).forEach(function(k){const el=document.getElementById(F[k]);out[k]=el?el.value:''});const tr=document.querySelector('input[name=dnaTier]:checked');out.tier=tr?tr.value:'';localStorage.setItem('coach_dna',JSON.stringify(out));document.getElementById('dnaSaved').textContent='ADN guardado.';track('dna_saved',{coachee:out.name,tier:out.tier});setTimeout(function(){document.getElementById('dnaSaved').textContent=''},2500)});
+  document.getElementById('dnaClear').addEventListener('click',function(){f.reset();localStorage.removeItem('coach_dna');document.getElementById('dnaSaved').textContent='Vaciado.';setTimeout(function(){document.getElementById('dnaSaved').textContent=''},2000)});
+})();
+
+/* ===== Biblioteca (Avanzado) ===== */
+(function(){const shelf=document.getElementById('bookshelf');if(!shelf)return;const seenB=new Set();Object.keys(RES).forEach(function(k){const r=RES[k];if(seenB.has(r.book))return;seenB.add(r.book);const parts=r.book.split(' — ');const a=document.createElement('a');a.className='card';a.href=amz(r.book);a.target='_blank';a.rel='noopener';a.style.textDecoration='none';a.style.display='block';a.innerHTML='<h4 style="color:var(--text-dark);margin-bottom:2px;font-size:15px">'+parts[0]+'</h4><p style="font-size:12.5px;color:var(--text-muted);margin:0">'+(parts[1]||'')+'</p><p style="font-size:12px;color:var(--odoo-gold);margin-top:8px;font-weight:600">Ver en Amazon ↗</p>';a.addEventListener('click',function(){track('book_click',{title:r.book})});shelf.appendChild(a)})})();
+
+/* ===== Vistas de sección + tiempo ===== */
+const seenSec=new Set();
+const secObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){const id=en.target.id;if(id&&!seenSec.has(id)){seenSec.add(id);track('section_view',{id:id})}}})},{threshold:0.4});
+document.querySelectorAll('section[id]').forEach(s=>secObs.observe(s));
+let secs=0;setInterval(function(){if(!document.hidden&&USER){secs+=15}},15000);
+window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{seconds:secs})});
+</script>
+</body>
+</html>
