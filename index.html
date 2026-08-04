@@ -289,6 +289,43 @@ body{-webkit-user-select:none;-moz-user-select:none;user-select:none}
 input,textarea,.cbub{-webkit-user-select:text;user-select:text}
 img,svg,video{-webkit-user-drag:none}
 @media print{body{visibility:hidden!important}html::after{content:"Contenido protegido · Formación Brandooers para Odoo";position:fixed;top:40px;left:40px;font:600 16px Inter,sans-serif;color:#000;visibility:visible}}
+/* Menú lateral plegable */
+.nav-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#8B5CF6,#EC4899);z-index:60;transition:width .15s}
+.menu-fab{position:fixed;top:16px;left:16px;z-index:70;width:46px;height:46px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:grid;place-items:center}
+.menu-fab svg{width:22px;height:22px;stroke:var(--text-dark);fill:none;stroke-width:2;stroke-linecap:round}
+.sidenav-ov{position:fixed;inset:0;background:rgba(45,45,45,.35);z-index:80;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(3px)}
+.sidenav-ov.open{opacity:1;pointer-events:auto}
+.sidenav{position:fixed;top:0;left:0;bottom:0;width:290px;max-width:85%;z-index:85;background:var(--bg-white);border-right:1px solid var(--border);transform:translateX(-102%);transition:transform .35s cubic-bezier(.23,1,.32,1);display:flex;flex-direction:column;box-shadow:4px 0 32px rgba(0,0,0,.08)}
+.sidenav.open{transform:none}
+.sidenav-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 16px 12px;border-bottom:1px solid var(--border-light)}
+.sn-close{background:none;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;line-height:1}
+.sidenav .nav-links{display:flex;flex-direction:column;gap:2px;padding:12px;overflow-y:auto;flex:1;list-style:none;margin:0}
+.sidenav .nav-links li{margin:0}
+.sidenav .nav-links a{display:block;padding:11px 14px;border-radius:10px;color:var(--text-body);font-size:14.5px;font-weight:500;text-decoration:none;background:none}
+.sidenav .nav-links a:hover,.sidenav .nav-links a.active{background:var(--bg-warm);color:var(--odoo-primary)}
+.sidenav-foot{padding:12px 16px;border-top:1px solid var(--border-light);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+/* Slider storytelling */
+.story{position:relative;overflow:hidden;border-radius:22px;box-shadow:var(--shadow-md)}
+.story-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.story-slide{min-width:100%;box-sizing:border-box;padding:52px 48px 66px;color:#fff;min-height:330px;display:flex;flex-direction:column;justify-content:center}
+.story-slide .ch{font-family:'Caveat',cursive;font-size:24px;font-weight:700;opacity:.92;margin-bottom:4px}
+.story-slide h3{font-size:clamp(26px,4.2vw,42px);font-weight:800;line-height:1.1;margin:0 0 14px;max-width:16ch;color:#fff}
+.story-slide p{font-size:16.5px;line-height:1.6;max-width:52ch;margin:0 0 22px;opacity:.95;color:#fff}
+.story-slide .more{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);color:#fff;text-decoration:none;padding:11px 20px;border-radius:100px;font-weight:600;font-size:14px;width:max-content;transition:all .2s}
+.story-slide .more:hover{background:#fff;color:#2D2D2D}
+.story-nav{position:absolute;bottom:22px;right:24px;display:flex;gap:8px;z-index:2}
+.story-nav button{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.14);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.story-nav button:hover{background:#fff;color:#2D2D2D}
+.story-dots{position:absolute;bottom:32px;left:48px;display:flex;gap:7px;z-index:2}
+.story-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:all .25s}
+.story-dots i.on{background:#fff;width:22px;border-radius:5px}
+@media(max-width:700px){.story-slide{padding:38px 24px 60px;min-height:auto}.story-dots{left:24px}}
+/* Panel Mis intereses */
+.icard{background:var(--bg-white);border:1px solid var(--border-light);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow-sm)}
+.icard .ic-t{font-size:13.5px;color:var(--text-dark);font-weight:600;margin-bottom:8px;line-height:1.4}
+.int-grp{font-family:'Caveat',cursive;font-size:20px;font-weight:600;color:var(--odoo-primary);margin:12px 4px 8px}
+.int-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 2px}
+.int-chip{font-size:11.5px;background:var(--bg-warm);border:1px solid var(--border);border-radius:100px;padding:4px 10px;color:var(--text-body)}
 
 @media(max-width:800px){
   section{padding:80px 20px 40px}
@@ -342,12 +379,18 @@ img,svg,video{-webkit-user-drag:none}
 <radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
 </defs></svg>
 
-<nav>
+<div class="nav-progress" id="navProgress"></div>
+<button class="menu-fab" id="menuFab" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+<div class="sidenav-ov" id="sideOv"></div>
+<aside class="sidenav" id="sideNav">
+  <div class="sidenav-head">
   <div class="logo-lockup" style="flex-direction:row;align-items:center;gap:9px">
     <span class="brandooers-logo" style="font-size:18px">Brand<svg class="beyes" width="46" height="26" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g></svg>ers</span>
     <span style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)">para Odooers</span>
+  </div><button class="sn-close" id="snClose" aria-label="Cerrar">×</button>
   </div>
   <ul class="nav-links">
+    <li><a href="#" id="navInt" style="color:var(--odoo-gold);font-weight:700">Mis intereses</a></li>
     <li><a href="#inicio" class="active">Inicio</a></li>
     <li><a href="#explora">Explora</a></li>
     <li><a href="#rol">El rol</a></li>
@@ -363,8 +406,8 @@ img,svg,video{-webkit-user-drag:none}
     <li><a href="#chuleta">Chuleta</a></li>
     <li><a href="#avanzado">Avanzado</a></li>
   </ul>
-  <div class="nav-progress" id="navProgress"></div>
-</nav>
+  <div class="sidenav-foot">Investigación y desarrollo de expertos</div>
+</aside>
 
 <!-- HERO -->
 <section class="hero" id="inicio">
@@ -389,14 +432,33 @@ img,svg,video{-webkit-user-drag:none}
     <h2 class="section-title">¿Por dónde quieres empezar?</h2>
     <p class="section-desc">Toda la formación, organizada por bloques. Entra directo a lo que necesitas hoy; cada bloque tiene sus técnicas, vídeos y recursos para expandir. Y si tienes una duda, abre «Pregunta a un experto» abajo a la derecha.</p>
   </div>
-  <div class="hub reveal">
-    <a class="hub-card" href="#rol" style="--c:#714B67"><div class="hub-num">01</div><h3>Antes de empezar</h3><p>Tu papel como coach y el ADN de tu coachee: quién es, sus fortalezas y sus objetivos.</p><span class="go">El rol · ADN →</span></a>
-    <a class="hub-card" href="#perfil" style="--c:#017E84"><div class="hub-num">02</div><h3>ADN y personalidades</h3><p>Eneagrama, DISC y colores, ventana de Johari, zonas, rueda de emociones e Ikigai, con tests.</p><span class="go">Conócele →</span></a>
-    <a class="hub-card" href="#pilares" style="--c:#E4A900"><div class="hub-num">03</div><h3>Liderazgo</h3><p>Los 4 pilares y las técnicas de Sinek, Robbins, Sharma, Covey, Maxwell y compañía.</p><span class="go">Técnicas →</span></a>
-    <a class="hub-card" href="#herramientas" style="--c:#E46E78"><div class="hub-num">04</div><h3>Coaching práctico</h3><p>Las 7 preguntas, la escucha, el apoyo emocional, las situaciones típicas y los errores.</p><span class="go">Herramientas →</span></a>
-    <a class="hub-card" href="#rutinas" style="--c:#21B799"><div class="hub-num">05</div><h3>Organización y rutinas</h3><p>Priming, 20/20/20, cómete la rana, matriz de Eisenhower, Pomodoro, hábitos atómicos.</p><span class="go">Rutinas →</span></a>
-    <a class="hub-card" href="#calendario" style="--c:#5B899E"><div class="hub-num">06</div><h3>Seguimiento</h3><p>El calendario de los 6 meses, las metas de integración, las plantillas y la chuleta.</p><span class="go">Calendario →</span></a>
+  <div class="story reveal" id="story">
+    <div class="story-track" id="storyTrack">
+      <div class="story-slide" style="background:linear-gradient(135deg,#4C1D95,#7C3AED)"><div class="ch">Capítulo 1</div><h3>Primero, sé tú quien da la bienvenida</h3><p>Tu trabajo no es enseñarle a vender, es que no se sienta solo. Empieza por definir su ADN: quién es, sus fortalezas y sus objetivos.</p><a class="more" href="#rol">Conocer más →</a></div>
+      <div class="story-slide" style="background:linear-gradient(135deg,#0E7490,#017E84)"><div class="ch">Capítulo 2</div><h3>Conócele antes de guiarle</h3><p>Su eneatipo, su color DISC, en qué zona está. Saber quién es te dice cómo hablarle, qué le motiva y por dónde acompañarle.</p><a class="more" href="#perfil">Conocer más →</a></div>
+      <div class="story-slide" style="background:linear-gradient(135deg,#B45309,#E4A900)"><div class="ch">Capítulo 3</div><h3>Lidera con lo que dicen los grandes</h3><p>Sinek, Robbins, Sharma, Covey, Maxwell… técnicas con nombre y apellidos, con su charla y su libro, listas para el día a día.</p><a class="more" href="#pilares">Conocer más →</a></div>
+      <div class="story-slide" style="background:linear-gradient(135deg,#BE123C,#E46E78)"><div class="ch">Capítulo 4</div><h3>Ten la caja de herramientas a mano</h3><p>Las 7 preguntas mágicas, la escucha de verdad y el apoyo emocional para cuando aprieta. Método, no improvisación.</p><a class="more" href="#herramientas">Conocer más →</a></div>
+      <div class="story-slide" style="background:linear-gradient(135deg,#047857,#21B799)"><div class="ch">Capítulo 5</div><h3>Organiza el día para que rinda</h3><p>Rutinas y foco: priming, 20/20/20, cómete la rana, Pomodoro, hábitos atómicos. Lo práctico que también le enseñas a él.</p><a class="more" href="#rutinas">Conocer más →</a></div>
+      <div class="story-slide" style="background:linear-gradient(135deg,#334155,#5B899E)"><div class="ch">Capítulo 6</div><h3>Acompaña los 6 meses con un plan</h3><p>El calendario, las metas de integración y las plantillas para no perder el hilo hasta el salto a Partner Manager.</p><a class="more" href="#calendario">Conocer más →</a></div>
+    </div>
+    <div class="story-dots" id="storyDots"></div>
+    <div class="story-nav"><button id="storyPrev" aria-label="Anterior">‹</button><button id="storyNext" aria-label="Siguiente">›</button></div>
   </div>
+  <script>
+  (function(){
+    var fab=document.getElementById('menuFab'),ov=document.getElementById('sideOv'),sn=document.getElementById('sideNav'),cl=document.getElementById('snClose');
+    function op(){sn&&sn.classList.add('open');ov&&ov.classList.add('open')}function cls(){sn&&sn.classList.remove('open');ov&&ov.classList.remove('open')}
+    if(fab)fab.onclick=op;if(ov)ov.onclick=cls;if(cl)cl.onclick=cls;
+    if(sn)sn.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',cls)});
+    var track=document.getElementById('storyTrack');if(!track)return;var slides=track.children.length,i=0;
+    var dots=document.getElementById('storyDots');for(var d=0;d<slides;d++){(function(x){var el=document.createElement('i');el.onclick=function(){go(x);rs()};dots.appendChild(el)})(d)}
+    function go(n){i=(n+slides)%slides;track.style.transform='translateX(-'+(i*100)+'%)';var ds=dots.children;for(var k=0;k<ds.length;k++)ds[k].className=(k===i?'on':'');}
+    document.getElementById('storyPrev').onclick=function(){go(i-1);rs()};document.getElementById('storyNext').onclick=function(){go(i+1);rs()};
+    var timer=setInterval(function(){go(i+1)},6500);function rs(){clearInterval(timer);timer=setInterval(function(){go(i+1)},6500)}
+    var story=document.getElementById('story');story.onmouseenter=function(){clearInterval(timer)};story.onmouseleave=rs;
+    go(0);
+  })();
+  </script>
 </section>
 
 <!-- 1. EL ROL -->
@@ -1633,6 +1695,17 @@ window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{se
 })();
 </script>
 
+<!-- PANEL MIS INTERESES -->
+<button class="agent-fab" id="intFab" style="bottom:80px;background:var(--odoo-gold)">Mis intereses</button>
+<div class="agent-overlay" id="intOv"></div>
+<div class="agent-panel" id="intPanel">
+  <div class="agent-view">
+    <div class="agent-ph"><h3>Mis intereses</h3><button id="intClose">×</button></div>
+    <div class="agent-list" id="intList"></div>
+    <div class="agent-note">Todo lo que has descubierto en esta sesión. Vuelve cuando quieras a repasarlo.</div>
+  </div>
+</div>
+
 <!-- PANEL DE EXPERTOS -->
 <button class="agent-fab" id="agentFab">Pregunta a un experto</button>
 <div class="agent-overlay" id="agentOverlay"></div>
@@ -1691,14 +1764,49 @@ const EXPERTS=[
    if(rel.length>=2)return rel.slice(0,4).join('. ')+'.';if(rel.length===1)return rel[0]+'.';
    return 'Buena pregunta. Cuéntamela con alguna palabra clave (motivación, escucha, feedback, eneatipo, zona, rutina, priorizar…) y te doy lo más útil. De momento, la base: '+sents.slice(0,2).join('. ')+'.';}
  function jsonpChat(url,done){var s=document.createElement('script');var n='__gcb'+Date.now();window[n]=function(d){done(d);try{delete window[n]}catch(e){}s.remove()};s.onerror=function(){done(null);s.remove()};s.src=url+(url.indexOf('?')>-1?'&':'?')+'callback='+n;document.body.appendChild(s);setTimeout(function(){if(window[n]){done(null);try{delete window[n]}catch(e){}}},22000);}
+ function suggestRes(q){var ql=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');var ws=ql.split(/[^a-z0-9ñ]+/).filter(function(w){return w.length>4});var out=[];for(var key in RES){var hay=(key+' '+RES[key].book).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');for(var wi=0;wi<ws.length;wi++){if(hay.indexOf(ws[wi])>-1){out.push({k:key,r:RES[key]});break}}if(out.length>=2)break}return out}
+ function addRecs(q){var recs=suggestRes(q);if(!recs.length)return;var rh='<div style="font-size:12px;opacity:.85;margin-bottom:4px">Recursos originales para profundizar:</div>';recs.forEach(function(x){rh+='<div style="margin-top:8px"><strong>'+x.k+'</strong><br><button class="rsrc play" data-yt="'+x.r.yt+'" data-title="'+x.k.replace(/"/g,'')+'">Ver la charla</button> <a class="rsrc book" href="'+amz(x.r.book)+'" data-title="'+x.r.book.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">Libro ↗</a></div>'});add('a',rh)}
  function send(){var t=input.value.trim();if(!t||!cur)return;add('user',t.replace(/</g,'&lt;'));input.value='';input.style.height='auto';track('chat_question',{expert:cur.id,q:t.slice(0,140)});
    var typing=document.createElement('div');typing.className='cmsg';typing.innerHTML='<div class="cbub a">…</div>';msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
-   if(CHAT_URL){jsonpChat(CHAT_URL+'?expert='+encodeURIComponent(cur.id)+'&q='+encodeURIComponent(t),function(d){typing.remove();var a=(d&&d.answer)?String(d.answer):reply(cur,t);add('a',a.replace(/</g,'&lt;').replace(/\n/g,'<br>'))});}
-   else{setTimeout(function(){typing.remove();add('a',reply(cur,t))},550);}}
+   if(CHAT_URL){jsonpChat(CHAT_URL+'?expert='+encodeURIComponent(cur.id)+'&q='+encodeURIComponent(t),function(d){typing.remove();var a=(d&&d.answer)?String(d.answer):reply(cur,t);add('a',a.replace(/</g,'&lt;').replace(/\n/g,'<br>'));addRecs(t)});}
+   else{setTimeout(function(){typing.remove();add('a',reply(cur,t));addRecs(t)},550);}}
  fab.onclick=openP;ov.onclick=closeP;document.getElementById('agentClose').onclick=closeP;document.getElementById('agentClose2').onclick=closeP;
  document.getElementById('agentBack').onclick=showList;document.getElementById('chatSend').onclick=send;
  input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,90)+'px'});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&panel.classList.contains('open'))closeP()});
+})();
+</script>
+
+<script>
+/* ===== Panel Mis intereses ===== */
+(function(){
+ var fab=document.getElementById('intFab'),ov=document.getElementById('intOv'),panel=document.getElementById('intPanel'),cl=document.getElementById('intClose'),listEl=document.getElementById('intList'),navInt=document.getElementById('navInt');
+ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+ function render(){
+  var ev=[];try{ev=JSON.parse(localStorage.getItem('coach_events')||'[]')}catch(e){}
+  var me=(typeof USER!=='undefined'&&USER)?USER.email:null;
+  ev=ev.filter(function(e){return !me||e.email===me});
+  var vids={},res={},qs=[],secs={};
+  ev.forEach(function(e){var d=e.data||{};
+   if(e.ev==='video_open'&&d.id)vids[d.id]={id:d.id,title:d.title||d.id};
+   if((e.ev==='book_click'||e.ev==='link_click')){var lab=d.title||d.label;if(lab)res[lab]={label:lab,href:d.href||''}}
+   if(e.ev==='chat_question'&&d.q)qs.push(d.q);
+   if(e.ev==='section_view'&&d.id)secs[d.id]=1;
+  });
+  var h='',vk=Object.keys(vids);
+  if(vk.length){h+='<div class="int-grp">Charlas vistas</div>';vk.forEach(function(k){var v=vids[k];h+='<div class="icard"><div class="ic-t">'+esc(v.title)+'</div><button class="rsrc play" data-yt="'+v.id+'" data-title="'+esc(v.title)+'">Volver a verla</button></div>'})}
+  var rk=Object.keys(res);
+  if(rk.length){h+='<div class="int-grp">Recursos y libros</div>';rk.forEach(function(k){var r=res[k];h+='<div class="icard"><div class="ic-t">'+esc(r.label)+'</div>'+(r.href?'<a class="rsrc" href="'+esc(r.href)+'" target="_blank" rel="noopener">Abrir ↗</a>':'')+'</div>'})}
+  if(qs.length){h+='<div class="int-grp">Tus preguntas</div>';qs.slice(-12).reverse().forEach(function(q){h+='<div class="icard"><div class="ic-t">'+esc(q)+'</div></div>'})}
+  var sk=Object.keys(secs);
+  if(sk.length){h+='<div class="int-grp">Secciones exploradas</div><div class="int-chips">';sk.forEach(function(s){h+='<span class="int-chip">'+esc(s)+'</span>'});h+='</div>'}
+  if(!h)h='<p class="agent-intro">Aún no has descubierto nada. Abre charlas, recursos o pregunta a un experto y aquí quedará tu ruta.</p>';
+  listEl.innerHTML=h;
+ }
+ function op(){render();panel.classList.add('open');ov.classList.add('open');try{track('interests_open',{})}catch(e){}}
+ function cls(){panel.classList.remove('open');ov.classList.remove('open')}
+ if(fab)fab.onclick=op;if(ov)ov.onclick=cls;if(cl)cl.onclick=cls;
+ if(navInt)navInt.addEventListener('click',function(e){e.preventDefault();var sn=document.getElementById('sideNav'),so=document.getElementById('sideOv');if(sn)sn.classList.remove('open');if(so)so.classList.remove('open');op()});
 })();
 </script>
 
