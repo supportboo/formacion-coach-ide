@@ -328,6 +328,29 @@ img,svg,video{-webkit-user-drag:none}
 .int-chip{font-size:11.5px;background:var(--bg-warm);border:1px solid var(--border);border-radius:100px;padding:4px 10px;color:var(--text-body)}
 .dna-cta{display:inline-block;background:#fff;color:#4C1D95;text-decoration:none;padding:14px 30px;border-radius:100px;font-weight:700;font-size:16px;box-shadow:0 8px 26px rgba(0,0,0,.22);transition:transform .2s}
 .dna-cta:hover{transform:translateY(-2px)}
+/* Rail de iconos lateral */
+.rail{position:fixed;top:0;left:0;bottom:0;z-index:70;width:66px;background:var(--bg-white);border-right:1px solid var(--border-light);display:flex;flex-direction:column;padding:6px 0 10px;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:1px 0 14px rgba(0,0,0,.04)}
+.rail:hover,.rail.open{width:242px}
+.rail-top{display:flex;align-items:center;min-height:46px;padding:8px 16px 8px 19px;overflow:hidden}
+.rail-top .brandooers-logo{opacity:0;transition:opacity .2s;white-space:nowrap}
+.rail:hover .rail-top .brandooers-logo,.rail.open .rail-top .brandooers-logo{opacity:1}
+.rail-items{display:flex;flex-direction:column;gap:2px;padding:6px 10px;flex:1;overflow-y:auto;overflow-x:hidden}
+.rail-item{display:flex;align-items:center;gap:15px;padding:10px 12px;border-radius:11px;color:var(--text-body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.rail-item:hover{background:var(--bg-warm)}
+.rail-item.active{background:rgba(113,75,103,.08);color:var(--odoo-primary)}
+.rail-item .ri-ic{flex-shrink:0;width:22px;height:22px;display:grid;place-items:center}
+.rail-item .ri-ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail-item .ri-lb{font-size:14px;font-weight:500;opacity:0;transition:opacity .18s}
+.rail:hover .rail-item .ri-lb,.rail.open .rail-item .ri-lb{opacity:1}
+.rail-item.gold{color:var(--odoo-gold)}
+.rail-item.teal{color:var(--odoo-secondary)}
+.rail-sep{height:1px;background:var(--border-light);margin:8px 10px}
+.rail-burger{position:fixed;top:14px;left:12px;z-index:75;width:44px;height:44px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:none;place-items:center}
+.rail-burger svg{width:22px;height:22px;stroke:var(--text-dark)}
+.rail-ov{position:fixed;inset:0;background:rgba(45,45,45,.3);z-index:69;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
+.rail-ov.open{opacity:1;pointer-events:auto}
+body{padding-left:66px}
+@media(max-width:900px){body{padding-left:0}.rail{transform:translateX(-100%);width:242px;transition:transform .3s}.rail.open{transform:none}.rail-burger{display:grid}}
 
 @media(max-width:800px){
   section{padding:80px 20px 40px}
@@ -382,33 +405,26 @@ img,svg,video{-webkit-user-drag:none}
 </defs></svg>
 
 <div class="nav-progress" id="navProgress"></div>
-<button class="menu-fab" id="menuFab" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
-<div class="sidenav-ov" id="sideOv"></div>
-<aside class="sidenav" id="sideNav">
-  <div class="sidenav-head">
-  <div class="logo-lockup" style="flex-direction:row;align-items:center;gap:9px">
-    <span class="brandooers-logo" style="font-size:18px">Brand<svg class="beyes" width="46" height="26" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g></svg>ers</span>
-    <span style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)">para Odooers</span>
-  </div><button class="sn-close" id="snClose" aria-label="Cerrar">×</button>
+<button class="rail-burger" id="railBurger" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+<div class="rail-ov" id="railOv"></div>
+<aside class="rail" id="rail">
+  <div class="rail-top">
+    <span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g></svg>ers</span>
   </div>
-  <ul class="nav-links">
-    <li><a href="#" id="navInt" style="color:var(--odoo-gold);font-weight:700">Mis intereses</a></li>
-    <li><a href="#inicio" class="active">Inicio</a></li>
-    <li><a href="#explora">Explora</a></li>
-    <li><a href="#rol">El rol</a></li>
-    <li><a href="#adn">ADN</a></li>
-    <li><a href="#pilares">Pilares</a></li>
-    <li><a href="#expertos">Técnicas</a></li>
-    <li><a href="#perfil">Perfil</a></li>
-    <li><a href="#herramientas">Herramientas</a></li>
-    <li><a href="#calendario">Calendario</a></li>
-    <li><a href="#metas">Metas</a></li>
-    <li><a href="#rutinas">Rutinas</a></li>
-    <li><a href="#plantillas">Plantillas</a></li>
-    <li><a href="#chuleta">Chuleta</a></li>
-    <li><a href="#avanzado">Avanzado</a></li>
-  </ul>
-  <div class="sidenav-foot">Investigación y desarrollo de expertos</div>
+  <div class="rail-items">
+    <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio · portada"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
+    <a class="rail-item" href="#explora" data-sec="explora" title="Explora las rutas del curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">Explora</span></a>
+    <a class="rail-item" href="#adn" data-sec="adn,rol,eres" title="El test de ADN y tu papel como coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 12.5l2.5 2.5 4-4"/></svg></span><span class="ri-lb">Test de ADN</span></a>
+    <a class="rail-item" href="#perfil" data-sec="perfil" title="Perfil y personalidades: eneagrama, DISC, zonas, Ikigai"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="ri-lb">Personalidades</span></a>
+    <a class="rail-item" href="#pilares" data-sec="pilares,expertos" title="Liderazgo: los 4 pilares y las técnicas de los autores"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Liderazgo</span></a>
+    <a class="rail-item" href="#herramientas" data-sec="herramientas,situaciones,errores" title="Coaching práctico: herramientas, situaciones y errores"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3l-6 6 3 3 6-6a4 4 0 0 0 5.3-5.3l-2.5 2.5-3-3z"/></svg></span><span class="ri-lb">Práctico</span></a>
+    <a class="rail-item" href="#rutinas" data-sec="rutinas" title="Rutinas y planificación del día"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ri-lb">Organización</span></a>
+    <a class="rail-item" href="#calendario" data-sec="calendario,metas,plantillas,chuleta" title="El plan de los 6 meses: calendario, metas y plantillas"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg></span><span class="ri-lb">Plan 6 meses</span></a>
+    <a class="rail-item" href="#avanzado" data-sec="avanzado,handoff" title="Biblioteca de libros y siguientes pasos"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 5v14"/></svg></span><span class="ri-lb">Avanzado</span></a>
+    <div class="rail-sep"></div>
+    <a class="rail-item gold" href="#" id="railInt" title="Mis intereses: lo que has descubierto"><span class="ri-ic"><svg viewBox="0 0 24 24"><polygon points="12 3 14.7 8.6 21 9.3 16.5 13.6 17.8 20 12 16.8 6.2 20 7.5 13.6 3 9.3 9.3 8.6"/></svg></span><span class="ri-lb">Mis intereses</span></a>
+    <a class="rail-item teal" href="#" id="railExpert" title="Pregunta a un experto (con IA)"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.5 7.2L4 20l1-4.2A8 8 0 1 1 20 12z"/></svg></span><span class="ri-lb">Pregunta a un experto</span></a>
+  </div>
 </aside>
 
 <!-- HERO -->
@@ -1805,6 +1821,24 @@ const EXPERTS=[
     if(k==='f12'){e.preventDefault();return false}
     if(e.ctrlKey&&e.shiftKey&&(k==='i'||k==='j'||k==='c')){e.preventDefault();return false}
   });
+})();
+</script>
+
+<script>
+/* ===== Rail de iconos ===== */
+(function(){
+  var rail=document.getElementById('rail'),burger=document.getElementById('railBurger'),ov=document.getElementById('railOv');
+  if(!rail)return;
+  function openM(){rail.classList.add('open');ov.classList.add('open')}
+  function closeM(){rail.classList.remove('open');ov.classList.remove('open')}
+  if(burger)burger.onclick=openM;if(ov)ov.onclick=closeM;
+  rail.querySelectorAll('a.rail-item').forEach(function(a){a.addEventListener('click',function(e){var h=a.getAttribute('href');if(h&&h.length>1&&h.charAt(0)==='#'){e.preventDefault();var t=document.querySelector(h);if(t)t.scrollIntoView({behavior:'smooth'})}closeM();});});
+  var ri=document.getElementById('railInt');if(ri)ri.addEventListener('click',function(e){e.preventDefault();closeM();var f=document.getElementById('intFab');if(f)f.click();});
+  var re=document.getElementById('railExpert');if(re)re.addEventListener('click',function(e){e.preventDefault();closeM();var f=document.getElementById('agentFab');if(f)f.click();});
+  var items=[].slice.call(rail.querySelectorAll('a.rail-item[data-sec]'));
+  var secs=[].slice.call(document.querySelectorAll('section[id]'));
+  function onScroll(){var cur='';secs.forEach(function(s){if(window.scrollY>=s.offsetTop-160)cur=s.id});items.forEach(function(it){var l=(it.getAttribute('data-sec')||'').split(',');it.classList.toggle('active',l.indexOf(cur)>-1)});}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 })();
 </script>
 </body>
