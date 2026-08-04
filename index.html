@@ -1768,7 +1768,10 @@ const EXPERTS=[
  function addRecs(q){var recs=suggestRes(q);if(!recs.length)return;var rh='<div style="font-size:12px;opacity:.85;margin-bottom:4px">Recursos originales para profundizar:</div>';recs.forEach(function(x){rh+='<div style="margin-top:8px"><strong>'+x.k+'</strong><br><button class="rsrc play" data-yt="'+x.r.yt+'" data-title="'+x.k.replace(/"/g,'')+'">Ver la charla</button> <a class="rsrc book" href="'+amz(x.r.book)+'" data-title="'+x.r.book.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">Libro ↗</a></div>'});add('a',rh)}
  function send(){var t=input.value.trim();if(!t||!cur)return;add('user',t.replace(/</g,'&lt;'));input.value='';input.style.height='auto';track('chat_question',{expert:cur.id,q:t.slice(0,140)});
    var typing=document.createElement('div');typing.className='cmsg';typing.innerHTML='<div class="cbub a">…</div>';msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
-   if(CHAT_URL){jsonpChat(CHAT_URL+'?expert='+encodeURIComponent(cur.id)+'&q='+encodeURIComponent(t),function(d){typing.remove();var a=(d&&d.answer)?String(d.answer):reply(cur,t);add('a',a.replace(/</g,'&lt;').replace(/\n/g,'<br>'));addRecs(t)});}
+   if(CHAT_URL){var ctx=hist[cur.id].slice(-5,-1).map(function(m){return (m.r==='user'?'Coach: ':'Experto: ')+String(m.t).replace(/<[^>]+>/g,'')}).join('\n').slice(0,1200);
+     jsonpChat(CHAT_URL+'?expert='+encodeURIComponent(cur.id)+'&ctx='+encodeURIComponent(ctx)+'&q='+encodeURIComponent(t),function(d){typing.remove();var a=(d&&d.answer)?String(d.answer):reply(cur,t);add('a',a.replace(/</g,'&lt;').replace(/\n/g,'<br>'));
+       if(d&&d.sources&&d.sources.length){var sh='<div style="font-size:12px;opacity:.85;margin-bottom:4px">Fuentes que ha encontrado:</div>';d.sources.forEach(function(s){sh+='<a class="rsrc" href="'+s.uri+'" target="_blank" rel="noopener" style="margin:2px 5px 0 0">'+String(s.title||'fuente').replace(/</g,'').slice(0,42)+' ↗</a> '});add('a',sh)}
+       addRecs(t)});}
    else{setTimeout(function(){typing.remove();add('a',reply(cur,t));addRecs(t)},550);}}
  fab.onclick=openP;ov.onclick=closeP;document.getElementById('agentClose').onclick=closeP;document.getElementById('agentClose2').onclick=closeP;
  document.getElementById('agentBack').onclick=showList;document.getElementById('chatSend').onclick=send;

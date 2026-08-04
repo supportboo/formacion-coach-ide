@@ -1,53 +1,66 @@
 /**
- * Brandooers · Chat de expertos con Gemini (proxy seguro)
- * ------------------------------------------------------
+ * Brandooers · Chat de expertos con Gemini + búsqueda web (proxy seguro)
+ * ---------------------------------------------------------------------
  * La web es pública, así que la clave de Gemini NO puede ir en el código.
  * Este proxy la guarda en el servidor (Propiedades del Script) y la web solo habla con el proxy.
+ * Además activa Google Search (grounding): Gemini busca en la web en tiempo real y devuelve fuentes.
  *
  * PASOS (con la cuenta de Google que tenga la API de Gemini):
- *  1. Apps Script nuevo (script.google.com → Nuevo proyecto). Pega TODO este archivo.
- *  2. Rueda dentada (Configuración del proyecto) → Propiedades del script → Añadir propiedad:
- *        Nombre:  GEMINI_API_KEY      Valor: (tu clave de Gemini)
+ *  1. script.google.com → Nuevo proyecto. Pega TODO este archivo.
+ *  2. Configuración del proyecto (rueda) → Propiedades del script → Añadir:
+ *        Nombre: GEMINI_API_KEY    Valor: (tu clave de Gemini)
  *  3. Implementar → Nueva implementación → Aplicación web.
  *        Ejecutar como: Yo · Quién tiene acceso: Cualquier usuario. Autoriza.
- *  4. Copia la URL que acaba en /exec y pégala en la constante CHAT_URL de index.html. Commit + push.
- *  Listo: el chat de expertos pasa a responder con Gemini, y la clave nunca sale del servidor.
+ *  4. Copia la URL /exec y pégala en la constante CHAT_URL de index.html. Commit + push.
+ *
+ * NOTA sobre "hosting": esto NO es un hosting ni un VPS. Es una función gratis de Google
+ * que solo sirve para no exponer la clave. La web sigue en GitHub Pages (gratis).
  */
 
-var MODEL = 'gemini-2.0-flash';
+var MODEL = 'gemini-flash-latest'; // modelo vigente; también valen gemini-2.5-flash o gemini-3.5-flash
 
-var BASE = ' Contexto: formación para coaches del equipo de Odoo que acompañan a personas nuevas durante sus primeros 6 meses (apoyo emocional y motivacional, NO operativa). Responde en español de España, cercano, práctico y breve (máximo 6 frases), con al menos un consejo accionable o una frase textual que el coach pueda decir. Si aparece sufrimiento emocional serio, recomienda escuchar sin diagnosticar y derivar a un profesional.';
+var BASE = ' Contexto: formación para coaches del equipo/ecosistema de Odoo (Odooers) que acompañan a personas nuevas en sus primeros 6 meses (apoyo emocional y motivacional, NO operativa). Responde en español de España, cercano, práctico y breve (máx 7 frases), con un consejo accionable o una frase textual que el coach pueda decir. Si te piden vídeos, artículos o estudios, busca fuentes reales y fiables (charlas TED, YouTube oficial, webs de los autores, papers). Si hay sufrimiento emocional serio, recomienda escuchar sin diagnosticar y derivar a un profesional.';
 
 var SYS = {
-  liderazgo: 'Eres un experto en liderazgo y acompañamiento, con el conocimiento de Simon Sinek (círculo de oro y círculo de seguridad), Robert Greenleaf (liderazgo de servicio), John Maxwell (conectar antes de guiar, 5 niveles), Stephen Covey (cuenta bancaria emocional, hábito 5), Kim Scott (franqueza radical, evitar la empatía ruinosa), Marshall Goldsmith (feedforward) y el modelo SBI.',
-  personalidades: 'Eres un experto en personalidades y perfiles: Eneagrama (los 9 tipos y cómo acompañar a cada uno), DISC y su versión en colores, ventana de Johari, las zonas de confort/aprendizaje/pánico, la rueda de emociones, el Ikigai y el Big Five. Ayudas al coach a entender y adaptar su acompañamiento sin encasillar a la persona.',
-  motivacion: 'Eres un experto en motivación y mente: Tony Robbins (6 necesidades humanas, el movimiento crea emoción, la calidad de las preguntas), Daniel Pink (autonomía, maestría, propósito), Deci y Ryan (autodeterminación), Carol Dweck (mentalidad de crecimiento y el poder del todavía), Viktor Frankl (el sentido como motor), Martin Seligman (las 3 P ante el rechazo) y Mel Robbins (regla de los 5 segundos).',
-  escucha: 'Eres un experto en escucha y conversación de coaching: Carl Rogers (aceptar y reflejar sin juzgar), Michael Bungay Stanier (preguntar más, ¿y qué más?, domar el monstruo del consejo), el modelo GROW, Nancy Kline (no interrumpir), los niveles de escucha, la regla 80/20 y validar antes de resolver.',
-  organizacion: 'Eres un experto en organización, foco y rutinas prácticas: Tony Robbins (priming), Robin Sharma (20/20/20 y el 1% diario), los 3 objetivos del día, Brian Tracy (cómete la rana), la matriz de Eisenhower, el método Ivy Lee, Cal Newport (time-blocking), la técnica Pomodoro y James Clear (hábitos atómicos). Nada esotérico: método práctico.'
+  liderazgo: 'Eres experto en liderazgo y acompañamiento (Simon Sinek, Greenleaf, John Maxwell, Stephen Covey, Kim Scott, Marshall Goldsmith, modelo SBI).',
+  personalidades: 'Eres experto en personalidades y perfiles (Eneagrama y sus 9 tipos, DISC y colores, ventana de Johari, zonas de confort/aprendizaje/pánico, rueda de emociones, Ikigai, Big Five). No encasillas a la persona.',
+  motivacion: 'Eres experto en motivación y mente (Tony Robbins, Daniel Pink, Deci y Ryan, Carol Dweck, Viktor Frankl, Martin Seligman, Mel Robbins).',
+  escucha: 'Eres experto en escucha y conversación de coaching (Carl Rogers, Michael Bungay Stanier, modelo GROW, Nancy Kline, niveles de escucha, validar antes de resolver).',
+  organizacion: 'Eres experto en organización, foco y rutinas prácticas (Tony Robbins priming, Robin Sharma 20/20/20, Brian Tracy, matriz de Eisenhower, Ivy Lee, Cal Newport, Pomodoro, James Clear). Método práctico, nada esotérico.'
 };
 
 function doGet(e) {
-  var cb = e && e.parameter ? e.parameter.callback : '';
-  var q = (e && e.parameter && e.parameter.q) || '';
-  var expert = (e && e.parameter && e.parameter.expert) || '';
-  var ans;
+  var p = (e && e.parameter) || {};
+  var cb = p.callback, q = p.q || '', expert = p.expert || '', ctx = p.ctx || '';
+  var answer = '', sources = [];
   try {
     var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
     if (!key) throw new Error('Falta GEMINI_API_KEY en Propiedades del script');
     var sys = (SYS[expert] || 'Eres un experto en coaching y acompañamiento.') + BASE;
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + key;
-    var payload = {
+    var userText = (ctx ? ('Conversación previa:\n' + ctx + '\n\nPregunta actual: ') : '') + q;
+    var body = {
       systemInstruction: { parts: [{ text: sys }] },
-      contents: [{ role: 'user', parts: [{ text: q }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
+      contents: [{ role: 'user', parts: [{ text: userText }] }],
+      tools: [{ google_search: {} }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 700 }
     };
-    var res = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', payload: JSON.stringify(payload), muteHttpExceptions: true });
+    var res = UrlFetchApp.fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + key,
+      { method: 'post', contentType: 'application/json', payload: JSON.stringify(body), muteHttpExceptions: true }
+    );
     var j = JSON.parse(res.getContentText());
-    ans = (j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts[0].text) || 'No he podido responder ahora mismo.';
+    var c = (j.candidates && j.candidates[0]) || {};
+    if (c.content && c.content.parts) {
+      answer = c.content.parts.map(function (x) { return x.text || ''; }).join('');
+    }
+    if (!answer) answer = 'No he podido responder ahora mismo.';
+    var chunks = (c.groundingMetadata && c.groundingMetadata.groundingChunks) || [];
+    sources = chunks.map(function (x) { return x.web ? { title: x.web.title, uri: x.web.uri } : null; })
+                    .filter(function (x) { return x; }).slice(0, 4);
   } catch (err) {
-    ans = '(El experto no está disponible en este momento.)';
+    answer = '(El experto no está disponible en este momento.)';
   }
-  var out = JSON.stringify({ answer: ans });
+  var out = JSON.stringify({ answer: answer, sources: sources });
   if (cb) return ContentService.createTextOutput(cb + '(' + out + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
   return ContentService.createTextOutput(out).setMimeType(ContentService.MimeType.JSON);
 }
