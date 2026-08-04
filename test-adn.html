@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team DNA Profile | Odoo Innovation Hub</title>
+<title>Test de ADN · Team DNA · Brandooers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
@@ -406,7 +406,7 @@ footer a{color:var(--odoo-secondary);text-decoration:none}
       </div>
     </div>
     Test basado en frameworks DISC, Belbin, Rogers, Hersey-Blanchard y CliftonStrengths<br>
-    &copy; 2026 Odoo I+D+E Spain
+    &copy; 2026 Brandooers · para Odooers
   </footer>
 </div>
 
@@ -1357,7 +1357,7 @@ function downloadDiplomaPDF() {
   doc.setFontSize(6);
   doc.setTextColor(180, 180, 180);
   doc.text('Basado en: DISC (Marston) | Belbin Team Roles | Rogers Innovation Curve | Hersey-Blanchard | CliftonStrengths (Gallup)', W/2, H-12, {align:'center'});
-  doc.text('Odoo I+D+E Spain - Innovation Hub 2026', W/2, H-8, {align:'center'});
+  doc.text('Brandooers · Test de ADN 2026', W/2, H-8, {align:'center'});
 
   doc.save(`Team-DNA-${r.name.replace(/\s+/g,'-')}.pdf`);
 }
@@ -1389,7 +1389,7 @@ function sendResults(scores, disc, innovation, teamrole, leadership, strengths, 
   const body = `
 TEAM DNA PROFILE - RESULTADOS
 ==============================
-Odoo Innovation Hub
+Brandooers
 
 Nombre: ${name}
 Email: ${email}
@@ -1429,13 +1429,13 @@ Framework: ${strProfile.gallup}
 
 ==============================
 Test basado en: DISC, Belbin, Rogers, Hersey-Blanchard, CliftonStrengths
-Odoo I+D+E Spain - Innovation Hub 2026
+Brandooers · para Odooers
   `.trim();
 
   // Use mailto as primary method (works without external services)
   const subject = encodeURIComponent(`Team DNA Profile - Resultados de ${name}`);
   const encodedBody = encodeURIComponent(body);
-  const ccEmail = 'mhgr@odoo.com';
+  const ccEmail = '';
 
   // Create downloadable report
   const blob = new Blob([body], {type: 'text/plain;charset=utf-8'});
@@ -1458,17 +1458,16 @@ Odoo I+D+E Spain - Innovation Hub 2026
         </a>
       </div>
       <p style="font-size:12px;color:var(--text-muted);margin:0">
-        Se enviara a <strong>${email}</strong> con copia a <strong>mhgr@odoo.com</strong>
+        Se enviara a <strong>${email}</strong>
       </p>
     </div>`;
 
-  // Also try to auto-send via a simple form submission to formsubmit (free, no signup)
-  autoSendEmail(email, name, body);
+  // Envío automático desactivado por privacidad (web pública).
 }
 
 function autoSendEmail(userEmail, userName, body) {
   // Use FormSubmit.co for automatic sending (free service, no API key needed)
-  // Sends to mhgr@odoo.com automatically + CC to user
+  // (desactivado)
   const formData = new FormData();
   formData.append('email', userEmail);
   formData.append('_cc', userEmail);
@@ -1478,7 +1477,7 @@ function autoSendEmail(userEmail, userName, body) {
   formData.append('message', body);
   formData.append('_captcha', 'false');
 
-  fetch('https://formsubmit.co/ajax/mhgr@odoo.com', {
+  fetch('about:blank', {
     method: 'POST',
     body: formData
   })
