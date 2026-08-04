@@ -134,6 +134,12 @@ function render({events,source}){
   if(sList.length){html+='<table><thead><tr><th>Sección</th><th>Vistas</th></tr></thead><tbody>';sList.forEach(function(s){html+='<tr><td>'+esc(s[0])+'</td><td class="tabular">'+s[1]+'</td></tr>'});html+='</tbody></table>';}else html+='<div class="empty">Sin datos.</div>';
   html+='</div></div>';
 
+  var chats=events.filter(function(e){return e.ev==='chat_question'});
+  if(chats.length){
+    html+='<h2>Preguntas al experto ('+chats.length+')</h2><p class="muted" style="font-size:13px;margin:-6px 0 12px">Lo que el equipo pregunta te dice qué contenidos reforzar o crear.</p><table><thead><tr><th>Pregunta</th><th>Área</th><th>Coach</th><th>Cuándo</th></tr></thead><tbody>';
+    chats.slice().reverse().slice(0,60).forEach(function(e){html+='<tr><td>'+esc((e.data&&e.data.q)||'')+'</td><td class="muted">'+esc((e.data&&e.data.expert)||'')+'</td><td class="muted">'+esc(e.name||e.email||'')+'</td><td class="muted">'+fmtDate(e.ts)+'</td></tr>'});
+    html+='</tbody></table>';
+  }
   document.getElementById('content').innerHTML=html;
   window.__events=events;
 }
