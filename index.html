@@ -351,6 +351,30 @@ img,svg,video{-webkit-user-drag:none}
 .rail-ov.open{opacity:1;pointer-events:auto}
 body{padding-left:66px}
 @media(max-width:900px){body{padding-left:0}.rail{transform:translateX(-100%);width:242px;transition:transform .3s}.rail.open{transform:none}.rail-burger{display:grid}}
+/* Onboarding y ruta a medida */
+.ob-q{margin-bottom:16px}
+.ob-q h4{font-size:13px;font-weight:700;color:var(--odoo-primary);margin-bottom:8px}
+.ob-opts{display:flex;flex-direction:column;gap:6px}
+.ob-opts label{display:block;cursor:pointer}
+.ob-opts input{display:none}
+.ob-opts span{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:10px;font-size:13.5px;color:var(--text-body);transition:all .15s}
+.ob-opts input:checked+span{background:rgba(113,75,103,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
+.route-step{display:flex;gap:14px;align-items:flex-start;background:var(--bg-white);border:1px solid var(--border-light);border-radius:14px;padding:15px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.route-step .rs-n{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:19px;display:grid;place-items:center}
+.route-step h4{font-size:15px;color:var(--text-dark);margin:0 0 3px}
+.route-step p{font-size:13px;color:var(--text-body);margin:0 0 8px}
+.route-step .rs-go{font-size:12.5px;font-weight:700;color:var(--odoo-primary);text-decoration:none;cursor:pointer}
+/* Previews de vídeo y libro */
+.rsrc-media{display:flex;gap:12px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-light);align-items:flex-start}
+.vthumb{position:relative;flex:1;min-width:0;border:none;padding:0;background:#000;cursor:pointer;border-radius:9px;overflow:hidden;aspect-ratio:16/9;box-shadow:var(--shadow-sm)}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.94;transition:opacity .2s,transform .3s}
+.vthumb:hover img{opacity:1;transform:scale(1.04)}
+.vthumb .vplay-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.5);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.vthumb::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-38%,-50%);border-style:solid;border-width:8px 0 8px 14px;border-color:transparent transparent transparent #fff;pointer-events:none}
+.bthumb{flex-shrink:0;width:62px;display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none}
+.bcover{width:60px;height:88px;border-radius:5px;background:var(--bg-warm) center/cover no-repeat;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:block}
+.blabel{font-size:10px;font-weight:700;color:var(--odoo-gold);text-align:center;line-height:1.15}
+@media(max-width:500px){.rsrc-media{flex-direction:column}.bthumb{flex-direction:row;width:auto;gap:8px}.bcover{width:44px;height:64px}}
 
 @media(max-width:800px){
   section{padding:80px 20px 40px}
@@ -395,6 +419,45 @@ body{padding-left:66px}
   </div>
 </div>
 
+<!-- ONBOARDING: RUTA A MEDIDA -->
+<div class="reg-overlay hide" id="obOverlay">
+  <div class="reg-box" style="max-width:540px;text-align:left">
+    <h2 style="text-align:center">Vamos a montarte tu ruta</h2>
+    <p class="rsub" style="text-align:center">3 preguntas rápidas y te preparo un camino simple, paso a paso, con lo que más te sirve. El resto del contenido lo tienes igual para explorar.</p>
+    <form id="obForm">
+      <div class="ob-q"><h4>1 · ¿En qué punto estás?</h4><div class="ob-opts">
+        <label><input type="radio" name="q1" value="nuevo"><span>Voy a empezar a acompañar a alguien nuevo</span></label>
+        <label><input type="radio" name="q1" value="mejorar"><span>Ya acompaño y quiero mejorar</span></label>
+        <label><input type="radio" name="q1" value="conocer"><span>Quiero entender mejor a mi coachee</span></label>
+        <label><input type="radio" name="q1" value="liderar"><span>Quiero técnicas de liderazgo y motivación</span></label>
+      </div></div>
+      <div class="ob-q"><h4>2 · ¿Qué es lo que más te cuesta?</h4><div class="ob-opts">
+        <label><input type="radio" name="q2" value="escucha"><span>Escuchar y conversar sin dar consejos</span></label>
+        <label><input type="radio" name="q2" value="motivar"><span>Motivar y levantar el ánimo</span></label>
+        <label><input type="radio" name="q2" value="feedback"><span>Dar feedback sin herir</span></label>
+        <label><input type="radio" name="q2" value="conocer"><span>Conocer de verdad a la persona</span></label>
+        <label><input type="radio" name="q2" value="organizar"><span>Organizarme el día</span></label>
+      </div></div>
+      <div class="ob-q"><h4>3 · ¿Cómo lo quieres?</h4><div class="ob-opts">
+        <label><input type="radio" name="q3" value="nano"><span>Rápido, lo justo (nano)</span></label>
+        <label><input type="radio" name="q3" value="fondo"><span>A fondo</span></label>
+      </div></div>
+      <div class="err" id="obErr"></div>
+      <button type="submit">Ver mi ruta</button>
+      <div style="text-align:center;margin-top:10px"><a href="#" id="obSkip" style="font-size:12px;color:var(--text-muted)">Saltar, exploro por mi cuenta</a></div>
+    </form>
+  </div>
+</div>
+<div class="reg-overlay hide" id="routeOverlay">
+  <div class="reg-box" style="max-width:560px;text-align:left">
+    <h2 style="text-align:center">Tu ruta a medida</h2>
+    <p class="rsub" style="text-align:center">Sigue estos pasos en orden. El resto del curso lo tienes disponible cuando quieras.</p>
+    <div id="routeSteps"></div>
+    <button type="button" id="routeStart">Empezar por el paso 1 →</button>
+    <div style="text-align:center;margin-top:10px"><a href="#" id="routeRedo" style="font-size:12px;color:var(--text-muted)">Rehacer las preguntas</a></div>
+  </div>
+</div>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
 <linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
@@ -414,6 +477,7 @@ body{padding-left:66px}
   <div class="rail-items">
     <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio · portada"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
     <a class="rail-item" href="#explora" data-sec="explora" title="Explora las rutas del curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">Explora</span></a>
+    <a class="rail-item gold" href="#" id="railRoute" title="Tu ruta a medida, paso a paso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V9a4 4 0 0 1 4-4h4"/><path d="M18 7v8a4 4 0 0 1-4 4h-4"/></svg></span><span class="ri-lb">Mi ruta</span></a>
     <a class="rail-item" href="#adn" data-sec="adn,rol,eres" title="El test de ADN y tu papel como coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 12.5l2.5 2.5 4-4"/></svg></span><span class="ri-lb">Test de ADN</span></a>
     <a class="rail-item" href="#perfil" data-sec="perfil" title="Perfil y personalidades: eneagrama, DISC, zonas, Ikigai"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="ri-lb">Personalidades</span></a>
     <a class="rail-item" href="#pilares" data-sec="pilares,expertos" title="Liderazgo: los 4 pilares y las técnicas de los autores"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Liderazgo</span></a>
@@ -1580,7 +1644,7 @@ document.getElementById('regForm').addEventListener('submit',function(e){
   if(!c){err.textContent='Marca el consentimiento para continuar.';return}
   USER={name:n,email:m,at:nowISO()};localStorage.setItem('coach_user',JSON.stringify(USER));
   track('register',{name:n,email:m});track('page_open',{title:document.title});
-  unlock();showChip();
+  unlock();showChip();if(window.__maybeOnboarding)setTimeout(window.__maybeOnboarding,400);
 });
 
 /* ===== Modal de vídeo ===== */
@@ -1599,9 +1663,9 @@ vm.querySelector('.close').addEventListener('click',closeVideo);
 vm.addEventListener('click',e=>{if(e.target===vm)closeVideo()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&vm.classList.contains('open'))closeVideo()});
 document.addEventListener('click',function(e){
-  const b=e.target.closest('.rsrc[data-yt]');
+  const b=e.target.closest('[data-yt]');
   if(b){e.preventDefault();openVideo(b.getAttribute('data-yt'),b.getAttribute('data-title'));return}
-  const lk=e.target.closest('a.rsrc, a.chip');
+  const lk=e.target.closest('a.rsrc, a.chip, a.bthumb');
   if(lk){track('link_click',{label:(lk.textContent||'').trim().slice(0,60),href:lk.getAttribute('href')})}
 });
 
@@ -1635,16 +1699,30 @@ const RES={
  "Evita la empatía ruinosa":{yt:"vmxHUiiHgNk",book:"Sinceridad radical (Radical Candor) — Kim Scott"}
 };
 function amz(q){return "https://www.amazon.es/s?k="+encodeURIComponent(q)}
+function addMedia(card,yt,book,href){
+  var t=yt?'<button class="vthumb" data-yt="'+yt+'" data-title="'+String(book||'').replace(/"/g,'')+'" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/'+yt+'/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>':'';
+  var b=book?'<a class="bthumb" href="'+href+'" data-title="'+book.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener"><span class="bcover" data-book="'+book.replace(/"/g,'&quot;')+'"></span><span class="blabel">Libro ↗</span></a>':'';
+  if(!t&&!b)return;var m=document.createElement('div');m.className='rsrc-media';m.innerHTML=t+b;card.appendChild(m);
+}
 document.querySelectorAll('#expertos .card').forEach(function(card){
-  const h=card.querySelector('h3');if(!h)return;
-  const key=h.textContent.trim();const r=RES[key];if(!r)return;
-  let info='';const src=card.querySelector('a.src');
-  if(src){info='<a class="rsrc" href="'+src.getAttribute('href')+'" target="_blank" rel="noopener">Ficha ↗</a>';src.remove()}
-  const row=document.createElement('div');row.className='rsrc-row';
-  row.innerHTML='<button class="rsrc play" data-yt="'+r.yt+'" data-title="'+key.replace(/"/g,'')+'">Ver la charla</button>'+
-    '<a class="rsrc book" href="'+amz(r.book)+'" data-title="'+r.book.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">Libro en Amazon ↗</a>'+info;
-  card.appendChild(row);
+  var h=card.querySelector('h3');if(!h)return;var key=h.textContent.trim();var r=RES[key];if(!r)return;
+  var src=card.querySelector('a.src');if(src)src.remove();
+  addMedia(card,r.yt,r.book,amz(r.book));
 });
+document.querySelectorAll('#rutinas .card').forEach(function(card){
+  var btn=card.querySelector('[data-yt]');var bk=card.querySelector('a.book');var row=card.querySelector('.rsrc-row');
+  if(!btn&&!bk)return;
+  var yt=btn?btn.getAttribute('data-yt'):'';var book=bk?bk.getAttribute('data-title'):'';var href=bk?bk.getAttribute('href'):'#';
+  if(row)row.remove();
+  addMedia(card,yt,book,href);
+});
+(function(){var covObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(!en.isIntersecting)return;var el=en.target;covObs.unobserve(el);var q=el.getAttribute('data-book');if(!q)return;
+  fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){
+    var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);
+    if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")';
+  }).catch(function(){})})},{rootMargin:'300px'});
+  document.querySelectorAll('.bcover[data-book]').forEach(function(el){covObs.observe(el)});
+})();
 
 /* ===== ADN del coachee ===== */
 (function(){
@@ -1825,6 +1903,48 @@ const EXPERTS=[
 </script>
 
 <script>
+/* ===== Ruta a medida (onboarding) ===== */
+(function(){
+ var ob=document.getElementById('obOverlay'),rt=document.getElementById('routeOverlay'),stepsEl=document.getElementById('routeSteps');
+ if(!ob)return;
+ var BLOCKS={
+  adn:{t:'Haz el test de ADN',w:'Conoce el perfil de tu coachee y saca su punto de partida.',h:'#adn'},
+  perfil:{t:'Aprende a leer su personalidad',w:'Eneagrama, DISC y zonas para saber cómo hablarle.',h:'#perfil'},
+  liderazgo:{t:'Las técnicas de los grandes',w:'Sinek, Robbins, Sharma… liderazgo y motivación aplicables.',h:'#pilares'},
+  practico:{t:'La caja de herramientas',w:'Las 7 preguntas, la escucha y el apoyo emocional.',h:'#herramientas'},
+  rutinas:{t:'Organiza el día',w:'Priming, prioridades y foco para el día a día.',h:'#rutinas'},
+  seguimiento:{t:'El plan de 6 meses',w:'Cadencia, metas y plantillas para no perder el hilo.',h:'#calendario'}
+ };
+ function buildRoute(a){
+  var q1map={nuevo:['adn','perfil','seguimiento'],mejorar:['practico','liderazgo','perfil'],conocer:['adn','perfil','practico'],liderar:['liderazgo','practico','perfil']};
+  var q2map={escucha:'practico',motivar:'liderazgo',feedback:'liderazgo',conocer:'perfil',organizar:'rutinas'};
+  var order=[];function add(k){if(k&&order.indexOf(k)<0&&BLOCKS[k])order.push(k)}
+  add('adn');(q1map[a.q1]||[]).forEach(add);add(q2map[a.q2]);['perfil','liderazgo','practico','rutinas','seguimiento'].forEach(add);
+  var n=a.q3==='nano'?3:4;
+  return order.slice(0,n).map(function(k){var b=BLOCKS[k];return {k:k,t:b.t,w:b.w,h:b.h}});
+ }
+ function showOb(){ob.classList.remove('hide');document.body.classList.add('locked')}
+ function hideOb(){ob.classList.add('hide');document.body.classList.remove('locked')}
+ function render(route){stepsEl.innerHTML=route.map(function(s,i){return '<div class="route-step"><div class="rs-n">'+(i+1)+'</div><div><h4>'+s.t+'</h4><p>'+s.w+'</p><a class="rs-go" data-h="'+s.h+'">Ir a este paso →</a></div></div>'}).join('')}
+ function showRoute(){var r=[];try{r=JSON.parse(localStorage.getItem('coach_route')||'[]')}catch(e){}if(!r.length){showOb();return}render(r);rt.classList.remove('hide');document.body.classList.add('locked')}
+ function hideRoute(){rt.classList.add('hide');document.body.classList.remove('locked')}
+ document.getElementById('obForm').addEventListener('submit',function(e){e.preventDefault();
+   var q1=(document.querySelector('input[name=q1]:checked')||{}).value,q2=(document.querySelector('input[name=q2]:checked')||{}).value,q3=(document.querySelector('input[name=q3]:checked')||{}).value;
+   if(!q1||!q2||!q3){document.getElementById('obErr').textContent='Responde las tres, es un momento.';return}
+   var route=buildRoute({q1:q1,q2:q2,q3:q3});localStorage.setItem('coach_route',JSON.stringify(route));localStorage.setItem('coach_ob_done','1');
+   try{track('onboarding',{q1:q1,q2:q2,q3:q3});track('route',{steps:route.map(function(s){return s.k})})}catch(e){}
+   hideOb();render(route);rt.classList.remove('hide');document.body.classList.add('locked');
+ });
+ document.getElementById('obSkip').addEventListener('click',function(e){e.preventDefault();localStorage.setItem('coach_ob_done','1');hideOb()});
+ document.getElementById('routeStart').addEventListener('click',function(){var r=[];try{r=JSON.parse(localStorage.getItem('coach_route')||'[]')}catch(e){}hideRoute();if(r[0]){var t=document.querySelector(r[0].h);if(t)t.scrollIntoView({behavior:'smooth'})}});
+ document.getElementById('routeRedo').addEventListener('click',function(e){e.preventDefault();hideRoute();showOb()});
+ stepsEl.addEventListener('click',function(e){var a=e.target.closest('.rs-go');if(a){hideRoute();var t=document.querySelector(a.getAttribute('data-h'));if(t)t.scrollIntoView({behavior:'smooth'});try{track('route_step',{h:a.getAttribute('data-h')})}catch(e){}}});
+ var railRoute=document.getElementById('railRoute');if(railRoute)railRoute.addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rail'),o=document.getElementById('railOv');if(r)r.classList.remove('open');if(o)o.classList.remove('open');showRoute()});
+ window.__maybeOnboarding=function(){if(localStorage.getItem('coach_route'))return;if(!localStorage.getItem('coach_ob_done'))showOb()};
+ var u=null;try{u=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
+ if(u&&!localStorage.getItem('coach_ob_done')&&!localStorage.getItem('coach_route'))setTimeout(showOb,600);
+})();
+
 /* ===== Rail de iconos ===== */
 (function(){
   var rail=document.getElementById('rail'),burger=document.getElementById('railBurger'),ov=document.getElementById('railOv');
