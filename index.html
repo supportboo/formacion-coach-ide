@@ -326,6 +326,8 @@ img,svg,video{-webkit-user-drag:none}
 .int-grp{font-family:'Caveat',cursive;font-size:20px;font-weight:600;color:var(--odoo-primary);margin:12px 4px 8px}
 .int-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 2px}
 .int-chip{font-size:11.5px;background:var(--bg-warm);border:1px solid var(--border);border-radius:100px;padding:4px 10px;color:var(--text-body)}
+.dna-cta{display:inline-block;background:#fff;color:#4C1D95;text-decoration:none;padding:14px 30px;border-radius:100px;font-weight:700;font-size:16px;box-shadow:0 8px 26px rgba(0,0,0,.22);transition:transform .2s}
+.dna-cta:hover{transform:translateY(-2px)}
 
 @media(max-width:800px){
   section{padding:80px 20px 40px}
@@ -543,41 +545,17 @@ img,svg,video{-webkit-user-drag:none}
 <section id="adn">
   <div class="reveal">
     <div class="section-tag">Paso 1 · antes de empezar</div>
-    <h2 class="section-title">El ADN de tu coachee</h2>
-    <p class="section-desc">Antes de la primera sesión, define quién es tu persona. Es el mismo marco de ADN que usamos en el equipo: fortalezas, áreas de mejora, objetivos y tier. Rellénalo y lo tendrás como brújula durante los 6 meses. Se guarda en tu navegador.</p>
+    <h2 class="section-title">Haz el test de ADN</h2>
+    <p class="section-desc">Antes de la primera sesión, tu coachee hace el test de ADN de equipo: 30 preguntas basadas en DISC, roles de Belbin, curva de innovación, liderazgo situacional y fortalezas (CliftonStrengths). En unos 15 minutos sabe su perfil, cómo se comunica y qué necesita, y se descarga su diploma. Guárdalo como punto de partida: podrá repetir el test dentro de unos meses para ver su evolución.</p>
   </div>
-  <div class="card reveal">
-    <form id="dnaForm">
-      <div class="dna-grid" style="margin-bottom:16px">
-        <div class="dna-field"><label>Nombre del coachee</label><input id="dnaName" type="text" placeholder="Nombre y apellido"></div>
-        <div class="dna-field"><label>Fecha de incorporación</label><input id="dnaStart" type="date"></div>
-        <div class="dna-field"><label>Cartera (nº de partners)</label><input id="dnaCartera" type="number" min="0" placeholder="p. ej. 18"></div>
-        <div class="dna-field"><label>Territorio / foco</label><input id="dnaTerr" type="text" placeholder="p. ej. Levante + retail"></div>
-      </div>
-      <div class="dna-field" style="margin-bottom:16px"><label>Tier objetivo</label>
-        <div class="tierpick">
-          <label><input type="radio" name="dnaTier" value="Learning"><span>Learning</span></label>
-          <label><input type="radio" name="dnaTier" value="Ready"><span>Ready</span></label>
-          <label><input type="radio" name="dnaTier" value="Silver"><span>Silver</span></label>
-          <label><input type="radio" name="dnaTier" value="Gold"><span>Gold</span></label>
-        </div>
-      </div>
-      <div class="dna-grid" style="margin-bottom:16px">
-        <div class="dna-field"><label>Fortalezas</label><textarea id="dnaStrengths" placeholder="Qué se le da bien de forma natural"></textarea></div>
-        <div class="dna-field"><label>Áreas de mejora</label><textarea id="dnaImprove" placeholder="Dónde puede crecer"></textarea></div>
-      </div>
-      <div class="dna-field"><label>Objetivos de estos meses (integración, no ventas)</label><textarea id="dnaGoals" placeholder="p. ej. conocer a 8 compañeros · perder el miedo a preguntar · sentirse del equipo"></textarea></div>
-      <div class="dna-field" style="margin-top:16px"><label>Notas de perfil (Eneagrama / DISC / lo que observes)</label><textarea id="dnaProfile" placeholder="p. ej. Eneatipo 6 (Leal) · DISC S · necesita seguridad y reglas claras"></textarea></div>
-      <div class="dna-actions">
-        <button type="submit" class="dna-btn">Guardar ADN</button>
-        <button type="button" class="dna-btn ghost" id="dnaClear">Vaciar</button>
-        <span class="dna-saved" id="dnaSaved"></span>
-      </div>
-    </form>
+  <div class="card reveal" style="text-align:center;padding:44px 28px;background:linear-gradient(135deg,#4C1D95,#7C3AED);border:none">
+    <p class="hand" style="font-size:32px;color:#fff;margin-bottom:6px">Descubre tu Team DNA</p>
+    <p style="max-width:520px;margin:0 auto 24px;font-size:15px;color:rgba(255,255,255,.92)">30 preguntas · 15 minutos · resultado inmediato y diploma en PDF descargable.</p>
+    <a class="dna-cta" href="test-adn.html" target="_blank" rel="noopener" onclick="try{track('dna_test_open',{})}catch(e){}">Hacer el test de ADN →</a>
   </div>
   <div class="callout callout-info reveal" style="margin-top:16px">
     <h4>Cómo usarlo</h4>
-    <p>Baja a la sección <strong>Perfil</strong> para identificar su eneatipo, su estilo DISC y en qué zona está, y vuelve aquí a anotarlo. Ese ADN es tu punto de partida: te dice cómo hablarle, qué le motiva y por dónde acompañarle.</p>
+    <p>Pídele que lo haga antes de la primera sesión y que guarde su diploma. Luego, en la sección <strong>Perfil</strong>, tienes el mapa de cada estilo (colores y DISC, eneagrama, zonas) para saber cómo hablarle, qué le motiva y por dónde acompañarle. Repetid el test en unos meses para ver el cambio.</p>
   </div>
 </section>
 
