@@ -284,6 +284,11 @@ body.locked{overflow:hidden}
 /* Logo Brandooers (ojos animados) */
 .brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--text-dark);user-select:none}
 .brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
+/* Protección de contenido */
+body{-webkit-user-select:none;-moz-user-select:none;user-select:none}
+input,textarea,.cbub{-webkit-user-select:text;user-select:text}
+img,svg,video{-webkit-user-drag:none}
+@media print{body{visibility:hidden!important}html::after{content:"Contenido protegido · Formación Brandooers para Odoo";position:fixed;top:40px;left:40px;font:600 16px Inter,sans-serif;color:#000;visibility:visible}}
 
 @media(max-width:800px){
   section{padding:80px 20px 40px}
@@ -314,8 +319,8 @@ body.locked{overflow:hidden}
 <!-- REGISTRO -->
 <div class="reg-overlay" id="regOverlay">
   <div class="reg-box">
-    <img class="rlogo" src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" alt="Odoo">
-    <span class="ide">I+D+E Spain</span>
+    <span class="brandooers-logo" style="font-size:26px">Brand<svg class="beyes" width="62" height="36" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g></svg>ers</span>
+    <span class="ide" style="margin-top:6px">Formación para Odoo</span>
     <h2>Formación del Coach</h2>
     <p class="rsub">Acompañamiento Odoo I+D+E. Identifícate para entrar y que quede registrado tu progreso.</p>
     <form id="regForm">
@@ -338,9 +343,9 @@ body.locked{overflow:hidden}
 </defs></svg>
 
 <nav>
-  <div class="logo-lockup">
-    <img src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" alt="Odoo" height="24" style="display:block">
-    <span class="ide" style="font-size:13px;margin-top:1px">I+D+E <span class="flag">Spain<svg viewBox="0 0 10 7"><rect width="10" height="2" fill="#AA151B"/><rect y="2" width="10" height="3" fill="#F1BF00"/><rect y="5" width="10" height="2" fill="#AA151B"/></svg></span></span>
+  <div class="logo-lockup" style="flex-direction:row;align-items:center;gap:9px">
+    <span class="brandooers-logo" style="font-size:18px">Brand<svg class="beyes" width="46" height="26" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g></svg>ers</span>
+    <span style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)">para Odoo</span>
   </div>
   <ul class="nav-links">
     <li><a href="#inicio" class="active">Inicio</a></li>
@@ -363,9 +368,9 @@ body.locked{overflow:hidden}
 
 <!-- HERO -->
 <section class="hero" id="inicio">
-  <div style="margin-bottom:44px;display:flex;flex-direction:column;align-items:center;line-height:1">
-    <img src="https://odoocdn.com/openerp_website/static/src/img/assets/png/odoo_logo.png" alt="Odoo" height="56" style="display:block">
-    <span class="ide" style="font-size:22px;margin-top:4px">I+D+E <span class="flag">Spain<svg viewBox="0 0 14 10" style="width:14px;height:10px;transform:rotate(-15deg)"><rect width="14" height="2.8" rx="0.5" fill="#AA151B"/><rect y="2.8" width="14" height="4.4" fill="#F1BF00"/><rect y="7.2" width="14" height="2.8" rx="0.5" fill="#AA151B"/></svg></span></span>
+  <div style="margin-bottom:38px;display:flex;flex-direction:column;align-items:center;gap:12px">
+    <span class="brandooers-logo" style="font-size:clamp(40px,7vw,56px)">Brand<svg class="beyes" width="132" height="76" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g></svg>ers</span>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)">Investigación y desarrollo de expertos · para Odoo</span>
   </div>
   <h1>Guía del<br><span class="hand-accent">Coach de los que llegan</span></h1>
   <p class="subtitle">Cómo apoyar, motivar y acompañar a un compañero nuevo durante sus primeros 6 meses. Sin operativa. Solo presencia, confianza y humanidad.</p>
@@ -374,11 +379,7 @@ body.locked{overflow:hidden}
     <div class="hero-meta-item"><div class="val" style="color:var(--odoo-secondary)">4 pilares</div><div class="lab">Confianza · Escucha · Motivación · Acompañamiento</div></div>
     <div class="hero-meta-item"><div class="val" style="color:var(--odoo-gold)">+25</div><div class="lab">Técnicas de autores</div></div>
   </div>
-  <div class="reveal" style="margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:8px">
-    <span style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)">Un hub de</span>
-    <span class="brandooers-logo" style="font-size:30px">Brand<svg class="beyes" width="74" height="42" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/><circle class="glint" cx="17" cy="39" r="1" fill="#fff" data-op="0.5"/></g></svg>ers</span>
-  </div>
-  <p style="margin-top:22px;font-family:'Caveat',cursive;font-size:18px;color:var(--odoo-primary);opacity:0.75">Acompañamiento Odoo I+D+E · antes del paso a Partner Manager · revisión por hitos</p>
+  <p style="margin-top:44px;font-family:'Caveat',cursive;font-size:18px;color:var(--odoo-primary);opacity:0.75">Acompañamiento del equipo de Odoo · antes del paso a Partner Manager · revisión por hitos</p>
 </section>
 
 <!-- 0B. EXPLORA -->
@@ -1469,7 +1470,7 @@ body.locked{overflow:hidden}
   <p style="margin-top:20px;font-size:12px">Odoo I+D+E Spain · Guía del Coach · acompañamiento de los primeros 6 meses · documento de trabajo interno.</p>
 </footer>
 
-<button class="printbtn" onclick="window.print()"><span>Imprimir / Guardar PDF</span></button>
+<!-- contenido protegido: sin descarga ni copia -->
 
 <script>
 const navProgress=document.getElementById('navProgress');
@@ -1650,6 +1651,8 @@ window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{se
 </div>
 
 <script>
+// Proxy de Gemini (Apps Script con la clave guardada en el servidor). Vacío = respuestas locales por palabras clave.
+const CHAT_URL="";
 const EXPERTS=[
  {id:'liderazgo',name:'Liderazgo y acompañamiento',role:'Sinek · Covey · Maxwell · Greenleaf · Kim Scott',color:'#714B67',ini:'L',
   sug:['¿Cómo doy feedback sin herir?','¿Cómo genero confianza rápido?','Mi coachee no se abre','¿Qué es el círculo de seguridad?'],
@@ -1687,13 +1690,32 @@ const EXPERTS=[
    var sents=a.k.split('. ');var rel=sents.filter(function(s){var sl=s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');return words.some(function(w){return sl.indexOf(w)>-1})});
    if(rel.length>=2)return rel.slice(0,4).join('. ')+'.';if(rel.length===1)return rel[0]+'.';
    return 'Buena pregunta. Cuéntamela con alguna palabra clave (motivación, escucha, feedback, eneatipo, zona, rutina, priorizar…) y te doy lo más útil. De momento, la base: '+sents.slice(0,2).join('. ')+'.';}
+ function jsonpChat(url,done){var s=document.createElement('script');var n='__gcb'+Date.now();window[n]=function(d){done(d);try{delete window[n]}catch(e){}s.remove()};s.onerror=function(){done(null);s.remove()};s.src=url+(url.indexOf('?')>-1?'&':'?')+'callback='+n;document.body.appendChild(s);setTimeout(function(){if(window[n]){done(null);try{delete window[n]}catch(e){}}},22000);}
  function send(){var t=input.value.trim();if(!t||!cur)return;add('user',t.replace(/</g,'&lt;'));input.value='';input.style.height='auto';track('chat_question',{expert:cur.id,q:t.slice(0,140)});
    var typing=document.createElement('div');typing.className='cmsg';typing.innerHTML='<div class="cbub a">…</div>';msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
-   setTimeout(function(){typing.remove();add('a',reply(cur,t))},550);}
+   if(CHAT_URL){jsonpChat(CHAT_URL+'?expert='+encodeURIComponent(cur.id)+'&q='+encodeURIComponent(t),function(d){typing.remove();var a=(d&&d.answer)?String(d.answer):reply(cur,t);add('a',a.replace(/</g,'&lt;').replace(/\n/g,'<br>'))});}
+   else{setTimeout(function(){typing.remove();add('a',reply(cur,t))},550);}}
  fab.onclick=openP;ov.onclick=closeP;document.getElementById('agentClose').onclick=closeP;document.getElementById('agentClose2').onclick=closeP;
  document.getElementById('agentBack').onclick=showList;document.getElementById('chatSend').onclick=send;
  input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,90)+'px'});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&panel.classList.contains('open'))closeP()});
+})();
+</script>
+
+<script>
+/* ===== Protección de contenido (disuasoria) ===== */
+(function(){
+  function inForm(e){return e.target&&e.target.closest&&e.target.closest('input,textarea')}
+  document.addEventListener('contextmenu',function(e){if(inForm(e))return;e.preventDefault()});
+  ['copy','cut'].forEach(function(ev){document.addEventListener(ev,function(e){if(inForm(e))return;e.preventDefault()})});
+  document.addEventListener('dragstart',function(e){e.preventDefault()});
+  document.addEventListener('selectstart',function(e){if(inForm(e))return;var b=e.target&&e.target.closest&&e.target.closest('.cbub');if(b)return;e.preventDefault()});
+  document.addEventListener('keydown',function(e){
+    var k=(e.key||'').toLowerCase();
+    if(e.ctrlKey&&(k==='p'||k==='s'||k==='u')){e.preventDefault();return false}
+    if(k==='f12'){e.preventDefault();return false}
+    if(e.ctrlKey&&e.shiftKey&&(k==='i'||k==='j'||k==='c')){e.preventDefault();return false}
+  });
 })();
 </script>
 </body>
