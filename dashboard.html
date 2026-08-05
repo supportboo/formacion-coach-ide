@@ -153,6 +153,19 @@ function render({events,source}){
     chats.slice().reverse().slice(0,60).forEach(function(e){html+='<tr><td>'+esc((e.data&&e.data.q)||'')+'</td><td class="muted">'+esc((e.data&&e.data.expert)||'')+'</td><td class="muted">'+esc(e.name||e.email||'')+'</td><td class="muted">'+fmtDate(e.ts)+'</td></tr>'});
     html+='</tbody></table>';
   }
+  var rk={};function decRef(r){try{return atob(decodeURIComponent(r))}catch(e){return r}}
+  events.forEach(function(e){var em=e.email||('anon:'+(e.sid||'?'));if(!rk[em])rk[em]={nick:'',pts:0,tr:0,refs:0,taught:[]};var r=rk[em];
+   if(e.ev==='register'){r.nick=(e.data&&e.data.nick)||r.nick;r.pts+=10}
+   else if(e.ev==='profile')r.pts+=30;else if(e.ev==='video_open')r.pts+=5;else if(e.ev==='invite')r.pts+=8;
+   else if(e.ev==='quiz'){r.pts+=40;var tg=(e.data&&e.data.taught)||[];r.tr+=tg.length;r.taught=r.taught.concat(tg)}});
+  events.forEach(function(e){if(e.ev==='register'&&e.data&&e.data.ref){var ie=decRef(e.data.ref);if(rk[ie]){rk[ie].refs++;rk[ie].pts+=25}}});
+  var rankL=Object.keys(rk).map(function(em){var r=rk[em];r.alias=r.nick||('Coach '+String(em).replace(/@.*/,'').slice(0,3)+'…');r.value=r.pts+r.tr*20+r.refs*30;return r}).filter(function(r){return r.value>0}).sort(function(a,b){return b.value-a.value});
+  if(rankL.length){html+='<h2>Ranking general (quién más aporta y transmite)</h2><p class="muted" style="font-size:13px;margin:-6px 0 12px">Por alias, sin exponer nombres reales. Valor = puntos + transmisión + referidos.</p><table><thead><tr><th>#</th><th>Alias</th><th>Puntos</th><th>Transmite</th><th>Referidos</th><th>Valor</th></tr></thead><tbody>';
+    rankL.slice(0,30).forEach(function(r,i){html+='<tr><td class="tabular">'+(i+1)+'</td><td>'+esc(r.alias)+'</td><td class="tabular">'+r.pts+'</td><td class="tabular">'+r.tr+'</td><td class="tabular">'+r.refs+'</td><td class="tabular"><b>'+r.value+'</b></td></tr>'});
+    html+='</tbody></table>';
+    var seg=rankL.filter(function(r){return r.taught.length});
+    if(seg.length){html+='<h2 style="font-size:15px">Seguimiento · a quién se le ha transmitido</h2><p class="muted" style="font-size:13px;margin:-6px 0 12px">Personas mencionadas como formadas. Candidatas a recibir invitación/recordatorio para que empiecen.</p><table><thead><tr><th>Coach (alias)</th><th>Se lo ha transmitido a</th></tr></thead><tbody>';seg.forEach(function(r){html+='<tr><td>'+esc(r.alias)+'</td><td>'+esc(r.taught.join(', '))+'</td></tr>'});html+='</tbody></table>';}
+  }
   var profs=events.filter(function(e){return e.ev==='profile'});
   if(profs.length){
     var barL={escucha:'Escuchar y conversar',motivar:'Motivar y dar ánimo',feedback:'Dar feedback',conocer:'Conocer a las personas',organizar:'Organización y tiempo',liderar:'Liderazgo',emocional:'Gestión emocional',seguimiento:'Seguimiento y constancia'};
