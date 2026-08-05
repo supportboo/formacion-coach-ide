@@ -339,6 +339,8 @@ body.locked{overflow:hidden}
 .guide-say b{color:var(--odoo-primary)}
 .chat-mic{flex-shrink:0;width:40px;align-self:stretch;min-height:40px;border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-secondary);border-radius:10px;cursor:pointer;display:grid;place-items:center}
 .chat-mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c;animation:guiderec 1s infinite}
+.coach-opts{display:flex;flex-wrap:wrap;gap:6px}
+.coach-opts .coach-go{background:var(--odoo-primary);color:#fff;border-color:var(--odoo-primary)}
 .guide-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .guide-chips button{border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-primary);border-radius:100px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
 .guide-chips button:hover{border-color:var(--odoo-primary);background:rgba(113,75,103,.06)}
@@ -2250,13 +2252,21 @@ const EXPERTS=[
   k:'Carl Rogers dice que las personas encuentran sus propias soluciones cuando se sienten escuchadas y aceptadas sin juicio; antes de opinar, valida y refleja lo que sientes que hay debajo. Michael Bungay Stanier propone decir menos y preguntar más, domar al monstruo del consejo; su mejor pregunta es y qué más, repítela dos o tres veces porque lo importante casi nunca es lo primero. El modelo GROW guía la conversación: meta, realidad, opciones y voluntad, y se cierra con un número, del 1 al 10 cuántas ganas tienes. Nancy Kline pide no interrumpir nunca: tu atención total hace que la persona piense mejor por sí misma. Hay tres niveles de escucha: en el nivel 1 piensas en tu respuesta y ahí no hay escucha, en el 2 toda tu atención está en el otro, en el 3 escuchas hasta lo que no dice. La regla de oro es hablar el 20 por ciento y escuchar el 80. Para apoyar de verdad, valida antes de resolver: nunca empieces con no pasa nada; primero es normal que te sientas así, y solo después qué te ayudaría. Ante una buena noticia responde activo y constructivo: entusiásmate de verdad y pregunta por el cómo. Un buen banco de preguntas abiertas empieza por qué o cómo, evita el por qué que suena a juicio.'},
  {id:'organizacion',name:'Organización y rutinas',role:'Robbins · Sharma · Tracy · Newport · Clear',color:'#21B799',ini:'O',
   sug:['¿Cómo organizo mi día?','Mi coachee se satura de tareas','¿Qué rutina de mañana?','¿Cómo priorizar?'],
-  k:'Tony Robbins recomienda el priming: diez minutos de mañana con respiración, gratitud y visualización para entrar tú en el estado correcto. Robin Sharma propone la fórmula 20/20/20 de la primera hora: mover, reflexionar y crecer, y las victorias del 1 por ciento diario. Antes de abrir el correo, define los 3 de hoy: las tres cosas que si las haces el día habrá valido la pena; sentirse realizado es cerrarlas, no vaciar la bandeja de entrada. Brian Tracy dice cómete la rana: haz primero la tarea más importante y más incómoda a primera hora. La matriz de Eisenhower clasifica por urgente e importante: haz lo importante no urgente antes de que se vuelva urgente, y delega o elimina el ruido. El método Ivy Lee: cada noche apunta seis tareas del día siguiente por prioridad y hazlas de una en una. Cal Newport propone el time-blocking: da a cada franja del día una tarea concreta en el calendario, lo que no tiene bloque no se hace. La técnica Pomodoro: 25 minutos de foco total y 5 de descanso, sin móvil. James Clear, con los hábitos atómicos, dice no dependas de la motivación, crea sistemas y mejora un 1 por ciento cada día haciéndolo tan fácil que no puedas fallar.'}
+  k:'Tony Robbins recomienda el priming: diez minutos de mañana con respiración, gratitud y visualización para entrar tú en el estado correcto. Robin Sharma propone la fórmula 20/20/20 de la primera hora: mover, reflexionar y crecer, y las victorias del 1 por ciento diario. Antes de abrir el correo, define los 3 de hoy: las tres cosas que si las haces el día habrá valido la pena; sentirse realizado es cerrarlas, no vaciar la bandeja de entrada. Brian Tracy dice cómete la rana: haz primero la tarea más importante y más incómoda a primera hora. La matriz de Eisenhower clasifica por urgente e importante: haz lo importante no urgente antes de que se vuelva urgente, y delega o elimina el ruido. El método Ivy Lee: cada noche apunta seis tareas del día siguiente por prioridad y hazlas de una en una. Cal Newport propone el time-blocking: da a cada franja del día una tarea concreta en el calendario, lo que no tiene bloque no se hace. La técnica Pomodoro: 25 minutos de foco total y 5 de descanso, sin móvil. James Clear, con los hábitos atómicos, dice no dependas de la motivación, crea sistemas y mejora un 1 por ciento cada día haciéndolo tan fácil que no puedas fallar.'},
+ {id:'coach',name:'Coach de Formaciones',role:'Te encuentra y te lo pone en pantalla',color:'#8b5cf6',ini:'C',
+  sug:['Llévame a Liderazgo','Un vídeo de Sinek','El test de ADN','El kiosco de cursos','Mi progreso'],
+  k:''}
 ];
 (function(){
  const fab=document.getElementById('agentFab'),ov=document.getElementById('agentOverlay'),panel=document.getElementById('agentPanel');
  const listV=document.getElementById('agentListView'),chatV=document.getElementById('agentChatView'),list=document.getElementById('agentList');
  const msgs=document.getElementById('chatMsgs'),sug=document.getElementById('chatSug'),input=document.getElementById('chatInput');
  let cur=null,hist={};EXPERTS.forEach(function(a){hist[a.id]=[]});
+ var coachRun=null;
+ document.getElementById('chatMsgs').addEventListener('click',function(e){var g=e.target.closest('.coach-go'),o=e.target.closest('.coach-opt');
+   if(g&&coachRun){var r=coachRun;coachRun=null;closeP();setTimeout(r,260)}
+   if(o){var q=o.getAttribute('data-q');var res=(window.__guideRoute?window.__guideRoute(q):null);if(res){add('a',String(res.text).replace(/</g,'&lt;'));speakChat(res.text);if(res.run){var rr=res.run;closeP();setTimeout(rr,260)}}}
+ });
  EXPERTS.forEach(function(a){var d=document.createElement('div');d.className='agent-card2';d.onclick=function(){openChat(a.id)};
    d.innerHTML='<div class="agent-av" style="background:'+a.color+'">'+a.ini+'</div><div class="agent-ci"><div class="agent-cn">'+a.name+'</div><div class="agent-cr">'+a.role+'</div></div>';list.appendChild(d);});
  function openP(){panel.classList.add('open');ov.classList.add('open');track('chat_open',{})}
@@ -2264,7 +2274,7 @@ const EXPERTS=[
  function showList(){listV.style.display='flex';chatV.style.display='none'}
  function openChat(id){cur=EXPERTS.find(function(a){return a.id===id});if(!cur)return;listV.style.display='none';chatV.style.display='flex';
    document.getElementById('chatName').textContent=cur.name;document.getElementById('chatRole').textContent=cur.role;renderMsgs();renderSug();
-   if(hist[id].length===0)add('a','Hola, soy tu experto en '+cur.name.toLowerCase()+'. Cuéntame qué estás viviendo con tu coachee.');}
+   if(hist[id].length===0)add('a', cur.id==='coach' ? 'Soy tu Coach de Formaciones. Dime qué buscas —un tema, un vídeo, el test, el kiosco— y te lo pongo en pantalla. Puedes hablar o tocar una opción.' : ('Hola, soy tu experto en '+cur.name.toLowerCase()+'. Cuéntame qué estás viviendo con tu coachee.'));}
  function renderSug(){if(!cur){sug.innerHTML='';return}if(hist[cur.id].length>2){sug.innerHTML='';return}sug.innerHTML='';cur.sug.forEach(function(s){var b=document.createElement('button');b.className='sug';b.textContent=s;b.onclick=function(){input.value=s;send()};sug.appendChild(b)})}
  function renderMsgs(){if(!cur)return;msgs.innerHTML=hist[cur.id].map(function(m){return '<div class="cmsg '+m.r+'"><div class="cbub '+(m.r==='a'?'a':'user')+'">'+m.t+'</div></div>'}).join('');msgs.scrollTop=msgs.scrollHeight}
  function add(r,t){if(!cur)return;hist[cur.id].push({r:r,t:t});renderMsgs();renderSug()}
@@ -2276,6 +2286,7 @@ const EXPERTS=[
  function suggestRes(q){var ql=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');var ws=ql.split(/[^a-z0-9ñ]+/).filter(function(w){return w.length>4});var out=[];for(var key in RES){var hay=(key+' '+RES[key].book).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');for(var wi=0;wi<ws.length;wi++){if(hay.indexOf(ws[wi])>-1){out.push({k:key,r:RES[key]});break}}if(out.length>=2)break}return out}
  function addRecs(q){var recs=suggestRes(q);if(!recs.length)return;var rh='<div style="font-size:12px;opacity:.85;margin-bottom:4px">Recursos originales para profundizar:</div>';recs.forEach(function(x){rh+='<div style="margin-top:8px"><strong>'+x.k+'</strong><br><button class="rsrc play" data-yt="'+x.r.yt+'" data-title="'+x.k.replace(/"/g,'')+'">Ver la charla</button> <a class="rsrc book" href="'+amz(x.r.book)+'" data-title="'+x.r.book.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">Libro ↗</a></div>'});add('a',rh)}
  function send(){var t=input.value.trim();if(!t||!cur)return;add('user',t.replace(/</g,'&lt;'));input.value='';input.style.height='auto';track('chat_question',{expert:cur.id,q:t.slice(0,140)});
+   if(cur.id==='coach'){var res=(window.__guideRoute?window.__guideRoute(t):{text:'',run:null,options:[]});add('a',String(res.text).replace(/</g,'&lt;'));speakChat(res.text);var h='<div class="coach-opts">';if(res.run)h+='<button class="sug coach-go" type="button">Ir ahora →</button>';(res.options||[]).forEach(function(o){h+='<button class="sug coach-opt" type="button" data-q="'+String(o.q).replace(/"/g,'&quot;')+'">'+o.label+'</button>'});h+='</div>';add('a',h);coachRun=res.run;return;}
    var typing=document.createElement('div');typing.className='cmsg';typing.innerHTML='<div class="cbub a">…</div>';msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;
    if(CHAT_URL){var ctx=hist[cur.id].slice(-5,-1).map(function(m){return (m.r==='user'?'Coach: ':'Experto: ')+String(m.t).replace(/<[^>]+>/g,'')}).join('\n').slice(0,1200);
      jsonpChat(CHAT_URL+'?expert='+encodeURIComponent(cur.id)+'&ctx='+encodeURIComponent(ctx)+'&q='+encodeURIComponent(t),function(d){typing.remove();var a=(d&&d.answer)?String(d.answer):reply(cur,t);add('a',a.replace(/</g,'&lt;').replace(/\n/g,'<br>'));
@@ -2284,7 +2295,7 @@ const EXPERTS=[
    else{setTimeout(function(){typing.remove();var rr=reply(cur,t);add('a',rr);speakChat(rr);addRecs(t)},550);}}
  fab.onclick=openP;ov.onclick=closeP;document.getElementById('agentClose').onclick=closeP;document.getElementById('agentClose2').onclick=closeP;
  document.getElementById('agentBack').onclick=showList;document.getElementById('chatSend').onclick=send;
- function speakChat(t){try{if('speechSynthesis' in window){var u=new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&amp;/g,'&'));u.lang='es-ES';u.rate=1.03;u.pitch=1.04;var vs=speechSynthesis.getVoices()||[];var v=vs.filter(function(x){return /es(-|_)?ES/i.test(x.lang)})[0]||vs.filter(function(x){return /^es/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}}catch(e){}}
+ function speakChat(t){try{if('speechSynthesis' in window){var u=new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&amp;/g,'&'));u.lang='es-ES';u.rate=1.02;u.pitch=1.05;var v=(window.__pickES?window.__pickES():null);if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}}catch(e){}}
  var CSR=window.SpeechRecognition||window.webkitSpeechRecognition,cmic=document.getElementById('chatMic');
  if(cmic)cmic.addEventListener('click',function(){if(!CSR){input.placeholder='Tu navegador no permite dictado; escribe la pregunta.';return}var r=new CSR();r.lang='es-ES';r.interimResults=false;r.maxAlternatives=1;cmic.classList.add('rec');r.onresult=function(e){input.value=e.results[0][0].transcript;send()};r.onerror=function(){cmic.classList.remove('rec')};r.onend=function(){cmic.classList.remove('rec')};try{r.start()}catch(e){cmic.classList.remove('rec')}});
  input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,90)+'px'});
@@ -2695,7 +2706,9 @@ const EXPERTS=[
   {k:['libro','biblioteca','lectura','avanzado','siguientes pasos'],id:'avanzado',l:'la biblioteca de libros'},
   {k:['explora','empezar','ruta del curso','portada','vision','visión'],id:'explora',l:'Explora'}
  ];
- function speak(t){try{if('speechSynthesis' in window){var u=new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g,''));u.lang='es-ES';u.rate=1.04;u.pitch=1.05;var vs=speechSynthesis.getVoices()||[];var v=vs.filter(function(x){return /es(-|_)?ES/i.test(x.lang)})[0]||vs.filter(function(x){return /^es/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}}catch(e){}}
+ function pickES(){var vs=(('speechSynthesis' in window)&&speechSynthesis.getVoices())||[];var es=vs.filter(function(v){return /^es/i.test(v.lang)});var fem=/(helena|laura|sabina|m[oó]nica|paulina|elvira|luc[ií]a|esperanza|conchita|pen[eé]lope|marisol|female|mujer)/i;return es.filter(function(v){return fem.test(v.name)})[0]||es.filter(function(v){return /google/i.test(v.name)})[0]||es.filter(function(v){return /es(-|_)?ES/i.test(v.lang)})[0]||es[0]||null;}
+ window.__pickES=pickES;
+ function speak(t){try{if('speechSynthesis' in window){var u=new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g,''));u.lang='es-ES';u.rate=1.02;u.pitch=1.06;var v=pickES();if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}}catch(e){}}
  function respond(t){if(say)say.innerHTML=t;speak(t)}
  function isQ(q){return q.indexOf('?')>-1||/^(¿|qu[eé] |c[oó]mo|por ?qu[eé]|cu[aá]ndo|d[oó]nde|qui[eé]n|cu[aá]l|dime|expl|ay(u|ú)da|consejo|recomi|deber[ií]a|deberia|puedo )/.test(q)}
  function expertFor(q){if(/personalidad|eneagrama|disc|perfil|color|johari|ikigai/.test(q))return'personalidades';if(/motiv|[aá]nimo|robbins|dweck|frankl|ilusi/.test(q))return'motivacion';if(/escuch|feedback|conversa|grow|pregunt/.test(q))return'escucha';if(/organiz|tiempo|rutina|h[aá]bito|productiv|planific|foco/.test(q))return'organizacion';return'liderazgo'}
@@ -2707,6 +2720,22 @@ const EXPERTS=[
  function words(q){return q.split(/\s+/).filter(function(w){return w.length>=4})}
  function findEl(sel,q){var ws=words(q),els=[].slice.call(document.querySelectorAll(sel));for(var i=0;i<els.length;i++){var t=(els[i].getAttribute('data-title')||'').toLowerCase();for(var j=0;j<ws.length;j++){if(t.indexOf(ws[j])>-1)return els[i]}}return null}
  function matchSection(q){for(var i=0;i<SECTIONS.length;i++){for(var j=0;j<SECTIONS[i].k.length;j++){if(q.indexOf(SECTIONS[i].k[j])>-1)return SECTIONS[i]}}return null}
+ function route(q){q=(q||'').toLowerCase().trim();var opts=[{label:'Liderazgo',q:'liderazgo'},{label:'Personalidades',q:'personalidades'},{label:'Práctico',q:'coaching práctico'},{label:'Rutinas',q:'organización y rutinas'},{label:'Kiosco de cursos',q:'kiosco'},{label:'Mi progreso',q:'mi progreso'}];var r={text:'',run:null,options:opts};
+  if(!q){r.text='¿Qué te muestro? Dímelo o toca una opción.';return r}
+  if(/experto|\bchat\b|duda/.test(q)){r.text='Abro el chat de expertos para que le preguntes.';r.run=function(){click('agentFab')};return r}
+  if(/mi ruta|\bruta\b|camino|recorrido/.test(q)){r.text='Te muestro tu ruta a medida.';r.run=function(){click('railRoute')};return r}
+  if(/progreso|nivel|puntos|logro|avatar/.test(q)){r.text='Aquí está tu progreso.';r.run=function(){click('railProg')};return r}
+  if(/equipo|invitar|ayudar|referid/.test(q)){r.text='Vamos con tu equipo.';r.run=function(){click('railInvite')};return r}
+  if(/mi perfil|perfil profesional/.test(q)){r.text='Aquí tienes tu perfil.';r.run=function(){click('railProfile')};return r}
+  if(/kiosco|kiosko|cesta|librer|elegir cursos?|ver cursos|men[uú] de cursos/.test(q)){r.text='Abro el kiosco de cursos para que elijas.';r.run=function(){click('railKiosko')};return r}
+  var vid=findEl('[data-yt][data-title]',q),bk=findEl('a.bthumb[data-title],a.book[data-title]',q),sec=matchSection(q);
+  if(/(libro|lectura|leer)/.test(q)&&bk){r.text='Te abro el libro: '+(bk.getAttribute('data-title')||'')+'.';r.run=function(){bk.click()};return r}
+  if(/(v[ií]deo|charla|ver|mira|pon)/.test(q)&&vid){r.text='Te pongo la charla de '+(vid.getAttribute('data-title')||'')+'.';r.run=function(){vid.click()};return r}
+  if(sec){r.text='Te muestro '+sec.l+'.';r.run=function(){go(sec.id)};return r}
+  if(vid){r.text='Lo más cercano: la charla de '+(vid.getAttribute('data-title')||'')+'.';r.run=function(){vid.click()};return r}
+  r.text='Aún no tengo eso en concreto. Mira estas áreas o pídemelo de otra forma.';try{track('topic_suggested',{topic:q})}catch(e){}return r;
+ }
+ window.__guideRoute=route;
  function ask(q){q=(q||'').toLowerCase().trim();if(!q){respond('Dime qué necesitas y te llevo.');return}
    var act=null,txt='';
    if(/experto|\bchat\b|resuelve|duda|pregunta a/.test(q)){txt='Te abro el chat de expertos.';act=function(){click('agentFab')}}
