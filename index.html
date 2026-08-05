@@ -514,6 +514,7 @@ body{padding-left:66px}
         <li>Los expertos comparten en sesiones y vídeo-podcasts que se replican, sin ocupar el tiempo de todo el equipo</li>
         <li>Tú ves quién forma a quién y el retorno real, en un panel privado</li>
       </ul>
+      <a href="#" id="regBack" style="display:none;margin-top:20px;color:#fff;font-weight:700;font-size:14px;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:10px;padding:10px 18px">← Volver a la formación</a>
     </div>
     <form id="regForm" class="landing-form">
       <h2>Entra a la formación</h2>
@@ -610,21 +611,29 @@ body{padding-left:66px}
       <input id="invName" placeholder="Nombre completo del compañero">
       <input id="invEmail" placeholder="Email" type="email">
     </div>
-    <div style="font-size:12px;font-weight:600;color:var(--odoo-primary);margin:4px 0 6px">¿En qué le vas a ayudar? Elige o escribe las temáticas</div>
-    <div class="inv-row">
-      <input id="invTopic" list="topicList" placeholder="Ej.: escucha activa, motivación, feedback…">
-      <button class="inv-add" id="invTopicAdd" type="button">+ Tema</button>
+    <div style="font-size:12px;font-weight:600;color:var(--odoo-primary);margin:10px 0 7px">¿En qué le vas a ayudar? Toca las temáticas que apliquen</div>
+    <div class="ob-chips" id="invChips">
+      <label><input type="checkbox" name="itopic" value="Escucha activa"><span>Escucha activa</span></label>
+      <label><input type="checkbox" name="itopic" value="Motivación"><span>Motivación</span></label>
+      <label><input type="checkbox" name="itopic" value="Dar feedback"><span>Dar feedback</span></label>
+      <label><input type="checkbox" name="itopic" value="Liderazgo"><span>Liderazgo</span></label>
+      <label><input type="checkbox" name="itopic" value="Personalidades y DISC"><span>Personalidades y DISC</span></label>
+      <label><input type="checkbox" name="itopic" value="Eneagrama"><span>Eneagrama</span></label>
+      <label><input type="checkbox" name="itopic" value="Gestión emocional"><span>Gestión emocional</span></label>
+      <label><input type="checkbox" name="itopic" value="Organización del tiempo"><span>Organización del tiempo</span></label>
+      <label><input type="checkbox" name="itopic" value="Hábitos"><span>Hábitos</span></label>
+      <label><input type="checkbox" name="itopic" value="Comunicación"><span>Comunicación</span></label>
+      <label><input type="checkbox" name="itopic" value="Mentoría"><span>Mentoría</span></label>
+      <label><input type="checkbox" name="itopic" value="Productividad"><span>Productividad</span></label>
     </div>
-    <datalist id="topicList">
-      <option value="Escucha activa"></option><option value="Motivación"></option><option value="Dar feedback"></option>
-      <option value="Liderazgo"></option><option value="Personalidades y DISC"></option><option value="Eneagrama"></option>
-      <option value="Gestión emocional"></option><option value="Organización del tiempo"></option><option value="Hábitos"></option>
-      <option value="Comunicación"></option><option value="Acompañamiento a nuevos"></option><option value="Mentoría"></option>
-      <option value="Resiliencia"></option><option value="Propósito e Ikigai"></option><option value="Productividad"></option><option value="Confianza"></option>
-    </datalist>
-    <div class="prof-tags" id="invTopics" style="margin:2px 0 10px;min-height:4px"></div>
+    <div style="font-size:12px;color:var(--text-muted);margin:12px 0 6px">¿Otra temática que no está? Escríbela y se sugiere para crear un curso nuevo:</div>
+    <div class="inv-row">
+      <input id="invTopic" placeholder="Escribe una temática nueva">
+      <button class="inv-add" id="invTopicAdd" type="button">Añadir tema</button>
+    </div>
+    <div class="prof-tags" id="invTopics" style="margin:8px 0 10px;min-height:4px"></div>
     <div class="err" id="invErr"></div>
-    <button class="inv-add" id="invAdd" type="button" style="width:100%;padding:11px">Añadir compañero</button>
+    <button class="inv-add" id="invAdd" type="button" style="width:100%;padding:12px;font-size:14px">Añadir compañero a mi equipo</button>
     <div id="invList" style="margin-top:12px"></div>
     <div style="text-align:center;margin-top:10px"><a href="#" id="invClose" style="font-size:12px;color:var(--text-muted)">Cerrar</a></div>
   </div>
@@ -689,6 +698,7 @@ body{padding-left:66px}
   </div>
   <div class="rail-items">
     <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio · portada"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
+    <a class="rail-item" href="#" id="railHome" title="Portada de Brandooers (el concepto)"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/></svg></span><span class="ri-lb">Portada</span></a>
     <a class="rail-item" href="#explora" data-sec="explora" title="Explora las rutas del curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">Explora</span></a>
     <a class="rail-item gold" href="#" id="railRoute" title="Tu ruta a medida, paso a paso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V9a4 4 0 0 1 4-4h4"/><path d="M18 7v8a4 4 0 0 1-4 4h-4"/></svg></span><span class="ri-lb">Mi ruta</span></a>
     <div class="rail-sub" id="railSub"></div>
@@ -2222,9 +2232,12 @@ const EXPERTS=[
  var add=document.getElementById('invAdd');if(add)add.addEventListener('click',function(){
    var n=document.getElementById('invName').value.trim(),m=document.getElementById('invEmail').value.trim(),err=document.getElementById('invErr');
    if(!n||!m||m.indexOf('@')<1){err.textContent='Pon nombre completo y un email válido.';return}
-   err.textContent='';var a=getInv();var it={name:n,email:m,topics:curTopics.slice(),at:(typeof nowISO==='function'?nowISO():'')};a.push(it);setInv(a);
+   var checked=[].slice.call(document.querySelectorAll('#invChips input:checked')).map(function(x){return x.value});
+   var topics=checked.concat(curTopics);
+   err.textContent='';var a=getInv();var it={name:n,email:m,topics:topics,at:(typeof nowISO==='function'?nowISO():'')};a.push(it);setInv(a);
    document.getElementById('invName').value='';document.getElementById('invEmail').value='';curTopics=[];renderTopics();
-   try{track('invite',{name:n,email:m,topics:it.topics,link:link()})}catch(e){}render();
+   [].slice.call(document.querySelectorAll('#invChips input:checked')).forEach(function(x){x.checked=false});
+   try{track('invite',{name:n,email:m,topics:topics,link:link()})}catch(e){}render();
  });
  var list=document.getElementById('invList');if(list)list.addEventListener('click',function(e){
    var c=e.target.closest('[data-copy]'),d=e.target.closest('[data-del]');
@@ -2335,6 +2348,8 @@ const EXPERTS=[
   rail.querySelectorAll('a.rail-item').forEach(function(a){a.addEventListener('click',function(e){var h=a.getAttribute('href');if(h&&h.length>1&&h.charAt(0)==='#'){e.preventDefault();var t=document.querySelector(h);if(t)t.scrollIntoView({behavior:'smooth'})}closeM();});});
   var ri=document.getElementById('railInt');if(ri)ri.addEventListener('click',function(e){e.preventDefault();closeM();var f=document.getElementById('intFab');if(f)f.click();});
   var re=document.getElementById('railExpert');if(re)re.addEventListener('click',function(e){e.preventDefault();closeM();var f=document.getElementById('agentFab');if(f)f.click();});
+  var rh=document.getElementById('railHome');if(rh)rh.addEventListener('click',function(e){e.preventDefault();closeM();var ov=document.getElementById('regOverlay'),rf=document.getElementById('regForm'),rb=document.getElementById('regBack');if(ov){ov.classList.remove('hide');document.body.classList.add('locked')}if(localStorage.getItem('coach_user')){if(rf)rf.style.display='none';if(rb)rb.style.display='inline-block'}});
+  var rbk=document.getElementById('regBack');if(rbk)rbk.addEventListener('click',function(e){e.preventDefault();var ov=document.getElementById('regOverlay');if(ov)ov.classList.add('hide');document.body.classList.remove('locked')});
   rail.addEventListener('click',function(e){var st=e.target.closest('.rail-step');if(!st)return;e.preventDefault();var t=document.querySelector(st.getAttribute('data-h'));if(t)t.scrollIntoView({behavior:'smooth'});closeM();try{track('route_step',{h:st.getAttribute('data-h')})}catch(err){}});
   var secs=[].slice.call(document.querySelectorAll('section[id]'));
   function onScroll(){var cur='';secs.forEach(function(s){if(window.scrollY>=s.offsetTop-160)cur=s.id});rail.querySelectorAll('[data-sec]').forEach(function(it){var l=(it.getAttribute('data-sec')||'').split(',');it.classList.toggle('active',l.indexOf(cur)>-1)});}
