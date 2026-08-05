@@ -287,6 +287,13 @@ body.locked{overflow:hidden}
 .wb-bubble::after{content:"";position:absolute;right:-9px;top:16px;border:7px solid transparent;border-left-color:#fff}
 .wb-text h1{font-size:clamp(26px,5.6vw,44px)!important}
 @media(max-width:600px){.wb-eyes{width:50px;top:-20px;right:14px}.wb-bubble{right:66px;max-width:150px;font-size:14px;top:-10px}}
+/* Avatar vivo que acompaña TODA la presentación */
+.cine-avatar{position:fixed;left:16px;bottom:74px;z-index:6;display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+.cine-av-eyes{width:66px;height:auto;filter:drop-shadow(0 4px 14px rgba(139,92,246,.6));animation:avAlive 4s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+.cine-av-bubble{max-width:210px;background:#fff;color:#2d2d2d;font-family:'Caveat',cursive;font-weight:600;font-size:16px;line-height:1.15;padding:7px 12px;border-radius:14px 14px 14px 4px;box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;transform:translateY(6px)}
+.cine-av-bubble.show{opacity:1;transform:none;transition:opacity .4s ease,transform .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes avAlive{0%,100%{transform:translateY(0) scaleY(1)}45%{transform:translateY(-4px) scaleY(1)}88%{transform:translateY(0) scaleY(1)}92%{transform:translateY(0) scaleY(.14)}96%{transform:translateY(0) scaleY(1)}}
+@media(max-width:600px){.cine-avatar{bottom:70px;left:10px}.cine-av-eyes{width:54px}.cine-av-bubble{max-width:158px;font-size:14px}}
 /* Móvil: sin desbordes horizontales ni FABs solapados */
 html,body{overflow-x:hidden;max-width:100%}
 #explora{overflow-x:clip}
@@ -616,6 +623,10 @@ body{padding-left:66px}
   </section>
   <div class="cine-dots" id="cineDots"></div>
   <a class="cine-skip" id="cineSkip" href="#">Ir al acceso ↓</a>
+  <div class="cine-avatar" id="cineAvatar">
+    <div class="cine-av-bubble" id="cineSay"></div>
+    <svg class="cine-av-eyes" viewBox="0 0 100 58"><g transform="translate(5,0)"><path d="M6 14 Q20 6 34 14" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="20" cy="36" rx="18" ry="18" fill="#fff" stroke="url(#bo-bg1)" stroke-width="3"/><circle cx="20" cy="34" r="7.5" fill="url(#bo-iris1)"/><circle cx="20" cy="34" r="3.5" fill="#0a0a0f"/><circle cx="23" cy="31" r="2" fill="#fff"/></g><g transform="translate(53,0)"><path d="M6 14 Q20 6 34 14" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="20" cy="36" rx="18" ry="18" fill="#fff" stroke="url(#bo-bg2)" stroke-width="3"/><circle cx="20" cy="34" r="7.5" fill="url(#bo-iris2)"/><circle cx="20" cy="34" r="3.5" fill="#0a0a0f"/><circle cx="23" cy="31" r="2" fill="#fff"/></g></svg>
+  </div>
 </div>
 
 <!-- ONBOARDING: RUTA A MEDIDA -->
@@ -2307,7 +2318,10 @@ const EXPERTS=[
  var dotsWrap=document.getElementById('cineDots');
  for(var i=0;i<N;i++){(function(i){var b=document.createElement('button');b.setAttribute('aria-label','Sección '+(i+1));b.addEventListener('click',function(){var max=track.offsetHeight-ov.clientHeight;ov.scrollTo({top:(i/(N-1))*max,behavior:'smooth'})});dotsWrap.appendChild(b)})(i)}
  var dots=dotsWrap.children;
- function upd(){var max=track.offsetHeight-ov.clientHeight;var pr=max>0?Math.min(1,Math.max(0,ov.scrollTop/max)):0;var idx=Math.round(pr*(N-1));for(var i=0;i<N;i++){scenes[i].classList.toggle('active',i===idx);if(dots[i])dots[i].classList.toggle('on',i===idx)}}
+ var SAYS=['¡Hola! Yo te acompaño.','Las de siempre… bah.','El talento ya está dentro.','Pequeño gesto, gran salto.','Con firmas que pesan.','Lo medimos todo, ¿eh?','¡Mira cómo sube!'];
+ var lastIdx=-1;
+ function upd(){var max=track.offsetHeight-ov.clientHeight;var pr=max>0?Math.min(1,Math.max(0,ov.scrollTop/max)):0;var idx=Math.round(pr*(N-1));for(var i=0;i<N;i++){scenes[i].classList.toggle('active',i===idx);if(dots[i])dots[i].classList.toggle('on',i===idx)}
+   if(idx!==lastIdx){lastIdx=idx;var say=document.getElementById('cineSay');if(say){say.classList.remove('show');say.textContent=SAYS[idx]||'';void say.offsetWidth;say.classList.add('show')}}}
  ov.addEventListener('scroll',upd,{passive:true});
  var skip=document.getElementById('cineSkip');if(skip)skip.addEventListener('click',function(e){e.preventDefault();var f=document.getElementById('cineFinal');if(f)ov.scrollTo({top:f.offsetTop,behavior:'smooth'})});
  window.__cineReset=function(){ov.scrollTop=0;upd()};
