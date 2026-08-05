@@ -316,6 +316,11 @@ body.locked{overflow:hidden}
 .tab-eyes{display:none!important}
 .tablet-screen svg{animation:charBob 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
 @keyframes charBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.ev-eye{transform-box:fill-box;transform-origin:center;animation:evBlink 4.4s infinite}
+.ev-eye.e2{animation-delay:.05s}
+@keyframes evBlink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}97%{transform:scaleY(1)}}
+.ev-look{transform-box:fill-box;transform-origin:center;animation:evLook 6.5s ease-in-out infinite}
+@keyframes evLook{0%,100%{transform:translate(0,0)}22%{transform:translate(-3px,0)}48%{transform:translate(3px,-1px)}74%{transform:translate(0,-2px)}}
 .cine-final{flex-direction:row!important;gap:48px!important;align-items:center!important;justify-content:center!important;text-align:left!important;max-width:1000px;margin:0 auto}
 .final-col{max-width:480px}
 .cine-final-h,.cine-final-sub{text-align:left}
@@ -2353,8 +2358,8 @@ const EXPERTS=[
   var aura=li>=6?'<ellipse cx="60" cy="58" rx="55" ry="52" fill="none" stroke="#E46E78" stroke-width="2.5" opacity=".5"/>':'';
   var by=li>=5?32:34;
   var brows='<path d="M26 '+by+' Q44 '+(by-8)+' 60 '+by+'" fill="none" stroke="url(#bo-brow1)" stroke-width="4" stroke-linecap="round"/><path d="M60 '+by+' Q76 '+(by-8)+' 94 '+by+'" fill="none" stroke="url(#bo-brow2)" stroke-width="4" stroke-linecap="round"/>';
-  function eye(cx,ir,bg){return '<ellipse cx="'+cx+'" cy="58" rx="21" ry="21" fill="#fff" stroke="url(#'+bg+')" stroke-width="3.4"/><circle cx="'+cx+'" cy="60" r="8.5" fill="url(#'+ir+')"/><circle cx="'+cx+'" cy="60" r="4" fill="#0a0a0f"/><circle cx="'+(cx+4)+'" cy="56" r="2.3" fill="#fff"/>';}
-  return '<svg viewBox="0 0 120 132" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:100%">'+aura+cape+brows+eye(44,'bo-iris1','bo-bg1')+eye(76,'bo-iris2','bo-bg2')+crown+arms+legs+shield+sword+'</svg>';
+  function eye(cx,ir,bg,cls){return '<g class="ev-eye '+cls+'"><ellipse cx="'+cx+'" cy="58" rx="21" ry="21" fill="#fff" stroke="url(#'+bg+')" stroke-width="3.4"/><g class="ev-look"><circle cx="'+cx+'" cy="60" r="8.5" fill="url(#'+ir+')"/><circle cx="'+cx+'" cy="60" r="4" fill="#0a0a0f"/><circle cx="'+(cx+4)+'" cy="56" r="2.3" fill="#fff"/></g></g>';}
+  return '<svg viewBox="0 0 120 132" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:100%">'+aura+cape+brows+eye(44,'bo-iris1','bo-bg1','e1')+eye(76,'bo-iris2','bo-bg2','e2')+crown+arms+legs+shield+sword+'</svg>';
  }
  var SAYS=['¡Hola! Yo te acompaño.','Las de siempre… bah.','El talento ya está dentro.','Pequeño gesto, gran salto.','Con firmas que pesan.','Lo medimos todo, ¿eh?','¡Mira cómo sube!'];
  var VIS=[
