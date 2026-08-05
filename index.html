@@ -344,6 +344,15 @@ img,svg,video{-webkit-user-drag:none}
 .rail:hover .rail-item .ri-lb,.rail.open .rail-item .ri-lb{opacity:1}
 .rail-item.gold{color:var(--odoo-gold)}
 .rail-item.teal{color:var(--odoo-secondary)}
+.rail-sub{display:flex;flex-direction:column;gap:1px;margin:1px 0 5px}
+.rail-step{display:flex;align-items:center;gap:15px;padding:5px 12px;border-radius:10px;color:var(--text-muted);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.rail-step:hover{background:var(--bg-warm)}
+.rail-step .rs-num{flex-shrink:0;width:22px;display:grid;place-items:center}
+.rail-step .rs-num b{width:20px;height:20px;border-radius:50%;background:rgba(228,169,0,.16);color:var(--odoo-gold);font-size:11px;font-weight:700;display:grid;place-items:center;transition:all .15s}
+.rail-step:hover .rs-num b,.rail-step.active .rs-num b{background:var(--odoo-gold);color:#fff}
+.rail-step .rs-lb{font-size:12.5px;font-weight:500;opacity:0;transition:opacity .18s}
+.rail-step .rs-lb b{font-weight:700;color:var(--odoo-gold)}
+.rail:hover .rail-step .rs-lb,.rail.open .rail-step .rs-lb{opacity:1}
 .rail-sep{height:1px;background:var(--border-light);margin:8px 10px}
 .rail-burger{position:fixed;top:14px;left:12px;z-index:75;width:44px;height:44px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:none;place-items:center}
 .rail-burger svg{width:22px;height:22px;stroke:var(--text-dark)}
@@ -478,6 +487,7 @@ body{padding-left:66px}
     <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio · portada"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
     <a class="rail-item" href="#explora" data-sec="explora" title="Explora las rutas del curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">Explora</span></a>
     <a class="rail-item gold" href="#" id="railRoute" title="Tu ruta a medida, paso a paso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V9a4 4 0 0 1 4-4h4"/><path d="M18 7v8a4 4 0 0 1-4 4h-4"/></svg></span><span class="ri-lb">Mi ruta</span></a>
+    <div class="rail-sub" id="railSub"></div>
     <a class="rail-item" href="#adn" data-sec="adn,rol,eres" title="El test de ADN y tu papel como coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 12.5l2.5 2.5 4-4"/></svg></span><span class="ri-lb">Test de ADN</span></a>
     <a class="rail-item" href="#perfil" data-sec="perfil" title="Perfil y personalidades: eneagrama, DISC, zonas, Ikigai"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="ri-lb">Personalidades</span></a>
     <a class="rail-item" href="#pilares" data-sec="pilares,expertos" title="Liderazgo: los 4 pilares y las técnicas de los autores"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Liderazgo</span></a>
@@ -1908,13 +1918,17 @@ const EXPERTS=[
  var ob=document.getElementById('obOverlay'),rt=document.getElementById('routeOverlay'),stepsEl=document.getElementById('routeSteps');
  if(!ob)return;
  var BLOCKS={
-  adn:{t:'Haz el test de ADN',w:'Conoce el perfil de tu coachee y saca su punto de partida.',h:'#adn'},
-  perfil:{t:'Aprende a leer su personalidad',w:'Eneagrama, DISC y zonas para saber cómo hablarle.',h:'#perfil'},
-  liderazgo:{t:'Las técnicas de los grandes',w:'Sinek, Robbins, Sharma… liderazgo y motivación aplicables.',h:'#pilares'},
-  practico:{t:'La caja de herramientas',w:'Las 7 preguntas, la escucha y el apoyo emocional.',h:'#herramientas'},
-  rutinas:{t:'Organiza el día',w:'Priming, prioridades y foco para el día a día.',h:'#rutinas'},
-  seguimiento:{t:'El plan de 6 meses',w:'Cadencia, metas y plantillas para no perder el hilo.',h:'#calendario'}
+  adn:{t:'Haz el test de ADN',s:'Test de ADN',w:'Conoce el perfil de tu coachee y saca su punto de partida.',h:'#adn'},
+  perfil:{t:'Aprende a leer su personalidad',s:'Personalidades',w:'Eneagrama, DISC y zonas para saber cómo hablarle.',h:'#perfil'},
+  liderazgo:{t:'Las técnicas de los grandes',s:'Liderazgo',w:'Sinek, Robbins, Sharma… liderazgo y motivación aplicables.',h:'#pilares'},
+  practico:{t:'La caja de herramientas',s:'Práctico',w:'Las 7 preguntas, la escucha y el apoyo emocional.',h:'#herramientas'},
+  rutinas:{t:'Organiza el día',s:'Organización',w:'Priming, prioridades y foco para el día a día.',h:'#rutinas'},
+  seguimiento:{t:'El plan de 6 meses',s:'Plan 6 meses',w:'Cadencia, metas y plantillas para no perder el hilo.',h:'#calendario'}
  };
+ function renderRailSub(route){var sub=document.getElementById('railSub');if(!sub)return;
+  if(!route||!route.length){sub.innerHTML='';return}
+  sub.innerHTML=route.map(function(s,i){var b=BLOCKS[s.k]||{};var sh=b.s||s.t;var sec=String(s.h||'').replace('#','');
+   return '<a class="rail-step" data-h="'+s.h+'" data-sec="'+sec+'" title="Paso '+(i+1)+' · '+String(s.t||sh).replace(/"/g,'')+'"><span class="rs-num"><b>'+(i+1)+'</b></span><span class="rs-lb"><b>Paso '+(i+1)+'</b> · '+sh+'</span></a>'}).join('');}
  function buildRoute(a){
   var q1map={nuevo:['adn','perfil','seguimiento'],mejorar:['practico','liderazgo','perfil'],conocer:['adn','perfil','practico'],liderar:['liderazgo','practico','perfil']};
   var q2map={escucha:'practico',motivar:'liderazgo',feedback:'liderazgo',conocer:'perfil',organizar:'rutinas'};
@@ -1932,6 +1946,7 @@ const EXPERTS=[
    var q1=(document.querySelector('input[name=q1]:checked')||{}).value,q2=(document.querySelector('input[name=q2]:checked')||{}).value,q3=(document.querySelector('input[name=q3]:checked')||{}).value;
    if(!q1||!q2||!q3){document.getElementById('obErr').textContent='Responde las tres, es un momento.';return}
    var route=buildRoute({q1:q1,q2:q2,q3:q3});localStorage.setItem('coach_route',JSON.stringify(route));localStorage.setItem('coach_ob_done','1');
+   renderRailSub(route);
    try{track('onboarding',{q1:q1,q2:q2,q3:q3});track('route',{steps:route.map(function(s){return s.k})})}catch(e){}
    hideOb();render(route);rt.classList.remove('hide');document.body.classList.add('locked');
  });
@@ -1941,6 +1956,7 @@ const EXPERTS=[
  stepsEl.addEventListener('click',function(e){var a=e.target.closest('.rs-go');if(a){hideRoute();var t=document.querySelector(a.getAttribute('data-h'));if(t)t.scrollIntoView({behavior:'smooth'});try{track('route_step',{h:a.getAttribute('data-h')})}catch(e){}}});
  var railRoute=document.getElementById('railRoute');if(railRoute)railRoute.addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rail'),o=document.getElementById('railOv');if(r)r.classList.remove('open');if(o)o.classList.remove('open');showRoute()});
  window.__maybeOnboarding=function(){if(localStorage.getItem('coach_route'))return;if(!localStorage.getItem('coach_ob_done'))showOb()};
+ try{var _r0=JSON.parse(localStorage.getItem('coach_route')||'[]');if(_r0.length)renderRailSub(_r0)}catch(e){}
  var u=null;try{u=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
  if(u&&!localStorage.getItem('coach_ob_done')&&!localStorage.getItem('coach_route'))setTimeout(showOb,600);
 })();
@@ -1955,9 +1971,9 @@ const EXPERTS=[
   rail.querySelectorAll('a.rail-item').forEach(function(a){a.addEventListener('click',function(e){var h=a.getAttribute('href');if(h&&h.length>1&&h.charAt(0)==='#'){e.preventDefault();var t=document.querySelector(h);if(t)t.scrollIntoView({behavior:'smooth'})}closeM();});});
   var ri=document.getElementById('railInt');if(ri)ri.addEventListener('click',function(e){e.preventDefault();closeM();var f=document.getElementById('intFab');if(f)f.click();});
   var re=document.getElementById('railExpert');if(re)re.addEventListener('click',function(e){e.preventDefault();closeM();var f=document.getElementById('agentFab');if(f)f.click();});
-  var items=[].slice.call(rail.querySelectorAll('a.rail-item[data-sec]'));
+  rail.addEventListener('click',function(e){var st=e.target.closest('.rail-step');if(!st)return;e.preventDefault();var t=document.querySelector(st.getAttribute('data-h'));if(t)t.scrollIntoView({behavior:'smooth'});closeM();try{track('route_step',{h:st.getAttribute('data-h')})}catch(err){}});
   var secs=[].slice.call(document.querySelectorAll('section[id]'));
-  function onScroll(){var cur='';secs.forEach(function(s){if(window.scrollY>=s.offsetTop-160)cur=s.id});items.forEach(function(it){var l=(it.getAttribute('data-sec')||'').split(',');it.classList.toggle('active',l.indexOf(cur)>-1)});}
+  function onScroll(){var cur='';secs.forEach(function(s){if(window.scrollY>=s.offsetTop-160)cur=s.id});rail.querySelectorAll('[data-sec]').forEach(function(it){var l=(it.getAttribute('data-sec')||'').split(',');it.classList.toggle('active',l.indexOf(cur)>-1)});}
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 })();
 </script>
