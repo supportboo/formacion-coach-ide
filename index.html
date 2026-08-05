@@ -412,6 +412,27 @@ body{padding-left:66px}
 .inv-acts button,.inv-acts a{font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-primary);cursor:pointer;text-decoration:none}
 .inv-acts .del{color:var(--text-muted);border-color:var(--border-light)}
 .inv-empty{font-size:12.5px;color:var(--text-muted);padding:6px 2px}
+/* Progreso / gamificación */
+.prog-rank{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--odoo-primary)}
+.prog-av{width:92px;height:92px;margin:8px auto 6px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:38px;background:radial-gradient(circle at 50% 38%,#8b5cf6,#4c1d95);box-shadow:0 0 0 4px rgba(139,92,246,.18),0 10px 30px rgba(139,92,246,.4)}
+.prog-av.lv2{background:radial-gradient(circle at 50% 38%,#22d3ee,#0e7490);box-shadow:0 0 0 4px rgba(34,211,238,.18),0 10px 30px rgba(34,211,238,.45)}
+.prog-av.lv3{background:radial-gradient(circle at 50% 38%,#21B799,#017E84);box-shadow:0 0 0 4px rgba(33,183,153,.18),0 10px 30px rgba(33,183,153,.45)}
+.prog-av.lv4{background:radial-gradient(circle at 50% 38%,#E4A900,#a97e00);box-shadow:0 0 0 4px rgba(228,169,0,.2),0 10px 30px rgba(228,169,0,.45)}
+.prog-av.lv5{background:radial-gradient(circle at 50% 38%,#E46E78,#8b1e3f);box-shadow:0 0 0 5px rgba(228,110,120,.24),0 12px 42px rgba(228,110,120,.5)}
+.prog-name{font-family:'Caveat',cursive;font-size:30px;color:var(--text-dark);line-height:1.05}
+.prog-pts{font-size:13px;color:var(--text-muted);margin:2px 0 12px}
+.prog-bar{height:10px;border-radius:6px;background:var(--bg-warm);overflow:hidden;margin:0 auto}
+.prog-bar>i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#8b5cf6,#22d3ee);transition:width .5s}
+.prog-next{font-size:11.5px;color:var(--text-muted);margin:6px 0 16px}
+.badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:6px 0 4px}
+.badge{width:76px;text-align:center;font-size:10px;color:var(--text-body);line-height:1.2}
+.badge .bi{width:46px;height:46px;margin:0 auto 4px;border-radius:14px;display:grid;place-items:center;background:var(--bg-warm);border:1px solid var(--border-light)}
+.badge.on .bi{background:linear-gradient(135deg,rgba(228,169,0,.18),rgba(113,75,103,.1));border-color:var(--odoo-gold)}
+.badge.off{opacity:.42}
+.prog-how{text-align:left;background:var(--bg-warm);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--text-body);margin-top:16px;line-height:1.55}
+.prog-how b{color:var(--text-dark)}
+.quiz-q{margin-bottom:16px}
+.quiz-q h4{font-size:13.5px;color:var(--text-dark);margin-bottom:8px}
 .route-step{display:flex;gap:14px;align-items:flex-start;background:var(--bg-white);border:1px solid var(--border-light);border-radius:14px;padding:15px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
 .route-step .rs-n{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:19px;display:grid;place-items:center}
 .route-step h4{font-size:15px;color:var(--text-dark);margin:0 0 3px}
@@ -560,13 +581,67 @@ body{padding-left:66px}
     <h2 style="text-align:center">A quién puedes ayudar</h2>
     <p class="rsub" style="text-align:center">Añade a los compañeros a los que crees que puedes echar una mano. Te generamos una invitación con tu enlace personal: cuando entren, quedan enlazados a ti como tus coachees y se dibuja el mapa de quién ayuda a quién.</p>
     <div class="inv-row">
-      <input id="invName" placeholder="Nombre del compañero">
+      <input id="invName" placeholder="Nombre completo del compañero">
       <input id="invEmail" placeholder="Email" type="email">
     </div>
-    <div class="inv-row"><input id="invHelp" placeholder="¿En qué le vas a ayudar? (opcional)"><button class="inv-add" id="invAdd" type="button">Añadir</button></div>
+    <div style="font-size:12px;font-weight:600;color:var(--odoo-primary);margin:4px 0 6px">¿En qué le vas a ayudar? Elige o escribe las temáticas</div>
+    <div class="inv-row">
+      <input id="invTopic" list="topicList" placeholder="Ej.: escucha activa, motivación, feedback…">
+      <button class="inv-add" id="invTopicAdd" type="button">+ Tema</button>
+    </div>
+    <datalist id="topicList">
+      <option value="Escucha activa"></option><option value="Motivación"></option><option value="Dar feedback"></option>
+      <option value="Liderazgo"></option><option value="Personalidades y DISC"></option><option value="Eneagrama"></option>
+      <option value="Gestión emocional"></option><option value="Organización del tiempo"></option><option value="Hábitos"></option>
+      <option value="Comunicación"></option><option value="Acompañamiento a nuevos"></option><option value="Mentoría"></option>
+      <option value="Resiliencia"></option><option value="Propósito e Ikigai"></option><option value="Productividad"></option><option value="Confianza"></option>
+    </datalist>
+    <div class="prof-tags" id="invTopics" style="margin:2px 0 10px;min-height:4px"></div>
     <div class="err" id="invErr"></div>
+    <button class="inv-add" id="invAdd" type="button" style="width:100%;padding:11px">Añadir compañero</button>
     <div id="invList" style="margin-top:12px"></div>
     <div style="text-align:center;margin-top:10px"><a href="#" id="invClose" style="font-size:12px;color:var(--text-muted)">Cerrar</a></div>
+  </div>
+</div>
+<div class="reg-overlay hide" id="progOverlay">
+  <div class="reg-box" style="max-width:520px;text-align:center;max-height:88vh;overflow-y:auto">
+    <div id="progBody"></div>
+    <button type="button" id="progQuiz">Hacer una evaluación (+40 puntos)</button>
+    <div style="margin-top:10px"><a href="#" id="progClose" style="font-size:12px;color:var(--text-muted)">Cerrar</a></div>
+  </div>
+</div>
+<div class="reg-overlay hide" id="quizOverlay">
+  <div class="reg-box" style="max-width:520px;text-align:left;max-height:88vh;overflow-y:auto">
+    <h2 style="text-align:center">Evaluación · Acompañamiento</h2>
+    <p class="rsub" style="text-align:center">Demuestra lo que has aprendido y cómo lo aplicas. Súperala para ganar puntos y subir de nivel.</p>
+    <form id="quizForm">
+      <div class="quiz-q"><h4>1 · En los primeros 6 meses, tu papel como coach es sobre todo…</h4><div class="ob-opts">
+        <label><input type="radio" name="k1" value="a"><span>Enseñarle a vender y revisar su operativa</span></label>
+        <label><input type="radio" name="k1" value="c"><span>Apoyo emocional, confianza y acompañamiento</span></label>
+        <label><input type="radio" name="k1" value="b"><span>Evaluar su rendimiento cada semana</span></label>
+      </div></div>
+      <div class="quiz-q"><h4>2 · Ante un bajón en las semanas 3-4 (riesgo de abandono), lo mejor es…</h4><div class="ob-opts">
+        <label><input type="radio" name="k2" value="a"><span>Darle espacio y esperar a que remonte solo</span></label>
+        <label><input type="radio" name="k2" value="b"><span>Presionar con objetivos para que reaccione</span></label>
+        <label><input type="radio" name="k2" value="c"><span>Aumentar el contacto y escuchar sin juzgar</span></label>
+      </div></div>
+      <div class="quiz-q"><h4>3 · La escucha activa consiste sobre todo en…</h4><div class="ob-opts">
+        <label><input type="radio" name="k3" value="c"><span>Escuchar y validar sin lanzarte a dar consejos</span></label>
+        <label><input type="radio" name="k3" value="a"><span>Dar soluciones rápidas a cada problema</span></label>
+        <label><input type="radio" name="k3" value="b"><span>Contarle tu experiencia para que te imite</span></label>
+      </div></div>
+      <div class="quiz-q"><h4>4 · ¿Cómo lo has aplicado con tu coachee?</h4>
+        <textarea class="ob-ta" name="qapp" placeholder="Un ejemplo real de esta semana."></textarea></div>
+      <div class="quiz-q"><h4>5 · ¿A cuántos compañeros les has transmitido lo aprendido?</h4><div class="ob-opts">
+        <label><input type="radio" name="qtr" value="0"><span>Aún a ninguno</span></label>
+        <label><input type="radio" name="qtr" value="1"><span>A 1</span></label>
+        <label><input type="radio" name="qtr" value="2-3"><span>A 2-3</span></label>
+        <label><input type="radio" name="qtr" value="3+"><span>A más de 3</span></label>
+      </div></div>
+      <div class="err" id="quizErr"></div>
+      <button type="submit">Enviar evaluación</button>
+      <div style="text-align:center;margin-top:10px"><a href="#" id="quizClose" style="font-size:12px;color:var(--text-muted)">Cerrar</a></div>
+    </form>
   </div>
 </div>
 
@@ -593,6 +668,7 @@ body{padding-left:66px}
     <div class="rail-sub" id="railSub"></div>
     <a class="rail-item gold" href="#" id="railProfile" title="Mi perfil profesional"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M13 10h5M13 13.5h5M5.5 16c.5-1.3 1.7-2 3-2s2.5.7 3 2"/></svg></span><span class="ri-lb">Mi perfil</span></a>
     <a class="rail-item gold" href="#" id="railInvite" title="A quién puedo ayudar: invita a tu equipo"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3.2 2.5-4.8 5.5-4.8s5.5 1.6 5.5 4.8"/><path d="M17.5 8.5h4M19.5 6.5v4"/></svg></span><span class="ri-lb">Mi equipo</span></a>
+    <a class="rail-item gold" href="#" id="railProg" title="Mi progreso: nivel, puntos y logros"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M17 5h2.5a1.5 1.5 0 0 1 0 4H17M7 5H4.5a1.5 1.5 0 0 0 0 4H7"/></svg></span><span class="ri-lb">Mi progreso</span></a>
     <a class="rail-item" href="#adn" data-sec="adn,rol,eres" title="El test de ADN y tu papel como coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 12.5l2.5 2.5 4-4"/></svg></span><span class="ri-lb">Test de ADN</span></a>
     <a class="rail-item" href="#perfil" data-sec="perfil" title="Perfil y personalidades: eneagrama, DISC, zonas, Ikigai"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="ri-lb">Personalidades</span></a>
     <a class="rail-item" href="#pilares" data-sec="pilares,expertos" title="Liderazgo: los 4 pilares y las técnicas de los autores"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Liderazgo</span></a>
@@ -2096,19 +2172,26 @@ const EXPERTS=[
  function getInv(){try{return JSON.parse(localStorage.getItem('coach_invites')||'[]')}catch(e){return []}}
  function setInv(a){localStorage.setItem('coach_invites',JSON.stringify(a))}
  function esc(s){return String(s||'').replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]})}
- function plainMsg(inv){var u=me()||{};return 'Hola '+(inv.name||'')+',\n\nTe comparto la formación de coaches que estoy siguiendo, creo que te va a venir muy bien'+(inv.help?(' con '+inv.help):'')+'.\nEntra por aquí y lo vemos juntos: '+link()+'\n\nUn abrazo,\n'+(u.name||'');}
+ function plainMsg(inv){var u=me()||{};return 'Hola '+(inv.name||'')+',\n\nTe comparto la formación de coaches que estoy siguiendo, creo que te va a venir muy bien'+((inv.topics&&inv.topics.length)?(' con '+inv.topics.join(', ')):'')+'.\nEntra por aquí y lo vemos juntos: '+link()+'\n\nUn abrazo,\n'+(u.name||'');}
  function render(){var el=document.getElementById('invList');var a=getInv();
   if(!a.length){el.innerHTML='<div class="inv-empty">Aún no has añadido a nadie. Empieza por una persona a la que de verdad puedas echar una mano.</div>';return}
   el.innerHTML=a.map(function(inv,i){var mail='mailto:'+encodeURIComponent(inv.email||'')+'?subject='+encodeURIComponent('Te invito a la formación de coaches')+'&body='+encodeURIComponent(plainMsg(inv));
-   return '<div class="inv-card"><div class="icn">'+esc(inv.name||'—')+'</div><div class="ice">'+esc(inv.email||'')+'</div>'+(inv.help?'<div class="ich">'+esc(inv.help)+'</div>':'')+'<div class="inv-acts"><button data-copy="'+i+'">Copiar invitación</button><a href="'+mail+'">Enviar por email</a><button class="del" data-del="'+i+'">Quitar</button></div></div>'}).join('');}
+   return '<div class="inv-card"><div class="icn">'+esc(inv.name||'—')+'</div><div class="ice">'+esc(inv.email||'')+'</div>'+((inv.topics&&inv.topics.length)?'<div class="prof-tags" style="margin:4px 0 8px">'+inv.topics.map(function(t){return '<span class="prof-tag">'+esc(t)+'</span>'}).join('')+'</div>':'')+'<div class="inv-acts"><button data-copy="'+i+'">Copiar invitación</button><a href="'+mail+'">Enviar por email</a><button class="del" data-del="'+i+'">Quitar</button></div></div>'}).join('');}
  function open(){render();ov.classList.remove('hide');document.body.classList.add('locked')}
  function close(){ov.classList.add('hide');document.body.classList.remove('locked')}
+ var KNOWN=['escucha activa','motivación','dar feedback','liderazgo','personalidades y disc','eneagrama','gestión emocional','organización del tiempo','hábitos','comunicación','acompañamiento a nuevos','mentoría','resiliencia','propósito e ikigai','productividad','confianza'];
+ var curTopics=[];
+ function renderTopics(){var el=document.getElementById('invTopics');if(!el)return;el.innerHTML=curTopics.map(function(t,i){var nw=KNOWN.indexOf(t.toLowerCase())<0;return '<span class="prof-tag" data-ti="'+i+'" style="cursor:pointer" title="Quitar">'+esc(t)+(nw?' · nueva':'')+' ×</span>'}).join('');}
+ function addTopic(){var inp=document.getElementById('invTopic');if(!inp)return;var v=(inp.value||'').trim();if(!v)return;if(curTopics.map(function(x){return x.toLowerCase()}).indexOf(v.toLowerCase())<0){curTopics.push(v);if(KNOWN.indexOf(v.toLowerCase())<0){try{track('topic_suggested',{topic:v})}catch(e){}}}inp.value='';renderTopics();}
+ var tAdd=document.getElementById('invTopicAdd');if(tAdd)tAdd.addEventListener('click',addTopic);
+ var tIn=document.getElementById('invTopic');if(tIn)tIn.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addTopic()}});
+ var tW=document.getElementById('invTopics');if(tW)tW.addEventListener('click',function(e){var s=e.target.closest('[data-ti]');if(s){curTopics.splice(+s.getAttribute('data-ti'),1);renderTopics()}});
  var add=document.getElementById('invAdd');if(add)add.addEventListener('click',function(){
-   var n=document.getElementById('invName').value.trim(),m=document.getElementById('invEmail').value.trim(),h=document.getElementById('invHelp').value.trim(),err=document.getElementById('invErr');
-   if(!n||!m||m.indexOf('@')<1){err.textContent='Pon al menos nombre y un email válido.';return}
-   err.textContent='';var a=getInv();a.push({name:n,email:m,help:h,at:(typeof nowISO==='function'?nowISO():'')});setInv(a);
-   document.getElementById('invName').value='';document.getElementById('invEmail').value='';document.getElementById('invHelp').value='';
-   try{track('invite',{name:n,email:m,help:h,link:link()})}catch(e){}render();
+   var n=document.getElementById('invName').value.trim(),m=document.getElementById('invEmail').value.trim(),err=document.getElementById('invErr');
+   if(!n||!m||m.indexOf('@')<1){err.textContent='Pon nombre completo y un email válido.';return}
+   err.textContent='';var a=getInv();var it={name:n,email:m,topics:curTopics.slice(),at:(typeof nowISO==='function'?nowISO():'')};a.push(it);setInv(a);
+   document.getElementById('invName').value='';document.getElementById('invEmail').value='';curTopics=[];renderTopics();
+   try{track('invite',{name:n,email:m,topics:it.topics,link:link()})}catch(e){}render();
  });
  var list=document.getElementById('invList');if(list)list.addEventListener('click',function(e){
    var c=e.target.closest('[data-copy]'),d=e.target.closest('[data-del]');
@@ -2120,6 +2203,65 @@ const EXPERTS=[
  ov.addEventListener('click',function(e){if(e.target===ov)close()});
  var railInvite=document.getElementById('railInvite');if(railInvite)railInvite.addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rail'),o=document.getElementById('railOv');if(r)r.classList.remove('open');if(o)o.classList.remove('open');open()});
  try{var rf=new URLSearchParams(location.search).get('ref');if(rf&&!localStorage.getItem('coach_user'))localStorage.setItem('coach_ref',rf);}catch(e){}
+})();
+
+/* ===== Progreso / gamificación ===== */
+(function(){
+ var po=document.getElementById('progOverlay');if(!po)return;var qo=document.getElementById('quizOverlay');
+ function esc(s){return String(s||'').replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]})}
+ var LV=[{n:'Recién llegado'},{n:'Aprendiz'},{n:'Especialista'},{n:'Experto'},{n:'Mentor'}];var MIN=[0,50,150,300,500];
+ var BADGE=[
+  {k:'presentado',l:'Te presentaste',p:'<path d="M5 12l4 4 10-10"/>'},
+  {k:'perfil',l:'Perfil completo',p:'<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M13 10h4M13 13.5h4"/>'},
+  {k:'charla',l:'Primera charla',p:'<circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/>'},
+  {k:'curioso',l:'Curioso · 5 charlas',p:'<path d="M12 3l2.6 5.6L21 9.3l-4.5 4.3L17.8 20 12 16.8 6.2 20l1.3-6.4L3 9.3l6.4-.7z"/>'},
+  {k:'mentor',l:'Mentor',p:'<circle cx="9" cy="8" r="3"/><path d="M3.5 19c0-3 2.5-4.6 5.5-4.6s5.5 1.6 5.5 4.6"/><path d="M17 8h4M19 6v4"/>'},
+  {k:'evaluado',l:'Evaluado',p:'<path d="M12 3l7 3v6c0 4-3 6.5-7 8-4-1.5-7-4-7-8V6z"/><path d="M9 12l2 2 4-4"/>'},
+  {k:'maestro',l:'Maestro',p:'<path d="M5 9l3 2 4-5 4 5 3-2v9H5z"/>'}
+ ];
+ function J(k,d){try{return JSON.parse(localStorage.getItem(k)||d)}catch(e){return JSON.parse(d)}}
+ function data(){
+  var pts=0,earned={};var u=J('coach_user','null'),prof=J('coach_profile','null'),inv=J('coach_invites','[]'),ev=J('coach_events','[]'),quiz=J('coach_quizzes','{}');
+  if(u){pts+=10;earned.presentado=1}
+  if(prof){pts+=30;earned.perfil=1}
+  var vids={};ev.forEach(function(e){if(e.ev==='video_open'&&e.data&&e.data.id)vids[e.data.id]=1});
+  var nv=Object.keys(vids).length;pts+=nv*5;if(nv>=1)earned.charla=1;if(nv>=5)earned.curioso=1;
+  pts+=(inv.length||0)*8;if(inv.length>=1)earned.mentor=1;
+  var nq=Object.keys(quiz).length;pts+=nq*40;if(nq>=1)earned.evaluado=1;
+  var li=0;for(var i=0;i<MIN.length;i++){if(pts>=MIN[i])li=i}
+  if(li>=4)earned.maestro=1;
+  return {pts:pts,li:li,name:LV[li].n,cur:MIN[li],next:(li+1<MIN.length?MIN[li+1]:null),earned:earned};
+ }
+ function render(){var d=data();var el=document.getElementById('progBody');if(!el)return;
+  var prog=d.next?Math.min(100,Math.round((d.pts-d.cur)/(d.next-d.cur)*100)):100;
+  var badges='<div class="badges">'+BADGE.map(function(b){var on=d.earned[b.k];return '<div class="badge '+(on?'on':'off')+'"><div class="bi"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="'+(on?'var(--odoo-gold)':'var(--text-muted)')+'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+b.p+'</svg></div>'+b.l+'</div>'}).join('')+'</div>';
+  el.innerHTML='<div class="prog-rank">Nivel '+(d.li+1)+'</div><div class="prog-av lv'+(d.li+1)+'">'+(d.li+1)+'</div><div class="prog-name">'+d.name+'</div><div class="prog-pts">'+d.pts+' puntos</div>'+
+   '<div class="prog-bar"><i style="width:'+prog+'%"></i></div><div class="prog-next">'+(d.next?('Te faltan '+(d.next-d.pts)+' puntos para el siguiente nivel'):'¡Nivel máximo alcanzado!')+'</div>'+badges+
+   '<div class="prog-how"><b>Cómo ganas puntos:</b> completar tu perfil (+30), ver charlas (+5), invitar a un compañero (+8) y, sobre todo, <b>superar evaluaciones</b> (+40) demostrando cómo lo aplicas y a cuántos se lo transmites. Cada nivel te acerca a Mentor.</div>';
+ }
+ function openP(){render();po.classList.remove('hide');document.body.classList.add('locked')}
+ function closeP(){po.classList.add('hide');document.body.classList.remove('locked')}
+ function openQ(){qo.classList.remove('hide');document.body.classList.add('locked')}
+ function closeQ(){qo.classList.add('hide');document.body.classList.remove('locked')}
+ var qf=document.getElementById('quizForm');
+ if(qf)qf.addEventListener('submit',function(e){e.preventDefault();
+   var a1=(document.querySelector('input[name=k1]:checked')||{}).value,a2=(document.querySelector('input[name=k2]:checked')||{}).value,a3=(document.querySelector('input[name=k3]:checked')||{}).value;
+   var app=((document.querySelector('[name=qapp]')||{}).value||'').trim(),tr=(document.querySelector('input[name=qtr]:checked')||{}).value||'';
+   var err=document.getElementById('quizErr');
+   if(!a1||!a2||!a3){err.textContent='Responde las tres preguntas de conocimiento.';return}
+   if(!app){err.textContent='Cuéntanos cómo lo has aplicado, aunque sea breve.';return}
+   var ok=(a1==='c'?1:0)+(a2==='c'?1:0)+(a3==='c'?1:0);
+   if(ok<2){err.textContent='Repasa un poco más y vuelve a intentarlo (necesitas al menos 2 de 3).';return}
+   err.textContent='';var q=J('coach_quizzes','{}');q['acompanamiento']={score:ok,app:app,transmit:tr,at:(typeof nowISO==='function'?nowISO():'')};
+   localStorage.setItem('coach_quizzes',JSON.stringify(q));
+   try{track('quiz',{block:'acompanamiento',score:ok,transmit:tr})}catch(e){}
+   closeQ();openP();
+ });
+ var pq=document.getElementById('progQuiz');if(pq)pq.addEventListener('click',function(){closeP();openQ()});
+ var pc=document.getElementById('progClose');if(pc)pc.addEventListener('click',function(e){e.preventDefault();closeP()});
+ var qc=document.getElementById('quizClose');if(qc)qc.addEventListener('click',function(e){e.preventDefault();closeQ()});
+ po.addEventListener('click',function(e){if(e.target===po)closeP()});if(qo)qo.addEventListener('click',function(e){if(e.target===qo)closeQ()});
+ var railProg=document.getElementById('railProg');if(railProg)railProg.addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rail'),o=document.getElementById('railOv');if(r)r.classList.remove('open');if(o)o.classList.remove('open');openP()});
 })();
 
 /* ===== Rail de iconos ===== */
