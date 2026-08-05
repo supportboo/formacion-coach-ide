@@ -337,6 +337,11 @@ body.locked{overflow:hidden}
 .guide-x{background:none;color:var(--text-muted);font-size:22px;width:32px}
 .guide-say{font-size:13.5px;color:var(--text-body);margin-top:9px;padding:2px 4px 0;line-height:1.4}
 .guide-say b{color:var(--odoo-primary)}
+.chat-mic{flex-shrink:0;width:40px;align-self:stretch;min-height:40px;border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-secondary);border-radius:10px;cursor:pointer;display:grid;place-items:center}
+.chat-mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c;animation:guiderec 1s infinite}
+.guide-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.guide-chips button{border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-primary);border-radius:100px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.guide-chips button:hover{border-color:var(--odoo-primary);background:rgba(113,75,103,.06)}
 .cine-final{flex-direction:row!important;gap:48px!important;align-items:center!important;justify-content:center!important;text-align:left!important;max-width:1000px;margin:0 auto}
 .final-col{max-width:480px}
 .cine-final-h,.cine-final-sub{text-align:left}
@@ -873,7 +878,16 @@ body{padding-left:66px}
     <button class="guide-btn guide-go" id="guideGo">Ir</button>
     <button class="guide-btn guide-x" id="guideX" aria-label="Cerrar">×</button>
   </div>
-  <div class="guide-say" id="guideSay">Dime qué te interesa y te llevo directo. Puedes hablar o escribir.</div>
+  <div class="guide-say" id="guideSay">Soy tu asesor de formaciones de Brandooers. Dime qué necesitas y te lo pongo en pantalla. Puedes hablar, escribir o tocar un atajo.</div>
+  <div class="guide-chips" id="guideChips">
+    <button type="button" data-q="liderazgo">Liderazgo</button>
+    <button type="button" data-q="personalidades">Personalidades</button>
+    <button type="button" data-q="coaching práctico">Práctico</button>
+    <button type="button" data-q="organización y rutinas">Rutinas</button>
+    <button type="button" data-q="el test de adn">Test de ADN</button>
+    <button type="button" data-q="mi progreso">Mi progreso</button>
+    <button type="button" data-q="pregunta a un experto">Hablar con un experto</button>
+  </div>
 </div>
 <section class="hero" id="inicio">
   <div style="margin-bottom:38px;display:flex;flex-direction:column;align-items:center;gap:12px">
@@ -2174,7 +2188,7 @@ window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{se
     <div class="agent-ph"><button class="back" id="agentBack">‹</button><div style="flex:1"><div id="chatName" style="font-size:15px;font-weight:700;color:var(--text-dark)"></div><div class="agent-cr" id="chatRole"></div></div><button id="agentClose2">×</button></div>
     <div class="chat-msgs" id="chatMsgs"></div>
     <div class="chat-sug" id="chatSug"></div>
-    <div class="chat-in"><textarea id="chatInput" rows="1" placeholder="Escribe tu pregunta..."></textarea><button id="chatSend" aria-label="Enviar">→</button></div>
+    <div class="chat-in"><textarea id="chatInput" rows="1" placeholder="Escribe o habla tu pregunta..."></textarea><button id="chatMic" class="chat-mic" aria-label="Hablar" title="Hablar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3"/></svg></button><button id="chatSend" aria-label="Enviar">→</button></div>
   </div>
 </div>
 
@@ -2226,10 +2240,13 @@ const EXPERTS=[
    if(CHAT_URL){var ctx=hist[cur.id].slice(-5,-1).map(function(m){return (m.r==='user'?'Coach: ':'Experto: ')+String(m.t).replace(/<[^>]+>/g,'')}).join('\n').slice(0,1200);
      jsonpChat(CHAT_URL+'?expert='+encodeURIComponent(cur.id)+'&ctx='+encodeURIComponent(ctx)+'&q='+encodeURIComponent(t),function(d){typing.remove();var a=(d&&d.answer)?String(d.answer):reply(cur,t);add('a',a.replace(/</g,'&lt;').replace(/\n/g,'<br>'));
        if(d&&d.sources&&d.sources.length){var sh='<div style="font-size:12px;opacity:.85;margin-bottom:4px">Fuentes que ha encontrado:</div>';d.sources.forEach(function(s){sh+='<a class="rsrc" href="'+s.uri+'" target="_blank" rel="noopener" style="margin:2px 5px 0 0">'+String(s.title||'fuente').replace(/</g,'').slice(0,42)+' ↗</a> '});add('a',sh)}
-       addRecs(t)});}
-   else{setTimeout(function(){typing.remove();add('a',reply(cur,t));addRecs(t)},550);}}
+       speakChat(a);addRecs(t)});}
+   else{setTimeout(function(){typing.remove();var rr=reply(cur,t);add('a',rr);speakChat(rr);addRecs(t)},550);}}
  fab.onclick=openP;ov.onclick=closeP;document.getElementById('agentClose').onclick=closeP;document.getElementById('agentClose2').onclick=closeP;
  document.getElementById('agentBack').onclick=showList;document.getElementById('chatSend').onclick=send;
+ function speakChat(t){try{if('speechSynthesis' in window){var u=new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&amp;/g,'&'));u.lang='es-ES';u.rate=1.03;u.pitch=1.04;var vs=speechSynthesis.getVoices()||[];var v=vs.filter(function(x){return /es(-|_)?ES/i.test(x.lang)})[0]||vs.filter(function(x){return /^es/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}}catch(e){}}
+ var CSR=window.SpeechRecognition||window.webkitSpeechRecognition,cmic=document.getElementById('chatMic');
+ if(cmic)cmic.addEventListener('click',function(){if(!CSR){input.placeholder='Tu navegador no permite dictado; escribe la pregunta.';return}var r=new CSR();r.lang='es-ES';r.interimResults=false;r.maxAlternatives=1;cmic.classList.add('rec');r.onresult=function(e){input.value=e.results[0][0].transcript;send()};r.onerror=function(){cmic.classList.remove('rec')};r.onend=function(){cmic.classList.remove('rec')};try{r.start()}catch(e){cmic.classList.remove('rec')}});
  input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,90)+'px'});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&panel.classList.contains('open'))closeP()});
 })();
@@ -2605,6 +2622,7 @@ const EXPERTS=[
    if(act){try{track('guide_query',{q:q,hit:true})}catch(e){}setTimeout(function(){act();closeP()},1000)}
  }
  fab.addEventListener('click',openP);
+ var chips=document.getElementById('guideChips');if(chips)chips.addEventListener('click',function(e){var btn=e.target.closest('[data-q]');if(btn){var qq=btn.getAttribute('data-q');input.value=qq;ask(qq)}});
  var x=document.getElementById('guideX');if(x)x.addEventListener('click',closeP);
  var g=document.getElementById('guideGo');if(g)g.addEventListener('click',function(){ask(input.value)});
  if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();ask(input.value)}});
