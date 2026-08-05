@@ -36,10 +36,23 @@ tbody tr:hover{background:#FBFAF6}
 .btn{background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block}
 .btn.ghost{background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.adm-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:grid;place-items:center;padding:24px}
+.adm-box{background:var(--bg-white);border:1px solid var(--border-light);border-radius:18px;padding:34px 30px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.14);text-align:center}
+.adm-box input{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;box-sizing:border-box}
+.adm-err{color:#c0392b;font-size:12.5px;min-height:16px;margin:8px 0}
 @media(max-width:820px){.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<div class="adm-gate" id="admGate" style="display:none">
+  <div class="adm-box">
+    <h1 style="font-family:'Caveat',cursive;font-size:34px;color:var(--text-dark);line-height:1">Panel privado</h1>
+    <p style="font-size:13px;color:var(--text-muted);margin:6px 0 16px">Acceso solo para administración.</p>
+    <input id="admPass" type="password" placeholder="Clave de acceso">
+    <div class="adm-err" id="admErr"></div>
+    <button class="btn" id="admBtn" style="width:100%">Entrar</button>
+  </div>
+</div>
 <div class="wrap">
   <header>
     <div class="brand">
@@ -140,6 +153,28 @@ function render({events,source}){
     chats.slice().reverse().slice(0,60).forEach(function(e){html+='<tr><td>'+esc((e.data&&e.data.q)||'')+'</td><td class="muted">'+esc((e.data&&e.data.expert)||'')+'</td><td class="muted">'+esc(e.name||e.email||'')+'</td><td class="muted">'+fmtDate(e.ts)+'</td></tr>'});
     html+='</tbody></table>';
   }
+  var profs=events.filter(function(e){return e.ev==='profile'});
+  if(profs.length){
+    var barL={escucha:'Escuchar y conversar',motivar:'Motivar y dar ánimo',feedback:'Dar feedback',conocer:'Conocer a las personas',organizar:'Organización y tiempo',liderar:'Liderazgo',emocional:'Gestión emocional',seguimiento:'Seguimiento y constancia'};
+    var barC={};profs.forEach(function(e){((e.data&&e.data.bar)||[]).forEach(function(b){barC[b]=(barC[b]||0)+1})});
+    var barR=Object.keys(barC).map(function(k){return [barL[k]||k,barC[k]]}).sort(function(a,b){return b[1]-a[1]});
+    html+='<h2>Barreras más comunes del equipo</h2><p class="muted" style="font-size:13px;margin:-6px 0 12px">Lo que se repite es lo que más ROI tiene formar: si le pasa a varios, crea una píldora para todos.</p>';
+    if(barR.length){var mx=barR[0][1]||1;html+='<table><thead><tr><th>Barrera</th><th>Personas</th></tr></thead><tbody>';barR.forEach(function(r){html+='<tr><td>'+esc(r[0])+'<div class="bar" style="width:'+Math.max(3,Math.round(r[1]/mx*100))+'%;margin-top:5px"></div></td><td class="tabular">'+r[1]+'</td></tr>'});html+='</tbody></table>';}
+    var depL={nuevos:'Nuevos',pm:'Partner Managers',ventas:'Ventas',soporte:'Soporte',consultoria:'Consultoría',equipo:'Todo el equipo'},momL={onboarding:'Onboarding',reuniones:'Reuniones','1a1':'1a1/mentoría',formacion:'Formación',diaadia:'Día a día'};
+    html+='<h2>Mapa de expertos (quién puede formar)</h2><table><thead><tr><th>Persona</th><th>Es experto en</th><th>Ayudaría a</th><th>Momentos</th></tr></thead><tbody>';
+    profs.slice().reverse().forEach(function(e){var d=e.data||{};html+='<tr><td>'+esc(e.name||e.email||'—')+'</td><td>'+esc(d.expTxt||'—')+'</td><td class="muted">'+(((d.dept)||[]).map(function(x){return depL[x]||x}).join(', ')||'—')+'</td><td class="muted">'+(((d.moment)||[]).map(function(x){return momL[x]||x}).join(', ')||'—')+'</td></tr>'});
+    html+='</tbody></table>';
+  }
+  var invs=events.filter(function(e){return e.ev==='invite'});
+  var refs=events.filter(function(e){return e.ev==='register'&&e.data&&e.data.ref});
+  function decodeRef(r){try{return atob(decodeURIComponent(r))}catch(e){return r}}
+  if(invs.length||refs.length){
+    html+='<h2>Invitaciones y referidos</h2><p class="muted" style="font-size:13px;margin:-6px 0 12px">Quién invita a quién: así se dibuja el organigrama de mentoría dentro de Odoo.</p><div class="grid2"><div><h2 style="font-size:15px">Invitaciones enviadas</h2>';
+    if(invs.length){html+='<table><thead><tr><th>Invita</th><th>A</th><th>Para</th></tr></thead><tbody>';invs.slice().reverse().forEach(function(e){var d=e.data||{};html+='<tr><td class="muted">'+esc(e.name||e.email||'—')+'</td><td>'+esc(d.name||'')+' <span class="muted">'+esc(d.email||'')+'</span></td><td class="muted">'+esc(d.help||'—')+'</td></tr>'});html+='</tbody></table>';}else html+='<div class="empty">Sin invitaciones aún.</div>';
+    html+='</div><div><h2 style="font-size:15px">Se han unido (referidos)</h2>';
+    if(refs.length){html+='<table><thead><tr><th>Nuevo</th><th>Invitado por</th></tr></thead><tbody>';refs.slice().reverse().forEach(function(e){html+='<tr><td>'+esc(e.name||e.email||'—')+'</td><td class="muted">'+esc(decodeRef(e.data.ref))+'</td></tr>'});html+='</tbody></table>';}else html+='<div class="empty">Nadie se ha unido por invitación todavía.</div>';
+    html+='</div></div>';
+  }
   document.getElementById('content').innerHTML=html;
   window.__events=events;
 }
@@ -151,7 +186,19 @@ document.getElementById('reload').addEventListener('click',function(){loadEvents
 document.getElementById('export').addEventListener('click',function(){const ev=window.__events||[];const blob=new Blob([toCSV(ev)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='formacion-coach-tracking.csv';a.click()});
 document.getElementById('clearLocal').addEventListener('click',function(){if(confirm('¿Borrar los eventos guardados en este navegador?')){localStorage.removeItem('coach_events');loadEvents().then(render)}});
 
-loadEvents().then(render);
+function djb2(s){var h=5381;for(var i=0;i<s.length;i++){h=((h*33)+s.charCodeAt(i))>>>0}return h}
+var ADM_HASH=3839809022; /* clave de acceso: cambia este número por djb2(tu-nueva-clave) */
+function admStart(){var g=document.getElementById('admGate');if(g)g.style.display='none';loadEvents().then(render)}
+(function(){
+  if(sessionStorage.getItem('coach_adm')==='1'){admStart();return}
+  var g=document.getElementById('admGate');g.style.display='grid';
+  document.getElementById('admBtn').addEventListener('click',function(){
+    var v=document.getElementById('admPass').value||'';
+    if(djb2(v)===ADM_HASH){sessionStorage.setItem('coach_adm','1');admStart();}
+    else{document.getElementById('admErr').textContent='Clave incorrecta.';}
+  });
+  document.getElementById('admPass').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('admBtn').click()});
+})();
 </script>
 </body>
 </html>
