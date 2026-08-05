@@ -239,6 +239,24 @@ body.locked{overflow:hidden}
 .cine-skip{position:fixed;bottom:16px;left:50%;z-index:6;color:#fff;font-weight:700;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:100px;padding:9px 18px;background:rgba(0,0,0,.22);animation:cineBob 2s ease-in-out infinite}
 @keyframes cineBob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,5px)}}
 .cine-back{position:fixed;top:13px;right:13px;z-index:7;color:#fff;font-weight:700;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:10px;padding:9px 15px;background:rgba(0,0,0,.3)}
+/* Impacto: títulos grandes, aparición de palabras, subtítulo marcado, variedad de transiciones, colores Brandooers */
+.cine-scene h1{font-size:clamp(34px,7.6vw,70px)!important;line-height:1.03!important;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.cine-scene h1 .w{display:inline-block;opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s ease}
+.cine-scene.active h1 .w{opacity:1;transform:none;transition-delay:calc(var(--i,0) * .06s)}
+.cine-scene .hl{color:#fff;padding:0 .12em;border-radius:.14em;background:linear-gradient(100deg,#8b5cf6,#22d3ee);background-repeat:no-repeat;background-size:0% 100%;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-size .55s cubic-bezier(.6,0,.2,1);-webkit-text-fill-color:#fff}
+.cine-scene.active .hl{background-size:100% 100%;transition-delay:calc((var(--i,0) * .06s) + .3s)}
+.cine-scene{transition:opacity .6s ease,transform .6s ease,filter .6s ease}
+.cine-scene[data-anim=up]{transform:translateY(48px) scale(.98)}
+.cine-scene[data-anim=left]{transform:translateX(-56px)}
+.cine-scene[data-anim=right]{transform:translateX(56px)}
+.cine-scene[data-anim=zoom]{transform:scale(.82)}
+.cine-scene[data-anim=blur]{transform:scale(1.05);filter:blur(9px)}
+.cine-scene.active{transform:none;filter:none}
+.landing-form button{background:linear-gradient(100deg,#8b5cf6,#22d3ee)!important;transition:filter .2s}
+.landing-form button:hover{filter:brightness(1.08)}
+.landing-form input:focus{border-color:#8b5cf6!important}
+.cine-skip{border-color:rgba(196,181,253,.7)!important;background:rgba(139,92,246,.28)!important}
+.cine-dots button.on{background:linear-gradient(135deg,#c4b5fd,#22d3ee)!important}
 /* Móvil: sin desbordes horizontales ni FABs solapados */
 html,body{overflow-x:hidden;max-width:100%}
 #explora{overflow-x:clip}
@@ -533,13 +551,13 @@ body{padding-left:66px}
   <div class="cine-track" id="cineTrack">
     <div class="cine-stage">
       <div class="cine-scenes" id="cineScenes">
-        <div class="cine-scene" data-s="0"><div class="cs-kick">La nueva revolución de la formación</div><h1>La formación que <span class="grad">sí cambia la empresa</span></h1><p>Disruptiva. Única. Nunca vista. Esto es Brandooers.</p></div>
-        <div class="cine-scene" data-s="1"><h1>¿Otra formación <span class="grad">estándar</span>?</h1><p>Las de siempre no se notan, no cambian el día a día y no salen rentables. Por eso se rechazan una y otra vez.</p></div>
-        <div class="cine-scene" data-s="2"><h1>Aquí el motor es <span class="grad">tu propia gente</span></h1><p>Cada experto forma a los demás. El conocimiento no se compra fuera: se multiplica dentro de la empresa.</p></div>
-        <div class="cine-scene" data-s="3"><h1>Nano-formaciones sobre barreras <span class="grad">concretas</span></h1><p>Lo que se aprende hoy mejora mañana un punto real del proceso. Rol directo en el negocio, no teoría que se olvida.</p></div>
-        <div class="cine-scene" data-s="4"><h1>Avalado por <span class="grad">expertos de verdad</span></h1><p>Sesiones de Q&amp;A y vídeo-podcasts de profesionales que respaldan cada conocimiento. No es teoría suelta de internet: está validada por referentes.</p></div>
-        <div class="cine-scene" data-s="5"><h1>Seguimiento <span class="grad">garantizado</span></h1><p>Medimos quién aprende, quién lo aplica y a quién se lo transmite. Da seguridad, da garantías y multiplica el resultado.</p></div>
-        <div class="cine-scene" data-s="6"><h1>Conocimiento <span class="grad">igualado</span> en toda la plantilla</h1><p>Expertos más profesionales, equipos estandarizados y un retorno que se ve. Y encima, autofinanciable con FUNDAE.</p></div>
+        <div class="cine-scene" data-s="0" data-anim="up"><div class="cs-kick">La nueva revolución de la formación</div><h1>La formación que <span class="hl">sí deja retorno</span></h1><p>Disruptiva, única, nunca vista. Y sobre todo: se nota en el negocio, no en un certificado.</p></div>
+        <div class="cine-scene" data-s="1" data-anim="left"><h1>Las formaciones estándar <span class="hl">no se pagan solas</span></h1><p>No se notan, no cambian el día a día y no dan retorno. Por eso tu dirección las rechaza una y otra vez.</p></div>
+        <div class="cine-scene" data-s="2" data-anim="right"><h1>Aquí el motor es <span class="hl">tu propia gente</span></h1><p>Cada experto forma a los demás. El conocimiento no se compra fuera: se multiplica dentro y se queda en la empresa.</p></div>
+        <div class="cine-scene" data-s="3" data-anim="zoom"><h1>Nano-formaciones sobre barreras <span class="hl">concretas</span></h1><p>Lo que se aprende hoy mejora mañana un punto real del proceso: menos errores, menos rotación, más productividad. Rol directo en el negocio.</p></div>
+        <div class="cine-scene" data-s="4" data-anim="blur"><h1>Avalado por <span class="hl">expertos de verdad</span></h1><p>Q&amp;A y vídeo-podcasts de profesionales que respaldan cada conocimiento. Autoridad real, no teoría suelta de internet.</p></div>
+        <div class="cine-scene" data-s="5" data-anim="up"><h1>Seguimiento <span class="hl">garantizado</span></h1><p>Medimos quién aprende, quién lo aplica y a quién se lo transmite. Datos, no promesas: el retorno se ve.</p></div>
+        <div class="cine-scene" data-s="6" data-anim="zoom"><h1>Conocimiento igualado, <span class="hl">plantilla que rinde</span></h1><p>Equipos estandarizados, expertos más profesionales y un ROI medible. Y encima, autofinanciable con FUNDAE.</p></div>
       </div>
     </div>
   </div>
@@ -2240,6 +2258,13 @@ const EXPERTS=[
  var ov=document.getElementById('regOverlay');if(!ov)return;
  var track=document.getElementById('cineTrack'),scenes=[].slice.call(document.querySelectorAll('#cineScenes .cine-scene'));
  var N=scenes.length;if(!track||!N)return;
+ document.querySelectorAll('#cineScenes h1').forEach(function(h){var i=0,frag=document.createDocumentFragment();
+   [].slice.call(h.childNodes).forEach(function(node){
+     if(node.nodeType===3){node.textContent.split(/(\s+)/).forEach(function(t){if(/^\s+$/.test(t)){frag.appendChild(document.createTextNode(t))}else if(t){var s=document.createElement('span');s.className='w';s.style.setProperty('--i',i++);s.textContent=t;frag.appendChild(s)}})}
+     else{node.classList.add('w');node.style.setProperty('--i',i++);frag.appendChild(node)}
+   });
+   while(h.firstChild)h.removeChild(h.firstChild);h.appendChild(frag);
+ });
  var dotsWrap=document.getElementById('cineDots');
  for(var i=0;i<N;i++){(function(i){var b=document.createElement('button');b.setAttribute('aria-label','Sección '+(i+1));b.addEventListener('click',function(){var max=track.offsetHeight-ov.clientHeight;ov.scrollTo({top:(i/(N-1))*max,behavior:'smooth'})});dotsWrap.appendChild(b)})(i)}
  var dots=dotsWrap.children;
