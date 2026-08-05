@@ -368,6 +368,18 @@ body{padding-left:66px}
 .ob-opts input{display:none}
 .ob-opts span{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:10px;font-size:13.5px;color:var(--text-body);transition:all .15s}
 .ob-opts input:checked+span{background:rgba(113,75,103,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
+.ob-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ob-chips label{cursor:pointer}
+.ob-chips input{display:none}
+.ob-chips span{display:inline-block;padding:7px 12px;border:1px solid var(--border);border-radius:100px;font-size:12.5px;color:var(--text-body);transition:all .15s}
+.ob-chips input:checked+span{background:rgba(113,75,103,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
+.ob-ta{width:100%;border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:13.5px;font-family:inherit;color:var(--text-dark);resize:vertical;min-height:52px;margin-top:8px;box-sizing:border-box}
+.ob-ta:focus{outline:none;border-color:var(--odoo-primary)}
+.prof-blk{margin-bottom:14px;border-bottom:1px dashed var(--border-light);padding-bottom:12px}
+.prof-blk h4{font-size:13px;font-weight:700;color:var(--odoo-primary);margin-bottom:6px}
+.prof-blk p{font-size:13.5px;color:var(--text-body);margin:6px 0 0;white-space:pre-wrap}
+.prof-tags{display:flex;flex-wrap:wrap;gap:5px}
+.prof-tag{display:inline-block;padding:3px 10px;border-radius:100px;background:rgba(113,75,103,.08);color:var(--odoo-primary);font-size:12px;font-weight:600}
 .route-step{display:flex;gap:14px;align-items:flex-start;background:var(--bg-white);border:1px solid var(--border-light);border-radius:14px;padding:15px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
 .route-step .rs-n{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:19px;display:grid;place-items:center}
 .route-step h4{font-size:15px;color:var(--text-dark);margin:0 0 3px}
@@ -430,29 +442,56 @@ body{padding-left:66px}
 
 <!-- ONBOARDING: RUTA A MEDIDA -->
 <div class="reg-overlay hide" id="obOverlay">
-  <div class="reg-box" style="max-width:540px;text-align:left">
-    <h2 style="text-align:center">Vamos a montarte tu ruta</h2>
-    <p class="rsub" style="text-align:center">3 preguntas rápidas y te preparo un camino simple, paso a paso, con lo que más te sirve. El resto del contenido lo tienes igual para explorar.</p>
+  <div class="reg-box" style="max-width:560px;text-align:left;max-height:88vh;overflow-y:auto">
+    <h2 style="text-align:center">Tu perfil profesional</h2>
+    <p class="rsub" style="text-align:center">Cuéntanos tu situación para prepararte una ruta a medida y, sobre todo, para saber cómo tu experiencia puede ayudar al resto del equipo. Se guarda en tu ficha; el resto del contenido lo exploras igual.</p>
     <form id="obForm">
-      <div class="ob-q"><h4>1 · ¿En qué punto estás?</h4><div class="ob-opts">
-        <label><input type="radio" name="q1" value="nuevo"><span>Voy a empezar a acompañar a alguien nuevo</span></label>
-        <label><input type="radio" name="q1" value="mejorar"><span>Ya acompaño y quiero mejorar</span></label>
-        <label><input type="radio" name="q1" value="conocer"><span>Quiero entender mejor a mi coachee</span></label>
-        <label><input type="radio" name="q1" value="liderar"><span>Quiero técnicas de liderazgo y motivación</span></label>
-      </div></div>
-      <div class="ob-q"><h4>2 · ¿Qué es lo que más te cuesta?</h4><div class="ob-opts">
-        <label><input type="radio" name="q2" value="escucha"><span>Escuchar y conversar sin dar consejos</span></label>
-        <label><input type="radio" name="q2" value="motivar"><span>Motivar y levantar el ánimo</span></label>
-        <label><input type="radio" name="q2" value="feedback"><span>Dar feedback sin herir</span></label>
-        <label><input type="radio" name="q2" value="conocer"><span>Conocer de verdad a la persona</span></label>
-        <label><input type="radio" name="q2" value="organizar"><span>Organizarme el día</span></label>
-      </div></div>
-      <div class="ob-q"><h4>3 · ¿Cómo lo quieres?</h4><div class="ob-opts">
-        <label><input type="radio" name="q3" value="nano"><span>Rápido, lo justo (nano)</span></label>
-        <label><input type="radio" name="q3" value="fondo"><span>A fondo</span></label>
+      <div class="ob-q"><h4>1 · ¿Dónde tienes hoy más barreras o qué necesitas resolver en tu puesto?</h4>
+        <div class="ob-chips">
+          <label><input type="checkbox" name="bar" value="escucha"><span>Escuchar y conversar</span></label>
+          <label><input type="checkbox" name="bar" value="motivar"><span>Motivar y dar ánimo</span></label>
+          <label><input type="checkbox" name="bar" value="feedback"><span>Dar feedback</span></label>
+          <label><input type="checkbox" name="bar" value="conocer"><span>Conocer a las personas</span></label>
+          <label><input type="checkbox" name="bar" value="organizar"><span>Organización y tiempo</span></label>
+          <label><input type="checkbox" name="bar" value="liderar"><span>Liderazgo</span></label>
+          <label><input type="checkbox" name="bar" value="emocional"><span>Gestión emocional</span></label>
+          <label><input type="checkbox" name="bar" value="seguimiento"><span>Seguimiento y constancia</span></label>
+        </div>
+        <textarea class="ob-ta" name="barTxt" placeholder="Con tus palabras: ¿qué es lo que más te frena ahora mismo?"></textarea>
+      </div>
+      <div class="ob-q"><h4>2 · ¿Cuáles son tus intereses y tus motivaciones?</h4>
+        <textarea class="ob-ta" name="motivTxt" placeholder="Qué te mueve, qué te gustaría aprender o hacia dónde quieres crecer."></textarea>
+      </div>
+      <div class="ob-q"><h4>3 · ¿En qué eres experto o dónde aportas más valor?</h4>
+        <textarea class="ob-ta" name="expTxt" placeholder="Aquello que dominas y que podrías enseñar a otros."></textarea>
+      </div>
+      <div class="ob-q"><h4>4 · ¿Cómo podrías compartir ese conocimiento con el equipo?</h4>
+        <p style="font-size:12px;color:var(--text-muted);margin:-2px 0 8px">A quién ayudarías y en qué momentos. Esto es lo que multiplica el valor: si a ti te sirve, a más compañeros también.</p>
+        <div style="font-size:12px;font-weight:600;color:var(--odoo-primary);margin-bottom:6px">Departamentos y perfiles</div>
+        <div class="ob-chips">
+          <label><input type="checkbox" name="dept" value="nuevos"><span>Nuevos en venta directa</span></label>
+          <label><input type="checkbox" name="dept" value="pm"><span>Partner Managers</span></label>
+          <label><input type="checkbox" name="dept" value="ventas"><span>Ventas</span></label>
+          <label><input type="checkbox" name="dept" value="soporte"><span>Soporte</span></label>
+          <label><input type="checkbox" name="dept" value="consultoria"><span>Consultoría</span></label>
+          <label><input type="checkbox" name="dept" value="equipo"><span>Todo el equipo</span></label>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--odoo-primary);margin:10px 0 6px">¿En qué momentos?</div>
+        <div class="ob-chips">
+          <label><input type="checkbox" name="moment" value="onboarding"><span>Onboarding de nuevos</span></label>
+          <label><input type="checkbox" name="moment" value="reuniones"><span>Reuniones de equipo</span></label>
+          <label><input type="checkbox" name="moment" value="1a1"><span>1 a 1 / mentoría</span></label>
+          <label><input type="checkbox" name="moment" value="formacion"><span>Formación puntual</span></label>
+          <label><input type="checkbox" name="moment" value="diaadia"><span>En el día a día</span></label>
+        </div>
+        <textarea class="ob-ta" name="aportaTxt" placeholder="¿Qué aportarías y a qué posiciones? Ej.: una mini-formación de escucha activa para los nuevos en su primera semana."></textarea>
+      </div>
+      <div class="ob-q"><h4>5 · ¿Cómo quieres tu ruta de aprendizaje?</h4><div class="ob-opts">
+        <label><input type="radio" name="depth" value="nano"><span>Rápido, lo justo (nano)</span></label>
+        <label><input type="radio" name="depth" value="fondo"><span>A fondo</span></label>
       </div></div>
       <div class="err" id="obErr"></div>
-      <button type="submit">Ver mi ruta</button>
+      <button type="submit">Guardar mi perfil y ver mi ruta</button>
       <div style="text-align:center;margin-top:10px"><a href="#" id="obSkip" style="font-size:12px;color:var(--text-muted)">Saltar, exploro por mi cuenta</a></div>
     </form>
   </div>
@@ -464,6 +503,15 @@ body{padding-left:66px}
     <div id="routeSteps"></div>
     <button type="button" id="routeStart">Empezar por el paso 1 →</button>
     <div style="text-align:center;margin-top:10px"><a href="#" id="routeRedo" style="font-size:12px;color:var(--text-muted)">Rehacer las preguntas</a></div>
+  </div>
+</div>
+<div class="reg-overlay hide" id="profOverlay">
+  <div class="reg-box" style="max-width:560px;text-align:left;max-height:88vh;overflow-y:auto">
+    <h2 style="text-align:center">Mi perfil profesional</h2>
+    <p class="rsub" style="text-align:center">Tu ficha: dónde tienes barreras, qué te motiva, en qué eres experto y cómo puedes ayudar al equipo.</p>
+    <div id="profBody"></div>
+    <button type="button" id="profEdit">Editar mi perfil</button>
+    <div style="text-align:center;margin-top:10px"><a href="#" id="profClose" style="font-size:12px;color:var(--text-muted)">Cerrar</a></div>
   </div>
 </div>
 
@@ -488,6 +536,7 @@ body{padding-left:66px}
     <a class="rail-item" href="#explora" data-sec="explora" title="Explora las rutas del curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">Explora</span></a>
     <a class="rail-item gold" href="#" id="railRoute" title="Tu ruta a medida, paso a paso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V9a4 4 0 0 1 4-4h4"/><path d="M18 7v8a4 4 0 0 1-4 4h-4"/></svg></span><span class="ri-lb">Mi ruta</span></a>
     <div class="rail-sub" id="railSub"></div>
+    <a class="rail-item gold" href="#" id="railProfile" title="Mi perfil profesional"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M13 10h5M13 13.5h5M5.5 16c.5-1.3 1.7-2 3-2s2.5.7 3 2"/></svg></span><span class="ri-lb">Mi perfil</span></a>
     <a class="rail-item" href="#adn" data-sec="adn,rol,eres" title="El test de ADN y tu papel como coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 12.5l2.5 2.5 4-4"/></svg></span><span class="ri-lb">Test de ADN</span></a>
     <a class="rail-item" href="#perfil" data-sec="perfil" title="Perfil y personalidades: eneagrama, DISC, zonas, Ikigai"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="ri-lb">Personalidades</span></a>
     <a class="rail-item" href="#pilares" data-sec="pilares,expertos" title="Liderazgo: los 4 pilares y las técnicas de los autores"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Liderazgo</span></a>
@@ -1929,25 +1978,43 @@ const EXPERTS=[
   if(!route||!route.length){sub.innerHTML='';return}
   sub.innerHTML=route.map(function(s,i){var b=BLOCKS[s.k]||{};var sh=b.s||s.t;var sec=String(s.h||'').replace('#','');
    return '<a class="rail-step" data-h="'+s.h+'" data-sec="'+sec+'" title="Paso '+(i+1)+' · '+String(s.t||sh).replace(/"/g,'')+'"><span class="rs-num"><b>'+(i+1)+'</b></span><span class="rs-lb"><b>Paso '+(i+1)+'</b> · '+sh+'</span></a>'}).join('');}
+ var BARMAP={escucha:'practico',motivar:'liderazgo',feedback:'liderazgo',conocer:'perfil',organizar:'rutinas',liderar:'liderazgo',emocional:'practico',seguimiento:'seguimiento'};
  function buildRoute(a){
-  var q1map={nuevo:['adn','perfil','seguimiento'],mejorar:['practico','liderazgo','perfil'],conocer:['adn','perfil','practico'],liderar:['liderazgo','practico','perfil']};
-  var q2map={escucha:'practico',motivar:'liderazgo',feedback:'liderazgo',conocer:'perfil',organizar:'rutinas'};
   var order=[];function add(k){if(k&&order.indexOf(k)<0&&BLOCKS[k])order.push(k)}
-  add('adn');(q1map[a.q1]||[]).forEach(add);add(q2map[a.q2]);['perfil','liderazgo','practico','rutinas','seguimiento'].forEach(add);
-  var n=a.q3==='nano'?3:4;
+  add('adn');(a.bar||[]).forEach(function(b){add(BARMAP[b])});['perfil','liderazgo','practico','rutinas','seguimiento'].forEach(add);
+  var n=a.depth==='nano'?3:4;
   return order.slice(0,n).map(function(k){var b=BLOCKS[k];return {k:k,t:b.t,w:b.w,h:b.h}});
+ }
+ function esc(s){return String(s||'').replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]})}
+ var LBLbar={escucha:'Escuchar y conversar',motivar:'Motivar y dar ánimo',feedback:'Dar feedback',conocer:'Conocer a las personas',organizar:'Organización y tiempo',liderar:'Liderazgo',emocional:'Gestión emocional',seguimiento:'Seguimiento y constancia'};
+ var LBLdept={nuevos:'Nuevos en venta directa',pm:'Partner Managers',ventas:'Ventas',soporte:'Soporte',consultoria:'Consultoría',equipo:'Todo el equipo'};
+ var LBLmom={onboarding:'Onboarding de nuevos',reuniones:'Reuniones de equipo','1a1':'1 a 1 / mentoría',formacion:'Formación puntual',diaadia:'En el día a día'};
+ function renderProfile(){var el=document.getElementById('profBody');if(!el)return;var p=null;try{p=JSON.parse(localStorage.getItem('coach_profile')||'null')}catch(e){}
+  if(!p){el.innerHTML='<p style="color:var(--text-muted);font-size:13px">Aún no has rellenado tu perfil. Pulsa «Editar mi perfil» para empezar.</p>';return}
+  function tags(arr,map){return (arr&&arr.length)?'<div class="prof-tags">'+arr.map(function(k){return '<span class="prof-tag">'+((map&&map[k])||k)+'</span>'}).join('')+'</div>':'<span style="color:var(--text-muted);font-size:12.5px">—</span>'}
+  function blk(t,body){return '<div class="prof-blk"><h4>'+t+'</h4>'+body+'</div>'}
+  el.innerHTML=
+   blk('Tus barreras hoy',tags(p.bar,LBLbar)+(p.barTxt?'<p>'+esc(p.barTxt)+'</p>':''))+
+   (p.motivTxt?blk('Intereses y motivaciones','<p>'+esc(p.motivTxt)+'</p>'):'')+
+   (p.expTxt?blk('Dónde eres experto','<p>'+esc(p.expTxt)+'</p>'):'')+
+   blk('Cómo puedes aportar al equipo',tags(p.dept,LBLdept)+'<div style="height:6px"></div>'+tags(p.moment,LBLmom)+(p.aportaTxt?'<p>'+esc(p.aportaTxt)+'</p>':''));
  }
  function showOb(){ob.classList.remove('hide');document.body.classList.add('locked')}
  function hideOb(){ob.classList.add('hide');document.body.classList.remove('locked')}
  function render(route){stepsEl.innerHTML=route.map(function(s,i){return '<div class="route-step"><div class="rs-n">'+(i+1)+'</div><div><h4>'+s.t+'</h4><p>'+s.w+'</p><a class="rs-go" data-h="'+s.h+'">Ir a este paso →</a></div></div>'}).join('')}
  function showRoute(){var r=[];try{r=JSON.parse(localStorage.getItem('coach_route')||'[]')}catch(e){}if(!r.length){showOb();return}render(r);rt.classList.remove('hide');document.body.classList.add('locked')}
  function hideRoute(){rt.classList.add('hide');document.body.classList.remove('locked')}
+ function vals(n){return [].slice.call(document.querySelectorAll('input[name='+n+']:checked')).map(function(x){return x.value})}
+ function gtxt(n){var el=document.querySelector('[name='+n+']');return el?el.value.trim():''}
  document.getElementById('obForm').addEventListener('submit',function(e){e.preventDefault();
-   var q1=(document.querySelector('input[name=q1]:checked')||{}).value,q2=(document.querySelector('input[name=q2]:checked')||{}).value,q3=(document.querySelector('input[name=q3]:checked')||{}).value;
-   if(!q1||!q2||!q3){document.getElementById('obErr').textContent='Responde las tres, es un momento.';return}
-   var route=buildRoute({q1:q1,q2:q2,q3:q3});localStorage.setItem('coach_route',JSON.stringify(route));localStorage.setItem('coach_ob_done','1');
-   renderRailSub(route);
-   try{track('onboarding',{q1:q1,q2:q2,q3:q3});track('route',{steps:route.map(function(s){return s.k})})}catch(e){}
+   var bar=vals('bar'),dept=vals('dept'),moment=vals('moment'),depth=(document.querySelector('input[name=depth]:checked')||{}).value;
+   if(!bar.length){document.getElementById('obErr').textContent='Marca al menos una barrera para prepararte la ruta.';return}
+   if(!depth){document.getElementById('obErr').textContent='Elige cómo quieres tu ruta: nano o a fondo.';return}
+   var profile={bar:bar,barTxt:gtxt('barTxt'),motivTxt:gtxt('motivTxt'),expTxt:gtxt('expTxt'),dept:dept,moment:moment,aportaTxt:gtxt('aportaTxt'),depth:depth,at:(typeof nowISO==='function'?nowISO():'')};
+   localStorage.setItem('coach_profile',JSON.stringify(profile));
+   var route=buildRoute({bar:bar,depth:depth});localStorage.setItem('coach_route',JSON.stringify(route));localStorage.setItem('coach_ob_done','1');
+   renderRailSub(route);renderProfile();
+   try{track('profile',profile);track('route',{steps:route.map(function(s){return s.k})})}catch(e){}
    hideOb();render(route);rt.classList.remove('hide');document.body.classList.add('locked');
  });
  document.getElementById('obSkip').addEventListener('click',function(e){e.preventDefault();localStorage.setItem('coach_ob_done','1');hideOb()});
@@ -1955,8 +2022,11 @@ const EXPERTS=[
  document.getElementById('routeRedo').addEventListener('click',function(e){e.preventDefault();hideRoute();showOb()});
  stepsEl.addEventListener('click',function(e){var a=e.target.closest('.rs-go');if(a){hideRoute();var t=document.querySelector(a.getAttribute('data-h'));if(t)t.scrollIntoView({behavior:'smooth'});try{track('route_step',{h:a.getAttribute('data-h')})}catch(e){}}});
  var railRoute=document.getElementById('railRoute');if(railRoute)railRoute.addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rail'),o=document.getElementById('railOv');if(r)r.classList.remove('open');if(o)o.classList.remove('open');showRoute()});
+ var railProfile=document.getElementById('railProfile');if(railProfile)railProfile.addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rail'),o=document.getElementById('railOv');if(r)r.classList.remove('open');if(o)o.classList.remove('open');if(!localStorage.getItem('coach_profile')){showOb();return}renderProfile();document.getElementById('profOverlay').classList.remove('hide');document.body.classList.add('locked')});
+ (function(){var po=document.getElementById('profOverlay');if(!po)return;var close=function(){po.classList.add('hide');document.body.classList.remove('locked')};var pc=document.getElementById('profClose');if(pc)pc.addEventListener('click',function(e){e.preventDefault();close()});var pe=document.getElementById('profEdit');if(pe)pe.addEventListener('click',function(){close();showOb()});po.addEventListener('click',function(e){if(e.target===po)close()})})();
  window.__maybeOnboarding=function(){if(localStorage.getItem('coach_route'))return;if(!localStorage.getItem('coach_ob_done'))showOb()};
  try{var _r0=JSON.parse(localStorage.getItem('coach_route')||'[]');if(_r0.length)renderRailSub(_r0)}catch(e){}
+ try{renderProfile()}catch(e){}
  var u=null;try{u=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
  if(u&&!localStorage.getItem('coach_ob_done')&&!localStorage.getItem('coach_route'))setTimeout(showOb,600);
 })();
