@@ -342,6 +342,29 @@ body.locked{overflow:hidden}
 .guide-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .guide-chips button{border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-primary);border-radius:100px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
 .guide-chips button:hover{border-color:var(--odoo-primary);background:rgba(113,75,103,.06)}
+/* Kiosco de conocimiento */
+.kio-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.kio-cart{display:flex;align-items:center;gap:6px;background:var(--odoo-primary);color:#fff;border-radius:100px;padding:7px 13px;font-weight:700;font-size:13px;flex-shrink:0}
+.kio-cats{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.kio-cat{border:1px solid var(--border);background:var(--bg-white)!important;color:var(--text-body)!important;border-radius:100px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.kio-cat.on{background:linear-gradient(100deg,#8b5cf6,#22d3ee)!important;color:#fff!important;border-color:transparent}
+.kio-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.kio-item{border:1px solid var(--border-light);border-radius:14px;padding:15px;background:var(--bg-white);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px}
+.kio-item h4{font-size:14.5px;color:var(--text-dark);margin:0}
+.kio-item p{font-size:12.5px;color:var(--text-body);margin:0;flex:1}
+.kio-acts{display:flex;gap:8px;margin-top:8px}
+.kio-add{border:none;border-radius:9px;padding:9px 12px;font-weight:700;font-size:12.5px;cursor:pointer;background:var(--odoo-primary);color:#fff;flex:1}
+.kio-add.added{background:var(--odoo-ready)}
+.kio-see{border:1px solid var(--border);background:var(--bg-warm)!important;color:var(--odoo-primary)!important;border-radius:9px;padding:9px 13px;font-weight:600;font-size:12.5px;cursor:pointer}
+.kio-add{background:var(--odoo-primary)!important;color:#fff!important}
+.kio-add.added{background:var(--odoo-ready)!important}
+.kio-foot{display:flex;align-items:center;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border-light)}
+.kio-foot button{flex:1;background:linear-gradient(100deg,#8b5cf6,#22d3ee);color:#fff;border:none;border-radius:12px;padding:14px;font-weight:700;font-size:15px;cursor:pointer}
+.kio-quote{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);z-index:2400;background:#15121b;color:#fff;border-radius:14px;padding:14px 18px;max-width:340px;box-shadow:0 16px 50px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;text-align:center}
+.kio-quote.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.kio-quote .q{font-family:'Caveat',cursive;font-size:20px;line-height:1.2}
+.kio-quote .a{font-size:11.5px;color:#c4b5fd;margin-top:4px;font-weight:700}
+@media(max-width:600px){.kio-grid{grid-template-columns:1fr}}
 .cine-final{flex-direction:row!important;gap:48px!important;align-items:center!important;justify-content:center!important;text-align:left!important;max-width:1000px;margin:0 auto}
 .final-col{max-width:480px}
 .cine-final-h,.cine-final-sub{text-align:left}
@@ -787,6 +810,21 @@ body{padding-left:66px}
     <div style="text-align:center;margin-top:10px"><a href="#" id="invClose" style="font-size:12px;color:var(--text-muted)">Cerrar</a></div>
   </div>
 </div>
+<div class="reg-overlay hide" id="kioOverlay">
+  <div class="reg-box" style="max-width:840px;max-height:90vh;overflow-y:auto;text-align:left;padding:24px 24px 20px">
+    <div class="kio-head">
+      <div><h2 style="text-align:left;margin:0">Kiosco de conocimiento</h2><p class="rsub" style="text-align:left;margin:4px 0 0">Elige lo que quieres aprender y añádelo a tu librería. Como un menú: coge lo que te sirva.</p></div>
+      <div class="kio-cart" id="kioCartBtn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.5a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.2L22 7H6"/></svg><span id="kioCount">0</span></div>
+    </div>
+    <div class="kio-cats" id="kioCats"></div>
+    <div class="kio-grid" id="kioGrid"></div>
+    <div class="kio-foot">
+      <button type="button" id="kioSave">Guardar mi librería (<span id="kioCount2">0</span>)</button>
+      <a href="#" id="kioClose" style="font-size:12.5px;color:var(--text-muted)">Cerrar</a>
+    </div>
+  </div>
+</div>
+<div class="kio-quote" id="kioQuote"></div>
 <div class="reg-overlay hide" id="progOverlay">
   <div class="reg-box" style="max-width:520px;text-align:center;max-height:88vh;overflow-y:auto">
     <div id="progBody"></div>
@@ -855,6 +893,7 @@ body{padding-left:66px}
     <a class="rail-item gold" href="#" id="railProfile" title="Mi perfil profesional"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M13 10h5M13 13.5h5M5.5 16c.5-1.3 1.7-2 3-2s2.5.7 3 2"/></svg></span><span class="ri-lb">Mi perfil</span></a>
     <a class="rail-item gold" href="#" id="railInvite" title="A quién puedo ayudar: invita a tu equipo"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3.2 2.5-4.8 5.5-4.8s5.5 1.6 5.5 4.8"/><path d="M17.5 8.5h4M19.5 6.5v4"/></svg></span><span class="ri-lb">Mi equipo</span></a>
     <a class="rail-item gold" href="#" id="railProg" title="Mi progreso: nivel, puntos y logros"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M17 5h2.5a1.5 1.5 0 0 1 0 4H17M7 5H4.5a1.5 1.5 0 0 0 0 4H7"/></svg></span><span class="ri-lb">Mi progreso</span></a>
+    <a class="rail-item gold" href="#" id="railKiosko" title="Kiosco de conocimiento: elige tus cursos"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.5a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.2L22 7H6"/></svg></span><span class="ri-lb">Kiosco</span></a>
     <a class="rail-item" href="#adn" data-sec="adn,rol,eres" title="El test de ADN y tu papel como coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 12.5l2.5 2.5 4-4"/></svg></span><span class="ri-lb">Test de ADN</span></a>
     <a class="rail-item" href="#perfil" data-sec="perfil" title="Perfil y personalidades: eneagrama, DISC, zonas, Ikigai"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="ri-lb">Personalidades</span></a>
     <a class="rail-item" href="#pilares" data-sec="pilares,expertos" title="Liderazgo: los 4 pilares y las técnicas de los autores"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Liderazgo</span></a>
@@ -887,6 +926,7 @@ body{padding-left:66px}
     <button type="button" data-q="el test de adn">Test de ADN</button>
     <button type="button" data-q="mi progreso">Mi progreso</button>
     <button type="button" data-q="pregunta a un experto">Hablar con un experto</button>
+    <button type="button" data-q="kiosco">Kiosco de cursos</button>
   </div>
 </div>
 <section class="hero" id="inicio">
@@ -2578,6 +2618,68 @@ const EXPERTS=[
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 })();
 
+/* ===== Kiosco de conocimiento ===== */
+(function(){
+ var ov=document.getElementById('kioOverlay');if(!ov)return;
+ var CATS=['Liderazgo','Escucha','Motivación','Personalidades','Organización','Comunicación'];
+ var ITEMS={
+  'Liderazgo':[
+   {t:'Los 4 pilares del acompañamiento',d:'Confianza, escucha, motivación y acompañamiento.',q:'La gente no compra lo que haces, sino por qué lo haces.',a:'Simon Sinek',sec:'pilares'},
+   {t:'Empieza por el porqué',d:'El círculo dorado para inspirar.',q:'Los grandes líderes inspiran, no ordenan.',a:'Simon Sinek',sec:'pilares'},
+   {t:'Feedback que no hiere',d:'Sinceridad radical de Kim Scott.',q:'Preocúpate de verdad y desafía directamente.',a:'Kim Scott',sec:'herramientas'}
+  ],
+  'Escucha':[
+   {t:'Las 7 preguntas poderosas',d:'Escuchar mejor sin dar consejos.',q:'Sé un poco más curioso y un poco menos consejero.',a:'M. Bungay Stanier',sec:'herramientas'},
+   {t:'Escucha activa',d:'Escuchar y validar (Carl Rogers).',q:'Escuchar de verdad es un acto de respeto.',a:'Carl Rogers',sec:'herramientas'},
+   {t:'El modelo GROW',d:'Meta, realidad, opciones y voluntad.',q:'Las buenas preguntas abren caminos.',a:'John Whitmore',sec:'herramientas'}
+  ],
+  'Motivación':[
+   {t:'Priming matinal',d:'Arranca el día con energía (Robbins).',q:'Donde va la atención, fluye la energía.',a:'Tony Robbins',sec:'rutinas'},
+   {t:'Mentalidad de crecimiento',d:'El poder del "todavía" (Dweck).',q:'No es que no puedas: es que aún no.',a:'Carol Dweck',sec:'pilares'},
+   {t:'Encontrar el porqué',d:'Sentido incluso en lo difícil.',q:'Quien tiene un porqué encuentra casi cualquier cómo.',a:'Viktor Frankl',sec:'pilares'}
+  ],
+  'Personalidades':[
+   {t:'Eneagrama en 9 tipos',d:'Su mapa de motivaciones y miedos.',q:'Conócele y sabrás cómo acompañarle.',a:'Sabiduría del eneagrama',sec:'perfil'},
+   {t:'DISC y colores',d:'Cuatro estilos para saber cómo hablarle.',q:'Adapta el mensaje a la persona.',a:'Modelo DISC',sec:'perfil'},
+   {t:'Las 3 zonas',d:'Confort, aprendizaje y pánico.',q:'El crecimiento vive fuera de la zona de confort.',a:'Modelo de zonas',sec:'perfil'}
+  ],
+  'Organización':[
+   {t:'Fórmula 20/20/20',d:'La primera hora del día (Sharma).',q:'Gana la mañana y ganarás el día.',a:'Robin Sharma',sec:'rutinas'},
+   {t:'Matriz de Eisenhower',d:'Urgente frente a importante.',q:'Lo importante rara vez es urgente.',a:'D. Eisenhower',sec:'rutinas'},
+   {t:'Hábitos atómicos',d:'Un 1% mejor cada día (Clear).',q:'Caes al nivel de tus sistemas, no subes al de tus metas.',a:'James Clear',sec:'rutinas'}
+  ],
+  'Comunicación':[
+   {t:'Cómo ganar amigos',d:'Interés genuino por el otro (Carnegie).',q:'Interésate de verdad por los demás.',a:'Dale Carnegie',sec:'herramientas'},
+   {t:'Conversaciones difíciles',d:'Decir lo importante sin romper el vínculo.',q:'Primero conecta, luego corrige.',a:'—',sec:'herramientas'}
+  ]
+ };
+ function esc(s){return String(s||'').replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]})}
+ function lib(){try{return JSON.parse(localStorage.getItem('coach_library')||'[]')}catch(e){return[]}}
+ function setLib(a){localStorage.setItem('coach_library',JSON.stringify(a))}
+ function inLib(t){return lib().some(function(x){return x.t===t})}
+ var curCat=CATS[0];
+ function rCats(){document.getElementById('kioCats').innerHTML=CATS.map(function(c){return '<button type="button" class="kio-cat'+(c===curCat?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join('')}
+ function rGrid(){var items=ITEMS[curCat]||[];document.getElementById('kioGrid').innerHTML=items.map(function(it){var ad=inLib(it.t);return '<div class="kio-item"><h4>'+esc(it.t)+'</h4><p>'+esc(it.d)+'</p><div class="kio-acts"><button type="button" class="kio-add'+(ad?' added':'')+'" data-t="'+esc(it.t)+'">'+(ad?'En tu librería':'+ Añadir')+'</button><button type="button" class="kio-see" data-sec="'+esc(it.sec)+'">Ver</button></div></div>'}).join('')}
+ function count(){var n=lib().length;var a=document.getElementById('kioCount'),b=document.getElementById('kioCount2');if(a)a.textContent=n;if(b)b.textContent=n}
+ function toast(html){var el=document.getElementById('kioQuote');el.innerHTML=html;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},2600)}
+ function open(){curCat=CATS[0];rCats();rGrid();count();ov.classList.remove('hide');document.body.classList.add('locked')}
+ function close(){ov.classList.add('hide');document.body.classList.remove('locked')}
+ document.getElementById('kioCats').addEventListener('click',function(e){var b=e.target.closest('[data-c]');if(b){curCat=b.getAttribute('data-c');rCats();rGrid()}});
+ document.getElementById('kioGrid').addEventListener('click',function(e){
+   var add=e.target.closest('.kio-add'),see=e.target.closest('.kio-see');
+   if(add){var t=add.getAttribute('data-t'),items=ITEMS[curCat]||[],it=null;for(var i=0;i<items.length;i++)if(items[i].t===t)it=items[i];var a=lib();
+     if(inLib(t)){setLib(a.filter(function(x){return x.t!==t}))}
+     else{a.push({t:t,sec:it?it.sec:'',cat:curCat});setLib(a);if(it)toast('<div class="q">«'+esc(it.q)+'»</div><div class="a">'+esc(it.a)+'</div>');try{track('library_add',{t:t,cat:curCat})}catch(e){}}
+     rGrid();count()}
+   if(see){var sec=see.getAttribute('data-sec');close();var tg=document.getElementById(sec);if(tg)setTimeout(function(){tg.scrollIntoView({behavior:'smooth'})},250)}
+ });
+ document.getElementById('kioSave').addEventListener('click',function(){try{track('library_save',{items:lib().map(function(x){return x.t})})}catch(e){}var n=lib().length;close();toast('<div class="q">¡Tu librería está lista!</div><div class="a">'+n+' formación(es) elegida(s)</div>')});
+ var kc=document.getElementById('kioClose');if(kc)kc.addEventListener('click',function(e){e.preventDefault();close()});
+ ov.addEventListener('click',function(e){if(e.target===ov)close()});
+ var rk=document.getElementById('railKiosko');if(rk)rk.addEventListener('click',function(e){e.preventDefault();var r=document.getElementById('rail'),o=document.getElementById('railOv');if(r)r.classList.remove('open');if(o)o.classList.remove('open');open()});
+ window.__openKiosko=open;
+})();
+
 /* ===== Guía Brandooers: asesor por voz + texto que navega la app ===== */
 (function(){
  var fab=document.getElementById('guideFab'),panel=document.getElementById('guidePanel'),input=document.getElementById('guideIn'),say=document.getElementById('guideSay');
@@ -2595,6 +2697,9 @@ const EXPERTS=[
  ];
  function speak(t){try{if('speechSynthesis' in window){var u=new SpeechSynthesisUtterance(String(t).replace(/<[^>]+>/g,''));u.lang='es-ES';u.rate=1.04;u.pitch=1.05;var vs=speechSynthesis.getVoices()||[];var v=vs.filter(function(x){return /es(-|_)?ES/i.test(x.lang)})[0]||vs.filter(function(x){return /^es/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}}catch(e){}}
  function respond(t){if(say)say.innerHTML=t;speak(t)}
+ function isQ(q){return q.indexOf('?')>-1||/^(¿|qu[eé] |c[oó]mo|por ?qu[eé]|cu[aá]ndo|d[oó]nde|qui[eé]n|cu[aá]l|dime|expl|ay(u|ú)da|consejo|recomi|deber[ií]a|deberia|puedo )/.test(q)}
+ function expertFor(q){if(/personalidad|eneagrama|disc|perfil|color|johari|ikigai/.test(q))return'personalidades';if(/motiv|[aá]nimo|robbins|dweck|frankl|ilusi/.test(q))return'motivacion';if(/escuch|feedback|conversa|grow|pregunt/.test(q))return'escucha';if(/organiz|tiempo|rutina|h[aá]bito|productiv|planific|foco/.test(q))return'organizacion';return'liderazgo'}
+ function jsonp(url,cb){try{var s=document.createElement('script'),n='__gcb'+Date.now();window[n]=function(d){cb(d);try{delete window[n]}catch(e){}s.remove()};s.onerror=function(){cb(null);try{delete window[n]}catch(e){}s.remove()};s.src=url+(url.indexOf('?')>-1?'&':'?')+'callback='+n;document.body.appendChild(s);setTimeout(function(){if(window[n]){cb(null);try{delete window[n]}catch(e){}}},9000)}catch(e){cb(null)}}
  function openP(){panel.classList.add('open');fab.style.display='none';setTimeout(function(){try{input.focus()}catch(e){}},60)}
  function closeP(){panel.classList.remove('open');fab.style.display='';try{speechSynthesis.cancel()}catch(e){}}
  function click(id){var e=document.getElementById(id);if(e)e.click()}
@@ -2609,6 +2714,11 @@ const EXPERTS=[
    else if(/progreso|nivel|puntos|logro|avatar/.test(q)){txt='Este es tu progreso.';act=function(){click('railProg')}}
    else if(/equipo|invitar|ayudar|referid/.test(q)){txt='Vamos con tu equipo.';act=function(){click('railInvite')}}
    else if(/mi perfil|perfil profesional/.test(q)){txt='Aquí está tu perfil.';act=function(){click('railProfile')}}
+   else if(/kiosco|kiosko|cesta|librer|elegir cursos?|ver cursos|men[uú] de cursos/.test(q)){txt='Abro el kiosco de cursos para que elijas.';act=function(){click('railKiosko')}}
+   else if(isQ(q)){respond('Déjame que lo mire…');var CU='';try{CU=CHAT_URL}catch(e){}
+     if(CU){jsonp(CU+'?expert='+encodeURIComponent(expertFor(q))+'&q='+encodeURIComponent(q),function(d){if(d&&d.answer){respond(String(d.answer))}else{var s2=matchSection(q);if(s2){respond('Ahora no puedo responder en detalle, pero te llevo a <b>'+s2.l+'</b>.');go(s2.id);setTimeout(closeP,1100)}else{respond('Ahora no puedo responder en detalle. Prueba «Hablar con un experto».')}}});}
+     else{var s3=matchSection(q);if(s3){respond('Vamos con <b>'+s3.l+'</b>.');go(s3.id);setTimeout(closeP,1100)}else{respond('Para esa duda, prueba «Hablar con un experto».')}}
+     try{track('guide_query',{q:q,ask:true})}catch(e){}return;}
    else{
      var wantVid=/(v[ií]deo|charla|\bver\b|mira|\bpon\b)/.test(q),wantBook=/(libro|lectura|leer)/.test(q);
      var vid=findEl('[data-yt][data-title]',q),bk=findEl('a.bthumb[data-title],a.book[data-title]',q),sec=matchSection(q);
