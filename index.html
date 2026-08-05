@@ -296,17 +296,33 @@ body.locked{overflow:hidden}
 @media(max-width:600px){.cine-avatar{bottom:70px;left:10px}.cine-av-eyes{width:54px}.cine-av-bubble{max-width:158px;font-size:14px}}
 /* Título a la IZQUIERDA + tablet e-learning a la DERECHA (ojos + bocadillo + imagen por título) */
 .cine-stage{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:42px;max-width:1060px;margin:0 auto}
-.cine-scenes{flex:1;max-width:520px;min-height:300px}
+.cine-scenes{flex:1;max-width:468px;min-height:300px}
 .cine-scene{align-items:flex-start!important;text-align:left!important}
 .cine-scene .cs-kick,.cine-scene h1,.cine-scene p{text-align:left}
 .cine-tablet{position:relative;flex-shrink:0;width:338px}
-.tab-eyes{position:absolute;top:-32px;left:50%;transform:translateX(-50%);width:78px;height:auto;z-index:2;filter:drop-shadow(0 5px 14px rgba(139,92,246,.6));animation:avAlive 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-.tab-bubble{position:absolute;top:-30px;left:calc(50% + 46px);max-width:180px;background:#fff;color:#2d2d2d;font-family:'Caveat',cursive;font-weight:600;font-size:16px;line-height:1.15;padding:7px 12px;border-radius:14px 14px 14px 4px;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(6px);z-index:2}
+.tab-eyes{position:absolute;top:-30px;left:16px;width:74px;height:auto;z-index:2;filter:drop-shadow(0 5px 14px rgba(139,92,246,.6));animation:avAlive 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.tab-bubble{position:absolute;top:-24px;right:8px;max-width:184px;background:#fff;color:#2d2d2d;font-family:'Caveat',cursive;font-weight:600;font-size:16px;line-height:1.15;padding:7px 12px;border-radius:14px 14px 4px 14px;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(6px);z-index:2}
 .tab-bubble.show{opacity:1;transform:none;transition:opacity .4s ease,transform .4s cubic-bezier(.34,1.56,.64,1)}
 .tablet-frame{background:#15121b;border-radius:26px;padding:14px;box-shadow:0 24px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08)}
 .tablet-screen{background:#f7f3ee;border-radius:16px;aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden;transition:opacity .3s ease}
 .tablet-screen svg{width:82%;height:82%;display:block}
-@media(max-width:820px){.cine-stage{flex-direction:column;gap:22px}.cine-scenes{max-width:100%;min-height:200px;order:2}.cine-tablet{order:1;width:min(300px,78vw);margin:0 auto}}
+@media(max-width:960px){.cine-stage{flex-direction:column;gap:24px}.cine-scenes{max-width:100%;min-height:200px;order:2}.cine-tablet{order:1;width:min(300px,78vw);margin:18px auto 0}}
+/* Formulario final más grande y con impacto + frase persuasiva */
+.cine-final-h{font-size:clamp(46px,9vw,74px)!important;margin-bottom:8px!important}
+.cine-final-sub{color:rgba(255,255,255,.92);font-size:clamp(15px,2.2vw,18px);max-width:430px;margin:-2px auto 22px;line-height:1.5}
+.cine-final .landing-form{max-width:470px!important;padding:34px 30px!important;border-radius:22px!important;box-shadow:0 28px 90px rgba(0,0,0,.5),0 0 0 3px rgba(139,92,246,.3)!important}
+.cine-final .landing-form input[type=text],.cine-final .landing-form input[type=email]{padding:14px 15px!important;font-size:15.5px!important;margin-bottom:12px!important;border-radius:12px!important}
+.cine-final .landing-form button{padding:17px!important;font-size:17px!important;border-radius:12px!important;margin-top:10px!important;box-shadow:0 12px 32px rgba(139,92,246,.5)!important}
+.tab-eyes{display:none!important}
+.tablet-screen svg{animation:charBob 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+@keyframes charBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.cine-final{flex-direction:row!important;gap:48px!important;align-items:center!important;justify-content:center!important;text-align:left!important;max-width:1000px;margin:0 auto}
+.final-col{max-width:480px}
+.cine-final-h,.cine-final-sub{text-align:left}
+.cine-final .landing-form{margin:0!important}
+.final-char{flex-shrink:0;width:210px;height:250px}
+.final-char svg{animation:charBob 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+@media(max-width:860px){.cine-final{flex-direction:column!important;text-align:center!important;gap:22px!important}.final-col{max-width:100%}.cine-final-h,.cine-final-sub{text-align:center}.cine-final .landing-form{margin:0 auto!important}.final-char{order:-1;width:150px;height:180px}}
 /* Móvil: sin desbordes horizontales ni FABs solapados */
 html,body{overflow-x:hidden;max-width:100%}
 #explora{overflow-x:clip}
@@ -617,8 +633,10 @@ body{padding-left:66px}
     </div>
   </div>
   <section class="cine-final" id="cineFinal">
+    <div class="final-col">
     <div class="cs-kick" style="color:#E7B6FF;margin-bottom:8px">Es tu momento</div>
     <div class="cine-final-h">Entra a la revolución</div>
+    <p class="cine-final-sub">Da el paso y forma parte del equipo que sí rinde: convierte lo que ya sabéis en retorno que se ve.</p>
     <form id="regForm" class="landing-form">
       <div class="err" id="regErr"></div>
       <input id="regName" type="text" placeholder="Tu nombre" autocomplete="name">
@@ -627,6 +645,8 @@ body{padding-left:66px}
       <label class="reg-consent"><input type="checkbox" id="regConsent"><span>Acepto que se registren mi nombre, email y actividad formativa (vídeos y secciones vistas) con fines internos de seguimiento del equipo. No se comparte con terceros.</span></label>
       <button type="submit">Entrar a la formación</button>
     </form>
+    </div>
+    <div class="final-char" id="finalChar"></div>
   </section>
   <div class="cine-dots" id="cineDots"></div>
   <a class="cine-skip" id="cineSkip" href="#">Ir al acceso ↓</a>
@@ -2323,6 +2343,19 @@ const EXPERTS=[
  var dotsWrap=document.getElementById('cineDots');
  for(var i=0;i<N;i++){(function(i){var b=document.createElement('button');b.setAttribute('aria-label','Sección '+(i+1));b.addEventListener('click',function(){var max=track.offsetHeight-ov.clientHeight;ov.scrollTo({top:(i/(N-1))*max,behavior:'smooth'})});dotsWrap.appendChild(b)})(i)}
  var dots=dotsWrap.children;
+ function charEvo(li){
+  var arms=li>=1?'<path d="M22 82 L6 98 M98 82 L114 98" stroke="#5B899E" stroke-width="5" stroke-linecap="round" fill="none"/>':'';
+  var legs=li>=1?'<path d="M46 102 L40 124 M74 102 L80 124" stroke="#5B899E" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M33 124h13M74 124h13" stroke="#5B899E" stroke-width="5" stroke-linecap="round" fill="none"/>':'';
+  var cape=li>=2?'<path d="M26 68 Q60 142 94 68 Q60 92 26 68Z" fill="#7c3aed" opacity=".85"/>':'';
+  var shield=li>=3?'<g transform="translate(96,84)"><path d="M0 0 L15 4 V15 Q15 24 7.5 28 Q0 24 0 15Z" fill="#22d3ee" stroke="#0e7490" stroke-width="1.5"/></g>':'';
+  var sword=li>=4?'<g transform="translate(6,72) rotate(-22)"><rect x="-2" y="-30" width="4" height="30" rx="2" fill="#c9d4dd"/><rect x="-7" y="-2" width="14" height="4" rx="2" fill="#E4A900"/></g>':'';
+  var crown=li>=5?'<path d="M40 18 L48 28 L60 14 L72 28 L80 18 L77 36 H43Z" fill="#E4A900" stroke="#a97e00" stroke-width="1.2"/>':'';
+  var aura=li>=6?'<ellipse cx="60" cy="58" rx="55" ry="52" fill="none" stroke="#E46E78" stroke-width="2.5" opacity=".5"/>':'';
+  var by=li>=5?32:34;
+  var brows='<path d="M26 '+by+' Q44 '+(by-8)+' 60 '+by+'" fill="none" stroke="url(#bo-brow1)" stroke-width="4" stroke-linecap="round"/><path d="M60 '+by+' Q76 '+(by-8)+' 94 '+by+'" fill="none" stroke="url(#bo-brow2)" stroke-width="4" stroke-linecap="round"/>';
+  function eye(cx,ir,bg){return '<ellipse cx="'+cx+'" cy="58" rx="21" ry="21" fill="#fff" stroke="url(#'+bg+')" stroke-width="3.4"/><circle cx="'+cx+'" cy="60" r="8.5" fill="url(#'+ir+')"/><circle cx="'+cx+'" cy="60" r="4" fill="#0a0a0f"/><circle cx="'+(cx+4)+'" cy="56" r="2.3" fill="#fff"/>';}
+  return '<svg viewBox="0 0 120 132" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:100%">'+aura+cape+brows+eye(44,'bo-iris1','bo-bg1')+eye(76,'bo-iris2','bo-bg2')+crown+arms+legs+shield+sword+'</svg>';
+ }
  var SAYS=['¡Hola! Yo te acompaño.','Las de siempre… bah.','El talento ya está dentro.','Pequeño gesto, gran salto.','Con firmas que pesan.','Lo medimos todo, ¿eh?','¡Mira cómo sube!'];
  var VIS=[
   '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M24 122 L72 82 L104 100 L172 40" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 38 h24 v24" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="48" cy="118" r="16" fill="#E4A900"/></g><text x="48" y="124" font-size="17" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-weight="800">€</text><text x="150" y="130" font-size="22" fill="#714B67" font-family="Caveat,cursive" font-weight="700">+ROI</text></svg>',
@@ -2335,9 +2368,10 @@ const EXPERTS=[
  ];
  var lastIdx=-1;
  function upd(){var max=track.offsetHeight-ov.clientHeight;var pr=max>0?Math.min(1,Math.max(0,ov.scrollTop/max)):0;var idx=Math.round(pr*(N-1));for(var i=0;i<N;i++){scenes[i].classList.toggle('active',i===idx);if(dots[i])dots[i].classList.toggle('on',i===idx)}
-   if(idx!==lastIdx){lastIdx=idx;var say=document.getElementById('cineSay');if(say){say.classList.remove('show');say.textContent=SAYS[idx]||'';void say.offsetWidth;say.classList.add('show')}var tv=document.getElementById('tabVis');if(tv){tv.style.opacity='0';tv.innerHTML=VIS[idx]||'';requestAnimationFrame(function(){tv.style.opacity='1'})}}}
+   if(idx!==lastIdx){lastIdx=idx;var say=document.getElementById('cineSay');if(say){say.classList.remove('show');say.textContent=SAYS[idx]||'';void say.offsetWidth;say.classList.add('show')}var tv=document.getElementById('tabVis');if(tv){tv.style.opacity='0';tv.innerHTML=charEvo(idx);requestAnimationFrame(function(){tv.style.opacity='1'})}}}
  ov.addEventListener('scroll',upd,{passive:true});
  var skip=document.getElementById('cineSkip');if(skip)skip.addEventListener('click',function(e){e.preventDefault();var f=document.getElementById('cineFinal');if(f)ov.scrollTo({top:f.offsetTop,behavior:'smooth'})});
+ var fc=document.getElementById('finalChar');if(fc)fc.innerHTML=charEvo(N-1);
  window.__cineReset=function(){ov.scrollTop=0;upd()};
  setTimeout(upd,60);
 })();
