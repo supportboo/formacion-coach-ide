@@ -32,13 +32,29 @@ function json(res, code, obj) { const b = JSON.stringify(obj); res.writeHead(cod
 function firstJson(s) { const a = s.indexOf('{'), b = s.lastIndexOf('}'); return JSON.parse(s.slice(a, b + 1)); }
 function readBody(req) { return new Promise(r => { let d = ''; req.on('data', c => d += c); req.on('end', () => { try { r(JSON.parse(d || '{}')); } catch { r({}); } }); }); }
 
-/* ===== Agente entrevistador (onboarding en lenguaje natural) ===== */
-const ONBOARD_SYS = `Eres el asesor de onboarding de una plataforma de formación comercial (Brandooers). Entrevistas al usuario en español de España, cercano y breve, para entender su caso real y poder adaptar la formación a su mundo.
-Haz UNA pregunta a la vez, máximo 4-5 en total. Cubre: a qué se dedica y a quién vende (B2B/B2C, sector concreto), qué le cuesta más hoy, ticket (pocos clientes de valor alto o volumen), y por qué canal le llegan clientes ahora.
-Cuando ya tengas suficiente, deja de preguntar y devuelve el perfil.
+/* ===== Catálogo (para que los agentes recomienden módulos reales) ===== */
+const CATALOG = {
+  coach:         { title: 'Coach de los que llegan', file: 'index.html', anclas: '#adn #perfil #pilares #herramientas #calendario', temas: ['ADN de equipo','personalidades (eneagrama/DISC)','liderazgo','coaching práctico','plan de 6 meses'] },
+  outbound:      { title: 'Outbound Sales', file: 'outbound-sales.html', anclas: '#fundamentos #frameworks #prospeccion #objeciones #clientes #partners #herramientas #legal #recursos', temas: ['fundamentos','frameworks (MEDDIC/SPIN/Challenger)','prospección y cadencia','objeciones','captar clientes','captar partners','herramientas','marco legal'] },
+  reclutamiento: { title: 'Reclutamiento de Partners (12 mód.)', file: 'reclutamiento-partners.html', anclas: '#mod-01 … #mod-12', temas: ['negocio','mindset','ICP','prospección','copywriting','LinkedIn','email frío','multicanal','webinars','objeciones','stack e IA','métricas'] },
+  marketing:     { title: 'Marketing para Partners (12 mód.)', file: 'marketing-partners.html', anclas: '#mod-01 … #mod-12', temas: ['marketing sin humo','prospección B2B','outbound local','leads del PM','LinkedIn+contenido','SEO/GEO','web/conversión','paid ads','eventos/referidos','embudos/métricas','automatización','atribución'] }
+};
+const CATALOG_TXT = Object.entries(CATALOG).map(function (e) { return '- ' + e[0] + ' (' + e[1].title + ', ' + e[1].file + '; anclas: ' + e[1].anclas + '): ' + e[1].temas.join(', '); }).join('\n');
+function slug(s) { return String(s).normalize('NFKD').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 48); }
+
+/* ===== Agente director académico (onboarding: entrevista tipo máster) ===== */
+const ONBOARD_SYS = `Eres el director académico de Brandooers, una escuela de ventas y marketing B2B con varios cursos. Actúas como el tutor de un máster que orienta a cada profesional. En español de España, cercano y breve.
+Entrevista de máximo 5 preguntas, UNA a la vez, para averiguar: su puesto/rol, a qué se dedica y a quién vende, su NIVEL real por materia (novato/intermedio/experto), cuánto tiempo puede dedicar, y qué busca: resolver algo concreto ya, o profesionalizarse a fondo.
+Con eso recomienda un FLUJO DE APRENDIZAJE COMBINADO entre cursos, corto o largo según su interés y nivel. Usa SOLO módulos reales del catálogo y construye los enlaces con fichero + ancla (reclutamiento y marketing usan #mod-01..#mod-12).
+Catálogo:
+${CATALOG_TXT}
 Responde SIEMPRE con JSON válido, sin markdown:
-- si necesitas más info: {"done": false, "question": "tu siguiente pregunta"}
-- cuando tengas bastante: {"done": true, "profile": {"resumen": "1-2 frases de quién es", "sector": "...", "audiencia": "B2B|B2C|canal", "icp": "a quién capta", "ticket": "bajo|medio|alto", "canal": "...", "dolores": ["...","..."]}}`;
+- si necesitas más info: {"done": false, "question": "..."}
+- cuando tengas bastante: {"done": true, "perfil": {"rol":"...","sector":"...","audiencia":"B2B|B2C|canal","icp":"...","dolores":["..."]}, "nivel": {"materia":"novato|intermedio|experto"}, "plan": {"duracion":"corto|medio|largo","objetivo":"...","porque":"...","flujo":[{"curso":"...","tema":"...","href":"fichero.html#ancla","minutos":30}]}}`;
+
+/* ===== Agente examinador (tests → badges) ===== */
+function examGenSys(n) { return 'Eres examinador de Brandooers. Crea ' + n + ' preguntas tipo test (4 opciones, una sola correcta) en español de España, de dificultad acorde al nivel indicado, sobre el tema del curso indicado. Devuelve SOLO JSON, SIN revelar la respuesta correcta: {"questions":[{"q":"...","options":["a","b","c","d"]}]}'; }
+const EXAM_GRADE_SYS = 'Eres examinador de Brandooers. Te doy un test respondido (cada pregunta con la respuesta elegida por el alumno) sobre un tema. Corrige, puntúa 0-100 y da feedback breve y constructivo en español de España. Aprobado si score>=70. Devuelve SOLO JSON: {"score":n,"aprobado":true|false,"feedback":"...","por_pregunta":[{"q":"...","correcta":"...","bien":true|false}]}';
 
 /* ===== Agente personalizador (reescribe una sección) ===== */
 const PERSONALIZE_SYS = `Eres un experto en formación comercial y copywriting B2B en español de España. Te doy una sección canónica de un curso de outbound/marketing y un PERFIL de usuario. Reescribe la sección para que resuene 100% con el mundo de ese perfil: titulares, ejemplos y práctica con dolores, vocabulario y ejemplos de SU sector concreto. Nada genérico, nada de "ahorra tiempo y dinero". Mensajes con un solo CTA, tono humano. No inventes cifras ni estudios.
@@ -61,6 +77,21 @@ const server = http.createServer(async (req, res) => {
       const user = `PERFIL:\n${typeof profile === 'string' ? profile : JSON.stringify(profile)}\n\nSECCIÓN CANÓNICA (JSON):\n${JSON.stringify(section)}`;
       const out = await claude(GEN_MODEL, PERSONALIZE_SYS, [{ role: 'user', content: user }], 1600);
       return json(res, 200, firstJson(out));
+    }
+
+    if (req.method === 'POST' && req.url === '/api/exam') {
+      const b = await readBody(req);
+      if (b.mode === 'generate') {
+        const out = await claude(FAST_MODEL, examGenSys(b.n || 5), [{ role: 'user', content: `Curso: ${b.curso}. Tema: ${b.tema}. Nivel: ${b.nivel || 'intermedio'}.` }], 1300);
+        return json(res, 200, firstJson(out));
+      }
+      if (b.mode === 'grade') {
+        const out = await claude(GEN_MODEL, EXAM_GRADE_SYS, [{ role: 'user', content: `Curso: ${b.curso}. Tema: ${b.tema}.\nTest respondido:\n${JSON.stringify(b.respuestas || [])}` }], 1500);
+        const r = firstJson(out);
+        if (r.aprobado) r.badge = { id: slug((b.curso || '') + '-' + (b.tema || '')), label: 'Badge · ' + (b.tema || b.curso) };
+        return json(res, 200, r);
+      }
+      return json(res, 400, { error: 'mode debe ser generate o grade' });
     }
 
     // estático

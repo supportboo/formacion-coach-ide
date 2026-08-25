@@ -8,10 +8,17 @@ natural** y **reescribe el contenido a cualquier caso/sector en vivo** con un mo
 ## Qué hace
 
 - Sirve toda la plataforma (los `.html`, `.js`, `.css` del repo).
-- `POST /api/onboard` → agente entrevistador (modelo rápido, Haiku). Recibe el historial del
-  chat y devuelve la siguiente pregunta o, cuando tiene bastante, un **perfil rico**.
-- `POST /api/personalize` → reescribe una sección del curso al perfil (modelo de calidad,
-  Sonnet). Cualquier sector, no listas cerradas.
+- `POST /api/onboard` → **agente director académico** (tutor de máster, Haiku). Entrevista en
+  lenguaje natural, averigua rol + nivel por materia + objetivo, y recomienda un **flujo de
+  aprendizaje combinado** entre cursos (corto o largo). Este chat vive en la **home** (hub) y
+  es el único sitio donde se hace el onboarding; los cursos solo aplican el perfil resultante.
+- `POST /api/personalize` → reescribe una sección del curso al perfil (Sonnet). Cualquier
+  sector, no listas cerradas.
+- `POST /api/exam` → **agente examinador**. `{mode:"generate"}` crea un test del tema;
+  `{mode:"grade"}` corrige, puntúa y, si aprueba (≥70), devuelve la **BADGE** ganada.
+  (El almacenamiento de badges/ranking va con la base de datos, siguiente fase.)
+
+> Infra: **solo VPS (IONOS)**. Nada de Vercel/serverless. Node + pm2 + Nginx.
 
 ## Modelos (recomendado)
 

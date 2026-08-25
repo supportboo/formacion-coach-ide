@@ -48,10 +48,13 @@
   ].join('');
   document.head.appendChild(s);
 
+  var HOME = !!window.BOO_HOME;   // el onboarding vive en la home; en los cursos el chip es pasivo
   var chip = document.createElement('button'); chip.className = 'pf-chip'; document.body.appendChild(chip);
+  function profLabel(){ var pr = PRESETS[prefs().preset]; if(pr) return pr.short; if(prefs().profileText) return 'tu caso'; return null; }
   function chipLabel(){
-    var pr = PRESETS[prefs().preset];
-    chip.innerHTML = '<span class="pf-dot"></span>' + (pr ? ('Caso: <b>&nbsp;'+pr.short+'</b>') : 'Personalizar formación') + ' <span style="opacity:.6">▸</span>';
+    var lbl = profLabel();
+    if(HOME){ chip.innerHTML = '<span class="pf-dot"></span>' + (lbl ? ('Caso: <b>&nbsp;'+lbl+'</b>') : 'Personalizar formación') + ' <span style="opacity:.6">▸</span>'; }
+    else { chip.innerHTML = '<span class="pf-dot"></span>' + (lbl ? ('Adaptado a: <b>&nbsp;'+lbl+'</b>') : 'Personaliza en Inicio') + ' <span style="opacity:.6">▸</span>'; }
   }
 
   var ov = document.createElement('div'); ov.className = 'pf-ov';
@@ -80,7 +83,7 @@
   });
   ov.querySelector('.pf-save').onclick = function(){ var p = prefs(); p.sector = ov.querySelector('#pfSector').value.trim(); var tx=ov.querySelector('#pfText'); p.profileText = tx?tx.value.trim():''; setPrefs(p); ov.classList.remove('open'); apply(); chipLabel(); };
   ov.addEventListener('click', function(e){ if(e.target===ov) ov.classList.remove('open'); });
-  chip.onclick = function(){ paintOpts(); ov.classList.add('open'); };
+  chip.onclick = function(){ if(HOME){ paintOpts(); ov.classList.add('open'); } else { location.href = 'hub.html#empezar'; } };
 
   // ---- reescribir slots de contenido con lo generado por el agente ----
   function renderHooks(label, hooks){
