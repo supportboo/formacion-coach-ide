@@ -6,6 +6,9 @@ Plataforma de formación del equipo Odoo I+D+E (**Brandooers**): la escuela del 
 - **Formación del Coach** (`index.html`): acompañar a los nuevos del equipo durante sus primeros 6 meses (antes del paso a Partner Manager).
 - **Formación Outbound Sales** (`outbound-sales.html`): captación de clientes y de partners, playbooks prácticos y recursos verificados.
 - **Reclutamiento de Partners** (`reclutamiento-partners.html`): manual completo de 12 módulos para captar empresas tecnológicas y convertirlas en partners de Odoo (outbound consultivo). Generado desde `../odoo-partner-outbound/` (`build.py` + `modules/*.html`); aquí va la copia publicada.
+- **Marketing para Partners** (`marketing-partners.html`): 12 módulos de marketing B2B (Intro→Advanced): prospección, LinkedIn/contenido, SEO/GEO, web/conversión, paid ads, eventos, automatización, atribución. Generado desde el repo `MHGRPM/marketing-partners` (`build_brandooers.py`). Cross-links de ida y vuelta con Outbound.
+
+Todas las formaciones incluyen **`feedback.js`**: modo revisión para subrayar texto y marcarlo Útil / Mejorar / Obsoleto + comentario, con panel de notas (exportable a JSON). Pensado para que Marc y los expertos verifiquen y corrijan el contenido. Guarda en `boo_feedback` (localStorage) y, si se define `window.BOO_FEEDBACK_URL`, envía por beacon.
 
 > Nota: `hub.html` es la portada recomendada. Para hacerla la home del sitio, renombrar (mover el Coach a `coach.html` y `hub.html` → `index.html`) cuando se decida.
 
@@ -17,6 +20,8 @@ Plataforma de formación del equipo Odoo I+D+E (**Brandooers**): la escuela del 
 | `outbound-sales.html` | Formación **Outbound Sales**: captación de clientes y de partners. Frameworks (MEDDIC, SPIN, Challenger, Sandler, GAP, BANT, Command of the Message) con charla + libro, cadencia multicanal 14-21 días y plantillas de copy (PAS/BAB/3 frases), objeciones al teléfono, ángulos de mensaje para pymes españolas, captación de partners (perfil ideal + programa oficial de Odoo), el stack de herramientas real, marco legal España/UE (RGPD/LSSI/AEPD) y biblioteca de recursos (libros, charlas, podcasts, blogs y perfiles de LinkedIn). Mismo diseño y mismo registro/tracking que la del Coach (comparten la clave `coach_user`). Todo con fuente verificada. |
 | `hub.html` | **Portada de Brandooers**: onboarding (objetivo + nivel → ruta), catálogo de cursos y rutas de aprendizaje 0→100 que conectan cursos. Entrada recomendada. Guarda preferencias en `brand_prefs`. |
 | `reclutamiento-partners.html` | Curso **Reclutamiento de Partners** (12 módulos): negocio, mindset, partner ideal (ICP), prospección, copywriting, LinkedIn, email en frío, cadencia multicanal, webinars, objeciones, stack e IA, métricas. Copia publicada del manual de `../odoo-partner-outbound/`. Enlazado con back-link a `hub.html`. |
+| `marketing-partners.html` | Curso **Marketing para Partners** (12 módulos, Intro→Advanced). Generado desde `MHGRPM/marketing-partners` (`build_brandooers.py`) a partir de la estrategia de Lisa Morelli (Head of Marketing Odoo España) + 10 acciones. Barra de flujo por niveles, recursos y feedback. Cross-links de ida/vuelta con Outbound. |
+| `feedback.js` | Sistema de **revisión y feedback** compartido por todas las formaciones: subrayar/seleccionar texto → Útil / Mejorar / Obsoleto / Comentario, panel de notas con export JSON. `boo_feedback` en localStorage + beacon opcional a `window.BOO_FEEDBACK_URL`. |
 | `dashboard.html` | Panel de seguimiento: quién entra, qué charlas ve y cuánto tiempo dedica. |
 | `apps-script-tracking.gs` | Backend opcional (Google Apps Script) para el tracking real de todo el equipo. |
 | `guia-coach-odoo.html` | Copia de `index.html` (mismo contenido). |

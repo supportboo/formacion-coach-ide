@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brandooers &middot; Marketing para Partners de Odoo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Brandooers App · Reclutamiento de Partners Odoo — mismo sistema de diseño que hub/coach/outbound */
+:root{
+  --odoo-primary:#714B67; --odoo-secondary:#017E84; --odoo-grey:#8F8F8F;
+  --odoo-learning:#E46E78; --odoo-ready:#21B799; --odoo-silver:#5B899E; --odoo-gold:#E4A900;
+  --plum:#4a2f43;
+  --bg:#FAFAFA; --bg-white:#FFFFFF; --bg-warm:#F5F0EE;
+  --text-dark:#2D2D2D; --text-body:#4A4A4A; --text-muted:#8F8F8F;
+  --border:#E8E0E5; --border-light:#F0EAEE;
+  --shadow-sm:0 1px 3px rgba(113,75,103,0.06); --shadow-md:0 4px 16px rgba(113,75,103,0.08);
+  --radius:16px; --radius-sm:10px;
+  /* alias que usa el contenido del manual */
+  --purple:#714B67; --teal:#017E84; --teal-d:#006158;
+  --mint:#00CEB3; --amber:#E4A900; --coral:#E46E78;
+  --ink:#2D2D2D; --muted:#8F8F8F; --line:#E8E0E5; --line2:#E8E0E5;
+  --paper:#FFFFFF; --soft:#F5F0EE;
+  --key:#714B67; --tip:#017E84; --warn:#C0491F;
+  --key-soft:rgba(113,75,103,.06); --tip-soft:rgba(1,126,132,.06); --warn-soft:rgba(228,110,120,.08);
+  --gold-soft:rgba(228,169,0,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text-body);line-height:1.65;font-size:15px;-webkit-font-smoothing:antialiased;padding-left:66px}
+body.locked{overflow:hidden}
+.hand{font-family:'Caveat',cursive}
+a{color:var(--odoo-secondary);text-decoration:none}
+strong{color:var(--text-dark)}
+[id]{scroll-margin-top:80px}
+
+/* ===== Layout ===== */
+section{max-width:1080px;margin:0 auto;padding:64px 40px 40px}
+.frontsec,.module{max-width:1080px;margin:0 auto;padding:56px 40px 32px}
+
+/* ===== Hero ===== */
+.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:100vh;padding:80px 40px 40px;max-width:none}
+.hero .brandooers-logo{font-size:clamp(40px,7vw,58px);margin-bottom:10px}
+.hero .eyebrow{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);margin-bottom:26px}
+.hero h1{font-size:clamp(30px,4.6vw,50px);font-weight:900;color:var(--text-dark);letter-spacing:-0.03em;line-height:1.12;margin-bottom:16px;max-width:820px}
+.hero h1 .hand-accent{font-family:'Caveat',cursive;color:var(--odoo-secondary);font-size:1.12em}
+.hero h1:before{display:none}
+.hero .lead{font-size:17px;color:var(--text-body);max-width:600px;line-height:1.7;margin-bottom:26px}
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:30px}
+.hero-badges span{font-size:12px;font-weight:600;color:var(--odoo-primary);background:var(--bg-white);border:1px solid var(--border);border-radius:100px;padding:6px 14px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.dna-cta{display:inline-block;background:var(--odoo-primary);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:13px 26px;border-radius:12px;transition:all .2s;text-transform:uppercase;letter-spacing:.03em}
+.dna-cta:hover{background:#5d3e56;transform:translateY(-1px)}
+
+/* ===== Section headings (Brandooers) ===== */
+.frontsec > h2.big,.toc h2.big{font-family:'Caveat',cursive;font-size:44px;font-weight:700;color:var(--odoo-secondary);border:0;padding:0;margin:0 0 6px;line-height:1.1}
+.frontsec > h2.big:before,.toc h2.big:before{display:none}
+.lead-p{font-size:16px;color:var(--text-body);max-width:680px;line-height:1.7;margin:0 0 26px}
+
+/* ===== Module heading ===== */
+.module{break-before:auto}
+.mod-head{border-bottom:1px solid var(--border);padding-bottom:22px;margin-bottom:32px;position:relative}
+.mod-head:after{content:"";position:absolute;left:0;bottom:-1px;width:64px;height:3px;background:var(--odoo-secondary);border-radius:3px}
+.mod-head .mod-num{display:inline-block;font-family:'Caveat',cursive;background:var(--odoo-primary);color:#fff;font-weight:700;font-size:22px;padding:2px 16px;border-radius:100px;letter-spacing:.02em;margin-bottom:14px}
+.mod-head h1{font-size:clamp(26px,3.4vw,38px);line-height:1.15;margin:0;color:var(--text-dark);font-weight:800;letter-spacing:-0.02em}
+.mod-head h1:before{display:none}
+.mod-head .mod-sub{margin:12px 0 0;color:var(--text-body);font-size:16px;font-weight:400;max-width:640px}
+
+h2{font-size:22px;color:var(--text-dark);margin:38px 0 14px;padding:0;border:0;font-weight:800;letter-spacing:-0.01em;display:flex;align-items:center;gap:11px}
+h2:before{content:"";display:inline-block;width:20px;height:9px;background:var(--odoo-secondary);border-radius:3px;flex-shrink:0}
+h3{font-size:16.5px;color:var(--odoo-secondary);margin:26px 0 8px;font-weight:700}
+p{margin:0 0 14px;font-size:15px;line-height:1.7}
+ul,ol{margin:0 0 16px;padding-left:22px}
+li{margin:0 0 7px;font-size:15px;line-height:1.6}
+li::marker{color:var(--odoo-secondary)}
+blockquote{margin:20px 0;padding:16px 22px;border-left:3px solid var(--odoo-gold);background:var(--gold-soft);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:16px;font-style:italic;color:var(--plum)}
+hr{border:0;border-top:1px solid var(--border-light);margin:28px 0}
+.backlink{font-size:13px;color:var(--text-muted);font-style:normal;font-weight:400}
+.backlink a{color:var(--odoo-secondary)}
+.small{font-size:13px;color:var(--text-muted)}
+.two-col{column-count:2;column-gap:32px}
+@media(max-width:720px){.two-col{column-count:1}}
+
+/* ===== Tables ===== */
+table.tbl,.module table,.frontsec table{width:100%;border-collapse:collapse;margin:18px 0 24px;font-size:14px;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+table.tbl thead th,.module table thead th,.module table thead td,.frontsec table thead th{background:var(--odoo-primary);color:#fff;text-align:left;padding:12px 16px;font-weight:700;font-size:12.5px;letter-spacing:.02em;border:0}
+table.tbl td,.module table td,.frontsec table td{padding:11px 16px;border-bottom:1px solid var(--border-light);vertical-align:top}
+table.tbl tbody tr:last-child td,.module table tbody tr:last-child td{border-bottom:0}
+table.tbl tbody tr:nth-child(even),.module table tbody tr:nth-child(even),.frontsec table tbody tr:nth-child(even){background:var(--bg-warm)}
+.qfind td a{color:var(--odoo-secondary);font-weight:600;white-space:nowrap}
+
+/* ===== Callouts ===== */
+.callout{border-left:3px solid;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:16px 20px;margin:20px 0;font-size:14.5px;line-height:1.65}
+.callout strong:first-child{display:block;font-size:14px;font-weight:700;margin-bottom:5px;text-transform:none;letter-spacing:0}
+.callout.key,.callout.callout--key,.callout.callout-key{background:var(--key-soft);border-color:var(--odoo-primary)}
+.callout.key strong:first-child,.callout.callout--key strong:first-child,.callout.callout-key strong:first-child{color:var(--odoo-primary)}
+.callout.tip,.callout.callout--tip,.callout.callout-tip{background:var(--tip-soft);border-color:var(--odoo-secondary)}
+.callout.tip strong:first-child,.callout.callout--tip strong:first-child,.callout.callout-tip strong:first-child{color:var(--teal-d)}
+.callout.warn,.callout.callout--warn,.callout.callout-warn{background:var(--warn-soft);border-color:var(--odoo-learning)}
+.callout.warn strong:first-child,.callout.callout--warn strong:first-child,.callout.callout-warn strong:first-child{color:var(--warn)}
+
+/* ===== Route / steps (espinazo) ===== */
+.route{counter-reset:step;margin:20px 0}
+.route.zero{counter-reset:step -1}
+.step{position:relative;display:flex;gap:16px;align-items:flex-start;background:var(--bg-white);border:1px solid var(--border-light);border-left:3px solid var(--odoo-secondary);border-radius:var(--radius-sm);padding:16px 18px;margin:0 0 12px;box-shadow:var(--shadow-sm)}
+.step .n{counter-increment:step;flex:0 0 auto;width:36px;height:36px;border-radius:11px;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:21px;display:flex;align-items:center;justify-content:center}
+.step .n:before{content:counter(step)}
+.step .sc{flex:1}
+.step .sc h4{margin:0 0 3px;font-size:15.5px;color:var(--text-dark);font-weight:700}
+.step .sc p{margin:0 0 6px;font-size:14px}
+.step .sc .go{font-size:13px;font-weight:700}
+.step .sc .go a{color:var(--odoo-secondary)}
+.step .sc .go a:before{content:"→ "}
+
+/* ===== Flow / embudo (timeline) ===== */
+.flow{position:relative;margin:22px 0;padding-left:30px;border:0}
+.flow:before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:linear-gradient(to bottom,var(--odoo-silver),var(--odoo-secondary),var(--odoo-gold),var(--odoo-primary))}
+.flow-step{position:relative;margin:0 0 16px;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);padding:14px 18px}
+.flow-step:before{content:"";position:absolute;left:-25px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:3px solid var(--odoo-secondary)}
+.flow-step .fs-day{display:inline-block;background:var(--odoo-secondary);color:#fff;font-size:12px;font-weight:700;padding:3px 11px;border-radius:100px;margin-bottom:7px;letter-spacing:.02em}
+.flow-step p{margin:0;font-size:14px}
+
+/* ===== Templates (copy-paste) ===== */
+.tpl{border:1px solid var(--border);border-radius:var(--radius-sm);margin:18px 0;overflow:hidden;box-shadow:var(--shadow-sm)}
+.tpl-h,.tpl-header,.tpl .tpl-label{display:block;background:var(--plum);color:#fff;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:10px 18px;margin:0}
+.tpl-b,.tpl-body{background:#fbf9fb;padding:16px 18px;font-family:'Cascadia Code','Consolas',ui-monospace,monospace;font-size:13px;line-height:1.6;color:#3a2f42;white-space:pre-wrap}
+.tpl > p{padding:0 18px;margin:12px 0;font-size:14px}
+.tpl > p:last-child{padding-bottom:16px}
+.tpl .tpl-note{display:block;padding:8px 18px 14px;background:#fbf9fb;font-size:12.5px;color:var(--text-muted);font-style:italic;margin:0}
+
+/* ===== Checklists ===== */
+ul.check{list-style:none;padding-left:0;margin:16px 0}
+ul.check li{position:relative;padding-left:28px;margin-bottom:8px}
+ul.check li:before{content:"";position:absolute;left:0;top:3px;width:15px;height:15px;border:1.6px solid var(--odoo-secondary);border-radius:4px}
+
+/* ===== Agenda / TOC ===== */
+.toc ol{list-style:none;counter-reset:t;margin:0 0 8px;padding:0}
+.toc li{counter-increment:t;display:flex;gap:16px;align-items:baseline;padding:12px 4px;border-bottom:1px solid var(--border-light)}
+.toc li:before{content:counter(t,decimal-leading-zero);font-family:'Caveat',cursive;font-weight:700;color:var(--odoo-secondary);font-size:24px;min-width:34px}
+.toc a.t-title{font-weight:700;color:var(--text-dark);font-size:16px}
+.toc a.t-title:hover{color:var(--odoo-primary)}
+.toc .t-sub{color:var(--text-muted);font-size:13px;display:block;font-weight:400;margin-top:1px}
+.agenda-detail{columns:2;column-gap:32px;margin:14px 0 8px}
+@media(max-width:720px){.agenda-detail{columns:1}}
+.ag-mod{break-inside:avoid;margin:0 0 18px}
+.ag-mod > a{display:block;font-weight:700;font-size:14.5px;color:var(--odoo-primary);border-left:3px solid var(--odoo-secondary);padding-left:12px;margin-bottom:6px}
+.ag-mod ul{list-style:none;margin:0;padding:0 0 0 12px}
+.ag-mod li{margin:0 0 3px}
+.ag-mod li a{color:var(--text-body);font-size:13.5px}
+.ag-mod li a:before{content:"›";color:var(--odoo-secondary);font-weight:800;margin-right:8px}
+
+/* ===== Chrome: nav-progress, rail, logo, gate ===== */
+.nav-progress{position:fixed;top:0;left:0;height:2px;z-index:100;background:linear-gradient(90deg,var(--odoo-primary),var(--odoo-secondary));width:0;transition:width .15s}
+.brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--text-dark);user-select:none}
+.rail{position:fixed;top:0;left:0;bottom:0;z-index:70;width:66px;background:var(--bg-white);border-right:1px solid var(--border-light);display:flex;flex-direction:column;padding:6px 0 10px;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:1px 0 14px rgba(0,0,0,.04)}
+.rail:hover,.rail.open{width:242px}
+.rail-top{display:flex;align-items:center;height:52px;padding:0 18px;flex-shrink:0}
+.rail-top .brandooers-logo{opacity:0;transition:opacity .2s;white-space:nowrap;font-size:17px}
+.rail:hover .rail-top .brandooers-logo,.rail.open .rail-top .brandooers-logo{opacity:1}
+.rail-items{display:flex;flex-direction:column;gap:1px;padding:6px;overflow-y:auto;flex:1}
+.rail-items::-webkit-scrollbar{width:0}
+.rail-item{display:flex;align-items:center;gap:12px;padding:9px 13px;border-radius:10px;color:var(--text-body);text-decoration:none;white-space:nowrap;transition:background .18s,color .18s}
+.rail-item .ri-ic{flex:0 0 auto;width:22px;height:22px;display:grid;place-items:center;color:var(--text-muted)}
+.rail-item .ri-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail-item .ri-lb{font-size:13.5px;font-weight:500;opacity:0;transition:opacity .2s}
+.rail:hover .ri-lb,.rail.open .ri-lb{opacity:1}
+.rail-item:hover,.rail-item.active{background:var(--bg-warm);color:var(--odoo-primary)}
+.rail-item:hover .ri-ic,.rail-item.active .ri-ic{color:var(--odoo-primary)}
+.rail-item.gold:hover,.rail-item.gold.active{color:var(--odoo-gold)}
+.rail-item.gold .ri-ic{color:var(--odoo-gold)}
+.rail-sep{height:1px;background:var(--border-light);margin:8px 10px}
+.rail-burger{display:none;position:fixed;top:12px;left:12px;z-index:80;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--bg-white);color:var(--text-dark);cursor:pointer;align-items:center;justify-content:center}
+.rail-burger svg{width:20px;height:20px}
+.rail-ov{position:fixed;inset:0;z-index:69;background:rgba(45,45,45,.4);opacity:0;pointer-events:none;transition:opacity .2s}
+.rail-ov.open{opacity:1;pointer-events:auto}
+@media(max-width:900px){
+  body{padding-left:0}
+  section,.frontsec,.module{padding-left:22px;padding-right:22px}
+  .rail{width:242px;transform:translateX(-100%);box-shadow:6px 0 30px rgba(0,0,0,.16)}
+  .rail.open{transform:none;width:242px}
+  .rail .ri-lb,.rail .rail-top .brandooers-logo{opacity:1}
+  .rail-burger{display:flex}
+}
+
+/* ===== Reveal ===== */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+.reveal.visible{opacity:1;transform:none}
+
+/* ===== Registro (gate) ===== */
+.reg-overlay{position:fixed;inset:0;z-index:2000;background:rgba(45,45,45,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+.reg-overlay.hide{display:none}
+.reg-box{background:var(--bg-white);border-radius:20px;max-width:440px;width:100%;padding:34px 32px;box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
+.reg-box .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary);font-size:15px;display:block;margin:2px 0 14px}
+.reg-box h2{font-size:23px;color:var(--text-dark);margin-bottom:6px;padding:0;border:0;display:block}
+.reg-box h2:before{display:none}
+.reg-box .rsub{font-size:14px;color:var(--text-body);margin-bottom:20px}
+.reg-box input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:15px;margin-bottom:12px;outline:none}
+.reg-box input:focus{border-color:var(--odoo-primary)}
+.reg-consent{display:flex;gap:9px;align-items:flex-start;text-align:left;font-size:11.5px;color:var(--text-muted);margin-bottom:18px;line-height:1.5}
+.reg-consent input{width:auto;margin:2px 0 0;flex-shrink:0}
+.reg-box button{width:100%;background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:13px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .2s}
+.reg-box button:hover{background:#5d3e56}
+.reg-box .err{color:var(--odoo-learning);font-size:12px;margin-bottom:10px;min-height:15px;font-weight:600}
+.userchip{position:fixed;bottom:24px;left:90px;z-index:60;background:var(--bg-white);border:1px solid var(--border-light);border-radius:999px;padding:8px 15px;font-size:12.5px;color:var(--text-body);box-shadow:var(--shadow-sm);display:none;align-items:center;gap:8px}
+.userchip .dot{width:8px;height:8px;border-radius:50%;background:var(--odoo-ready)}
+@media(max-width:900px){.userchip{left:24px}}
+
+/* ===== Componentes extra (recursos / cards) ===== */
+.section-tag{font-family:'Caveat',cursive;font-size:44px;font-weight:700;color:var(--odoo-secondary);margin-bottom:2px;line-height:1.1}
+.section-title{font-size:clamp(26px,3.4vw,36px);font-weight:800;color:var(--text-dark);letter-spacing:-0.02em;line-height:1.15;margin:0 0 12px;display:block;padding:0;border:0}
+.section-title:before{display:none}
+.section-desc{font-size:16px;color:var(--text-body);max-width:680px;line-height:1.7;margin-bottom:30px}
+.card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow-sm);transition:box-shadow .25s,transform .25s}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:820px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.tag-pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:10px;background:var(--bg-warm);color:var(--odoo-primary)}
+.rsrc-list{list-style:none;margin:6px 0 0;padding:0}
+.rsrc-list li{padding:6px 0;font-size:14px;line-height:1.5;border-bottom:1px solid var(--border-light);display:flex;gap:8px}
+.rsrc-list li:last-child{border-bottom:0}
+.rsrc-list li:before{content:"→";color:var(--odoo-secondary);font-weight:700;flex-shrink:0}
+.rsrc-list a{color:var(--text-dark);font-weight:600}
+.rsrc-list a:hover{color:var(--odoo-primary)}
+.rsrc-list .who{color:var(--text-muted);font-weight:400}
+.rsrc{color:var(--odoo-secondary);font-weight:600}
+
+/* resource media (charlas + libros) */
+.rsrc-media{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.vthumb{position:relative;border:0;padding:0;cursor:pointer;border-radius:10px;overflow:hidden;width:100%;aspect-ratio:16/9;background:#000}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92;transition:opacity .2s}
+.vthumb:hover img{opacity:1}
+.vplay-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 3px 12px rgba(0,0,0,.3)}
+.vplay-bg:after{content:"";position:absolute;left:53%;top:50%;transform:translate(-50%,-50%);border-style:solid;border-width:8px 0 8px 13px;border-color:transparent transparent transparent var(--odoo-primary)}
+.vcap{font-size:12px;color:var(--text-body);margin-top:7px;line-height:1.35;font-weight:600}
+.bthumb{display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none}
+.bcover{display:block;width:100%;height:150px;border-radius:8px;background:#EDE7EB center/cover no-repeat;box-shadow:var(--shadow-sm)}
+.blabel{font-size:11px;font-weight:700;color:var(--odoo-gold)}
+
+/* video modal */
+.vmodal{position:fixed;inset:0;z-index:1500;background:rgba(45,45,45,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.vmodal.open{display:flex}
+.vmodal-box{background:#000;border-radius:16px;width:min(900px,100%);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden}
+.vmodal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;background:var(--bg-white)}
+.vmodal-head h4{font-size:15px;color:var(--text-dark);margin:0}
+.vmodal-head .close{background:none;border:none;font-size:26px;color:var(--text-muted);cursor:pointer;line-height:1}
+.vmodal-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.vmodal-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ===== Flow navigator (barra inferior fija, navegable, con tooltips) ===== */
+body{padding-bottom:66px}
+.flowbar{position:fixed;left:66px;right:0;bottom:0;z-index:65;display:flex;justify-content:center;pointer-events:none;padding:0 16px 14px}
+.flowbar-inner{pointer-events:auto;display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border:1px solid var(--border-light);border-radius:100px;padding:8px 14px;box-shadow:0 8px 28px rgba(113,75,103,.16);max-width:100%;overflow-x:auto}
+.flowbar-inner::-webkit-scrollbar{height:0}
+.fb-phase{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:0 5px 0 8px;white-space:nowrap}
+.fb-step{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.fb-step .fb-dot{display:flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:var(--bg-warm);color:var(--text-body);font-size:12.5px;font-weight:700;transition:transform .16s,background .16s,color .16s;border:2px solid transparent}
+.fb-step[data-phase="prep"] .fb-dot{background:rgba(91,137,158,.16);color:var(--odoo-silver)}
+.fb-step[data-phase="exec"] .fb-dot{background:rgba(1,126,132,.15);color:var(--odoo-secondary)}
+.fb-step[data-phase="anal"] .fb-dot{background:rgba(228,169,0,.18);color:#B98600}
+.fb-step[data-phase="res"] .fb-dot{background:rgba(113,75,103,.14);color:var(--odoo-primary)}
+.fb-step:hover .fb-dot{transform:scale(1.16)}
+.fb-step.active .fb-dot{background:var(--odoo-primary);color:#fff;border-color:#fff;box-shadow:0 2px 9px rgba(113,75,103,.45);transform:scale(1.12)}
+.fb-step:after{content:attr(data-tip);position:absolute;bottom:calc(100% + 11px);left:50%;transform:translateX(-50%);background:var(--text-dark);color:#fff;font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:6}
+.fb-step:before{content:"";position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--text-dark);opacity:0;transition:opacity .15s}
+.fb-step:hover:after,.fb-step:hover:before{opacity:1}
+.fb-sep{width:12px;height:2px;background:var(--border);flex:0 0 auto;border-radius:2px}
+@media(max-width:900px){.flowbar{left:0}.fb-phase{display:none}}
+
+</style>
+</head>
+<body class="locked">
+<div class="reg-overlay" id="regOverlay"><div class="reg-box"><span class="brandooers-logo" style="font-size:24px">Brand<svg class="beyes" width="46" height="27" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span><span class="ide">Investigaci&oacute;n y desarrollo de expertos &middot; para Odooers</span><h2>Marketing para Partners</h2><p class="rsub">De 0 a 100 en marketing B2B para Odoo. Pon tu nombre y tu email de Odoo para llevar tu progreso.</p><form id="regForm"><div class="err" id="regErr"></div><input id="regName" type="text" placeholder="Tu nombre" autocomplete="name"><input id="regMail" type="email" placeholder="Tu email de Odoo" autocomplete="email"><label class="reg-consent"><input type="checkbox" id="regConsent"><span>Acepto que se registren mi nombre, email y actividad formativa con fines internos de seguimiento del equipo. No se comparte con terceros.</span></label><button type="submit">Entrar a la formaci&oacute;n</button></form></div></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient><linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient><linearGradient id="bo-brow1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient><linearGradient id="bo-brow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient><radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient><radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient></defs></svg>
+<div class="nav-progress" id="navProgress"></div>
+<button class="rail-burger" id="railBurger" aria-label="Men&uacute;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button><div class="rail-ov" id="railOv"></div><aside class="rail" id="rail"><div class="rail-top"><span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span></div><div class="rail-items">
+    <a class="rail-item " href="#top"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Portada</span></a>
+    <div class="rail-sep"></div>
+    <a class="rail-item " href="#mod-01"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M1 &middot; Marketing sin humo</span></a>
+    <a class="rail-item " href="#mod-02"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M2 &middot; Prospecci&oacute;n B2B</span></a>
+    <a class="rail-item " href="#mod-03"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M3 &middot; Outbound local</span></a>
+    <a class="rail-item " href="#mod-04"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M4 &middot; Leads del PM</span></a>
+    <a class="rail-item " href="#mod-05"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M5 &middot; LinkedIn + contenido</span></a>
+    <a class="rail-item " href="#mod-06"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M6 &middot; SEO + GEO + EEAT</span></a>
+    <a class="rail-item " href="#mod-07"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M7 &middot; Web y conversi&oacute;n</span></a>
+    <a class="rail-item " href="#mod-08"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M8 &middot; Paid Ads</span></a>
+    <a class="rail-item " href="#mod-09"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M9 &middot; Eventos + referidos</span></a>
+    <a class="rail-item " href="#mod-10"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M10 &middot; Embudos + m&eacute;tricas</span></a>
+    <a class="rail-item " href="#mod-11"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M11 &middot; Automatizaci&oacute;n</span></a>
+    <a class="rail-item " href="#mod-12"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M12 &middot; Atribuci&oacute;n + growth</span></a>
+    <a class="rail-item gold" href="#recursos"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.2 5.7.8-4.1 4 1 5.7L12 21l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg></span><span class="ri-lb">Recursos</span></a>
+    <div class="rail-sep"></div>
+    <a class="rail-item gold" href="hub.html"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Brandooers</span></a>
+  </div></aside>
+<section class="hero" id="top"><div style="margin-bottom:30px;display:flex;flex-direction:column;align-items:center;gap:10px"><span class="brandooers-logo" style="font-size:clamp(40px,7vw,58px)">Brand<svg class="beyes" width="150" height="86" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span><span style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)">Investigaci&oacute;n y desarrollo de expertos &middot; para Odooers</span></div><h1>Marketing para <span class="hand-accent">Partners</span></h1><p class="lead">Marketing sin humo para partners de Odoo: de captar tu primer lead a un motor de crecimiento medible. Basado en la estrategia de Lisa Morelli (Head of Marketing Odoo Espa&ntilde;a) y las 10 acciones de ejecuci&oacute;n inmediata.</p><div class="hero-badges"><span>12 m&oacute;dulos</span><span>Intro &rarr; Advanced</span><span>Plantillas + KPIs</span></div><div class="hero-cta"><a class="dna-cta" href="#mod-01">Empezar por el m&oacute;dulo 1 &rarr;</a><a class="dna-cta" href="#recursos" style="background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)">Recursos</a></div></section>
+<section class="module" id="mod-01"><div class="mod-head"><span class="mod-num">M1 &middot; Intro</span><h1>Marketing sin humo</h1><p class="mod-sub">Nivel: Intro · Duración: 60 min · Pre-requisito: lectura de bienvenida + glosario</p></div><h2 id="objetivo">Objetivo</h2>
+<p>Que termines la sesión con:</p>
+<ol>
+<li>Un <strong>buyer persona</strong> documentado.</li>
+<li>Un <strong>objetivo SMART</strong> a 90 días.</li>
+<li>La capacidad de decir "no" a campañas sin estrategia.</li>
+</ol>
+<hr />
+<h2 id="contenido-60-min">Contenido (60 min)</h2>
+<h3 id="bloque-1-marketing-no-es-magia-15-min">Bloque 1 — Marketing no es magia (15 min)</h3>
+<ul>
+<li>Leer <strong>Marketing no es magia</strong>.</li>
+<li>Discutir: ¿qué campañas he hecho yo "por hacer"?</li>
+</ul>
+<h3 id="bloque-2-buyer-persona-20-min">Bloque 2 — Buyer persona (20 min)</h3>
+<ul>
+<li>Leer <strong>Público objetivo y buyer persona</strong>.</li>
+<li>Rellenar <strong>Plantilla Buyer Persona</strong>.</li>
+</ul>
+<h3 id="bloque-3-objetivo-smart-15-min">Bloque 3 — Objetivo SMART (15 min)</h3>
+<ul>
+<li>Leer <strong>Objetivos SMART</strong>.</li>
+<li>Rellenar <strong>Plantilla Objetivo SMART</strong>.</li>
+</ul>
+<h3 id="bloque-4-diagnostico-10-min">Bloque 4 — Diagnóstico (10 min)</h3>
+<ul>
+<li>Hacer el diagnóstico de <strong>bienvenida.md</strong>.</li>
+<li>Identificar tu nivel de partida.</li>
+</ul>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable de la sesión: <strong>1 documento PDF / Markdown</strong> que contenga:</p>
+<ul>
+<li>Buyer persona (1 página).</li>
+<li>Objetivo SMART (1 frase).</li>
+<li>Las 3 acciones del playbook que vas a empezar primero (con fecha de arranque).</li>
+</ul>
+<p>Guardar en tu carpeta local + compartir con tu PM.</p>
+<hr />
+<h2 id="kpi-de-exito">KPI de éxito</h2>
+<ul>
+<li>[ ] Buyer persona escrito con dolor + criterio + dónde lee.</li>
+<li>[ ] Objetivo SMART con número + plazo + restricción.</li>
+<li>[ ] 3 acciones priorizadas con fecha de arranque.</li>
+</ul>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ Si nivel Intro → <strong>Módulo 02 — Prospección B2B</strong>.
+→ Si ya tienes este módulo claro → <strong>02-ready-entry.md</strong>.</p></section><section class="module" id="mod-02"><div class="mod-head"><span class="mod-num">M2 &middot; Ready</span><h1>Prospecci&oacute;n B2B</h1><p class="mod-sub">Nivel: Ready · Duración: 90 min · Pre-requisito: Módulo 01 + buyer persona escrito</p></div><h2 id="objetivo">Objetivo</h2>
+<p>Que termines con:</p>
+<ol>
+<li>Lista de <strong>10 aliados ideales</strong> identificados.</li>
+<li>Propuesta económica canónica preparada (<strong>10 % primera factura + 5 % recurrente 24 m</strong>).</li>
+<li>Contrato de 1 página listo.</li>
+<li>Primeras 3 reuniones agendadas.</li>
+</ol>
+<hr />
+<h2 id="contenido-90-min">Contenido (90 min)</h2>
+<h3 id="bloque-1-por-que-asociaciones-b2b-funcionan-10-min">Bloque 1 — Por qué asociaciones B2B funcionan (10 min)</h3>
+<p>Leer <strong>bloque-1-prospeccion-activa.md</strong> (sección Acción 01).</p>
+<h3 id="bloque-2-identificar-10-aliados-30-min">Bloque 2 — Identificar 10 aliados (30 min)</h3>
+<p>Categorías validadas:</p>
+<ul>
+<li>Asesorías / gestorías</li>
+<li>Consultoras sectoriales</li>
+<li>Agencias marketing &amp; ecommerce</li>
+<li>Softwares nicho (RRHH, CRM, BPM, facturación)</li>
+<li>Despachos legales</li>
+<li>Ingenierías</li>
+<li>Inmobiliarias</li>
+<li>Incubadoras startups</li>
+</ul>
+<p>Ejercicio: rellenar <a href="../herramientas/matriz-acuerdos-b2b.csv">Matriz acuerdos B2B</a> con 10 nombres + contacto + nivel de relación previo.</p>
+<h3 id="bloque-3-preparar-la-propuesta-20-min">Bloque 3 — Preparar la propuesta (20 min)</h3>
+<p>Estructura canónica:</p>
+<ul>
+<li><strong>10 % primera factura del cliente referido</strong>.</li>
+<li><strong>5 % recurrente sobre soporte / mantenimiento 24 meses</strong>.</li>
+<li>Contrato <strong>1 página</strong> (ver script abajo).</li>
+</ul>
+<h3 id="bloque-4-practicar-el-guion-20-min">Bloque 4 — Practicar el guion (20 min)</h3>
+<p>Leer + practicar <strong>Script · Reunión acuerdo B2B</strong>.</p>
+<p>Role-play en parejas: 1 partner / 1 prospect aliado. 10 min cada rol.</p>
+<h3 id="bloque-5-plan-de-las-proximas-2-semanas-10-min">Bloque 5 — Plan de las próximas 2 semanas (10 min)</h3>
+<ul>
+<li>Día 1-3: contactar los 10 aliados (LinkedIn + email).</li>
+<li>Día 4-10: agendar <strong>3 reuniones</strong> mínimo.</li>
+<li>Día 11-14: cerrar <strong>1 acuerdo activo</strong>.</li>
+</ul>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable: </p>
+<ol>
+<li>Matriz de 10 aliados rellena.</li>
+<li>3 reuniones agendadas (con fecha + nombre + empresa).</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-30-dias-desde-la-formacion">KPI de éxito (a 30 días desde la formación)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aliados contactados</td>
+<td>10 / 10</td>
+</tr>
+<tr>
+<td>Reuniones realizadas</td>
+<td>≥ 3</td>
+</tr>
+<tr>
+<td>Acuerdos firmados</td>
+<td>≥ 1</td>
+</tr>
+<tr>
+<td>Leads recibidos del acuerdo</td>
+<td>≥ 1 al mes 2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 03 — Outbound local</strong>.</p><div class="callout key" style="margin-top:22px"><strong>Conecta &middot; contin&uacute;a en Outbound</strong>Cuando el lead responde, cualifica y vende con MEDDIC/SPIN en el curso de Outbound. <a href="outbound-sales.html#frameworks"><strong>Ir a Frameworks de venta &rarr;</strong></a></div></section><section class="module" id="mod-03"><div class="mod-head"><span class="mod-num">M3 &middot; Ready</span><h1>Outbound local</h1><p class="mod-sub">Nivel: Ready · Duración: 90 min · Pre-requisito: Módulo 01 + buyer persona</p></div><h2 id="objetivo">Objetivo</h2>
+<p>Acabas con:</p>
+<ol>
+<li><strong>1 polígono</strong> elegido para atacar esta semana.</li>
+<li><strong>Lista de 50 empresas</strong> prospectables.</li>
+<li>Script outbound personalizado.</li>
+<li>Calendario de visitas/llamadas para la semana siguiente.</li>
+</ol>
+<hr />
+<h2 id="contenido-90-min">Contenido (90 min)</h2>
+<h3 id="bloque-1-por-que-outbound-aun-funciona-10-min">Bloque 1 — Por qué outbound aún funciona (10 min)</h3>
+<p>Leer Acción 02 en <strong>bloque-1</strong>.</p>
+<h3 id="bloque-2-elegir-poligono-15-min">Bloque 2 — Elegir polígono (15 min)</h3>
+<p>Criterios:
+- Cerca de tu oficina.
+- Con ≥ 30 empresas del tamaño objetivo.
+- Sin haber sido atacado en últimos 6 meses.</p>
+<p>Ejercicio: marcar en Google Maps + listar 50 empresas con web y teléfono.</p>
+<h3 id="bloque-3-herramientas-de-scraping-15-min">Bloque 3 — Herramientas de scraping (15 min)</h3>
+<ul>
+<li><strong>Google Maps Scraper + Apify</strong> (0,10-0,30 € / lead).</li>
+<li>Exportar a CSV con: nombre · sector · web · teléfono · email contacto · LinkedIn director.</li>
+</ul>
+<h3 id="bloque-4-kit-visita-10-min">Bloque 4 — Kit visita (10 min)</h3>
+<ul>
+<li>Tablet con demo Odoo precargada (con datos sectoriales).</li>
+<li>Tarjeta de visita.</li>
+<li>Caso éxito sectorial <strong>impreso</strong> (1 página A4).</li>
+<li>Hoja con 3 preguntas calificadoras.</li>
+</ul>
+<h3 id="bloque-5-script-visita-llamada-25-min">Bloque 5 — Script visita + llamada (25 min)</h3>
+<h4 id="visita-5-min-en-puerta">Visita (5 min en puerta)</h4>
+<ol>
+<li>Saludo + presentación + zona ("Estamos aquí al lado").</li>
+<li>Para qué venimos ("trabajamos con empresas como la vuestra").</li>
+<li>Pregunta calificadora ("¿qué usáis para facturación / inventario?").</li>
+<li>Cierre: agendar 30 min para demo.</li>
+</ol>
+<h4 id="llamada-8-min-con-decisor">Llamada (8 min con decisor)</h4>
+<ul>
+<li>Misma estructura.</li>
+<li>Si no está el decisor → conseguir email + agendar segunda llamada.</li>
+</ul>
+<p>Leer <strong>Script · Llamada outbound</strong>.</p>
+<h3 id="bloque-6-cadencia-y-disciplina-15-min">Bloque 6 — Cadencia y disciplina (15 min)</h3>
+<p>Plan semana:</p>
+<table>
+<thead>
+<tr>
+<th>Día</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lunes</td>
+<td>Scraping + lista 50 empresas</td>
+</tr>
+<tr>
+<td>Martes</td>
+<td>20 llamadas / 5 visitas</td>
+</tr>
+<tr>
+<td>Miércoles</td>
+<td>20 llamadas / 5 visitas</td>
+</tr>
+<tr>
+<td>Jueves</td>
+<td>20 llamadas / 5 visitas</td>
+</tr>
+<tr>
+<td>Viernes</td>
+<td>Follow-up + actualizar CRM</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable: CSV con 50 empresas + 5 visitas / llamadas agendadas para la próxima semana.</p>
+<hr />
+<h2 id="kpi-de-exito-a-30-dias">KPI de éxito (a 30 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empresas contactadas</td>
+<td>≥ 80</td>
+</tr>
+<tr>
+<td>Conversaciones reales</td>
+<td>≥ 20</td>
+</tr>
+<tr>
+<td>Demos agendadas</td>
+<td>≥ 5</td>
+</tr>
+<tr>
+<td>Demos realizadas</td>
+<td>≥ 4</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 04 — Leads PM Odoo</strong>.</p><div class="callout key" style="margin-top:22px"><strong>Conecta &middot; contin&uacute;a en Outbound</strong>La llamada en fr&iacute;o y el manejo de objeciones se trabajan a fondo en Outbound. <a href="outbound-sales.html#objeciones"><strong>Ir a Objeciones al tel&eacute;fono &rarr;</strong></a></div></section><section class="module" id="mod-04"><div class="mod-head"><span class="mod-num">M4 &middot; Ready</span><h1>Leads del PM</h1><p class="mod-sub">Nivel: Ready · Duración: 60 min · Pre-requisito: acceso al portal Odoo Partners + relación operativa con tu PM.</p></div><h2 id="objetivo">Objetivo</h2>
+<p>Implementar el <strong>SLA premium</strong> de leads PM:</p>
+<ol>
+<li>Acuse al PM <strong>&lt; 30 min</strong>.</li>
+<li>Cualificación <strong>&lt; 48 h</strong>.</li>
+<li>Demo + propuesta <strong>&lt; 10 días</strong>.</li>
+<li>Reporte estructurado al PM <strong>tras cada interacción</strong>.</li>
+</ol>
+<hr />
+<h2 id="contenido-60-min">Contenido (60 min)</h2>
+<h3 id="bloque-1-por-que-el-lead-pm-es-oro-filtrado-10-min">Bloque 1 — Por qué el lead PM es oro filtrado (10 min)</h3>
+<ul>
+<li>Origen: el PM filtra y prioriza antes de pasártelo.</li>
+<li>Tu <strong>ratio de conversión</strong> decide cuántos leads más recibes.</li>
+<li>Mayor ratio = más leads = más cierres = más leads. Círculo virtuoso.</li>
+</ul>
+<h3 id="bloque-2-operativa-sla-20-min">Bloque 2 — Operativa SLA (20 min)</h3>
+<table>
+<thead>
+<tr>
+<th>Hito</th>
+<th>SLA</th>
+<th>Cómo lo cumples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Acuse al PM</td>
+<td>&lt; 30 min</td>
+<td>Notificación Slack/Teams + email confirmación</td>
+</tr>
+<tr>
+<td>Cualificación</td>
+<td>&lt; 48 h</td>
+<td>Llamada o reunión inicial</td>
+</tr>
+<tr>
+<td>Demo + propuesta</td>
+<td>&lt; 10 días</td>
+<td>Bloque calendario reservado lunes</td>
+</tr>
+<tr>
+<td>Reporte al PM</td>
+<td>tras cada interacción</td>
+<td>Plantilla 5 campos</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bloque-3-plantilla-de-reporte-15-min">Bloque 3 — Plantilla de reporte (15 min)</h3>
+<p>Cada vez que avanzas con un lead PM, reportas:</p>
+<ol>
+<li><strong>Contexto</strong> — qué hace la empresa, dolor.</li>
+<li><strong>Usuarios</strong> — cuántos previstos, qué módulos.</li>
+<li><strong>Cierre</strong> — probabilidad %, fecha.</li>
+<li><strong>Bloqueos</strong> — qué frena (precio, timing, decisor…).</li>
+<li><strong>Próximos pasos</strong> — qué haces tú, qué necesitas del PM.</li>
+</ol>
+<h3 id="bloque-4-setup-en-crm-10-min">Bloque 4 — Setup en CRM (10 min)</h3>
+<ul>
+<li>Etiqueta especial "Lead PM" en Odoo CRM.</li>
+<li>Vista filtrada con SLA.</li>
+<li>Alerta automática si pasa &gt; 24 h sin actividad.</li>
+</ul>
+<h3 id="bloque-5-errores-tipicos-a-evitar-5-min">Bloque 5 — Errores típicos a evitar (5 min)</h3>
+<ul>
+<li>Tardar &gt; 30 min en acusar al PM.</li>
+<li>Cualificar mal (sin BANT).</li>
+<li>Olvidar reportar después de demo.</li>
+<li>Cerrar lead como "perdido" sin razón documentada.</li>
+</ul>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Vista CRM "Leads PM" configurada con SLA visible.</li>
+<li>Plantilla de reporte (markdown / Google Doc) preparada.</li>
+<li>Próximos 3 leads PM se procesan con el SLA.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito">KPI de éxito</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SLA acuse &lt; 30 min</td>
+<td>100 %</td>
+</tr>
+<tr>
+<td>SLA cualificación &lt; 48 h</td>
+<td>≥ 95 %</td>
+</tr>
+<tr>
+<td>SLA demo+propuesta &lt; 10 días</td>
+<td>≥ 90 %</td>
+</tr>
+<tr>
+<td>Tasa de cierre lead PM</td>
+<td>≥ 25 %</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="herramienta">Herramienta</h2>
+<p><a href="../herramientas/seguimiento-leads-pm.csv">Seguimiento leads PM</a></p>
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 05 — LinkedIn + contenido</strong>.</p></section><section class="module" id="mod-05"><div class="mod-head"><span class="mod-num">M5 &middot; Ready</span><h1>LinkedIn + contenido</h1><p class="mod-sub">Nivel: Ready · Duración: 90 min · Pre-requisito: perfil LinkedIn profesional actualizado + buyer persona.</p></div><h2 id="objetivo">Objetivo</h2>
+<p>Acabas con:</p>
+<ol>
+<li>Perfil LinkedIn optimizado para tu buyer persona.</li>
+<li><strong>Mix 40/30/30</strong> definido (educativo / caso real / opinión).</li>
+<li><strong>12 ideas de post</strong> listas en banco.</li>
+<li><strong>3 posts</strong> programados para próxima semana.</li>
+</ol>
+<hr />
+<h2 id="contenido-90-min">Contenido (90 min)</h2>
+<h3 id="bloque-1-mix-403030-10-min">Bloque 1 — Mix 40/30/30 (10 min)</h3>
+<ul>
+<li><strong>40 % educativo:</strong> resuelve dolor concreto del buyer persona.</li>
+<li><strong>30 % caso real:</strong> historia con número (sin nombrar cliente si no autorizó).</li>
+<li><strong>30 % opinión:</strong> posición clara, contradice consenso, defendida.</li>
+<li>Extra trimestral: <strong>webinar</strong>.</li>
+</ul>
+<h3 id="bloque-2-optimizar-perfil-20-min">Bloque 2 — Optimizar perfil (20 min)</h3>
+<p>Checklist:
+- [ ] Foto profesional (no selfie).
+- [ ] Banner con propuesta de valor.
+- [ ] Headline = a quién ayudas + cómo.
+- [ ] Acerca de = caso real corto + CTA.
+- [ ] Featured con: caso éxito / lead magnet / web.
+- [ ] Experiencia con resultados (no responsabilidades).</p>
+<h3 id="bloque-3-banco-de-ideas-30-min">Bloque 3 — Banco de ideas (30 min)</h3>
+<p>Ejercicio: rellenar 12 ideas en <strong>Banco de ideas LinkedIn</strong>.</p>
+<p>Plantillas validadas:
+- "3 errores que veo en [sector] con su ERP"
+- "Cómo [cliente sector] pasó de [problema] a [resultado] en [tiempo]"
+- "Por qué [opinión contracultural]" (ej: "Por qué SAP no es realista para pymes industriales")
+- "Comparativa Odoo vs [competidor]"
+- "Mini demo Odoo: cómo se hace [tarea concreta]"</p>
+<h3 id="bloque-4-cadencia-y-rutina-15-min">Bloque 4 — Cadencia y rutina (15 min)</h3>
+<table>
+<thead>
+<tr>
+<th>Acción</th>
+<th>Frecuencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Posts propios</td>
+<td>3 / semana (lunes, miércoles, viernes)</td>
+</tr>
+<tr>
+<td>Comentarios ICP</td>
+<td>5 / día (15 min mañana)</td>
+</tr>
+<tr>
+<td>Mensajes directos</td>
+<td>10 / semana</td>
+</tr>
+<tr>
+<td>Webinars</td>
+<td>1 / trimestre</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bloque-5-reglas-anti-ia-10-min">Bloque 5 — Reglas anti-IA (10 min)</h3>
+<ul>
+<li>Cero emojis decorativos.</li>
+<li>Cero "🚀 thread time 🚀".</li>
+<li>Cero markdown copiado de ChatGPT.</li>
+<li><strong>Lenguaje humano:</strong> primera persona, frases cortas, ejemplos reales.</li>
+<li>Si el post lo podría escribir cualquiera → reescríbelo o no publiques.</li>
+</ul>
+<h3 id="bloque-6-programar-primera-semana-5-min">Bloque 6 — Programar primera semana (5 min)</h3>
+<ul>
+<li>3 posts listos para próxima semana.</li>
+<li>Programados con LinkedIn nativo o Buffer / Hootsuite / Make.</li>
+</ul>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Perfil LinkedIn revisado (checklist 6 puntos).</li>
+<li>12 ideas en banco.</li>
+<li>3 posts redactados y programados.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-60-dias">KPI de éxito (a 60 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Posts publicados</td>
+<td>≥ 24</td>
+</tr>
+<tr>
+<td>Comentarios en ICP</td>
+<td>≥ 300</td>
+</tr>
+<tr>
+<td>Impresiones / post (media)</td>
+<td>≥ 800</td>
+</tr>
+<tr>
+<td>Solicitudes de conexión recibidas</td>
+<td>≥ 20</td>
+</tr>
+<tr>
+<td>Reuniones agendadas desde LinkedIn</td>
+<td>≥ 3</td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ Nota: <strong>impresiones ≠ negocio.</strong> Mide reuniones / cierres ante todo.</p>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 06 — SEO + GEO + EEAT</strong>.</p><div class="callout key" style="margin-top:22px"><strong>Conecta &middot; contin&uacute;a en Outbound</strong>LinkedIn es un canal de la cadencia outbound: mira c&oacute;mo se orquesta en Outbound. <a href="outbound-sales.html#prospeccion"><strong>Ir a Cadencia multicanal &rarr;</strong></a></div></section><section class="module" id="mod-06"><div class="mod-head"><span class="mod-num">M6 &middot; Silver</span><h1>SEO + GEO + EEAT</h1><p class="mod-sub">Nivel: Silver · Duración: 90 min · Pre-requisito: Search Console + GA4 instalados + GBP reclamado.</p></div><h2 id="objetivo">Objetivo</h2>
+<ol>
+<li>Auditar estado SEO actual (técnico + contenido).</li>
+<li>Plan de <strong>8 semanas</strong> de SEO ejecutable.</li>
+<li>Aparecer en <strong>GBP local</strong> + AI Overviews para keywords sectoriales.</li>
+</ol>
+<hr />
+<h2 id="contenido-90-min">Contenido (90 min)</h2>
+<h3 id="bloque-1-por-que-el-seo-sigue-siendo-clave-en-2026-10-min">Bloque 1 — Por qué el SEO sigue siendo clave en 2026 (10 min)</h3>
+<ul>
+<li>Zero-click search + AI Overviews <strong>no matan SEO</strong> — lo reformatean.</li>
+<li>LLMs se alimentan del SEO.</li>
+<li>EEAT aplica a todas las queries competitivas (no solo YMYL).</li>
+</ul>
+<h3 id="bloque-2-eeat-15-min">Bloque 2 — EEAT (15 min)</h3>
+<ul>
+<li><strong>Experience</strong>: casos reales con fotos y métricas.</li>
+<li><strong>Expertise</strong>: autor con credenciales en cada post.</li>
+<li><strong>Authority</strong>: backlinks de medios sectoriales / cámaras / prensa.</li>
+<li><strong>Trust</strong>: reseñas, política privacidad, HTTPS, NPS público.</li>
+</ul>
+<p>Ejercicio: identificar <strong>3 debilidades EEAT</strong> de tu web.</p>
+<h3 id="bloque-3-auditoria-rapida-20-min">Bloque 3 — Auditoría rápida (20 min)</h3>
+<ol>
+<li>Search Console → queries actuales + posiciones.</li>
+<li>PageSpeed Insights → CWV (LCP, CLS, INP).</li>
+<li>Mobile-Friendly Test.</li>
+<li>Schema Markup Validator.</li>
+<li>Verificar <strong>GBP</strong> completo + ≥ 100 fotos + reseñas.</li>
+</ol>
+<h3 id="bloque-4-plan-8-semanas-30-min">Bloque 4 — Plan 8 semanas (30 min)</h3>
+<table>
+<thead>
+<tr>
+<th>Semana</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Auditoría técnica + lista de páginas a mejorar</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Optimizar 3 páginas existentes (title, meta, headings, schema)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Crear página sectorial #1 (ej. "Odoo para constructoras")</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Crear página sectorial #2 + 1 comparativa ("Odoo vs SAP")</td>
+</tr>
+<tr>
+<td>5</td>
+<td>GBP completo + 5 reseñas pedidas</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Página sectorial #3 + 1 caso éxito (texto + landing)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Schema.org Organization + FAQ + llms.txt en raíz</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Outreach 5 medios sectoriales para backlinks</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bloque-5-geo-generative-engine-optimization-10-min">Bloque 5 — GEO (Generative Engine Optimization) (10 min)</h3>
+<ul>
+<li><strong>llms.txt</strong> en raíz del sitio.</li>
+<li>Schema.org Organization + Service + FAQ + HowTo.</li>
+<li>Frases canónicas claras ("X es partner Odoo Enterprise en Y desde Z").</li>
+<li>Contenido factual (números, fechas, métricas).</li>
+<li>Monitorizar <strong>brand mentions</strong> en LLMs (Mention, Brandwatch).</li>
+</ul>
+<h3 id="bloque-6-herramientas-5-min">Bloque 6 — Herramientas (5 min)</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Para qué</th>
+<th>Coste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Search Console</td>
+<td>Posiciones reales</td>
+<td>Gratis</td>
+</tr>
+<tr>
+<td>PageSpeed Insights</td>
+<td>CWV</td>
+<td>Gratis</td>
+</tr>
+<tr>
+<td>AnswerThePublic</td>
+<td>Intención de búsqueda</td>
+<td>Freemium</td>
+</tr>
+<tr>
+<td>Ahrefs / Semrush / Sistrix</td>
+<td>Keywords + backlinks</td>
+<td>Pago</td>
+</tr>
+<tr>
+<td>Schema Markup Validator</td>
+<td>Validar schema</td>
+<td>Gratis</td>
+</tr>
+<tr>
+<td>Mention</td>
+<td>Brand monitoring</td>
+<td>Pago</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable: documento con
+1. Auditoría actual (3-5 problemas detectados).
+2. Plan 8 semanas en formato tabla.
+3. 1 página sectorial publicada esta semana.</p>
+<hr />
+<h2 id="kpi-de-exito-a-90-dias">KPI de éxito (a 90 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Páginas sectoriales publicadas</td>
+<td>≥ 4</td>
+</tr>
+<tr>
+<td>Schema.org instalado</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>llms.txt presente</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>GBP ≥ 100 fotos + 10 reseñas</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Impresiones Search Console</td>
+<td>+50 % vs basal</td>
+</tr>
+<tr>
+<td>Posición media keywords objetivo</td>
+<td>mejora ≥ 5 posiciones</td>
+</tr>
+<tr>
+<td>Backlinks nuevos</td>
+<td>≥ 3</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 07 — Web — conversión</strong>.</p></section><section class="module" id="mod-07"><div class="mod-head"><span class="mod-num">M7 &middot; Silver</span><h1>Web y conversi&oacute;n</h1><p class="mod-sub">Nivel: Silver · Duración: 90 min · Pre-requisito: GA4 + Search Console + Hotjar instalados.</p></div><h2 id="objetivo">Objetivo</h2>
+<ol>
+<li>Identificar <strong>3 puntos de fuga</strong> en tu home + landings.</li>
+<li>Implementar <strong>5 quick wins</strong> en ≤ 7 días.</li>
+<li>Subir CR visita → lead <strong>≥ 2 %</strong>.</li>
+</ol>
+<hr />
+<h2 id="contenido-90-min">Contenido (90 min)</h2>
+<h3 id="bloque-1-la-web-como-primer-comercial-10-min">Bloque 1 — La web como primer comercial (10 min)</h3>
+<p>Leer <strong>Web de calidad</strong>.</p>
+<h3 id="bloque-2-diagnostico-actual-20-min">Bloque 2 — Diagnóstico actual (20 min)</h3>
+<ul>
+<li>GA4 → fuentes de tráfico + páginas con mayor rebote + CR actual.</li>
+<li>Hotjar → heatmaps + recordings (dónde se atascan).</li>
+<li>PageSpeed → LCP, CLS, INP por página principal.</li>
+</ul>
+<p>Ejercicio: lista de <strong>3 problemas concretos</strong> detectados.</p>
+<h3 id="bloque-3-quick-wins-30-min">Bloque 3 — Quick wins (30 min)</h3>
+<p>Checklist canónica:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Quick win</th>
+<th>Tiempo</th>
+<th>Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Botón WhatsApp flotante</td>
+<td>30 min</td>
+<td>+CR ~10 %</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Formulario simple en home (3 campos)</td>
+<td>1 h</td>
+<td>+CR ~15 %</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Banner cookies (no pop-up)</td>
+<td>30 min</td>
+<td>+UX</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Caso éxito visible sin scroll (logo + 1 cifra)</td>
+<td>2 h</td>
+<td>+confianza</td>
+</tr>
+<tr>
+<td>5</td>
+<td>CTA "Solicitar demo" en navbar</td>
+<td>30 min</td>
+<td>+CTR</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Eliminar carrusel hero</td>
+<td>1 h</td>
+<td>+LCP +CLS</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Imagen hero ≤ 200 KB (WebP)</td>
+<td>30 min</td>
+<td>+LCP</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Schema.org Organization</td>
+<td>30 min</td>
+<td>+EEAT</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Vídeo 30 s above-the-fold</td>
+<td>4 h</td>
+<td>+dwell time</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Página sectorial específica</td>
+<td>4 h</td>
+<td>+Quality Score</td>
+</tr>
+</tbody>
+</table>
+<p>Checklist completa: <strong>Checklist Quick wins web</strong>.</p>
+<h3 id="bloque-4-landings-por-sector-15-min">Bloque 4 — Landings por sector (15 min)</h3>
+<p>Por cada sector (mínimo 3):
+- URL: <code>/odoo-para-[sector]</code>
+- H1: "Odoo para [sector] en [ciudad]"
+- 1 caso éxito del mismo sector.
+- 3 dolores específicos del sector.
+- Formulario sectorizado (campo "sector" oculto = "X").</p>
+<h3 id="bloque-5-medicion-cr-10-min">Bloque 5 — Medición CR (10 min)</h3>
+<p>Métricas a mirar <strong>semanalmente</strong>:</p>
+<ul>
+<li>Visitas (totales + por fuente).</li>
+<li>CR visita → lead.</li>
+<li>Páginas con mayor abandono.</li>
+<li>Tiempo medio por página.</li>
+</ul>
+<p>Dashboard mensual: <strong>Plantilla Dashboard mensual</strong>.</p>
+<h3 id="bloque-6-como-testear-5-min">Bloque 6 — Cómo testear (5 min)</h3>
+<ul>
+<li>Cambia <strong>una cosa a la vez</strong>.</li>
+<li>Compara mínimo <strong>2 semanas</strong> post-cambio.</li>
+<li>Si el cambio sube CR ≥ 10 % → lo dejas.</li>
+<li>Si baja → revertir y probar otra.</li>
+</ul>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Diagnóstico documento (3 problemas).</li>
+<li>5 quick wins implementados en 7 días.</li>
+<li>Snapshot GA4 antes vs después en 30 días.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-30-60-dias">KPI de éxito (a 30-60 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CR visita → lead</td>
+<td>≥ 2 %</td>
+</tr>
+<tr>
+<td>Bounce rate home</td>
+<td>≤ 55 %</td>
+</tr>
+<tr>
+<td>LCP mobile (home)</td>
+<td>≤ 2,5 s</td>
+</tr>
+<tr>
+<td>CLS (todas las páginas)</td>
+<td>≤ 0,1</td>
+</tr>
+<tr>
+<td>INP</td>
+<td>≤ 200 ms</td>
+</tr>
+<tr>
+<td>Páginas con CWV "Good"</td>
+<td>≥ 75 %</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 08 — Paid Ads</strong> si vas a meter budget paid.
+→ <strong>Módulo 10 — Embudos + métricas</strong> para estructurar el funnel.</p></section><section class="module" id="mod-08"><div class="mod-head"><span class="mod-num">M8 &middot; Gold</span><h1>Paid Ads</h1><p class="mod-sub">Nivel: Gold · Duración: 120 min · Pre-requisito: Web optimizada (Módulo 07) + buyer persona claro + budget mínimo 1.500 €/mes.</p></div><h2 id="objetivo">Objetivo</h2>
+<p>Lanzar paid <strong>sin quemar dinero</strong>:</p>
+<ol>
+<li><strong>Google Ads search</strong> rentable (ROAS ≥ 3×).</li>
+<li><strong>LinkedIn Ads</strong> sleeper B2B (CPM 4-8 € España).</li>
+<li><strong>Meta Ads retargeting</strong> visual.</li>
+<li>Cuadro mensual paid.</li>
+</ol>
+<hr />
+<h2 id="contenido-120-min">Contenido (120 min)</h2>
+<h3 id="bloque-1-reglas-previas-10-min">Bloque 1 — Reglas previas (10 min)</h3>
+<ul>
+<li><strong>Nunca paid antes de web optimizada.</strong> Mal Quality Score = CPL × 3.</li>
+<li><strong>Un canal a la vez</strong> los primeros 90 días.</li>
+<li><strong>Budget de aprendizaje</strong> (200-500 €) antes del presupuesto serio.</li>
+<li><strong>6 semanas mínimo</strong> antes de juzgar.</li>
+<li><strong>Una variable a la vez</strong> al optimizar.</li>
+</ul>
+<h3 id="bloque-2-google-ads-search-35-min">Bloque 2 — Google Ads search (35 min)</h3>
+<h4 id="estructura-cuenta">Estructura cuenta</h4>
+<ul>
+<li>1 campaña por sector (no mezclar industria con comercio).</li>
+<li>Grupos anuncios por intención de búsqueda.</li>
+<li>Keywords match types: <strong>phrase</strong> + <strong>exact</strong>. Evita broad sin negativas.</li>
+<li>Mínimo <strong>3 anuncios</strong> por grupo.</li>
+<li>Extensiones: sitelinks, callouts, structured snippets.</li>
+</ul>
+<h4 id="keywords-clave">Keywords clave</h4>
+<ul>
+<li>Intent comercial: "partner odoo valencia", "migrar a odoo", "erp para industria".</li>
+<li>Comparativas: "odoo vs sap", "odoo vs sage".</li>
+<li>Long tail sectorial: "erp panadería", "software para constructora".</li>
+</ul>
+<h4 id="negativas-basicas">Negativas básicas</h4>
+<ul>
+<li>Curso, gratis, formación, comunidad, github, manual.</li>
+</ul>
+<h4 id="budget-minimo">Budget mínimo</h4>
+<ul>
+<li>30 € / día para arrancar.</li>
+<li>Mes 1: 900 € (aprendizaje).</li>
+<li>Mes 2: subir si CPL ≤ 120 €.</li>
+</ul>
+<h4 id="quality-score">Quality Score</h4>
+<ul>
+<li>Objetivo: ≥ 7.</li>
+<li>Si &lt; 5 → revisar landing, no bid.</li>
+</ul>
+<h3 id="bloque-3-linkedin-ads-30-min">Bloque 3 — LinkedIn Ads (30 min)</h3>
+<p><strong>Sleeper hit B2B España 2026.</strong> CPM 4-8 € vs LinkedIn 12-18 € de hace 3 años.</p>
+<h4 id="targeting">Targeting</h4>
+<ul>
+<li>Job title + industry + company size.</li>
+<li>Audiencia útil: 20.000-80.000 (no menos, no más).</li>
+<li>Excluir: estudiantes, freelance solo, propios empleados.</li>
+</ul>
+<h4 id="formatos">Formatos</h4>
+<ul>
+<li><strong>Single image</strong> sponsored content para TOFU.</li>
+<li><strong>Document Ads</strong> (PDF carrusel) para MOFU.</li>
+<li><strong>Conversation Ads</strong> + Lead Gen Form para BOFU.</li>
+</ul>
+<h4 id="budget">Budget</h4>
+<ul>
+<li>20-30 € / día campaña.</li>
+<li>Test inicial 2 semanas = 350-500 €.</li>
+</ul>
+<h4 id="objetivo-cpl">Objetivo CPL</h4>
+<ul>
+<li>TOFU: descarga lead magnet ≤ 25 €.</li>
+<li>BOFU: demo agendada ≤ 250 €.</li>
+</ul>
+<h3 id="bloque-4-meta-ads-retargeting-20-min">Bloque 4 — Meta Ads (Retargeting) (20 min)</h3>
+<p>Meta brilla en <strong>retargeting visual</strong>, no en cold B2B.</p>
+<h4 id="setup">Setup</h4>
+<ul>
+<li>Pixel Meta + Conversions API en web.</li>
+<li>Audiencias custom: visitantes 30/60/180 días.</li>
+<li>Audiencias lookalike (1-3 %) sobre clientes actuales.</li>
+</ul>
+<h4 id="creatividades">Creatividades</h4>
+<ul>
+<li>Vídeo 15 s con caso éxito.</li>
+<li>Carrusel 3-5 slides: dolor → solución → caso → CTA.</li>
+<li>Imagen estática con testimonio.</li>
+</ul>
+<h4 id="frequency-cap">Frequency cap</h4>
+<ul>
+<li><strong>3-6 / semana</strong> óptimo Nielsen.</li>
+<li>
+<blockquote>
+<p>7 / semana = ad fatigue.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="bloque-5-frequency-cap-global-pmax-10-min">Bloque 5 — Frequency cap global + PMax (10 min)</h3>
+<p>⚠️ <strong>PMax sin frequency cap canibaliza retargeting + mata ROAS.</strong></p>
+<p>Reglas duras:
+- Frequency cap <strong>3-6 / sem</strong> en todas las campañas.
+- PMax solo si tienes ≥ 30 conversiones / mes (si no, search puro).
+- Rotación creatividades MOFU <strong>cada 14 días</strong> (no 30).</p>
+<h3 id="bloque-6-dashboard-paid-15-min">Bloque 6 — Dashboard paid (15 min)</h3>
+<p>Métricas semanales:
+- CPM
+- CPC
+- CTR
+- CPL (por canal)
+- CR landing
+- CPA
+- ROAS
+- Frequency</p>
+<p>Plantilla: <a href="../herramientas/cpl-roi-calculator.csv">Calculadora CPL / ROI</a>.</p>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Cuenta Google Ads estructurada (1 campaña + 2 grupos + 3 anuncios c/u).</li>
+<li>1 campaña LinkedIn lista (audiencia + creativos + lead form).</li>
+<li>Pixel Meta + audiencias retargeting configuradas.</li>
+<li>Dashboard paid configurado.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-90-dias">KPI de éxito (a 90 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quality Score Google</td>
+<td>≥ 7</td>
+</tr>
+<tr>
+<td>CPL Google search</td>
+<td>≤ 120 €</td>
+</tr>
+<tr>
+<td>CPL LinkedIn</td>
+<td>≤ 250 €</td>
+</tr>
+<tr>
+<td>Frequency Meta</td>
+<td>3-6 / sem</td>
+</tr>
+<tr>
+<td>ROAS global paid</td>
+<td>≥ 3×</td>
+</tr>
+<tr>
+<td>% budget gastado en aprendizaje</td>
+<td>≤ 20 %</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 10 — Embudos + métricas</strong>.
+→ <strong>Módulo 11 — Automatización</strong> cuando volumen leads ≥ 50/mes.</p></section><section class="module" id="mod-09"><div class="mod-head"><span class="mod-num">M9 &middot; Ready</span><h1>Eventos + referidos</h1><p class="mod-sub">Nivel: Ready / Silver · Duración: 60 min · Pre-requisito: ≥ 5 clientes Odoo activos (para referidos).</p></div><h2 id="objetivo">Objetivo</h2>
+<ol>
+<li>Plan <strong>trimestral</strong> de eventos con objetivos medibles.</li>
+<li><strong>Programa de referidos</strong> operativo y comunicado.</li>
+<li>Lista <strong>top 10 clientes</strong> trabajada esta semana.</li>
+</ol>
+<hr />
+<h2 id="contenido-60-min">Contenido (60 min)</h2>
+<h3 id="bloque-1-eventos-pre-durante-post-20-min">Bloque 1 — Eventos: pre / durante / post (20 min)</h3>
+<p>Ir sin plan = pagar por café malo. Estructura canónica:</p>
+<h4 id="pre-evento-t-7-a-t-3-dias">Pre-evento (T-7 a T-3 días)</h4>
+<ul>
+<li>Lista asistentes + filtrar <strong>20 imprescindibles</strong>.</li>
+<li>Estrategia de <strong>diferenciación</strong> (qué dices que el resto no).</li>
+<li><strong>Conexión LinkedIn</strong> + mensaje 48-72 h antes.</li>
+<li>Agendar mínimo <strong>5 reuniones</strong> confirmadas pre-evento.</li>
+</ul>
+<h4 id="durante-el-evento">Durante el evento</h4>
+<ul>
+<li><strong>Siempre con cliente real</strong> (testimonio en persona).</li>
+<li>Interacciones de <strong>15 min</strong> (calidad &gt; cantidad).</li>
+<li>Objetivo: <strong>10 contactos</strong> útiles.</li>
+<li>No vender en stand — <strong>agendar</strong> reunión posterior.</li>
+</ul>
+<h4 id="post-evento">Post-evento</h4>
+<ul>
+<li>Filtrar contactos (frío / tibio / caliente): &lt; 24 h.</li>
+<li>Follow-up personalizado: &lt; 48 h.</li>
+<li>Propuesta a calientes: <strong>&lt; 7 días</strong>.</li>
+<li>CRM actualizado: &lt; 48 h.</li>
+</ul>
+<p>Checklist completa: <strong>Checklist Evento</strong>.</p>
+<h3 id="bloque-2-eventos-locales-grandes-ferias-5-min">Bloque 2 — Eventos locales &gt; grandes ferias (5 min)</h3>
+<p>Para budget limitado: prioriza eventos <strong>sectoriales locales</strong> (cámara comercio, asociaciones gremiales). Convierten 2-3× más que grandes ferias generalistas.</p>
+<h3 id="bloque-3-programa-de-referidos-20-min">Bloque 3 — Programa de referidos (20 min)</h3>
+<h4 id="como-activarlo">Cómo activarlo</h4>
+<ul>
+<li><strong>Comunicarlo activamente</strong> — no basta crearlo. En cada reunión.</li>
+<li>One-pager con condiciones.</li>
+<li>Pregunta directa <strong>cada trimestre</strong>.</li>
+<li>Incluir en review trimestral de cliente.</li>
+</ul>
+<h4 id="incentivos-que-funcionan">Incentivos que funcionan</h4>
+<table>
+<thead>
+<tr>
+<th>Incentivo</th>
+<th>Cliente ideal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Descuento en bolsa de horas</td>
+<td>Cliente con bolsa activa</td>
+</tr>
+<tr>
+<td>Comisión directa (% primer año)</td>
+<td>Cliente comercial / B2B</td>
+</tr>
+<tr>
+<td>Servicios gratis (módulo, formación)</td>
+<td>Cliente que valora desarrollo</td>
+</tr>
+<tr>
+<td>Detalle personalizado</td>
+<td>Cliente con relación larga</td>
+</tr>
+</tbody>
+</table>
+<h4 id="momento-ideal-para-pedir">Momento ideal para pedir</h4>
+<table>
+<thead>
+<tr>
+<th>Cuándo</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Post go-live (3-6 sem)</td>
+<td>Dolor superado, recuerda diferencia</td>
+</tr>
+<tr>
+<td>Tras upsell</td>
+<td>Confianza renovada</td>
+</tr>
+<tr>
+<td>Con NPS ≥ 9</td>
+<td>Promotor explícito</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bloque-4-ejercicio-top-10-15-min">Bloque 4 — Ejercicio top 10 (15 min)</h3>
+<ol>
+<li>Lista de tus <strong>top 10 clientes actuales</strong> (por LTV o NPS).</li>
+<li>Por cada uno: ¿cuándo es el momento ideal de pedir referral?</li>
+<li>Contactar <strong>3 esta semana</strong> con <strong>Script · Pedir referenciado</strong>.</li>
+</ol>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Calendario eventos trimestral (mínimo 1 evento + objetivo + cliente real que llevas).</li>
+<li>Lista top 10 clientes con momento ideal de referral marcado.</li>
+<li>3 referrals pedidos esta semana.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-90-dias">KPI de éxito (a 90 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eventos ejecutados con plan</td>
+<td>≥ 1</td>
+</tr>
+<tr>
+<td>Contactos útiles / evento</td>
+<td>≥ 10</td>
+</tr>
+<tr>
+<td>Reuniones post-evento</td>
+<td>≥ 3</td>
+</tr>
+<tr>
+<td>Referrals pedidos</td>
+<td>≥ 20</td>
+</tr>
+<tr>
+<td>Referrals recibidos</td>
+<td>≥ 5</td>
+</tr>
+<tr>
+<td>Cierres desde referral</td>
+<td>≥ 2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 10 — Embudos + métricas</strong>.</p><div class="callout key" style="margin-top:22px"><strong>Conecta &middot; contin&uacute;a en Outbound</strong>Los eventos y webinars alimentan tu pipeline de clientes y de partners en Outbound. <a href="outbound-sales.html#partners"><strong>Ir a Captar partners &rarr;</strong></a></div></section><section class="module" id="mod-10"><div class="mod-head"><span class="mod-num">M10 &middot; Silver</span><h1>Embudos + m&eacute;tricas</h1><p class="mod-sub">Nivel: Silver · Duración: 90 min · Pre-requisito: GA4 + CRM operativo + Módulo 07.</p></div><h2 id="objetivo">Objetivo</h2>
+<ol>
+<li>Dibujar <strong>tu embudo real</strong> (no el ideal).</li>
+<li>Calcular <strong>CR por etapa</strong> en datos pasados.</li>
+<li>Identificar la <strong>etapa que pierdes</strong> y aplicar fix.</li>
+<li>Implementar <strong>dashboard mensual</strong>.</li>
+</ol>
+<hr />
+<h2 id="contenido-90-min">Contenido (90 min)</h2>
+<h3 id="bloque-1-el-embudo-canonico-10-min">Bloque 1 — El embudo canónico (10 min)</h3>
+<pre><code>TOFU  → desconocido
+        ├─ SEO/blog
+        ├─ LinkedIn orgánico
+        ├─ Outbound local
+        └─ Eventos / referidos
+            ↓
+MOFU  → lead que pidió info
+        ├─ Guía descargable / webinar
+        ├─ Caso éxito sectorial
+        └─ Demo agendada
+            ↓
+BOFU  → oportunidad cualificada
+        ├─ Propuesta
+        ├─ Negociación
+        └─ Cierre
+</code></pre>
+<h3 id="bloque-2-dibujar-tu-embudo-real-25-min">Bloque 2 — Dibujar tu embudo real (25 min)</h3>
+<p>Para cada etapa, busca el dato <strong>últimos 90 días</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>Cómo medirlo</th>
+<th>Tu número</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visitas web</td>
+<td>GA4 sesiones</td>
+<td></td>
+</tr>
+<tr>
+<td>Leads (form + WhatsApp + LinkedIn)</td>
+<td>CRM Odoo</td>
+<td></td>
+</tr>
+<tr>
+<td>Demos agendadas</td>
+<td>CRM + Calendly</td>
+<td></td>
+</tr>
+<tr>
+<td>Demos realizadas</td>
+<td>CRM</td>
+<td></td>
+</tr>
+<tr>
+<td>Propuestas enviadas</td>
+<td>CRM</td>
+<td></td>
+</tr>
+<tr>
+<td>Cierres</td>
+<td>CRM</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="bloque-3-calcular-cr-por-etapa-15-min">Bloque 3 — Calcular CR por etapa (15 min)</h3>
+<table>
+<thead>
+<tr>
+<th>CR</th>
+<th>Fórmula</th>
+<th>Benchmark B2B Odoo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visita → lead</td>
+<td>leads / visitas</td>
+<td>≥ 2 %</td>
+</tr>
+<tr>
+<td>Lead → demo</td>
+<td>demos agendadas / leads</td>
+<td>≥ 25 %</td>
+</tr>
+<tr>
+<td>Demo → propuesta</td>
+<td>propuestas / demos</td>
+<td>≥ 50 %</td>
+</tr>
+<tr>
+<td>Propuesta → cierre</td>
+<td>cierres / propuestas</td>
+<td>≥ 30 %</td>
+</tr>
+<tr>
+<td><strong>Cierre global</strong></td>
+<td>cierres / visitas</td>
+<td>≥ 0,08 %</td>
+</tr>
+</tbody>
+</table>
+<p>Tu cuello de botella es la CR <strong>más baja respecto al benchmark</strong>. Atacala primero.</p>
+<h3 id="bloque-4-fix-por-cuello-de-botella-15-min">Bloque 4 — Fix por cuello de botella (15 min)</h3>
+<table>
+<thead>
+<tr>
+<th>Cuello</th>
+<th>Fix sugerido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visita → lead baja</td>
+<td>Web (Módulo 07) — quick wins conversión</td>
+</tr>
+<tr>
+<td>Lead → demo baja</td>
+<td>Velocidad respuesta &lt; 1 h + cualificación BANT</td>
+</tr>
+<tr>
+<td>Demo → propuesta baja</td>
+<td>Demo no resuelve dolor concreto → recalibrar</td>
+</tr>
+<tr>
+<td>Propuesta → cierre baja</td>
+<td>Precio mal posicionado, falta caso éxito, decisor no presente</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bloque-5-dashboard-mensual-20-min">Bloque 5 — Dashboard mensual (20 min)</h3>
+<p>Cuadro de control que entregas <strong>el día 5 de cada mes</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Bloque</th>
+<th>Métricas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visitas y fuentes</strong></td>
+<td>Total + por canal</td>
+</tr>
+<tr>
+<td><strong>Leads</strong></td>
+<td>Total + por canal + CPL por canal</td>
+</tr>
+<tr>
+<td><strong>Demos</strong></td>
+<td>Agendadas / realizadas</td>
+</tr>
+<tr>
+<td><strong>Pipeline</strong></td>
+<td>Oportunidades abiertas + valor</td>
+</tr>
+<tr>
+<td><strong>Cierres</strong></td>
+<td>Número + revenue + CAC</td>
+</tr>
+<tr>
+<td><strong>Embudo</strong></td>
+<td>CR por etapa</td>
+</tr>
+<tr>
+<td><strong>Alertas</strong></td>
+<td>Cuellos de botella detectados</td>
+</tr>
+</tbody>
+</table>
+<p>Plantilla: <strong>Plantilla Dashboard mensual</strong>.</p>
+<h3 id="bloque-6-cadencia-revision-5-min">Bloque 6 — Cadencia revisión (5 min)</h3>
+<table>
+<thead>
+<tr>
+<th>Cadencia</th>
+<th>Qué revisas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Semanal</td>
+<td>Leads + demos + KPIs táctica</td>
+</tr>
+<tr>
+<td>Mensual</td>
+<td>Dashboard completo + decisiones canal</td>
+</tr>
+<tr>
+<td>Trimestral</td>
+<td>Buyer persona + canales + budget</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Embudo real dibujado con números.</li>
+<li>CR por etapa calculadas.</li>
+<li>Cuello de botella identificado.</li>
+<li>Plan de fix concreto (1 acción).</li>
+<li>Dashboard mensual configurado y entregado.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-90-dias">KPI de éxito (a 90 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard entregado cada mes</td>
+<td>3 / 3</td>
+</tr>
+<tr>
+<td>Cuello de botella mejora</td>
+<td>CR sube ≥ 30 %</td>
+</tr>
+<tr>
+<td>Tiempo respuesta lead</td>
+<td>&lt; 1 h hábil</td>
+</tr>
+<tr>
+<td>Pipeline limpio (sin zombie &gt; 30 días)</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 11 — Automatización</strong>.</p></section><section class="module" id="mod-11"><div class="mod-head"><span class="mod-num">M11 &middot; Gold</span><h1>Automatizaci&oacute;n</h1><p class="mod-sub">Nivel: Gold · Duración: 90 min · Pre-requisito: Embudo medido (Módulo 10) + CRM Odoo limpio + ≥ 30 leads / mes.</p></div><h2 id="objetivo">Objetivo</h2>
+<ol>
+<li><strong>Lead scoring</strong> automático en Odoo CRM.</li>
+<li><strong>Nurturing</strong> 3-5 secuencias por buyer persona.</li>
+<li><strong>Asignación automática</strong> de leads a comerciales.</li>
+<li><strong>Alertas</strong> en CRM (leads sin actividad &gt; 48 h).</li>
+</ol>
+<hr />
+<h2 id="contenido-90-min">Contenido (90 min)</h2>
+<h3 id="bloque-1-cuando-automatizar-10-min">Bloque 1 — Cuándo automatizar (10 min)</h3>
+<p>⚠️ <strong>No automatices antes de tener proceso manual funcionando.</strong> Si automatizas el caos, escalas el caos.</p>
+<p>Checklist pre-automatización:
+- [ ] Buyer persona claro.
+- [ ] Embudo medido.
+- [ ] CRM limpio (sin leads duplicados, sin zombies &gt; 30 días).
+- [ ] ≥ 30 leads / mes (volumen mínimo para ROI).</p>
+<h3 id="bloque-2-lead-scoring-20-min">Bloque 2 — Lead scoring (20 min)</h3>
+<p>Modelo simple Odoo:</p>
+<table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Puntos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tamaño empresa 10-50 emp</td>
+<td>+20</td>
+</tr>
+<tr>
+<td>Tamaño 51-200 emp</td>
+<td>+30</td>
+</tr>
+<tr>
+<td>Sector ICP principal</td>
+<td>+25</td>
+</tr>
+<tr>
+<td>Sector ICP secundario</td>
+<td>+15</td>
+</tr>
+<tr>
+<td>Geo en tu zona</td>
+<td>+20</td>
+</tr>
+<tr>
+<td>Lead PM (Odoo)</td>
+<td>+40</td>
+</tr>
+<tr>
+<td>Lead referido</td>
+<td>+35</td>
+</tr>
+<tr>
+<td>Descarga lead magnet</td>
+<td>+10</td>
+</tr>
+<tr>
+<td>Visita ≥ 3 páginas</td>
+<td>+10</td>
+</tr>
+<tr>
+<td>Abrió ≥ 2 emails nurturing</td>
+<td>+10</td>
+</tr>
+<tr>
+<td>Solicitó demo</td>
+<td>+50</td>
+</tr>
+</tbody>
+</table>
+<p>Umbrales:
+- <strong>0-30</strong>: cold → nurturing TOFU.
+- <strong>31-60</strong>: warm → nurturing MOFU.
+- <strong>61+</strong>: hot → asignar a comercial <strong>inmediato</strong>.</p>
+<h3 id="bloque-3-nurturing-por-buyer-persona-25-min">Bloque 3 — Nurturing por buyer persona (25 min)</h3>
+<p>Una secuencia por buyer persona principal (3-5 emails):</p>
+<h4 id="secuencia-1-director-financiero-pyme-industrial">Secuencia 1 — Director financiero pyme industrial</h4>
+<table>
+<thead>
+<tr>
+<th>Día</th>
+<th>Asunto</th>
+<th>Contenido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>"Bienvenido — aquí tienes la guía"</td>
+<td>Lead magnet descargado + valor inmediato</td>
+</tr>
+<tr>
+<td>3</td>
+<td>"El error #1 al migrar a Odoo en pymes industriales"</td>
+<td>Educativo</td>
+</tr>
+<tr>
+<td>7</td>
+<td>"Cómo [cliente similar] redujo el cierre mensual de 5 a 2 días"</td>
+<td>Caso real</td>
+</tr>
+<tr>
+<td>14</td>
+<td>"Diagnóstico gratuito 30 min"</td>
+<td>CTA demo</td>
+</tr>
+<tr>
+<td>21</td>
+<td>"¿Sigue siendo prioridad?"</td>
+<td>Re-engagement</td>
+</tr>
+</tbody>
+</table>
+<h4 id="reglas-comunes">Reglas comunes</h4>
+<ul>
+<li>1 idea por email.</li>
+<li>Asunto ≤ 50 caracteres.</li>
+<li>Personalización real (no <code>{first_name}</code>).</li>
+<li>CTA único.</li>
+<li>Plain text &gt; HTML cargado.</li>
+</ul>
+<h3 id="bloque-4-asignacion-automatica-15-min">Bloque 4 — Asignación automática (15 min)</h3>
+<p>Reglas Odoo CRM:
+- Lead score ≥ 61 → asignar a comercial <strong>A</strong> (senior).
+- Lead score 31-60 → asignar al pool comercial.
+- Lead PM → asignar <strong>inmediato</strong> + notificación.
+- Lead referido → asignar al comercial que cerró el cliente que refirió.</p>
+<p>Notificaciones automáticas:
+- Lead asignado → email + Slack al comercial.
+- Lead sin actividad &gt; 48 h → alerta al jefe de ventas.
+- Lead caliente sin demo agendada en 5 días → escalar.</p>
+<h3 id="bloque-5-metricas-a-vigilar-15-min">Bloque 5 — Métricas a vigilar (15 min)</h3>
+<p>⚠️ <strong>Open rate es vanity</strong> (Apple MPP lo falsea). Mide:</p>
+<table>
+<thead>
+<tr>
+<th>Métrica útil</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tasa de respuesta</td>
+<td>≥ 6 %</td>
+</tr>
+<tr>
+<td>Reuniones agendadas desde nurturing</td>
+<td>≥ 2 %</td>
+</tr>
+<tr>
+<td>Click rate en CTA principal</td>
+<td>≥ 3 %</td>
+</tr>
+<tr>
+<td>Unsubscribe rate</td>
+<td>≤ 0,5 % / email</td>
+</tr>
+<tr>
+<td>Lead → demo (tras nurturing)</td>
+<td>≥ 25 %</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bloque-6-stack-canonico-5-min">Bloque 6 — Stack canónico (5 min)</h3>
+<ul>
+<li><strong>Odoo CRM + Email Marketing + Automation</strong> — todo en uno.</li>
+<li>Alternativa pro: ActiveCampaign / Customer.io / Brevo.</li>
+<li><strong>Slack/Teams</strong> para notificaciones internas.</li>
+<li><strong>Make / n8n</strong> para integraciones custom (LinkedIn, formularios externos).</li>
+</ul>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Lead scoring configurado en Odoo CRM.</li>
+<li>1 secuencia nurturing 5 emails lanzada (para buyer persona principal).</li>
+<li>Reglas de asignación + alertas configuradas.</li>
+<li>Dashboard métricas nurturing.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-60-dias">KPI de éxito (a 60 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lead scoring activo</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Leads procesados automáticamente</td>
+<td>≥ 80 %</td>
+</tr>
+<tr>
+<td>Tasa respuesta nurturing</td>
+<td>≥ 6 %</td>
+</tr>
+<tr>
+<td>Reply rate (no open rate)</td>
+<td>tracked</td>
+</tr>
+<tr>
+<td>Tiempo respuesta lead hot</td>
+<td>&lt; 1 h</td>
+</tr>
+<tr>
+<td>Reducción manual de tareas</td>
+<td>≥ 10 h / semana</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>→ <strong>Módulo 12 — Atribución + growth loops</strong>.</p></section><section class="module" id="mod-12"><div class="mod-head"><span class="mod-num">M12 &middot; Advanced</span><h1>Atribuci&oacute;n + growth</h1><p class="mod-sub">Nivel: Advanced · Duración: 120 min · Pre-requisito: Embudo + automatización funcionando + ≥ 100 leads / mes.</p></div><h2 id="objetivo">Objetivo</h2>
+<ol>
+<li>Salir del last-click: implementar <strong>modelo multi-touch</strong>.</li>
+<li>Diseñar tu primer <strong>growth loop</strong> que se realimenta.</li>
+<li><strong>Forecast mensual</strong> con error ≤ 15 %.</li>
+</ol>
+<hr />
+<h2 id="contenido-120-min">Contenido (120 min)</h2>
+<h3 id="bloque-1-por-que-last-click-te-miente-15-min">Bloque 1 — Por qué last-click te miente (15 min)</h3>
+<p>El last-click le da TODO el mérito al último canal. Pero un cierre B2B real toca:
+1. SEO (descubrimiento, mes -6).
+2. LinkedIn post (impresión, mes -4).
+3. Caso éxito sectorial (compra de confianza, mes -2).
+4. Demo desde Google Ads (intent commercial, mes -1).
+5. Llamada comercial (cierre, mes 0).</p>
+<p>Si optimizas por last-click → matas el SEO + LinkedIn que <strong>construyen el cierre</strong>.</p>
+<h3 id="bloque-2-modelos-de-atribucion-20-min">Bloque 2 — Modelos de atribución (20 min)</h3>
+<table>
+<thead>
+<tr>
+<th>Modelo</th>
+<th>Cuándo usarlo</th>
+<th>Ventaja</th>
+<th>Limitación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Last-click</strong></td>
+<td>Para BOFU paid</td>
+<td>Simple, accionable en performance ads</td>
+<td>Subestima TOFU/MOFU</td>
+</tr>
+<tr>
+<td><strong>First-click</strong></td>
+<td>Para entender adquisición</td>
+<td>Valora descubrimiento</td>
+<td>Subestima cierre</td>
+</tr>
+<tr>
+<td><strong>Lineal</strong></td>
+<td>Reparte por todos los touchpoints</td>
+<td>Justo</td>
+<td>Sobre-valora touches débiles</td>
+</tr>
+<tr>
+<td><strong>Time-decay</strong></td>
+<td>Pondera más lo cercano al cierre</td>
+<td>Equilibra TOFU + BOFU</td>
+<td>Requiere datos limpios</td>
+</tr>
+<tr>
+<td><strong>Data-driven (Google)</strong></td>
+<td>Si volumen ≥ 300 conv/mes</td>
+<td>ML, dinámico</td>
+<td>Caja negra</td>
+</tr>
+</tbody>
+</table>
+<p>Recomendación para partner mediano: <strong>lineal + last-click</strong> comparados mensualmente.</p>
+<h3 id="bloque-3-setup-tecnico-20-min">Bloque 3 — Setup técnico (20 min)</h3>
+<ul>
+<li>GA4: vista comparativa modelos (Reports → Advertising → Attribution).</li>
+<li>UTM <strong>siempre</strong> en cada link (utm_source, utm_medium, utm_campaign).</li>
+<li>CRM Odoo: campo "origen detallado" + "touchpoints" (multi-select).</li>
+<li>Looker Studio: dashboard atribución comparativa.</li>
+</ul>
+<h3 id="bloque-4-growth-loops-no-funnels-30-min">Bloque 4 — Growth loops (no funnels) (30 min)</h3>
+<p>Funnel = lineal, único uso. Loop = circular, se realimenta.</p>
+<h4 id="loop-canonico-partner-odoo">Loop canónico partner Odoo</h4>
+<pre><code>Cliente cerrado
+    ↓
+Caso éxito (PDF + landing + post)
+    ↓
+SEO (página sectorial nueva) + GEO (cita en LLMs) + LinkedIn (post + carrusel)
+    ↓
+3-5 leads MOFU el mes siguiente
+    ↓
+1-2 cierres
+    ↓ (vuelve al inicio)
+</code></pre>
+<p>Cada cierre debe generar el <strong>siguiente caso éxito en ≤ 30 días</strong>.</p>
+<h4 id="otros-loops-utiles">Otros loops útiles</h4>
+<ul>
+<li><strong>Referral loop</strong>: cliente NPS≥9 → pide referral → nuevo cliente → … </li>
+<li><strong>Content-SEO loop</strong>: post LinkedIn → reescrito como blog → indexado → tráfico orgánico → leads → más posts.</li>
+<li><strong>Webinar loop</strong>: webinar trimestral → grabación → fragmentos LinkedIn/YouTube → tráfico → nuevos asistentes.</li>
+</ul>
+<h3 id="bloque-5-forecast-mensual-20-min">Bloque 5 — Forecast mensual (20 min)</h3>
+<p>Modelo simple:</p>
+<pre><code>Leads × CR_lead-demo × CR_demo-cierre × ticket_medio = ingresos previstos
+</code></pre>
+<p>Refinamientos:
+- <strong>PCR (Pipeline Coverage Ratio)</strong> ≥ 3× (3 € en pipeline por 1 € en quota).
+- Ponderación por <strong>probabilidad por etapa</strong>.
+- Validación mensual: predicción vs realidad.
+- Ajuste coeficientes trimestral.</p>
+<p>Objetivo: error mensual ≤ <strong>15 %</strong>.</p>
+<h3 id="bloque-6-geo-maduro-10-min">Bloque 6 — GEO maduro (10 min)</h3>
+<ul>
+<li><strong>llms.txt</strong> en raíz del sitio.</li>
+<li>Schema.org Organization + Service + FAQ + HowTo.</li>
+<li>Frases canónicas claras ("X es partner Odoo Enterprise en Y desde Z").</li>
+<li>Monitor de brand mentions en ChatGPT / Perplexity (Mention, Brandwatch).</li>
+<li>Objetivo: aparecer en <strong>≥ 5 respuestas LLM / mes</strong> para queries de tu cluster.</li>
+</ul>
+<h3 id="bloque-7-productizar-5-min">Bloque 7 — Productizar (5 min)</h3>
+<ul>
+<li>Paquetes cerrados, no presupuestos a medida.</li>
+<li>Onboarding documentado con "tiempo a primer valor".</li>
+<li>NPS post-onboarding + recurrente.</li>
+<li>LTV/CAC ≥ 4. Payback ≤ 9 meses.</li>
+</ul>
+<hr />
+<h2 id="ejercicio-practico">Ejercicio práctico</h2>
+<p>Entregable:</p>
+<ol>
+<li>Dashboard atribución comparativa (last-click vs lineal) en Looker.</li>
+<li><strong>1 growth loop</strong> diseñado + primer paso en marcha (ej. próximo caso éxito).</li>
+<li>Forecast mensual mes próximo con asumpciones + plan de validación.</li>
+</ol>
+<hr />
+<h2 id="kpi-de-exito-a-180-dias">KPI de éxito (a 180 días)</h2>
+<table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Error forecast mensual</td>
+<td>≤ 15 %</td>
+</tr>
+<tr>
+<td>PCR</td>
+<td>≥ 3×</td>
+</tr>
+<tr>
+<td>LTV/CAC</td>
+<td>≥ 4</td>
+</tr>
+<tr>
+<td>Payback CAC</td>
+<td>≤ 9 meses</td>
+</tr>
+<tr>
+<td>% ingresos atribuibles a growth loop</td>
+<td>≥ 30 %</td>
+</tr>
+<tr>
+<td>Citas LLM / mes</td>
+<td>≥ 5</td>
+</tr>
+<tr>
+<td>Casos éxito publicados / año</td>
+<td>≥ 12</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="siguiente-paso">Siguiente paso</h2>
+<p>Refresh <strong>anual</strong> Módulos 06 + 10 + 11. El terreno (algoritmos, AI Overviews, CWV) cambia.</p></section>
+
+<section id="recursos">
+  <div class="reveal"><div class="section-tag">Para ir m&aacute;s all&aacute;</div>
+  <h2 class="section-title">Recursos y expertos</h2>
+  <p class="section-desc">Fuentes de autoridad para llevar tu marketing de partner de bueno a excelente. Fundamentos oficiales de Odoo y los referentes globales de marketing B2B, SEO/GEO y demand gen.</p></div>
+  <div class="grid-3 reveal">
+    <div class="card"><span class="tag-pill">Odoo oficial</span><h4 style="font-size:16px;margin-bottom:2px">Fuente del curso</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://www.odoo.com/become-a-partner" target="_blank" rel="noopener">Programa de Partners de Odoo</a></li>
+        <li><a href="https://www.odoo.com/es_ES/blog" target="_blank" rel="noopener">Blog de Odoo</a></li>
+        <li><a href="https://www.linkedin.com/in/lisa-morelli-odoo" target="_blank" rel="noopener">Lisa Morelli</a><span class="who">Head of Marketing Odoo Espa&ntilde;a</span></li>
+      </ul></div>
+    <div class="card"><span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">Demand gen &middot; B2B</span><h4 style="font-size:16px;margin-bottom:2px">Expertos a seguir</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://www.linkedin.com/in/chriswalker171/" target="_blank" rel="noopener">Chris Walker</a><span class="who">demand generation moderno</span></li>
+        <li><a href="https://www.linkedin.com/in/dave-gerhardt/" target="_blank" rel="noopener">Dave Gerhardt</a><span class="who">B2B marketing y marca</span></li>
+        <li><a href="https://www.linkedin.com/in/aprildunford/" target="_blank" rel="noopener">April Dunford</a><span class="who">posicionamiento</span></li>
+      </ul></div>
+    <div class="card"><span class="tag-pill" style="background:rgba(228,169,0,.14);color:#B98600">SEO &middot; GEO &middot; contenido</span><h4 style="font-size:16px;margin-bottom:2px">Referentes</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://backlinko.com/blog" target="_blank" rel="noopener">Backlinko (Brian Dean)</a></li>
+        <li><a href="https://ahrefs.com/blog/" target="_blank" rel="noopener">Ahrefs Blog</a></li>
+        <li><a href="https://sparktoro.com/blog" target="_blank" rel="noopener">SparkToro (Rand Fishkin)</a></li>
+      </ul></div>
+  </div>
+  <div class="grid-3 reveal" style="margin-top:16px">
+    <div class="card"><h4 style="font-size:16px;margin-bottom:6px">Libros</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://www.amazon.es/s?k=Obviously+Awesome+April+Dunford" target="_blank" rel="noopener">Obviously Awesome</a><span class="who">April Dunford</span></li>
+        <li><a href="https://www.amazon.es/s?k=They+Ask+You+Answer+Marcus+Sheridan" target="_blank" rel="noopener">They Ask, You Answer</a><span class="who">Marcus Sheridan</span></li>
+        <li><a href="https://www.amazon.es/s?k=Traction+Gabriel+Weinberg" target="_blank" rel="noopener">Traction</a><span class="who">Weinberg &amp; Mares</span></li>
+      </ul></div>
+    <div class="card"><h4 style="font-size:16px;margin-bottom:6px">Podcasts</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://open.spotify.com/show/6L2mtN1TQhvKgLm3Q0Wm3G" target="_blank" rel="noopener">Marketing Against the Grain</a></li>
+        <li><a href="https://exitfive.com/podcast" target="_blank" rel="noopener">Exit Five (B2B)</a></li>
+      </ul></div>
+    <div class="card"><h4 style="font-size:16px;margin-bottom:6px">Herramientas del repo</h4>
+      <ul class="rsrc-list">
+        <li>Calculadora CPL / ROI (CSV)</li>
+        <li>Tracker de acciones semanal</li>
+        <li>Plantillas: buyer persona, objetivo SMART, secuencias</li>
+      </ul></div>
+  </div>
+</section>
+
+<div class="flowbar"><div class="flowbar-inner"><a class="fb-step" href="#top" data-phase="res" data-tip="Portada"><span class="fb-dot">&#8962;</span></a><span class="fb-phase">M&oacute;dulos</span><a class="fb-step" href="#mod-01" data-phase="res" data-tip="Marketing sin humo (Intro)"><span class="fb-dot">1</span></a><a class="fb-step" href="#mod-02" data-phase="exec" data-tip="Prospecci&oacute;n B2B (Ready)"><span class="fb-dot">2</span></a><a class="fb-step" href="#mod-03" data-phase="exec" data-tip="Outbound local (Ready)"><span class="fb-dot">3</span></a><a class="fb-step" href="#mod-04" data-phase="exec" data-tip="Leads del PM (Ready)"><span class="fb-dot">4</span></a><a class="fb-step" href="#mod-05" data-phase="exec" data-tip="LinkedIn + contenido (Ready)"><span class="fb-dot">5</span></a><a class="fb-step" href="#mod-06" data-phase="anal" data-tip="SEO + GEO + EEAT (Silver)"><span class="fb-dot">6</span></a><a class="fb-step" href="#mod-07" data-phase="anal" data-tip="Web y conversi&oacute;n (Silver)"><span class="fb-dot">7</span></a><a class="fb-step" href="#mod-08" data-phase="prep" data-tip="Paid Ads (Gold)"><span class="fb-dot">8</span></a><a class="fb-step" href="#mod-09" data-phase="exec" data-tip="Eventos + referidos (Ready)"><span class="fb-dot">9</span></a><a class="fb-step" href="#mod-10" data-phase="anal" data-tip="Embudos + m&eacute;tricas (Silver)"><span class="fb-dot">10</span></a><a class="fb-step" href="#mod-11" data-phase="prep" data-tip="Automatizaci&oacute;n (Gold)"><span class="fb-dot">11</span></a><a class="fb-step" href="#mod-12" data-phase="res" data-tip="Atribuci&oacute;n + growth (Advanced)"><span class="fb-dot">12</span></a><span class="fb-sep"></span><a class="fb-step" href="#recursos" data-phase="res" data-tip="Recursos"><span class="fb-dot">&#9733;</span></a></div></div>
+<div class="vmodal" id="vmodal"><div class="vmodal-box"><div class="vmodal-head"><h4>Charla</h4><button class="close" aria-label="Cerrar">&times;</button></div><div class="vmodal-frame"></div></div></div>
+<div class="userchip" id="userChip"><span class="dot"></span>Formaci&oacute;n &middot; <span class="uname"></span></div>
+<script>
+(function(){
+var np=document.getElementById('navProgress');
+if(np)window.addEventListener('scroll',function(){np.style.width=(scrollY/(document.documentElement.scrollHeight-innerHeight))*100+'%'});
+var links=document.querySelectorAll('.rail-item[href^="#"], .fb-step');
+window.addEventListener('scroll',function(){var cur='';document.querySelectorAll('section[id],.module[id]').forEach(function(s){if(scrollY>=s.offsetTop-120)cur=s.id});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur)})});
+var io=new IntersectionObserver(function(es){es.forEach(function(e,i){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible')},i*25);io.unobserve(e.target)}})},{threshold:0.05});
+document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var t=this.getAttribute('href');if(t.length>1){var el=document.querySelector(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}}})});
+var bg=document.getElementById('railBurger'),ov=document.getElementById('railOv'),r=document.getElementById('rail');
+function rop(){r.classList.add('open');ov.classList.add('open')}function rcl(){r.classList.remove('open');ov.classList.remove('open')}
+if(bg)bg.onclick=rop;if(ov)ov.onclick=rcl;if(r)r.querySelectorAll('a').forEach(function(a){a.addEventListener('click',rcl)});
+var USER=null;try{USER=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
+var reg=document.getElementById('regOverlay');
+function chip(){var c=document.getElementById('userChip');if(c&&USER){c.style.display='flex';c.querySelector('.uname').textContent=(USER.name||'').split(' ')[0]}}
+function unlock(){document.body.classList.remove('locked');if(reg)reg.classList.add('hide')}
+if(USER){unlock();chip()}else{document.body.classList.add('locked')}
+var f=document.getElementById('regForm');
+if(f)f.addEventListener('submit',function(e){e.preventDefault();var n=document.getElementById('regName').value.trim(),m=document.getElementById('regMail').value.trim(),c=document.getElementById('regConsent').checked,er=document.getElementById('regErr');
+ if(n.length<2){er.textContent='Escribe tu nombre.';return}if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){er.textContent='Email no valido.';return}if(!c){er.textContent='Marca el consentimiento.';return}
+ USER={name:n,email:m,at:new Date().toISOString()};localStorage.setItem('coach_user',JSON.stringify(USER));unlock();chip()});
+var vm=document.getElementById('vmodal');
+function openVideo(id,title){vm.querySelector('.vmodal-frame').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0&autoplay=1&modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';vm.querySelector('h4').textContent=title||'Charla';vm.classList.add('open')}
+function closeVideo(){vm.classList.remove('open');vm.querySelector('.vmodal-frame').innerHTML=''}
+if(vm){vm.querySelector('.close').addEventListener('click',closeVideo);vm.addEventListener('click',function(e){if(e.target===vm)closeVideo()});document.addEventListener('keydown',function(e){if(e.key==='Escape')closeVideo()})}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-yt]');if(b&&vm){e.preventDefault();openVideo(b.getAttribute('data-yt'),b.getAttribute('data-title'))}});
+var svgs=[].slice.call(document.querySelectorAll('.beyes'));
+if(svgs.length){function brow(o,flip){var b=10+o;var lift=Math.min(o,0)*0.5;return flip?('M 6 '+(b+1)+' Q 20 '+(b-8+lift)+' 34 '+(b+2)):('M 6 '+(b+2)+' Q 20 '+(b-8+lift)+' 34 '+(b+1))}
+var ex=[{bl:-6,br:1,lx:2.5,ly:-1,e:'curious'},{bl:-3,br:-3,lx:0,ly:0,e:'happy'},{bl:2,br:-8,lx:-2,ly:0,e:'skeptical'},{bl:-8,br:-8,lx:0,ly:-1,e:'surprised'},{bl:0,br:0,lx:0,ly:0,e:'neutral'}];
+var s={bl:0,br:0,lx:0,ly:0,blink:false,e:'neutral'};
+function setc(el,x,y,r){if(!el)return;el.setAttribute('cx',x);el.setAttribute('cy',y);if(r!=null)el.setAttribute('r',r)}
+function ap(){svgs.forEach(function(g){var bL=g.querySelector('.browL'),bR=g.querySelector('.browR');if(bL)bL.setAttribute('d',brow(s.bl,false));if(bR)bR.setAttribute('d',brow(s.br,true));
+var ry=s.blink?2:(s.e==='happy'?14:18);var sL=g.querySelector('.socketL'),sR=g.querySelector('.socketR');if(sL)sL.setAttribute('ry',ry);if(sR)sR.setAttribute('ry',ry);
+var op=s.blink?'0':'1';['.irisL','.irisR','.pupilL','.pupilR'].forEach(function(c){var el=g.querySelector(c);if(el)el.style.opacity=op});
+g.querySelectorAll('.glint').forEach(function(gg){gg.style.opacity=s.blink?'0':(gg.getAttribute('data-op')||'1')});
+var ir=s.e==='surprised'?9:7.5,pr=s.e==='surprised'?4:3.5;
+setc(g.querySelector('.irisL'),20+s.lx,36+s.ly,ir);setc(g.querySelector('.pupilL'),20+s.lx*1.3,36+s.ly*1.3,pr);
+setc(g.querySelector('.irisR'),20+s.lx,36+s.ly,ir);setc(g.querySelector('.pupilR'),20+s.lx*1.3,36+s.ly*1.3,pr)})}
+ap();setInterval(function(){var x=ex[Math.floor(Math.random()*ex.length)];s.bl=x.bl;s.br=x.br;s.lx=x.lx;s.ly=x.ly;s.e=x.e;ap()},2500);
+(function bl(){setTimeout(function(){s.blink=true;ap();setTimeout(function(){s.blink=false;ap();bl()},130)},3000+Math.random()*2500)})()}
+})();
+</script>
+<script src="feedback.js" data-course="marketing-partners"></script>
+</body>
+</html>
