@@ -207,6 +207,69 @@ ul.check li:before{content:"";position:absolute;left:0;top:3px;width:15px;height
 .userchip .dot{width:8px;height:8px;border-radius:50%;background:var(--odoo-ready)}
 @media(max-width:900px){.userchip{left:24px}}
 
+/* ===== Componentes extra (recursos / cards) ===== */
+.section-tag{font-family:'Caveat',cursive;font-size:44px;font-weight:700;color:var(--odoo-secondary);margin-bottom:2px;line-height:1.1}
+.section-title{font-size:clamp(26px,3.4vw,36px);font-weight:800;color:var(--text-dark);letter-spacing:-0.02em;line-height:1.15;margin:0 0 12px;display:block;padding:0;border:0}
+.section-title:before{display:none}
+.section-desc{font-size:16px;color:var(--text-body);max-width:680px;line-height:1.7;margin-bottom:30px}
+.card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow-sm);transition:box-shadow .25s,transform .25s}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:820px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.tag-pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:10px;background:var(--bg-warm);color:var(--odoo-primary)}
+.rsrc-list{list-style:none;margin:6px 0 0;padding:0}
+.rsrc-list li{padding:6px 0;font-size:14px;line-height:1.5;border-bottom:1px solid var(--border-light);display:flex;gap:8px}
+.rsrc-list li:last-child{border-bottom:0}
+.rsrc-list li:before{content:"→";color:var(--odoo-secondary);font-weight:700;flex-shrink:0}
+.rsrc-list a{color:var(--text-dark);font-weight:600}
+.rsrc-list a:hover{color:var(--odoo-primary)}
+.rsrc-list .who{color:var(--text-muted);font-weight:400}
+.rsrc{color:var(--odoo-secondary);font-weight:600}
+
+/* resource media (charlas + libros) */
+.rsrc-media{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.vthumb{position:relative;border:0;padding:0;cursor:pointer;border-radius:10px;overflow:hidden;width:100%;aspect-ratio:16/9;background:#000}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92;transition:opacity .2s}
+.vthumb:hover img{opacity:1}
+.vplay-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 3px 12px rgba(0,0,0,.3)}
+.vplay-bg:after{content:"";position:absolute;left:53%;top:50%;transform:translate(-50%,-50%);border-style:solid;border-width:8px 0 8px 13px;border-color:transparent transparent transparent var(--odoo-primary)}
+.vcap{font-size:12px;color:var(--text-body);margin-top:7px;line-height:1.35;font-weight:600}
+.bthumb{display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none}
+.bcover{display:block;width:100%;height:150px;border-radius:8px;background:#EDE7EB center/cover no-repeat;box-shadow:var(--shadow-sm)}
+.blabel{font-size:11px;font-weight:700;color:var(--odoo-gold)}
+
+/* video modal */
+.vmodal{position:fixed;inset:0;z-index:1500;background:rgba(45,45,45,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.vmodal.open{display:flex}
+.vmodal-box{background:#000;border-radius:16px;width:min(900px,100%);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden}
+.vmodal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;background:var(--bg-white)}
+.vmodal-head h4{font-size:15px;color:var(--text-dark);margin:0}
+.vmodal-head .close{background:none;border:none;font-size:26px;color:var(--text-muted);cursor:pointer;line-height:1}
+.vmodal-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.vmodal-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ===== Flow navigator (barra inferior fija, navegable, con tooltips) ===== */
+body{padding-bottom:66px}
+.flowbar{position:fixed;left:66px;right:0;bottom:0;z-index:65;display:flex;justify-content:center;pointer-events:none;padding:0 16px 14px}
+.flowbar-inner{pointer-events:auto;display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border:1px solid var(--border-light);border-radius:100px;padding:8px 14px;box-shadow:0 8px 28px rgba(113,75,103,.16);max-width:100%;overflow-x:auto}
+.flowbar-inner::-webkit-scrollbar{height:0}
+.fb-phase{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:0 5px 0 8px;white-space:nowrap}
+.fb-step{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.fb-step .fb-dot{display:flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:var(--bg-warm);color:var(--text-body);font-size:12.5px;font-weight:700;transition:transform .16s,background .16s,color .16s;border:2px solid transparent}
+.fb-step[data-phase="prep"] .fb-dot{background:rgba(91,137,158,.16);color:var(--odoo-silver)}
+.fb-step[data-phase="exec"] .fb-dot{background:rgba(1,126,132,.15);color:var(--odoo-secondary)}
+.fb-step[data-phase="anal"] .fb-dot{background:rgba(228,169,0,.18);color:#B98600}
+.fb-step[data-phase="res"] .fb-dot{background:rgba(113,75,103,.14);color:var(--odoo-primary)}
+.fb-step:hover .fb-dot{transform:scale(1.16)}
+.fb-step.active .fb-dot{background:var(--odoo-primary);color:#fff;border-color:#fff;box-shadow:0 2px 9px rgba(113,75,103,.45);transform:scale(1.12)}
+.fb-step:after{content:attr(data-tip);position:absolute;bottom:calc(100% + 11px);left:50%;transform:translateX(-50%);background:var(--text-dark);color:#fff;font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:6}
+.fb-step:before{content:"";position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--text-dark);opacity:0;transition:opacity .15s}
+.fb-step:hover:after,.fb-step:hover:before{opacity:1}
+.fb-sep{width:12px;height:2px;background:var(--border);flex:0 0 auto;border-radius:2px}
+@media(max-width:900px){.flowbar{left:0}.fb-phase{display:none}}
+
 </style>
 </head>
 <body class="locked">
@@ -231,6 +294,7 @@ ul.check li:before{content:"";position:absolute;left:0;top:3px;width:15px;height
     <a class="rail-item " href="#mod-10"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M10 &middot; Objeciones</span></a>
     <a class="rail-item " href="#mod-11"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M11 &middot; Stack e IA</span></a>
     <a class="rail-item " href="#mod-12"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">M12 &middot; M&eacute;tricas</span></a>
+    <a class="rail-item gold" href="#recursos"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.2 5.7.8-4.1 4 1 5.7L12 21l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg></span><span class="ri-lb">Recursos</span></a>
     <div class="rail-sep"></div>
     <a class="rail-item gold" href="hub.html"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Brandooers</span></a>
   </div></aside>
@@ -8532,12 +8596,80 @@ Un saludo,
 
 </section>
 
+
+<section id="recursos">
+  <div class="reveal">
+    <div class="section-tag">Para ir m&aacute;s all&aacute;</div>
+    <h2 class="section-title">Biblioteca de recursos</h2>
+    <p class="section-desc">Los referentes que de verdad mueven el sector &mdash; partnerships, ecosistema y outbound &mdash; con nombre y apellidos y contenido de alta autoridad. Toca una charla para verla aqu&iacute; mismo; el libro abre en Amazon.</p>
+  </div>
+  <h3>Charlas imprescindibles</h3>
+  <div class="grid-4 reveal"><div class="card" style="padding:12px"><button class="vthumb" data-yt="zGBVpE3DSqs" data-title="Aaron Ross &middot; Predictable Revenue" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/zGBVpE3DSqs/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><div class="vcap">Aaron Ross &middot; Predictable Revenue</div></div><div class="card" style="padding:12px"><button class="vthumb" data-yt="TSUeakjHYCE" data-title="Neil Rackham &middot; el origen de SPIN" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/TSUeakjHYCE/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><div class="vcap">Neil Rackham &middot; el origen de SPIN</div></div><div class="card" style="padding:12px"><button class="vthumb" data-yt="vr5hhgA84O4" data-title="Chris Voss &middot; empat&iacute;a t&aacute;ctica" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/vr5hhgA84O4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><div class="vcap">Chris Voss &middot; empat&iacute;a t&aacute;ctica</div></div><div class="card" style="padding:12px"><button class="vthumb" data-yt="qp0HIF3SfI4" data-title="Simon Sinek &middot; empieza con el porqu&eacute;" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/qp0HIF3SfI4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><div class="vcap">Simon Sinek &middot; empieza con el porqu&eacute;</div></div></div>
+  <h3 style="margin-top:28px">Los libros de referencia</h3>
+  <div class="grid-4 reveal"><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=Ecosystem-Led+Growth+Bob+Moore" target="_blank" rel="noopener"><span class="bcover" data-book="Ecosystem-Led Growth Bob Moore"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">Ecosystem-Led Growth</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">Bob Moore</span><span class="blabel">Amazon &#8599;</span></a><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=Nearbound+Jared+Fuller" target="_blank" rel="noopener"><span class="bcover" data-book="Nearbound Jared Fuller"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">Nearbound</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">Jared Fuller</span><span class="blabel">Amazon &#8599;</span></a><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=The+Partnership+Economy+David+Yovanno" target="_blank" rel="noopener"><span class="bcover" data-book="The Partnership Economy David Yovanno"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">The Partnership Economy</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">David Yovanno</span><span class="blabel">Amazon &#8599;</span></a><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=Predictable+Revenue+Aaron+Ross" target="_blank" rel="noopener"><span class="bcover" data-book="Predictable Revenue Aaron Ross"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">Predictable Revenue</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">Aaron Ross</span><span class="blabel">Amazon &#8599;</span></a><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=Fanatical+Prospecting+Jeb+Blount" target="_blank" rel="noopener"><span class="bcover" data-book="Fanatical Prospecting Jeb Blount"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">Fanatical Prospecting</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">Jeb Blount</span><span class="blabel">Amazon &#8599;</span></a><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=The+Challenger+Sale+Matthew+Dixon" target="_blank" rel="noopener"><span class="bcover" data-book="The Challenger Sale Matthew Dixon"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">The Challenger Sale</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">Matthew Dixon</span><span class="blabel">Amazon &#8599;</span></a><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=SPIN+Selling+Neil+Rackham" target="_blank" rel="noopener"><span class="bcover" data-book="SPIN Selling Neil Rackham"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">SPIN Selling</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">Neil Rackham</span><span class="blabel">Amazon &#8599;</span></a><a class="card" style="padding:14px;text-decoration:none;display:block" href="https://www.amazon.es/s?k=Gap+Selling+Keenan" target="_blank" rel="noopener"><span class="bcover" data-book="Gap Selling Keenan"></span><span style="display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-top:8px">Gap Selling</span><span style="display:block;font-size:11.5px;color:var(--text-muted)">Keenan</span><span class="blabel">Amazon &#8599;</span></a></div>
+  <div class="grid-2 reveal" style="margin-top:28px">
+    <div class="card">
+      <span class="tag-pill">Partnerships &middot; ecosistema</span>
+      <h4 style="font-size:16px;margin-bottom:2px">Expertos a seguir en LinkedIn</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://www.linkedin.com/in/jaredfuller/" target="_blank" rel="noopener">Jared Fuller</a><span class="who">creador del movimiento nearbound</span></li>
+        <li><a href="https://www.linkedin.com/in/robertjmoore/" target="_blank" rel="noopener">Bob Moore</a><span class="who">CEO de Crossbeam, autor de Ecosystem-Led Growth</span></li>
+        <li><a href="https://www.linkedin.com/in/jaymcbain/" target="_blank" rel="noopener">Jay McBain</a><span class="who">analista jefe de canal (Canalys)</span></li>
+        <li><a href="https://www.linkedin.com/in/jillrowley/" target="_blank" rel="noopener">Jill Rowley</a><span class="who">pionera del social selling y el nearbound</span></li>
+        <li><a href="https://www.linkedin.com/in/sjbrinker/" target="_blank" rel="noopener">Scott Brinker</a><span class="who">el padrino del martech, ecosistemas de plataforma</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">Outbound &middot; prospecci&oacute;n</span>
+      <h4 style="font-size:16px;margin-bottom:2px">Expertos a seguir en LinkedIn</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://www.linkedin.com/in/jebblount/" target="_blank" rel="noopener">Jeb Blount</a><span class="who">Fanatical Prospecting</span></li>
+        <li><a href="https://www.linkedin.com/in/josh-braun/" target="_blank" rel="noopener">Josh Braun</a><span class="who">cold outreach sin sonar a vendedor</span></li>
+        <li><a href="https://www.linkedin.com/in/jasondbay/" target="_blank" rel="noopener">Jason Bay</a><span class="who">Outbound Squad, cold calling</span></li>
+        <li><a href="https://www.linkedin.com/in/kddorsey3/" target="_blank" rel="noopener">Kevin D. Dorsey</a><span class="who">liderazgo de ventas y discovery</span></li>
+        <li><a href="https://www.linkedin.com/in/samsalesli/" target="_blank" rel="noopener">Samantha McKenna</a><span class="who">outbound con clase</span></li>
+        <li><a href="https://www.linkedin.com/in/williamallred/" target="_blank" rel="noopener">Will Allred</a><span class="who">cold email (Lavender)</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid-3 reveal" style="margin-top:16px">
+    <div class="card"><h4 style="font-size:16px;margin-bottom:6px">Podcasts</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://open.spotify.com/show/6Ez9GY0l2Ksfedhb2s0px0" target="_blank" rel="noopener">Nearbound Podcast</a></li>
+        <li><a href="https://open.spotify.com/show/1DnllGVJc1Otlzp4gIWayU" target="_blank" rel="noopener">Howdy Partners</a></li>
+        <li><a href="https://www.agorapulse.com/partnershipunpacked/" target="_blank" rel="noopener">Partnership Unpacked</a></li>
+        <li><a href="https://www.30mpc.com/" target="_blank" rel="noopener">30 Minutes to President's Club</a></li>
+        <li><a href="https://outboundsquad.com/podcast" target="_blank" rel="noopener">The Outbound Squad</a></li>
+      </ul>
+    </div>
+    <div class="card"><h4 style="font-size:16px;margin-bottom:6px">Canales de YouTube</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://www.youtube.com/@joshbraunsales" target="_blank" rel="noopener">Josh Braun</a></li>
+        <li><a href="https://www.youtube.com/@30MPC" target="_blank" rel="noopener">30MPC</a></li>
+        <li><a href="https://www.youtube.com/user/salesgravy" target="_blank" rel="noopener">Sales Gravy</a></li>
+        <li><a href="https://www.youtube.com/@SellBetterXYZ" target="_blank" rel="noopener">Sell Better</a></li>
+      </ul>
+    </div>
+    <div class="card"><h4 style="font-size:16px;margin-bottom:6px">Blogs y newsletters</h4>
+      <ul class="rsrc-list">
+        <li><a href="https://insider.crossbeam.com/" target="_blank" rel="noopener">ELG Insider</a><span class="who">partnerships</span></li>
+        <li><a href="https://partnershipleaders.com/" target="_blank" rel="noopener">Partnership Leaders</a></li>
+        <li><a href="https://www.gong.io/blog/" target="_blank" rel="noopener">Gong Labs</a><span class="who">datos reales</span></li>
+        <li><a href="https://joshbraun.com" target="_blank" rel="noopener">Josh Braun</a></li>
+        <li><a href="https://predictablerevenue.com/blog" target="_blank" rel="noopener">Predictable Revenue</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="flowbar"><div class="flowbar-inner"><a class="fb-step" href="#top" data-phase="res" data-tip="Portada"><span class="fb-dot">&#8962;</span></a><a class="fb-step" href="#mod-00" data-phase="res" data-tip="Intro: c&oacute;mo usar"><span class="fb-dot">0</span></a><span class="fb-phase">Prep</span><a class="fb-step" href="#mod-01" data-phase="prep" data-tip="El negocio"><span class="fb-dot">1</span></a><a class="fb-step" href="#mod-02" data-phase="prep" data-tip="Mindset"><span class="fb-dot">2</span></a><a class="fb-step" href="#mod-03" data-phase="prep" data-tip="Partner ideal"><span class="fb-dot">3</span></a><a class="fb-step" href="#mod-04" data-phase="prep" data-tip="Prospecci&oacute;n"><span class="fb-dot">4</span></a><span class="fb-sep"></span><span class="fb-phase">Ejecuta</span><a class="fb-step" href="#mod-05" data-phase="exec" data-tip="Copywriting"><span class="fb-dot">5</span></a><a class="fb-step" href="#mod-06" data-phase="exec" data-tip="LinkedIn"><span class="fb-dot">6</span></a><a class="fb-step" href="#mod-07" data-phase="exec" data-tip="Email fr&iacute;o"><span class="fb-dot">7</span></a><a class="fb-step" href="#mod-08" data-phase="exec" data-tip="Multicanal"><span class="fb-dot">8</span></a><a class="fb-step" href="#mod-09" data-phase="exec" data-tip="Webinars"><span class="fb-dot">9</span></a><a class="fb-step" href="#mod-10" data-phase="exec" data-tip="Objeciones"><span class="fb-dot">10</span></a><span class="fb-sep"></span><span class="fb-phase">Analiza</span><a class="fb-step" href="#mod-11" data-phase="anal" data-tip="Stack e IA"><span class="fb-dot">11</span></a><a class="fb-step" href="#mod-12" data-phase="anal" data-tip="M&eacute;tricas"><span class="fb-dot">12</span></a><span class="fb-sep"></span><a class="fb-step" href="#recursos" data-phase="res" data-tip="Recursos"><span class="fb-dot">&#9733;</span></a></div></div>
+<div class="vmodal" id="vmodal"><div class="vmodal-box"><div class="vmodal-head"><h4>Charla</h4><button class="close" aria-label="Cerrar">&times;</button></div><div class="vmodal-frame"></div></div></div>
 <div class="userchip" id="userChip"><span class="dot"></span>Formaci&oacute;n &middot; <span class="uname"></span></div>
 <script>
 (function(){
 var np=document.getElementById('navProgress');
 if(np)window.addEventListener('scroll',function(){np.style.width=(scrollY/(document.documentElement.scrollHeight-innerHeight))*100+'%'});
-var links=document.querySelectorAll('.rail-item[href^="#"]');
+var links=document.querySelectorAll('.rail-item[href^="#"], .fb-step');
 window.addEventListener('scroll',function(){var cur='';document.querySelectorAll('section[id],.module[id],.frontsec[id]').forEach(function(s){if(scrollY>=s.offsetTop-120)cur=s.id});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur)})});
 var io=new IntersectionObserver(function(es){es.forEach(function(e,i){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('visible')},i*25);io.unobserve(e.target)}})},{threshold:0.05});
 document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
@@ -8554,6 +8686,13 @@ var f=document.getElementById('regForm');
 if(f)f.addEventListener('submit',function(e){e.preventDefault();var n=document.getElementById('regName').value.trim(),m=document.getElementById('regMail').value.trim(),c=document.getElementById('regConsent').checked,er=document.getElementById('regErr');
  if(n.length<2){er.textContent='Escribe tu nombre.';return}if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){er.textContent='Escribe un email valido.';return}if(!c){er.textContent='Marca el consentimiento.';return}
  USER={name:n,email:m,at:new Date().toISOString()};localStorage.setItem('coach_user',JSON.stringify(USER));unlock();chip()});
+var vm=document.getElementById('vmodal');
+function openVideo(id,title){vm.querySelector('.vmodal-frame').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0&autoplay=1&modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';vm.querySelector('h4').textContent=title||'Charla';vm.classList.add('open')}
+function closeVideo(){vm.classList.remove('open');vm.querySelector('.vmodal-frame').innerHTML=''}
+if(vm){vm.querySelector('.close').addEventListener('click',closeVideo);vm.addEventListener('click',function(e){if(e.target===vm)closeVideo()});document.addEventListener('keydown',function(e){if(e.key==='Escape')closeVideo()})}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-yt]');if(b&&vm){e.preventDefault();openVideo(b.getAttribute('data-yt'),b.getAttribute('data-title'))}});
+var covObs=new IntersectionObserver(function(en){en.forEach(function(x){if(!x.isIntersecting)return;var el=x.target;covObs.unobserve(el);var q=el.getAttribute('data-book');if(!q)return;fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")'}).catch(function(){})})},{rootMargin:'300px'});
+document.querySelectorAll('.bcover[data-book]').forEach(function(el){covObs.observe(el)});
 var svgs=[].slice.call(document.querySelectorAll('.beyes'));
 if(svgs.length){function brow(o,flip){var b=10+o;var lift=Math.min(o,0)*0.5;return flip?('M 6 '+(b+1)+' Q 20 '+(b-8+lift)+' 34 '+(b+2)):('M 6 '+(b+2)+' Q 20 '+(b-8+lift)+' 34 '+(b+1))}
 var ex=[{bl:-6,br:1,lx:2.5,ly:-1,e:'curious'},{bl:-3,br:-3,lx:0,ly:0,e:'happy'},{bl:2,br:-8,lx:-2,ly:0,e:'skeptical'},{bl:-8,br:-8,lx:0,ly:-1,e:'surprised'},{bl:0,br:0,lx:0,ly:0,e:'neutral'}];
