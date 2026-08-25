@@ -956,20 +956,21 @@ body{padding-left:66px}
 <section id="clientes">
   <div class="reveal">
     <div class="section-tag">Vía 1 · captación de clientes</div>
-    <h2 class="section-title">Captar clientes para implantar Odoo</h2>
-    <p class="section-desc">El ICP típico de Odoo en España es la pyme (proyecto estándar de 3 a 25 usuarios) con software fragmentado: un programa por área que no se hablan entre sí, dependencia de Excel, cierres contables lentos y, a menudo, un SAP/Sage caro del que usan el 20%. Recuerda: la licencia es solo el 10-20% del gasto del primer año; lo que vendes de verdad es tu implantación.</p>
+    <h2 class="section-title" data-pf-slot="clientes-title">Captar clientes para implantar Odoo</h2>
+    <p class="section-desc" data-pf-slot="clientes-desc">El ICP típico de Odoo en España es la pyme (proyecto estándar de 3 a 25 usuarios) con software fragmentado: un programa por área que no se hablan entre sí, dependencia de Excel, cierres contables lentos y, a menudo, un SAP/Sage caro del que usan el 20%. Recuerda: la licencia es solo el 10-20% del gasto del primer año; lo que vendes de verdad es tu implantación.</p>
   </div>
   <div class="grid-2 reveal" style="margin-bottom:18px">
     <div class="callout callout-alert"><h4>Los dolores que disparan la compra</h4><p>Excel por todas partes · stock que nunca cuadra · facturación y contabilidad en herramientas separadas · aprobaciones manuales · software caro tipo SAP/Sage · y un gancho de urgencia real en España: <strong>Verifactu y la factura electrónica B2B obligatoria</strong>. "Ya que tienes que tocar el software, ¿por qué parchear en vez de unificar?"</p></div>
     <div class="callout callout-info"><h4>De-risking: tu expertise es el producto</h4><p>Entre el 55% y el 75% de los proyectos ERP no cumplen objetivos, y la causa suele ser el partner, no la herramienta. Vender bien es vender <em>certeza de ejecución</em>: análisis, migración, formación y acompañamiento post-arranque.</p></div>
   </div>
   <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin-bottom:10px">Cuatro ganchos de primera línea (email / LinkedIn)</h3>
-  <div class="grid-2 reveal">
+  <div class="grid-2 reveal" data-pf-slot="clientes-hooks">
     <div class="note-card"><div class="note-title">Excel / datos fragmentados</div><p style="font-size:13.5px"><em>Asunto: 3 Excel para el mismo stock.</em> "Vi que en [Empresa] lleváis pedidos, almacén y facturación en herramientas separadas. Eso es lo que más horas silenciosas come en una pyme. ¿Te enseño en 20 min cómo tres del sector lo unificaron sin cambiar su forma de trabajar?"</p></div>
     <div class="note-card"><div class="note-title">Software caro tipo SAP/Sage</div><p style="font-size:13.5px">"Trabajo con pymes industriales que pagaban SAP/Sage a precio de multinacional para usar el 20%. La alternativa que implanto cuesta una fracción y hace lo mismo o más. ¿Te paso un caso parecido al vuestro?"</p></div>
     <div class="note-card"><div class="note-title">Cumplimiento fiscal (Verifactu)</div><p style="font-size:13.5px">"Con Verifactu y la factura electrónica B2B a la vuelta de la esquina, muchas pymes de [sector] van a tener que tocar su software sí o sí. La mayoría aprovecha para unificar todo en un sistema. ¿Miramos 15 min si os compensa?"</p></div>
     <div class="note-card"><div class="note-title">Crecimiento / dolor de escala</div><p style="font-size:13.5px">"Vi que estáis contratando en [área]. El salto de 10 a 25 personas es justo cuando el Excel deja de aguantar y aparecen los descuadres. Ayudo a montar el sistema antes de que llegue el caos. ¿Una charla sin compromiso?"</p></div>
   </div>
+  <div data-pf-slot="clientes-practica"></div>
   <div class="callout callout-primary reveal" style="margin-top:16px"><h4>Mercado español, en la práctica</h4><p>El canal ganador es <strong>LinkedIn + teléfono combinados</strong>: calienta al decisor en LinkedIn (comentarios de valor, no likes) antes de llamar. El objetivo de la llamada es <strong>la reunión</strong>, no vender. El boca a boca convierte muchísimo pero no escala: por eso hace falta un motor outbound encima. Las primeras oportunidades cualificadas aparecen en la semana 2-3; el pipeline serio, en el mes 2-3.</p><div class="source">Fuentes: Parada Visual · nocrm.io · tmsystem · Databay (implantación España) · Odoo.com.</div></div>
   <a class="card reveal" href="marketing-partners.html#mod-07" style="margin-top:16px;text-decoration:none;display:flex;gap:16px;align-items:center;border:1px solid rgba(228,110,120,.32);background:rgba(228,110,120,.05)"><div style="flex-shrink:0;width:48px;height:48px;border-radius:13px;background:var(--odoo-learning);display:grid;place-items:center;color:#fff"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg></div><div><div class="tag-pill" style="background:rgba(228,110,120,.14);color:var(--odoo-learning)">Cruza a Marketing</div><h3 style="font-size:16px;color:var(--text-dark);margin:2px 0 3px">Cuando llegan a tu web, que convierta</h3><p style="font-size:13.5px;margin:0">Captar la reunión es la mitad. La otra mitad es que tu <strong>web convierta</strong> y que las <strong>campañas de pago</strong> traigan a los correctos: cursos <strong>Web y conversión</strong> y <strong>Paid Ads</strong> en Marketing. <span style="color:var(--odoo-learning);font-weight:700">Ir a Marketing →</span></p></div></a>
 </section>
@@ -1338,6 +1339,7 @@ window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{se
 })();
 </script>
 
+<script src="personalization.js"></script>
 <script src="profile.js"></script>
 <script src="feedback.js" data-course="outbound-sales"></script>
 </body>
