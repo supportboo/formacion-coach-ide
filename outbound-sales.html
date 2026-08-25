@@ -731,6 +731,15 @@ body{padding-left:66px}
   <p style="margin-top:44px;font-family:'Caveat',cursive;font-size:18px;color:var(--odoo-primary);opacity:0.75">Todo con fuente. Nada inventado. Práctico desde el minuto uno.</p>
 </section>
 
+<!-- PERSONALIZACIÓN POR PERFIL -->
+<section id="tuperfil" style="padding-top:36px;padding-bottom:20px">
+  <div class="callout callout-primary reveal"><h4>Esta formación se adapta a ti</h4><p>Ahora mismo verás ejemplos para captar <strong>{{icp}}</strong> · {{audience}} · {{ticket}}. Cámbialo arriba a la derecha en <strong>«Perfil»</strong> y los mensajes, ejemplos y plantillas se ajustan. El método es el mismo; el contexto, el tuyo.</p></div>
+  <div class="grid-2 reveal" style="margin-top:14px">
+    <div class="note-card" data-when="audience:directa|empresas" data-when-default><span class="pf-adapt">Adaptado a tu perfil</span><div class="note-title" style="margin-top:6px">Tu primer mensaje · buscas cliente</div><p style="font-size:13.5px">«Hola [nombre], vi que en [empresa] lleváis [proceso] a mano. La mayoría de [rol] pierde horas ahí. ¿Te enseño en 15 min cómo lo resuelve alguien parecido a ti?» — el objetivo es una reunión con el <strong>cliente final</strong>.</p></div>
+    <div class="note-card" data-when="audience:partners"><span class="pf-adapt">Adaptado a tu perfil</span><div class="note-title" style="margin-top:6px">Tu primer mensaje · buscas partner</div><p style="font-size:13.5px">«Hola [nombre], trabajáis con [sector]. Muchas empresas como la vuestra suman una línea de ingresos recurrente revendiendo o implantando [solución]. ¿Te paso los números de margen y de leads en 15 min?» — el objetivo es sumar un <strong>partner al canal</strong>.</p></div>
+  </div>
+</section>
+
 <!-- EXPLORA -->
 <section id="explora">
   <div class="reveal">
@@ -1329,6 +1338,7 @@ window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{se
 })();
 </script>
 
+<script src="profile.js"></script>
 <script src="feedback.js" data-course="outbound-sales"></script>
 </body>
 </html>
