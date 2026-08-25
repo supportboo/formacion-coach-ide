@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odoo I+D+E Spain | Formación Outbound Sales · Captación de clientes y partners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --odoo-primary:#714B67; --odoo-secondary:#017E84; --odoo-grey:#8F8F8F;
+  --odoo-learning:#E46E78; --odoo-ready:#21B799; --odoo-silver:#5B899E; --odoo-gold:#E4A900;
+  --bg:#FAFAFA; --bg-white:#FFFFFF; --bg-warm:#F5F0EE;
+  --text-dark:#2D2D2D; --text-body:#4A4A4A; --text-muted:#8F8F8F;
+  --border:#E8E0E5; --border-light:#F0EAEE;
+  --shadow-sm:0 1px 3px rgba(113,75,103,0.06); --shadow-md:0 4px 16px rgba(113,75,103,0.08);
+  --radius:16px; --radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+.hand{font-family:'Caveat',cursive}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:10px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(250,250,250,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-light)}
+.nav-links{display:flex;gap:2px;list-style:none}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:8px;transition:all .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--odoo-primary);background:rgba(113,75,103,0.06)}
+.nav-progress{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--odoo-primary),var(--odoo-secondary));transition:width .15s}
+.logo-lockup{display:flex;flex-direction:column;align-items:center;line-height:1}
+.logo-lockup .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary)}
+.flag{position:relative}
+.flag svg{position:absolute;right:-2px;top:-2px;width:10px;height:7px}
+
+section{max-width:1100px;margin:0 auto;padding:100px 40px 60px}
+.section-tag{font-family:'Caveat',cursive;font-size:52px;font-weight:700;color:var(--odoo-secondary);margin-bottom:4px;line-height:1.1}
+.section-title{font-size:clamp(28px,3.5vw,40px);font-weight:800;color:var(--text-dark);letter-spacing:-0.03em;line-height:1.15;margin-bottom:12px}
+.section-desc{font-size:16px;color:var(--text-body);max-width:640px;line-height:1.7;margin-bottom:48px}
+
+.card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:28px;transition:all .25s;box-shadow:var(--shadow-sm)}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mb{margin-bottom:16px}
+
+.source,.src{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);font-style:italic;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-light);width:100%}
+
+.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:100vh;padding-top:80px}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:900;color:var(--text-dark);letter-spacing:-0.04em;line-height:1.1;margin-bottom:20px}
+.hero h1 .hand-accent{font-family:'Caveat',cursive;color:var(--odoo-secondary);font-size:1.15em}
+.hero .subtitle{font-size:18px;color:var(--text-body);max-width:600px;line-height:1.7;margin-bottom:48px}
+.hero-meta{display:flex;gap:48px}
+.hero-meta-item{text-align:center}
+.hero-meta-item .val{font-size:26px;font-weight:800;letter-spacing:-0.02em}
+.hero-meta-item .lab{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px}
+
+.tag-pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:12px}
+
+.pillar-items{list-style:none;margin-top:12px}
+.pillar-items li{padding:5px 0;font-size:14px;display:flex;align-items:flex-start;gap:8px}
+.pillar-items li::before{content:'→';color:var(--odoo-secondary);font-weight:600;flex-shrink:0}
+
+.callout{border-left:3px solid;padding:16px 20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:14.5px;line-height:1.65}
+.callout h4{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:6px}
+.callout-warm{border-color:var(--odoo-gold);background:rgba(228,169,0,0.06)}
+.callout-info{border-color:var(--odoo-secondary);background:rgba(1,126,132,0.05)}
+.callout-alert{border-color:var(--odoo-learning);background:rgba(228,110,120,0.06)}
+.callout-primary{border-color:var(--odoo-primary);background:rgba(113,75,103,0.05)}
+
+.note-card{background:var(--bg-warm);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:24px}
+.note-card .note-title{font-family:'Caveat',cursive;font-size:26px;font-weight:600;color:var(--odoo-primary);margin-bottom:8px;line-height:1.1}
+
+.impact-card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow-sm);display:flex;gap:20px;align-items:center;transition:all .25s}
+.impact-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.impact-num{flex-shrink:0;text-align:center;min-width:84px}
+.impact-num .v{font-size:44px;font-weight:900;line-height:1;letter-spacing:-0.03em}
+.impact-card h4{font-size:15px;color:var(--text-dark);margin-bottom:4px}
+.impact-card p{font-size:13px;color:var(--text-body);line-height:1.55}
+.impact-card a{font-size:11px;text-decoration:none;margin-top:6px;display:inline-block}
+
+.data-table{width:100%;border-collapse:collapse;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.data-table th,.data-table td{padding:12px 16px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--border-light);vertical-align:top}
+.data-table thead th{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-warm)}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table .highlight{color:var(--odoo-secondary);font-weight:700}
+.data-table tbody th{font-weight:700;color:var(--odoo-primary);white-space:nowrap;font-size:13.5px}
+
+/* PILLAR CARDS */
+.pcard{border-top:3px solid;padding-bottom:20px}
+.pcard .pnum{font-family:'Caveat',cursive;font-size:34px;font-weight:700;line-height:1}
+.pcard h3{font-size:18px;margin:2px 0 6px}
+.pcard p{font-size:14px}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.compare .col{border-radius:var(--radius);padding:24px;border:1px solid var(--border-light)}
+.compare .yes{background:rgba(33,183,153,0.05);border-color:rgba(33,183,153,0.25)}
+.compare .no{background:rgba(228,110,120,0.05);border-color:rgba(228,110,120,0.25)}
+.compare h4{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.compare .yes h4{color:var(--odoo-ready)}
+.compare .no h4{color:var(--odoo-learning)}
+.compare ul{list-style:none}
+.compare li{position:relative;padding-left:22px;margin-bottom:10px;font-size:14px;line-height:1.5}
+.compare .yes li::before{content:'✓';position:absolute;left:0;color:var(--odoo-ready);font-weight:800}
+.compare .no li::before{content:'✕';position:absolute;left:0;color:var(--odoo-learning);font-weight:800}
+
+/* STEPS */
+ol.steps{counter-reset:s;list-style:none;margin-top:8px}
+ol.steps li{position:relative;padding-left:50px;margin-bottom:16px;min-height:34px;font-size:14.5px}
+ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;width:34px;height:34px;border-radius:10px;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-size:20px;font-weight:700;display:grid;place-items:center}
+ol.steps li strong{display:block;color:var(--text-dark);margin-bottom:1px}
+
+/* QUESTION BANK */
+.qbank{columns:2;column-gap:28px}
+.qgroup{break-inside:avoid;margin-bottom:20px}
+.qgroup h4{font-family:'Caveat',cursive;font-size:22px;font-weight:600;color:var(--odoo-primary);margin-bottom:6px}
+.qgroup ol{margin:0;padding-left:20px}
+.qgroup li{margin-bottom:6px;font-size:14.5px;line-height:1.45}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:36px;margin-top:8px}
+.timeline::before{content:'';position:absolute;left:13px;top:6px;bottom:6px;width:2px;background:linear-gradient(to bottom,var(--odoo-silver),var(--odoo-secondary),var(--odoo-learning),var(--odoo-gold),var(--odoo-ready),var(--odoo-primary))}
+.tl-item{position:relative;margin-bottom:20px;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);padding:20px 22px}
+.tl-item::before{content:'';position:absolute;left:-30px;top:22px;width:14px;height:14px;border-radius:50%;border:3px solid;background:var(--bg)}
+.tl-item.hot{border-color:rgba(228,110,120,0.35);background:rgba(228,110,120,0.05)}
+.tl-when{font-family:'Caveat',cursive;font-size:20px;font-weight:600;line-height:1;margin-bottom:4px}
+.tl-item h4{font-size:16px;font-weight:700;color:var(--text-dark);margin-bottom:8px}
+.tl-item .row{font-size:13.5px;margin-bottom:5px;line-height:1.5}
+.tl-item .row b{color:var(--text-dark)}
+.tl-item .alert{font-size:12.5px;color:var(--odoo-learning);font-weight:600;margin-top:6px}
+
+/* FICHA / TEMPLATE */
+.ficha{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow-sm)}
+.ficha h3{font-size:18px;color:var(--text-dark);margin-bottom:2px}
+.ficha .fmeta{font-size:12.5px;color:var(--text-muted);margin-bottom:18px}
+.fline{border-bottom:1px dashed var(--border-light);padding:10px 0;display:flex;gap:14px;align-items:baseline}
+.fline .fl-label{font-weight:700;min-width:160px;color:var(--odoo-primary);font-size:13.5px}
+.fline .fl-fill{flex:1;color:var(--text-muted);font-size:13.5px}
+.fbox{border:1px solid var(--border-light);border-radius:10px;padding:16px 18px;background:var(--bg-warm);font-size:14px;line-height:1.6;color:var(--text-dark)}
+.check{display:flex;align-items:baseline;gap:10px;padding:8px 0;font-size:13.5px;color:var(--text-dark)}
+.check .box{width:16px;height:16px;border:2px solid var(--odoo-secondary);border-radius:4px;flex-shrink:0}
+
+/* CHEAT */
+.cheat{background:var(--odoo-primary);color:#fff;border-radius:20px;padding:44px}
+.cheat .section-tag{color:#Ebc9dd}
+.cheat .section-title{color:#fff}
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 34px;margin-top:8px}
+.cheat .ci{border-top:1px solid rgba(255,255,255,0.2);padding-top:12px}
+.cheat .ci b{display:block;font-family:'Caveat',cursive;font-size:22px;font-weight:600;margin-bottom:1px;color:#fff}
+.cheat .ci span{font-size:14px;color:rgba(255,255,255,0.85)}
+
+.cta-box{background:var(--bg-white);border:2px solid var(--odoo-primary);border-radius:20px;padding:48px;text-align:center;box-shadow:0 8px 32px rgba(113,75,103,0.1)}
+.cta-box .hand{font-size:34px;color:var(--odoo-primary);margin-bottom:10px}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .5s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+.printbtn{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;background:var(--odoo-primary);border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 24px rgba(113,75,103,0.3);transition:all .3s}
+.printbtn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(113,75,103,0.4);background:var(--odoo-secondary)}
+
+footer{text-align:left;max-width:1100px;margin:0 auto;padding:40px;font-size:13px;color:var(--text-muted);border-top:1px solid var(--border-light)}
+footer h3{font-size:20px;color:var(--text-dark);margin-bottom:6px}
+footer .bib{columns:2;column-gap:32px;margin-top:16px}
+footer .bib p{break-inside:avoid;margin-bottom:10px;font-size:13px;line-height:1.5}
+
+/* PERFIL / VISUALES */
+.viz{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.viz svg{max-width:100%;height:auto}
+.viz-cap{font-size:12px;color:var(--text-muted);margin-top:14px;text-align:center;max-width:320px}
+.quad2{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.quad2 .q{border-radius:var(--radius-sm);padding:16px;color:#fff}
+.quad2 .q b{display:block;font-family:'Caveat',cursive;font-size:23px;line-height:1;margin-bottom:3px}
+.quad2 .q span{font-size:12.5px;line-height:1.45;opacity:.96}
+.johari .q{background:var(--bg-warm);color:var(--text-dark);border:1px solid var(--border)}
+.johari .q.open{background:rgba(1,126,132,0.10);border-color:rgba(1,126,132,0.35)}
+.johari .q b{color:var(--odoo-primary)}
+.zones-wrap{width:300px;height:300px;position:relative;margin:0 auto}
+.zone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:flex-start;justify-content:center;text-align:center;font-weight:700}
+.z1{width:300px;height:300px;background:rgba(228,110,120,0.14);border:2px solid var(--odoo-learning);color:var(--odoo-learning);padding-top:12px;font-size:12px}
+.z2{width:210px;height:210px;background:rgba(228,169,0,0.16);border:2px solid var(--odoo-gold);color:#9a6a12;padding-top:14px;font-size:12px}
+.z3{width:120px;height:120px;background:rgba(33,183,153,0.20);border:2px solid var(--odoo-ready);color:#127d63;align-items:center;padding:0;font-size:12px}
+.emo-wheel{width:250px;height:250px;border-radius:50%;position:relative;margin:0 auto;box-shadow:var(--shadow-sm);background:conic-gradient(#E4A900 0deg 45deg,#8FBF3F 45deg 90deg,#21B799 90deg 135deg,#5B899E 135deg 180deg,#5A6BC4 180deg 225deg,#9B6BC4 225deg 270deg,#E46E78 270deg 315deg,#E39A3F 315deg 360deg)}
+.emo-c{position:absolute;inset:30%;background:var(--bg-white);border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-primary);font-size:19px;line-height:1.05;box-shadow:var(--shadow-sm)}
+.emo-lbl{position:absolute;left:50%;top:50%;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);white-space:nowrap;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-98px) rotate(calc(-1 * var(--a)))}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:flex;flex-direction:column;background:var(--bg-white);border:1px solid var(--border-light);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow-sm);flex:1;min-width:200px}
+.chip b{font-size:14px;color:var(--text-dark)}
+.chip span{font-size:12.5px;color:var(--text-muted);margin-top:3px;line-height:1.45}
+.gfx{height:62px;margin:2px 0 12px;display:flex;align-items:center;justify-content:center;background:var(--bg-warm);border-radius:10px;padding:4px}
+.gfx svg{height:100%;width:auto;max-width:100%}
+a.src{text-decoration:none;transition:color .2s,border-color .2s}
+a.src:hover{color:var(--odoo-primary);border-top-color:var(--odoo-primary)}
+
+/* ==== PLATAFORMA (registro · recursos · vídeo · dashboard) ==== */
+body.locked{overflow:hidden}
+.reg-overlay{position:fixed;inset:0;z-index:2000;background:rgba(45,45,45,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+.reg-overlay.hide{display:none}
+.reg-box{background:var(--bg-white);border-radius:20px;max-width:440px;width:100%;padding:36px 32px;box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
+/* Portada Brandooers en el login */
+.reg-landing{padding:0;display:block;overflow-y:auto;background:linear-gradient(115deg,rgba(18,8,28,.94) 0%,rgba(46,18,66,.80) 45%,rgba(76,29,149,.55) 100%),url('assets/char-hero.jpg');background-size:cover;background-position:center;backdrop-filter:none}
+.landing-hero{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;max-width:1180px;margin:0 auto;padding:56px 40px}
+.landing-copy{color:#fff}
+.landing-copy .brandooers-logo{color:#fff;font-size:30px}
+.landing-copy .brandooers-logo .beyes{filter:drop-shadow(0 4px 16px rgba(139,92,246,.6))}
+.landing-kicker{display:inline-block;margin:22px 0 12px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#E7B6FF}
+.landing-h1{font-size:clamp(30px,3.6vw,46px);font-weight:900;line-height:1.08;color:#fff;letter-spacing:-.02em;margin:0}
+.landing-h1 .grad{background:linear-gradient(100deg,#c4b5fd,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.landing-p{font-size:16px;line-height:1.7;color:rgba(255,255,255,.86);margin:18px 0 22px;max-width:560px}
+.landing-points{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px}
+.landing-points li{position:relative;padding-left:28px;font-size:14.5px;color:rgba(255,255,255,.92);line-height:1.5}
+.landing-points li::before{content:"";position:absolute;left:0;top:5px;width:15px;height:15px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#22d3ee);box-shadow:0 0 12px rgba(139,92,246,.6)}
+.landing-form{background:rgba(255,255,255,.98);border-radius:20px;padding:30px 28px;box-shadow:0 24px 80px rgba(0,0,0,.45);align-self:center}
+.landing-form h2{color:var(--text-dark);text-align:center;font-size:22px}
+.landing-form .rsub{font-size:13px;color:var(--text-muted);margin:6px 0 16px;text-align:center}
+.landing-form input[type=text],.landing-form input[type=email]{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;margin-bottom:10px;box-sizing:border-box}
+.landing-form input:focus{outline:none;border-color:var(--odoo-primary)}
+.landing-form button{width:100%;background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px}
+.landing-form button:hover{background:#5d3d55}
+@media(max-width:820px){.landing-hero{grid-template-columns:1fr;padding:40px 22px 60px;gap:26px}.landing-h1{font-size:30px}}
+/* Presentación cinematográfica (portada persuasiva) */
+.reg-landing{padding:0}
+.reg-landing .cine-logo{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:6;color:#fff;font-size:24px;white-space:nowrap;filter:drop-shadow(0 3px 12px rgba(139,92,246,.5))}
+.cine-track{position:relative;width:100%;height:700vh}
+.cine-stage{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center;padding:78px 24px 88px;text-align:center;overflow:hidden}
+.cine-scenes{position:relative;width:100%;max-width:720px;min-height:300px;display:grid;place-items:center}
+.cine-scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;transform:translateY(28px) scale(.98);transition:opacity .55s ease,transform .55s ease;pointer-events:none}
+.cine-scene.active{opacity:1;transform:none;pointer-events:auto}
+.cine-scene .cs-kick{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#E7B6FF}
+.cine-scene h1{font-size:clamp(30px,5.4vw,52px);font-weight:900;line-height:1.07;color:#fff;letter-spacing:-.02em;margin:0}
+.cine-scene h1 .grad,.cs-kick .grad{background:linear-gradient(100deg,#c4b5fd,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.cine-scene p{font-size:clamp(15px,2.3vw,19px);line-height:1.6;color:rgba(255,255,255,.9);max-width:560px;margin:0}
+.cine-final{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:70px 24px}
+.cine-final-h{color:#fff;font-family:'Caveat',cursive;font-size:clamp(40px,8vw,60px);line-height:1;margin-bottom:14px}
+.cine-final .landing-form{max-width:400px;width:100%;text-align:left}
+.cine-dots{position:fixed;right:15px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;gap:9px}
+.cine-dots button{width:9px;height:9px;border-radius:50%;border:none;background:rgba(255,255,255,.4);cursor:pointer;padding:0;transition:all .2s}
+.cine-dots button.on{background:#fff;transform:scale(1.35)}
+.cine-skip{position:fixed;bottom:16px;left:50%;z-index:6;color:#fff;font-weight:700;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:100px;padding:9px 18px;background:rgba(0,0,0,.22);animation:cineBob 2s ease-in-out infinite}
+@keyframes cineBob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,5px)}}
+.cine-back{position:fixed;top:13px;right:13px;z-index:7;color:#fff;font-weight:700;font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:10px;padding:9px 15px;background:rgba(0,0,0,.3)}
+/* Impacto: títulos grandes, aparición de palabras, subtítulo marcado, variedad de transiciones, colores Brandooers */
+.cine-scene h1{font-size:clamp(34px,7.6vw,70px)!important;line-height:1.03!important;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.cine-scene h1 .w{display:inline-block;opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s ease}
+.cine-scene.active h1 .w{opacity:1;transform:none;transition-delay:calc(var(--i,0) * .06s)}
+.cine-scene .hl{color:#fff;padding:0 .12em;border-radius:.14em;background:linear-gradient(100deg,#8b5cf6,#22d3ee);background-repeat:no-repeat;background-size:0% 100%;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-size .55s cubic-bezier(.6,0,.2,1);-webkit-text-fill-color:#fff}
+.cine-scene.active .hl{background-size:100% 100%;transition-delay:calc((var(--i,0) * .06s) + .3s)}
+.cine-scene{transition:opacity .6s ease,transform .6s ease,filter .6s ease}
+.cine-scene[data-anim=up]{transform:translateY(48px) scale(.98)}
+.cine-scene[data-anim=left]{transform:translateX(-56px)}
+.cine-scene[data-anim=right]{transform:translateX(56px)}
+.cine-scene[data-anim=zoom]{transform:scale(.82)}
+.cine-scene[data-anim=blur]{transform:scale(1.05);filter:blur(9px)}
+.cine-scene.active{transform:none;filter:none}
+.landing-form button{background:linear-gradient(100deg,#8b5cf6,#22d3ee)!important;transition:filter .2s}
+.landing-form button:hover{filter:brightness(1.08)}
+.landing-form input:focus{border-color:#8b5cf6!important}
+.cine-skip{border-color:rgba(196,181,253,.7)!important;background:rgba(139,92,246,.28)!important}
+.cine-dots button.on{background:linear-gradient(135deg,#c4b5fd,#22d3ee)!important}
+/* Efectos por letra (variedad por escena) */
+.cine-scene h1 .wd{display:inline-block;white-space:nowrap}
+.cine-scene h1 .l{display:inline-block;opacity:0;transition:opacity .42s ease,transform .42s ease,filter .42s ease;transition-delay:calc(var(--i,0) * .028s)}
+.cine-scene[data-lfx=up] h1 .l{transform:translateY(20px)}
+.cine-scene[data-lfx=drop] h1 .l{transform:translateY(-26px)}
+.cine-scene[data-lfx=pop] h1 .l{transform:scale(.2)}
+.cine-scene[data-lfx=blur] h1 .l{filter:blur(7px);transform:scale(1.35)}
+.cine-scene[data-lfx=flip] h1 .l{transform:rotateX(90deg);transform-origin:bottom}
+.cine-scene.active h1 .l{opacity:1;transform:none;filter:none}
+.cine-scene.active .hl{transition-delay:.55s}
+/* Escena pizarra: ojos vivos + gráfica dibujada + bocadillo */
+.cine-scene.board{text-align:left;align-items:stretch}
+.wb{display:flex;flex-direction:column;gap:20px;width:100%;max-width:640px;margin:0 auto}
+.wb-board{position:relative;background:#faf7f2;border-radius:18px;padding:18px 18px 14px;box-shadow:0 20px 60px rgba(0,0,0,.4);border:1px solid rgba(0,0,0,.06)}
+.wb-graph{width:100%;height:auto;display:block}
+.wb-axis{fill:none;stroke:#3a2a45;stroke-width:2.4;stroke-linecap:round}
+.wb-grid{fill:none;stroke:rgba(58,42,69,.14);stroke-width:1;stroke-dasharray:3 5}
+.wb-line{fill:none;stroke:url(#bo-iris1);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:600;stroke-dashoffset:600}
+.cine-scene.active .wb-line{stroke-dashoffset:0;transition:stroke-dashoffset 1.5s ease .5s}
+.wb-dot{fill:#22d3ee;opacity:0}
+.cine-scene.active .wb-dot{opacity:1;transition:opacity .3s ease 1.9s}
+.wb-lbl{position:absolute;font-family:'Caveat',cursive;font-weight:700}
+.wb-lbl-y{top:12px;left:16px;font-size:16px;color:var(--odoo-primary)}
+.wb-lbl-x{right:16px;bottom:8px;font-size:15px;color:var(--odoo-secondary)}
+.wb-eyes{position:absolute;top:-26px;right:20px;width:62px;height:auto;filter:drop-shadow(0 4px 10px rgba(139,92,246,.45))}
+.wb-bubble{position:absolute;top:-14px;right:90px;max-width:196px;background:#fff;color:#2d2d2d;font-family:'Caveat',cursive;font-weight:600;font-size:16px;line-height:1.15;padding:8px 13px;border-radius:14px;border:1.5px solid var(--odoo-primary);box-shadow:0 6px 18px rgba(0,0,0,.16);opacity:0;transform:translateY(8px) scale(.9)}
+.cine-scene.active .wb-bubble{opacity:1;transform:none;transition:opacity .4s ease 1.9s,transform .45s cubic-bezier(.34,1.56,.64,1) 1.9s}
+.wb-bubble::after{content:"";position:absolute;right:-9px;top:16px;border:7px solid transparent;border-left-color:#fff}
+.wb-text h1{font-size:clamp(26px,5.6vw,44px)!important}
+@media(max-width:600px){.wb-eyes{width:50px;top:-20px;right:14px}.wb-bubble{right:66px;max-width:150px;font-size:14px;top:-10px}}
+/* Avatar vivo que acompaña TODA la presentación */
+.cine-avatar{position:fixed;left:16px;bottom:74px;z-index:6;display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+.cine-av-eyes{width:66px;height:auto;filter:drop-shadow(0 4px 14px rgba(139,92,246,.6));animation:avAlive 4s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+.cine-av-bubble{max-width:210px;background:#fff;color:#2d2d2d;font-family:'Caveat',cursive;font-weight:600;font-size:16px;line-height:1.15;padding:7px 12px;border-radius:14px 14px 14px 4px;box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;transform:translateY(6px)}
+.cine-av-bubble.show{opacity:1;transform:none;transition:opacity .4s ease,transform .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes avAlive{0%,100%{transform:translateY(0) scaleY(1)}45%{transform:translateY(-4px) scaleY(1)}88%{transform:translateY(0) scaleY(1)}92%{transform:translateY(0) scaleY(.14)}96%{transform:translateY(0) scaleY(1)}}
+@media(max-width:600px){.cine-avatar{bottom:70px;left:10px}.cine-av-eyes{width:54px}.cine-av-bubble{max-width:158px;font-size:14px}}
+/* Título a la IZQUIERDA + tablet e-learning a la DERECHA (ojos + bocadillo + imagen por título) */
+.cine-stage{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:42px;max-width:1060px;margin:0 auto}
+.cine-scenes{flex:1;max-width:468px;min-height:300px}
+.cine-scene{align-items:flex-start!important;text-align:left!important}
+.cine-scene .cs-kick,.cine-scene h1,.cine-scene p{text-align:left}
+.cine-tablet{position:relative;flex-shrink:0;width:338px}
+.tab-eyes{position:absolute;top:-30px;left:16px;width:74px;height:auto;z-index:2;filter:drop-shadow(0 5px 14px rgba(139,92,246,.6));animation:avAlive 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.tab-bubble{position:absolute;top:-24px;right:8px;max-width:184px;background:#fff;color:#2d2d2d;font-family:'Caveat',cursive;font-weight:600;font-size:16px;line-height:1.15;padding:7px 12px;border-radius:14px 14px 4px 14px;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(6px);z-index:2}
+.tab-bubble.show{opacity:1;transform:none;transition:opacity .4s ease,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.tablet-frame{background:#15121b;border-radius:26px;padding:14px;box-shadow:0 24px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08)}
+.tablet-screen{background:#f7f3ee;border-radius:16px;aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden;transition:opacity .3s ease}
+.tablet-screen svg{width:82%;height:82%;display:block}
+@media(max-width:960px){.cine-stage{flex-direction:column;gap:24px}.cine-scenes{max-width:100%;min-height:200px;order:2}.cine-tablet{order:1;width:min(300px,78vw);margin:18px auto 0}}
+/* Formulario final más grande y con impacto + frase persuasiva */
+.cine-final-h{font-size:clamp(46px,9vw,74px)!important;margin-bottom:8px!important}
+.cine-final-sub{color:rgba(255,255,255,.92);font-size:clamp(15px,2.2vw,18px);max-width:430px;margin:-2px auto 22px;line-height:1.5}
+.cine-final .landing-form{max-width:470px!important;padding:34px 30px!important;border-radius:22px!important;box-shadow:0 28px 90px rgba(0,0,0,.5),0 0 0 3px rgba(139,92,246,.3)!important}
+.cine-final .landing-form input[type=text],.cine-final .landing-form input[type=email]{padding:14px 15px!important;font-size:15.5px!important;margin-bottom:12px!important;border-radius:12px!important}
+.cine-final .landing-form button{padding:17px!important;font-size:17px!important;border-radius:12px!important;margin-top:10px!important;box-shadow:0 12px 32px rgba(139,92,246,.5)!important}
+.tab-eyes{display:none!important}
+.tablet-screen svg{animation:charBob 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+@keyframes charBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.ev-eye{transform-box:fill-box;transform-origin:center;animation:evBlink 4.4s infinite}
+.ev-eye.e2{animation-delay:.05s}
+@keyframes evBlink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}97%{transform:scaleY(1)}}
+.ev-look{transform-box:fill-box;transform-origin:center;animation:evLook 6.5s ease-in-out infinite}
+@keyframes evLook{0%,100%{transform:translate(0,0)}22%{transform:translate(-3px,0)}48%{transform:translate(3px,-1px)}74%{transform:translate(0,-2px)}}
+/* Guía Brandooers: asesor por voz + texto que navega la app */
+.guide-fab{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:950;display:flex;align-items:center;gap:9px;padding:11px 20px 11px 13px;border-radius:100px;background:linear-gradient(100deg,#8b5cf6,#22d3ee);color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;box-shadow:0 8px 26px rgba(139,92,246,.5)}
+.guide-fab svg{width:30px;height:18px}
+.guide-panel{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;width:calc(100% - 28px);max-width:560px;z-index:951;background:var(--bg-white);border:1px solid var(--border);border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.3);padding:12px;display:none}
+.guide-panel.open{display:block}
+.guide-row{display:flex;gap:8px;align-items:center}
+.guide-eyes{width:36px;height:22px;flex-shrink:0}
+.guide-in{flex:1;min-width:0;border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;box-sizing:border-box}
+.guide-btn{flex-shrink:0;border:none;border-radius:10px;height:42px;font-weight:700;font-size:13px;cursor:pointer}
+.guide-go{background:var(--odoo-primary);color:#fff;padding:0 15px}
+.guide-mic{background:var(--bg-warm);color:var(--odoo-primary);border:1px solid var(--border);width:44px;display:grid;place-items:center}
+.guide-mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c;animation:guiderec 1s infinite}
+@keyframes guiderec{50%{opacity:.5}}
+.guide-x{background:none;color:var(--text-muted);font-size:22px;width:32px}
+.guide-say{font-size:13.5px;color:var(--text-body);margin-top:9px;padding:2px 4px 0;line-height:1.4}
+.guide-say b{color:var(--odoo-primary)}
+.chat-mic{flex-shrink:0;width:40px;align-self:stretch;min-height:40px;border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-secondary);border-radius:10px;cursor:pointer;display:grid;place-items:center}
+.chat-mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c;animation:guiderec 1s infinite}
+.coach-opts{display:flex;flex-wrap:wrap;gap:6px}
+.coach-opts .coach-go{background:var(--odoo-primary);color:#fff;border-color:var(--odoo-primary)}
+.guide-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.guide-chips button{border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-primary);border-radius:100px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.guide-chips button:hover{border-color:var(--odoo-primary);background:rgba(113,75,103,.06)}
+/* Kiosco de conocimiento */
+.kio-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.kio-cart{display:flex;align-items:center;gap:6px;background:var(--odoo-primary);color:#fff;border-radius:100px;padding:7px 13px;font-weight:700;font-size:13px;flex-shrink:0}
+.kio-cats{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.kio-cat{border:1px solid var(--border);background:var(--bg-white)!important;color:var(--text-body)!important;border-radius:100px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.kio-cat.on{background:linear-gradient(100deg,#8b5cf6,#22d3ee)!important;color:#fff!important;border-color:transparent}
+.kio-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.kio-item{border:1px solid var(--border-light);border-radius:14px;padding:15px;background:var(--bg-white);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px}
+.kio-item h4{font-size:14.5px;color:var(--text-dark);margin:0}
+.kio-item p{font-size:12.5px;color:var(--text-body);margin:0;flex:1}
+.kio-acts{display:flex;gap:8px;margin-top:8px}
+.kio-add{border:none;border-radius:9px;padding:9px 12px;font-weight:700;font-size:12.5px;cursor:pointer;background:var(--odoo-primary);color:#fff;flex:1}
+.kio-add.added{background:var(--odoo-ready)}
+.kio-see{border:1px solid var(--border);background:var(--bg-warm)!important;color:var(--odoo-primary)!important;border-radius:9px;padding:9px 13px;font-weight:600;font-size:12.5px;cursor:pointer}
+.kio-add{background:var(--odoo-primary)!important;color:#fff!important}
+.kio-add.added{background:var(--odoo-ready)!important}
+.kio-foot{display:flex;align-items:center;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border-light)}
+.kio-foot button{flex:1;background:linear-gradient(100deg,#8b5cf6,#22d3ee);color:#fff;border:none;border-radius:12px;padding:14px;font-weight:700;font-size:15px;cursor:pointer}
+.kio-quote{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);z-index:2400;background:#15121b;color:#fff;border-radius:14px;padding:14px 18px;max-width:340px;box-shadow:0 16px 50px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;text-align:center}
+.kio-quote.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.kio-quote .q{font-family:'Caveat',cursive;font-size:20px;line-height:1.2}
+.kio-quote .a{font-size:11.5px;color:#c4b5fd;margin-top:4px;font-weight:700}
+@media(max-width:600px){.kio-grid{grid-template-columns:1fr}}
+.cine-final{flex-direction:row!important;gap:48px!important;align-items:center!important;justify-content:center!important;text-align:left!important;max-width:1000px;margin:0 auto}
+.final-col{max-width:480px}
+.cine-final-h,.cine-final-sub{text-align:left}
+.cine-final .landing-form{margin:0!important}
+.final-char{flex-shrink:0;width:210px;height:250px}
+.final-char svg{animation:charBob 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+@media(max-width:860px){.cine-final{flex-direction:column!important;text-align:center!important;gap:22px!important}.final-col{max-width:100%}.cine-final-h,.cine-final-sub{text-align:center}.cine-final .landing-form{margin:0 auto!important}.final-char{order:-1;width:150px;height:180px}}
+/* Móvil: sin desbordes horizontales ni FABs solapados */
+html,body{overflow-x:hidden;max-width:100%}
+#explora{overflow-x:clip}
+@media(max-width:600px){#intFab,#agentFab{display:none}.cine-logo{font-size:20px}.cine-dots{right:9px}.cine-skip{font-size:12px;padding:8px 15px}}
+.reg-box .rlogo{height:38px;margin-bottom:14px}
+.reg-box .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary);font-size:16px;display:block;margin-top:-8px;margin-bottom:16px}
+.reg-box h2{font-size:24px;color:var(--text-dark);margin-bottom:6px}
+.reg-box .rsub{font-size:14px;color:var(--text-body);margin-bottom:20px}
+.reg-box input[type=text],.reg-box input[type=email]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:15px;margin-bottom:12px;outline:none}
+.reg-box input:focus{border-color:var(--odoo-primary)}
+.reg-consent{display:flex;gap:9px;align-items:flex-start;text-align:left;font-size:11.5px;color:var(--text-muted);margin-bottom:18px;line-height:1.5}
+.reg-consent input{width:auto;margin:2px 0 0;flex-shrink:0}
+.reg-box button{width:100%;background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:13px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .2s}
+.reg-box button:hover{background:#5d3e56}
+.reg-box .err{color:var(--odoo-learning);font-size:12px;margin-bottom:10px;min-height:15px;font-weight:600}
+.userchip{position:fixed;bottom:24px;left:24px;z-index:60;background:var(--bg-white);border:1px solid var(--border-light);border-radius:999px;padding:8px 15px;font-size:12.5px;color:var(--text-body);box-shadow:var(--shadow-sm);display:none;align-items:center;gap:8px}
+.userchip .dot{width:8px;height:8px;border-radius:50%;background:var(--odoo-ready)}
+.rsrc-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-light)}
+.rsrc{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:600;border-radius:8px;padding:6px 11px;cursor:pointer;border:1px solid var(--border);background:var(--bg-white);color:var(--text-body);text-decoration:none;transition:all .2s}
+.rsrc:hover{border-color:var(--odoo-primary);color:var(--odoo-primary)}
+.rsrc.play{background:var(--odoo-primary);border-color:var(--odoo-primary);color:#fff}
+.rsrc.play:hover{background:#5d3e56;color:#fff}
+.rsrc.book:hover{border-color:var(--odoo-gold);color:var(--odoo-gold)}
+.vmodal{position:fixed;inset:0;z-index:1500;background:rgba(45,45,45,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.vmodal.open{display:flex}
+.vmodal-box{background:#000;border-radius:16px;width:min(900px,100%);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden}
+.vmodal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;background:var(--bg-white)}
+.vmodal-head h4{font-size:15px;color:var(--text-dark)}
+.vmodal-head .close{background:none;border:none;font-size:26px;color:var(--text-muted);cursor:pointer;line-height:1;padding:0 4px}
+.vmodal-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.vmodal-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.dna-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dna-field label{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--odoo-primary);margin-bottom:6px}
+.dna-field input,.dna-field textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;outline:none;background:var(--bg-white);color:var(--text-dark)}
+.dna-field input:focus,.dna-field textarea:focus{border-color:var(--odoo-primary)}
+.dna-field textarea{min-height:66px;resize:vertical}
+.tierpick{display:flex;gap:6px;flex-wrap:wrap}
+.tierpick label{cursor:pointer}
+.tierpick input{display:none}
+.tierpick span{display:inline-block;padding:7px 15px;border:1px solid var(--border);border-radius:999px;font-size:13px;font-weight:600;color:var(--text-body);transition:all .15s}
+.tierpick input:checked+span{background:var(--odoo-secondary);border-color:var(--odoo-secondary);color:#fff}
+.dna-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.dna-btn{background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer}
+.dna-btn.ghost{background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)}
+.dna-saved{font-size:13px;color:var(--odoo-ready);font-weight:600}
+@media(max-width:800px){.dna-grid{grid-template-columns:1fr}}
+/* Hub de rutas */
+.hub{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.hub-card{display:block;text-decoration:none;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);transition:all .25s;border-top:3px solid var(--c,#714B67)}
+.hub-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.hub-num{font-family:'Caveat',cursive;font-size:32px;font-weight:700;line-height:1;color:var(--c,#714B67)}
+.hub-card h3{font-size:19px;color:var(--text-dark);margin:2px 0 6px}
+.hub-card p{font-size:13.5px;color:var(--text-body);margin:0}
+.hub-card .go{display:inline-block;margin-top:12px;font-size:12.5px;font-weight:700;color:var(--c,#714B67)}
+@media(max-width:800px){.hub{grid-template-columns:1fr}}
+/* Panel de expertos (chat) */
+.agent-fab{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;background:var(--odoo-secondary);border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 24px rgba(1,126,132,.3);transition:all .3s}
+.agent-fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(1,126,132,.4)}
+.agent-overlay{position:fixed;inset:0;background:rgba(45,45,45,.25);z-index:998;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(3px)}
+.agent-overlay.open{opacity:1;pointer-events:auto}
+.agent-panel{position:fixed;right:-470px;top:0;bottom:0;width:450px;max-width:100%;z-index:999;background:var(--bg);border-left:1px solid var(--border);transition:right .35s cubic-bezier(.23,1,.32,1);display:flex;flex-direction:column;box-shadow:-4px 0 32px rgba(0,0,0,.1)}
+.agent-panel.open{right:0}
+.agent-view{display:flex;flex-direction:column;height:100%}
+.agent-ph{padding:16px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--bg-white)}
+.agent-ph h3{font-size:15px;color:var(--text-dark);flex:1}
+.agent-ph .cr{font-size:11.5px;color:var(--text-muted)}
+.agent-ph button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:19px;padding:4px 8px;border-radius:6px}
+.agent-ph button:hover{background:var(--bg-warm);color:var(--text-dark)}
+.agent-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.agent-intro{font-size:12.5px;color:var(--text-muted);padding:4px 6px 10px}
+.agent-card2{display:flex;align-items:center;gap:12px;padding:13px;border-radius:var(--radius-sm);background:var(--bg-white);border:1px solid var(--border-light);cursor:pointer;transition:all .2s}
+.agent-card2:hover{border-color:var(--odoo-secondary);box-shadow:var(--shadow-sm);transform:translateX(3px)}
+.agent-av{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-family:'Caveat',cursive;font-weight:700;font-size:20px;color:#fff;flex-shrink:0}
+.agent-ci{flex:1}.agent-cn{font-size:14px;font-weight:700;color:var(--text-dark)}.agent-cr{font-size:11.5px;color:var(--text-muted)}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.cmsg{display:flex;gap:8px;align-items:flex-start;animation:fadeInUp .3s ease both}
+.cmsg.user{justify-content:flex-end}
+.cbub{padding:10px 14px;border-radius:12px;font-size:13.5px;line-height:1.6;max-width:88%}
+.cbub.a{background:var(--bg-white);border:1px solid var(--border-light);border-top-left-radius:4px;color:var(--text-body)}
+.cbub.user{background:var(--odoo-secondary);color:#fff;border-top-right-radius:4px}
+.chat-sug{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 8px;flex-shrink:0}
+.sug{font-size:11.5px;padding:6px 11px;border-radius:100px;background:transparent;border:1px solid var(--border);color:var(--odoo-secondary);cursor:pointer;font-family:inherit}
+.sug:hover{background:rgba(1,126,132,.06)}
+.chat-in{padding:12px 16px;border-top:1px solid var(--border-light);flex-shrink:0;background:var(--bg-white);display:flex;gap:6px;align-items:flex-end}
+.chat-in textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text-dark);font-family:inherit;font-size:13.5px;resize:none;outline:none;padding:9px 12px;max-height:90px}
+.chat-in button{width:36px;height:36px;border-radius:9px;background:var(--odoo-secondary);border:none;color:#fff;font-size:15px;cursor:pointer;flex-shrink:0}
+.agent-note{font-size:10.5px;color:var(--text-muted);padding:2px 16px 10px;text-align:center}
+@media(max-width:600px){.agent-panel{width:100%;right:-100%}.agent-fab span:last-child{display:none}}
+/* Logo Brandooers (ojos animados) */
+.brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--text-dark);user-select:none}
+.brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
+/* Protección de contenido */
+body{-webkit-user-select:none;-moz-user-select:none;user-select:none}
+input,textarea,.cbub{-webkit-user-select:text;user-select:text}
+img,svg,video{-webkit-user-drag:none}
+@media print{body{visibility:hidden!important}html::after{content:"Contenido protegido · Formación Brandooers para Odoo";position:fixed;top:40px;left:40px;font:600 16px Inter,sans-serif;color:#000;visibility:visible}}
+/* Menú lateral plegable */
+.nav-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#8B5CF6,#EC4899);z-index:60;transition:width .15s}
+.menu-fab{position:fixed;top:16px;left:16px;z-index:70;width:46px;height:46px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:grid;place-items:center}
+.menu-fab svg{width:22px;height:22px;stroke:var(--text-dark);fill:none;stroke-width:2;stroke-linecap:round}
+.sidenav-ov{position:fixed;inset:0;background:rgba(45,45,45,.35);z-index:80;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(3px)}
+.sidenav-ov.open{opacity:1;pointer-events:auto}
+.sidenav{position:fixed;top:0;left:0;bottom:0;width:290px;max-width:85%;z-index:85;background:var(--bg-white);border-right:1px solid var(--border);transform:translateX(-102%);transition:transform .35s cubic-bezier(.23,1,.32,1);display:flex;flex-direction:column;box-shadow:4px 0 32px rgba(0,0,0,.08)}
+.sidenav.open{transform:none}
+.sidenav-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 16px 12px;border-bottom:1px solid var(--border-light)}
+.sn-close{background:none;border:none;font-size:22px;color:var(--text-muted);cursor:pointer;line-height:1}
+.sidenav .nav-links{display:flex;flex-direction:column;gap:2px;padding:12px;overflow-y:auto;flex:1;list-style:none;margin:0}
+.sidenav .nav-links li{margin:0}
+.sidenav .nav-links a{display:block;padding:11px 14px;border-radius:10px;color:var(--text-body);font-size:14.5px;font-weight:500;text-decoration:none;background:none}
+.sidenav .nav-links a:hover,.sidenav .nav-links a.active{background:var(--bg-warm);color:var(--odoo-primary)}
+.sidenav-foot{padding:12px 16px;border-top:1px solid var(--border-light);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+/* Slider storytelling */
+.story{position:relative;overflow:hidden;border-radius:22px;box-shadow:var(--shadow-md)}
+.story-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.story-slide{min-width:100%;box-sizing:border-box;padding:52px 48px 66px;color:#fff;min-height:330px;display:flex;flex-direction:column;justify-content:center}
+.story-slide .ch{font-family:'Caveat',cursive;font-size:24px;font-weight:700;opacity:.92;margin-bottom:4px}
+.story-slide h3{font-size:clamp(26px,4.2vw,42px);font-weight:800;line-height:1.1;margin:0 0 14px;max-width:16ch;color:#fff}
+.story-slide p{font-size:16.5px;line-height:1.6;max-width:52ch;margin:0 0 22px;opacity:.95;color:#fff}
+.story-slide .more{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);color:#fff;text-decoration:none;padding:11px 20px;border-radius:100px;font-weight:600;font-size:14px;width:max-content;transition:all .2s}
+.story-slide .more:hover{background:#fff;color:#2D2D2D}
+.story-nav{position:absolute;bottom:22px;right:24px;display:flex;gap:8px;z-index:2}
+.story-nav button{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.14);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.story-nav button:hover{background:#fff;color:#2D2D2D}
+.story-dots{position:absolute;bottom:32px;left:48px;display:flex;gap:7px;z-index:2}
+.story-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:all .25s}
+.story-dots i.on{background:#fff;width:22px;border-radius:5px}
+@media(max-width:700px){.story-slide{padding:38px 24px 60px;min-height:auto}.story-dots{left:24px}}
+/* Panel Mis intereses */
+.icard{background:var(--bg-white);border:1px solid var(--border-light);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow-sm)}
+.icard .ic-t{font-size:13.5px;color:var(--text-dark);font-weight:600;margin-bottom:8px;line-height:1.4}
+.int-grp{font-family:'Caveat',cursive;font-size:20px;font-weight:600;color:var(--odoo-primary);margin:12px 4px 8px}
+.int-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 2px}
+.int-chip{font-size:11.5px;background:var(--bg-warm);border:1px solid var(--border);border-radius:100px;padding:4px 10px;color:var(--text-body)}
+.dna-cta{display:inline-block;background:#fff;color:#4C1D95;text-decoration:none;padding:14px 30px;border-radius:100px;font-weight:700;font-size:16px;box-shadow:0 8px 26px rgba(0,0,0,.22);transition:transform .2s}
+.dna-cta:hover{transform:translateY(-2px)}
+/* Rail de iconos lateral */
+.rail{position:fixed;top:0;left:0;bottom:0;z-index:70;width:66px;background:var(--bg-white);border-right:1px solid var(--border-light);display:flex;flex-direction:column;padding:6px 0 10px;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:1px 0 14px rgba(0,0,0,.04)}
+.rail:hover,.rail.open{width:242px}
+.rail-top{display:flex;align-items:center;min-height:46px;padding:8px 16px 8px 19px;overflow:hidden}
+.rail-top .brandooers-logo{opacity:0;transition:opacity .2s;white-space:nowrap}
+.rail:hover .rail-top .brandooers-logo,.rail.open .rail-top .brandooers-logo{opacity:1}
+.rail-items{display:flex;flex-direction:column;gap:2px;padding:6px 10px;flex:1;overflow-y:auto;overflow-x:hidden}
+.rail-item{display:flex;align-items:center;gap:15px;padding:10px 12px;border-radius:11px;color:var(--text-body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.rail-item:hover{background:var(--bg-warm)}
+.rail-item.active{background:rgba(113,75,103,.08);color:var(--odoo-primary)}
+.rail-item .ri-ic{flex-shrink:0;width:22px;height:22px;display:grid;place-items:center}
+.rail-item .ri-ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail-item .ri-lb{font-size:14px;font-weight:500;opacity:0;transition:opacity .18s}
+.rail:hover .rail-item .ri-lb,.rail.open .rail-item .ri-lb{opacity:1}
+.rail-item.gold{color:var(--odoo-gold)}
+.rail-item.teal{color:var(--odoo-secondary)}
+.rail-sub{display:flex;flex-direction:column;gap:1px;margin:1px 0 5px}
+.rail-step{display:flex;align-items:center;gap:15px;padding:5px 12px;border-radius:10px;color:var(--text-muted);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.rail-step:hover{background:var(--bg-warm)}
+.rail-step .rs-num{flex-shrink:0;width:22px;display:grid;place-items:center}
+.rail-step .rs-num b{width:20px;height:20px;border-radius:50%;background:rgba(228,169,0,.16);color:var(--odoo-gold);font-size:11px;font-weight:700;display:grid;place-items:center;transition:all .15s}
+.rail-step:hover .rs-num b,.rail-step.active .rs-num b{background:var(--odoo-gold);color:#fff}
+.rail-step .rs-lb{font-size:12.5px;font-weight:500;opacity:0;transition:opacity .18s}
+.rail-step .rs-lb b{font-weight:700;color:var(--odoo-gold)}
+.rail:hover .rail-step .rs-lb,.rail.open .rail-step .rs-lb{opacity:1}
+.rail-sep{height:1px;background:var(--border-light);margin:8px 10px}
+.rail-burger{position:fixed;top:14px;left:12px;z-index:75;width:44px;height:44px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:none;place-items:center}
+.rail-burger svg{width:22px;height:22px;stroke:var(--text-dark)}
+.rail-ov{position:fixed;inset:0;background:rgba(45,45,45,.3);z-index:69;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
+.rail-ov.open{opacity:1;pointer-events:auto}
+body{padding-left:66px}
+@media(max-width:900px){body{padding-left:0}.rail{width:242px;display:none}.rail.open{display:flex}.rail-burger{display:grid}}
+/* Onboarding y ruta a medida */
+.ob-q{margin-bottom:16px}
+.ob-q h4{font-size:13px;font-weight:700;color:var(--odoo-primary);margin-bottom:8px}
+.ob-opts{display:flex;flex-direction:column;gap:6px}
+.ob-opts label{display:block;cursor:pointer}
+.ob-opts input{display:none}
+.ob-opts span{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:10px;font-size:13.5px;color:var(--text-body);transition:all .15s}
+.ob-opts input:checked+span{background:rgba(113,75,103,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
+.ob-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ob-chips label{cursor:pointer}
+.ob-chips input{display:none}
+.ob-chips span{display:inline-block;padding:7px 12px;border:1px solid var(--border);border-radius:100px;font-size:12.5px;color:var(--text-body);transition:all .15s}
+.ob-chips input:checked+span{background:rgba(113,75,103,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
+.ob-ta{width:100%;border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:13.5px;font-family:inherit;color:var(--text-dark);resize:vertical;min-height:52px;margin-top:8px;box-sizing:border-box}
+.ob-ta:focus{outline:none;border-color:var(--odoo-primary)}
+.prof-blk{margin-bottom:14px;border-bottom:1px dashed var(--border-light);padding-bottom:12px}
+.prof-blk h4{font-size:13px;font-weight:700;color:var(--odoo-primary);margin-bottom:6px}
+.prof-blk p{font-size:13.5px;color:var(--text-body);margin:6px 0 0;white-space:pre-wrap}
+.prof-tags{display:flex;flex-wrap:wrap;gap:5px}
+.prof-tag{display:inline-block;padding:3px 10px;border-radius:100px;background:rgba(113,75,103,.08);color:var(--odoo-primary);font-size:12px;font-weight:600}
+.inv-row{display:flex;gap:8px;margin-bottom:8px}
+.inv-row input{flex:1;min-width:0;border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box}
+.inv-add{background:var(--odoo-primary);color:#fff;border:none;border-radius:9px;padding:0 16px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap}
+.inv-card{border:1px solid var(--border-light);border-radius:12px;padding:12px;margin-bottom:8px;background:var(--bg-white)}
+.inv-card .icn{font-size:14px;font-weight:700;color:var(--text-dark)}
+.inv-card .ice{font-size:12px;color:var(--text-muted);margin-bottom:4px}
+.inv-card .ich{font-size:12px;color:var(--text-body);margin:2px 0 8px}
+.inv-acts{display:flex;gap:6px;flex-wrap:wrap}
+.inv-acts button,.inv-acts a{font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-primary);cursor:pointer;text-decoration:none}
+.inv-acts .del{color:var(--text-muted);border-color:var(--border-light)}
+.inv-empty{font-size:12.5px;color:var(--text-muted);padding:6px 2px}
+/* Progreso / gamificación */
+.prog-rank{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--odoo-primary)}
+.prog-av{width:92px;height:92px;margin:8px auto 6px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:38px;background:radial-gradient(circle at 50% 38%,#8b5cf6,#4c1d95);box-shadow:0 0 0 4px rgba(139,92,246,.18),0 10px 30px rgba(139,92,246,.4)}
+.prog-av.lv2{background:radial-gradient(circle at 50% 38%,#22d3ee,#0e7490);box-shadow:0 0 0 4px rgba(34,211,238,.18),0 10px 30px rgba(34,211,238,.45)}
+.prog-av.lv3{background:radial-gradient(circle at 50% 38%,#21B799,#017E84);box-shadow:0 0 0 4px rgba(33,183,153,.18),0 10px 30px rgba(33,183,153,.45)}
+.prog-av.lv4{background:radial-gradient(circle at 50% 38%,#E4A900,#a97e00);box-shadow:0 0 0 4px rgba(228,169,0,.2),0 10px 30px rgba(228,169,0,.45)}
+.prog-av.lv5{background:radial-gradient(circle at 50% 38%,#E46E78,#8b1e3f);box-shadow:0 0 0 5px rgba(228,110,120,.24),0 12px 42px rgba(228,110,120,.5)}
+.prog-name{font-family:'Caveat',cursive;font-size:30px;color:var(--text-dark);line-height:1.05}
+.prog-pts{font-size:13px;color:var(--text-muted);margin:2px 0 12px}
+.prog-bar{height:10px;border-radius:6px;background:var(--bg-warm);overflow:hidden;margin:0 auto}
+.prog-bar>i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#8b5cf6,#22d3ee);transition:width .5s}
+.prog-next{font-size:11.5px;color:var(--text-muted);margin:6px 0 16px}
+.badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:6px 0 4px}
+.badge{width:76px;text-align:center;font-size:10px;color:var(--text-body);line-height:1.2}
+.badge .bi{width:46px;height:46px;margin:0 auto 4px;border-radius:14px;display:grid;place-items:center;background:var(--bg-warm);border:1px solid var(--border-light)}
+.badge.on .bi{background:linear-gradient(135deg,rgba(228,169,0,.18),rgba(113,75,103,.1));border-color:var(--odoo-gold)}
+.badge.off{opacity:.42}
+.prog-how{text-align:left;background:var(--bg-warm);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--text-body);margin-top:16px;line-height:1.55}
+.prog-how b{color:var(--text-dark)}
+.quiz-q{margin-bottom:16px}
+.quiz-q h4{font-size:13.5px;color:var(--text-dark);margin-bottom:8px}
+/* Pop-ups graciosos + celebración */
+.fun-ov{position:fixed;inset:0;z-index:2200;background:rgba(30,15,45,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:24px}
+.fun-ov.show{display:flex}
+.fun-box{background:#fff;border-radius:22px;padding:28px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.fun-box svg{width:120px;height:auto;margin:0 auto 8px;display:block}
+.fun-box.oops{animation:funShake .5s}
+.fun-box.yay{animation:funPopIn .5s}
+@keyframes funShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes funPopIn{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.fun-box h3{font-family:'Caveat',cursive;font-size:32px;color:var(--text-dark);margin-bottom:4px;line-height:1}
+.fun-box p{font-size:13.5px;color:var(--text-body);margin-bottom:16px}
+.fun-box button{background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-weight:700;font-size:13.5px;cursor:pointer}
+.cel-ov{position:fixed;inset:0;z-index:2300;display:none;align-items:center;justify-content:center;padding:24px;overflow:hidden;background:rgba(30,15,45,.6);backdrop-filter:blur(4px)}
+.cel-ov.show{display:flex}
+.cel-box{position:relative;text-align:center;z-index:2;animation:funPopIn .6s}
+.cel-box h2{color:#fff;font-family:'Caveat',cursive;font-size:40px;margin-top:6px}
+.cel-box p{color:rgba(255,255,255,.85);font-size:14px;margin-top:2px}
+.cel-box button{margin-top:18px;background:#fff;color:var(--odoo-primary);border:none;border-radius:10px;padding:11px 22px;font-weight:700;cursor:pointer}
+.confetti{position:fixed;top:-16px;width:9px;height:14px;z-index:2301;pointer-events:none;border-radius:2px;animation:confFall linear forwards}
+@keyframes confFall{to{transform:translateY(106vh) rotate(720deg);opacity:.9}}
+.tree{margin-top:6px}
+.tree-me{display:inline-block;background:var(--odoo-primary);color:#fff;font-weight:700;font-size:13px;padding:6px 14px;border-radius:100px}
+.tree-kids{display:flex;flex-direction:column;gap:6px;margin:8px 0 0 16px;border-left:2px solid var(--border);padding-left:14px}
+.tree-kid{background:var(--bg-warm);border:1px solid var(--border-light);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--text-dark)}
+.tree-kid .tk-t{display:block;font-size:11.5px;color:var(--odoo-primary);margin-top:2px}
+.route-step{display:flex;gap:14px;align-items:flex-start;background:var(--bg-white);border:1px solid var(--border-light);border-radius:14px;padding:15px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.route-step .rs-n{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:19px;display:grid;place-items:center}
+.route-step h4{font-size:15px;color:var(--text-dark);margin:0 0 3px}
+.route-step p{font-size:13px;color:var(--text-body);margin:0 0 8px}
+.route-step .rs-go{font-size:12.5px;font-weight:700;color:var(--odoo-primary);text-decoration:none;cursor:pointer}
+/* Previews de vídeo y libro */
+.rsrc-media{display:flex;gap:12px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-light);align-items:flex-start}
+.vthumb{position:relative;flex:1;min-width:0;border:none;padding:0;background:#000;cursor:pointer;border-radius:9px;overflow:hidden;aspect-ratio:16/9;box-shadow:var(--shadow-sm)}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.94;transition:opacity .2s,transform .3s}
+.vthumb:hover img{opacity:1;transform:scale(1.04)}
+.vthumb .vplay-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.5);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.vthumb::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-38%,-50%);border-style:solid;border-width:8px 0 8px 14px;border-color:transparent transparent transparent #fff;pointer-events:none}
+.bthumb{flex-shrink:0;width:62px;display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none}
+.bcover{width:60px;height:88px;border-radius:5px;background:var(--bg-warm) center/cover no-repeat;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:block}
+.blabel{font-size:10px;font-weight:700;color:var(--odoo-gold);text-align:center;line-height:1.15}
+@media(max-width:500px){.rsrc-media{flex-direction:column}.bthumb{flex-direction:row;width:auto;gap:8px}.bcover{width:44px;height:64px}}
+
+@media(max-width:800px){
+  section{padding:80px 20px 40px}
+  .grid-3,.grid-4,.grid-2,.compare,.cheat-grid{grid-template-columns:1fr}
+  .qbank{columns:1}
+  .hero-meta{flex-direction:column;gap:16px}
+  .nav-links{display:none}
+  .section-tag{font-size:36px}
+  footer .bib{columns:1}
+}
+
+@media print{
+  nav,.printbtn{display:none}
+  body{background:#fff}
+  section{padding:24px 40px;break-inside:avoid;min-height:auto}
+  .hero{min-height:auto;padding:20px 40px}
+  .reveal{opacity:1;transform:none}
+  .card,.impact-card,.tl-item,.ficha,.data-table{box-shadow:none}
+  .cheat{background:#fff;color:var(--text-dark);border:2px solid var(--odoo-primary)}
+  .cheat .section-title,.cheat .ci b{color:var(--text-dark)}
+  .cheat .ci span{color:var(--text-muted)}
+  a{color:var(--text-dark)}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- REGISTRO -->
+<div class="reg-overlay" id="regOverlay">
+  <div class="reg-box">
+    <span class="brandooers-logo" style="font-size:24px;justify-content:center;margin-bottom:2px">Brand<svg class="beyes" width="46" height="27" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+    <span class="ide">Investigación y desarrollo de expertos · para Odooers</span>
+    <h2>Formación · Outbound Sales</h2>
+    <p class="rsub">Captar clientes y captar partners, con método. Pon tu nombre y tu email de Odoo para llevar tu progreso.</p>
+    <form id="regForm">
+      <div class="err" id="regErr"></div>
+      <input id="regName" type="text" placeholder="Tu nombre" autocomplete="name">
+      <input id="regMail" type="email" placeholder="Tu email de Odoo" autocomplete="email">
+      <label class="reg-consent"><input type="checkbox" id="regConsent"><span>Acepto que se registren mi nombre, email y actividad formativa (vídeos y secciones vistas) con fines internos de seguimiento del equipo. No se comparte con terceros.</span></label>
+      <button type="submit">Entrar a la formación</button>
+    </form>
+  </div>
+</div>
+
+<!-- SVG defs (gradientes del logo) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-brow1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient>
+<linearGradient id="bo-brow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+<radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+</defs></svg>
+
+<div class="nav-progress" id="navProgress"></div>
+<button class="rail-burger" id="railBurger" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+<div class="rail-ov" id="railOv"></div>
+<aside class="rail" id="rail">
+  <div class="rail-top">
+    <span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+  </div>
+  <div class="rail-items">
+    <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
+    <a class="rail-item" href="#explora" data-sec="explora" title="Explora la formación"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">Explora</span></a>
+    <a class="rail-item" href="#fundamentos" data-sec="fundamentos" title="Qué es outbound y el embudo"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg></span><span class="ri-lb">Fundamentos</span></a>
+    <a class="rail-item" href="#frameworks" data-sec="frameworks" title="Metodologías de venta"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="ri-lb">Frameworks</span></a>
+    <a class="rail-item" href="#prospeccion" data-sec="prospeccion" title="Cadencia y copywriting"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg></span><span class="ri-lb">Prospección</span></a>
+    <a class="rail-item" href="#objeciones" data-sec="objeciones" title="Llamada en frío y objeciones"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4z"/></svg></span><span class="ri-lb">Objeciones</span></a>
+    <a class="rail-item" href="#clientes" data-sec="clientes" title="Captar clientes Odoo"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3.2 2.5-4.8 5.5-4.8s5.5 1.6 5.5 4.8"/><path d="M17 8.5h4M19 6.5v4"/></svg></span><span class="ri-lb">Captar clientes</span></a>
+    <a class="rail-item" href="#partners" data-sec="partners" title="Captar partners"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5M12 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5"/></svg></span><span class="ri-lb">Captar partners</span></a>
+    <a class="rail-item" href="#herramientas" data-sec="herramientas" title="El stack de herramientas"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3l-6 6 3 3 6-6a4 4 0 0 0 5.3-5.3l-2.5 2.5-3-3z"/></svg></span><span class="ri-lb">Herramientas</span></a>
+    <a class="rail-item" href="#legal" data-sec="legal" title="Marco legal España y UE"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 7l7-3 7 3M5 7l-2 6a4 4 0 0 0 8 0zM19 7l2 6a4 4 0 0 1-8 0z"/></svg></span><span class="ri-lb">Legal</span></a>
+    <a class="rail-item" href="#recursos" data-sec="recursos" title="Libros, vídeos, podcasts y perfiles"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 5v14"/></svg></span><span class="ri-lb">Recursos</span></a>
+    <a class="rail-item" href="#chuleta" data-sec="chuleta" title="La chuleta de una página"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">Chuleta</span></a>
+    <div class="rail-sep"></div>
+    <a class="rail-item gold" href="index.html" title="Ir a la formación del Coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Formación Coach</span></a>
+  </div>
+</aside>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div style="margin-bottom:36px;display:flex;flex-direction:column;align-items:center;gap:12px">
+    <span class="brandooers-logo" style="font-size:clamp(40px,7vw,56px)">Brand<svg class="beyes" width="132" height="76" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)">Investigación y desarrollo de expertos · para Odooers</span>
+  </div>
+  <h1>Formación<br><span class="hand-accent">Outbound Sales</span></h1>
+  <p class="subtitle">Cómo salir a buscar negocio con método, no a la suerte. Dos vías, un mismo motor: <strong>captar clientes</strong> para implantar Odoo y <strong>captar partners</strong> para el ecosistema. Frameworks de los mejores, plantillas listas y el stack real que usan las empresas top.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-primary)">2 vías</div><div class="lab">Clientes · Partners</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-secondary)">7 frameworks</div><div class="lab">Metodologías con autor y libro</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-gold)">+40</div><div class="lab">Recursos verificados</div></div>
+  </div>
+  <p style="margin-top:44px;font-family:'Caveat',cursive;font-size:18px;color:var(--odoo-primary);opacity:0.75">Todo con fuente. Nada inventado. Práctico desde el minuto uno.</p>
+</section>
+
+<!-- EXPLORA -->
+<section id="explora">
+  <div class="reveal">
+    <div class="section-tag">Explora la formación</div>
+    <h2 class="section-title">¿Por dónde empezar?</h2>
+    <p class="section-desc">Toda la formación, por bloques. Entra directo a lo que necesitas hoy: cada bloque tiene su método, sus plantillas y sus recursos (charlas, libros, perfiles) para expandir. Si vendes Odoo a pymes, tu ruta es Fundamentos → Frameworks → Prospección → Captar clientes. Si reclutas partners, salta a Captar partners.</p>
+  </div>
+  <div class="grid-3 reveal">
+    <a class="card" href="#fundamentos" style="text-decoration:none;border-top:3px solid var(--odoo-silver)"><span class="tag-pill" style="background:rgba(91,137,158,.12);color:var(--odoo-silver)">Base</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Fundamentos</h3><p style="font-size:13.5px">Qué es outbound, el embudo y los números que de verdad importan.</p></a>
+    <a class="card" href="#frameworks" style="text-decoration:none;border-top:3px solid var(--odoo-primary)"><span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary)">Método</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Frameworks</h3><p style="font-size:13.5px">MEDDIC, SPIN, Challenger, Sandler, GAP… cuándo usar cada uno.</p></a>
+    <a class="card" href="#prospeccion" style="text-decoration:none;border-top:3px solid var(--odoo-secondary)"><span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">Ejecución</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Prospección</h3><p style="font-size:13.5px">Cadencia multicanal de 14-21 días y plantillas de email y LinkedIn.</p></a>
+    <a class="card" href="#objeciones" style="text-decoration:none;border-top:3px solid var(--odoo-learning)"><span class="tag-pill" style="background:rgba(228,110,120,.12);color:var(--odoo-learning)">Teléfono</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Objeciones</h3><p style="font-size:13.5px">La apertura de la llamada y respuestas a las cinco objeciones típicas.</p></a>
+    <a class="card" href="#clientes" style="text-decoration:none;border-top:3px solid var(--odoo-gold)"><span class="tag-pill" style="background:rgba(228,169,0,.12);color:var(--odoo-gold)">Vía 1</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Captar clientes</h3><p style="font-size:13.5px">ICP Odoo, ángulos de mensaje y ganchos para pymes españolas.</p></a>
+    <a class="card" href="#partners" style="text-decoration:none;border-top:3px solid var(--odoo-ready)"><span class="tag-pill" style="background:rgba(33,183,153,.12);color:var(--odoo-ready)">Vía 2</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Captar partners</h3><p style="font-size:13.5px">Perfil de partner ideal, el programa Odoo y qué le motiva de verdad.</p></a>
+  </div>
+</section>
+
+<!-- FUNDAMENTOS -->
+<section id="fundamentos">
+  <div class="reveal">
+    <div class="section-tag">El marco</div>
+    <h2 class="section-title">Qué es outbound y qué números miran los que ganan</h2>
+    <p class="section-desc">Outbound es salir tú a buscar al cliente (o al partner) en vez de esperar a que llegue. No es spam: es un proceso repetible — lista bien filtrada, mensaje relevante y seguimiento constante. Estas son las cifras verificadas que marcan el diseño de todo lo demás.</p>
+  </div>
+  <div class="grid-3 reveal" style="margin-bottom:20px">
+    <div class="impact-card" style="border-left:4px solid var(--odoo-secondary);flex-direction:column;align-items:flex-start;text-align:left">
+      <div class="impact-num" style="min-width:auto"><span class="v" style="color:var(--odoo-secondary)">42%</span></div>
+      <div><h4>El dinero está en el seguimiento</h4><p>2-3 seguimientos generan hasta el 42% de todas las respuestas. La mayoría no manda ni un segundo correo: ahí se pierde casi la mitad del negocio.</p><a href="https://martal.ca/b2b-cold-email-statistics-lb/" target="_blank" rel="noopener" class="rsrc" style="color:var(--odoo-secondary)">→ Martal · B2B cold email stats</a></div>
+    </div>
+    <div class="impact-card" style="border-left:4px solid var(--odoo-primary);flex-direction:column;align-items:flex-start;text-align:left">
+      <div class="impact-num" style="min-width:auto"><span class="v" style="color:var(--odoo-primary)">5,8%</span></div>
+      <div><h4>Lista pequeña, mejor respuesta</h4><p>Campañas de menos de 50 destinatarios promedian 5,8% de respuesta, frente al 2,1% de los envíos masivos. 80 empresas bien elegidas baten a 500 genéricas.</p><a href="https://thedigitalbloom.com/learn/cold-outbound-reply-rate-benchmarks/" target="_blank" rel="noopener" class="rsrc" style="color:var(--odoo-primary)">→ The Digital Bloom · benchmarks</a></div>
+    </div>
+    <div class="impact-card" style="border-left:4px solid var(--odoo-gold);flex-direction:column;align-items:flex-start;text-align:left">
+      <div class="impact-num" style="min-width:auto"><span class="v" style="color:var(--odoo-gold)">2-3×</span></div>
+      <div><h4>Personalizar multiplica</h4><p>Solo ~5% de los comerciales personaliza cada mensaje, y esos logran 2-3 veces más respuestas. La personalización real (una señal concreta de la empresa) es la palanca más barata.</p><a href="https://thedigitalbloom.com/learn/cold-outbound-reply-rate-benchmarks/" target="_blank" rel="noopener" class="rsrc" style="color:var(--odoo-gold)">→ The Digital Bloom</a></div>
+    </div>
+  </div>
+  <div class="reveal" style="margin-bottom:18px"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:10px">El embudo outbound, etapa a etapa</h3>
+  <table class="data-table"><thead><tr><th>Etapa</th><th>Qué mide</th><th>Media del mercado</th><th>Bueno / top</th></tr></thead><tbody>
+    <tr><th>Reply rate (email frío)</th><td>% que responde</td><td>3-5%</td><td class="highlight">5-20% en alto encaje</td></tr>
+    <tr><th>Meeting booked</th><td>% de envíos que acaba en reunión</td><td>0,5-2,5%</td><td class="highlight">&gt;1% = buen seguimiento</td></tr>
+    <tr><th>Reply → reunión</th><td>respuestas que se convierten en cita</td><td>&lt;15%</td><td class="highlight">30-45%</td></tr>
+    <tr><th>Llamada → reunión</th><td>marcaciones que agendan</td><td>2-3%</td><td class="highlight">5-8%</td></tr>
+  </tbody></table>
+  <div class="source">Fuentes: The Digital Bloom · Martal · Prospeo (2025-2026). Las open rates ya no son fiables desde Apple Mail Privacy: mide respuesta, reunión agendada y reunión celebrada por separado.</div>
+  </div>
+  <div class="callout callout-info reveal"><h4>La regla que lo resume</h4><p>No busques el mensaje perfecto: busca el <strong>proceso</strong> perfecto. Lista bien filtrada + mensaje con una señal real del cliente + varios toques por varios canales. El talento suelto pierde contra el sistema aburrido y constante. Corre cada campaña <strong>90 días</strong> antes de juzgarla; 2 semanas no dicen nada.</p></div>
+</section>
+
+<!-- FRAMEWORKS -->
+<section id="frameworks">
+  <div class="reveal">
+    <div class="section-tag">Método con nombre y apellidos</div>
+    <h2 class="section-title">Las metodologías de los grandes</h2>
+    <p class="section-desc">No son excluyentes: los mejores combinan uno de descubrimiento (SPIN o GAP), uno de cualificación (MEDDIC) y uno de conversación (Challenger o Sandler). Lo que mata a un equipo no es elegir mal el framework, sino no ejecutarlo con constancia bajo presión de cuota. Cada ficha trae su charla y su libro.</p>
+  </div>
+
+  <div class="grid-2 reveal" id="fwgrid">
+    <div class="card" style="border-top:3px solid var(--odoo-primary)">
+      <span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary)">Cualificación</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">MEDDIC / MEDDPICC</h3>
+      <p style="font-size:14px">Rejilla para decidir en qué trato inviertes tu tiempo. Nació en PTC (años 90) y le hizo pasar de 300 M$ a 1.000 M$. Ideal para venta compleja con varios decisores.</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13px">
+        <li><b>M</b>etrics · qué número mejora y cuánto</li>
+        <li><b>E</b>conomic buyer · quién firma</li>
+        <li><b>D</b>ecision criteria y <b>D</b>ecision process</li>
+        <li><b>I</b>dentify pain · el dolor real</li>
+        <li><b>C</b>hampion · quién vende por ti dentro</li>
+        <li><b>(+PICC)</b> Paper process · Competition</li>
+      </ul>
+      <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=MEDDICC+Andy+Whyte" target="_blank" rel="noopener"><span class="bcover" data-book="MEDDICC Andy Whyte"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)">
+      <span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">Descubrimiento</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">SPIN Selling</h3>
+      <p style="font-size:14px">Vender preguntando: haces que el cliente descubra solo su dolor. Neil Rackham, tras estudiar 35.000 llamadas reales. En ventas grandes, cerrar a presión está negativamente correlacionado con ganar.</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13px">
+        <li><b>S</b>ituación · "¿con qué lleváis hoy la facturación y el stock?"</li>
+        <li><b>P</b>roblema · "¿dónde se os generan errores?"</li>
+        <li><b>I</b>mplicación · "¿qué os cuesta al mes ese descuadre?"</li>
+        <li><b>N</b>ecesidad · que él verbalice el valor</li>
+      </ul>
+      <div class="rsrc-media"><button class="vthumb" data-yt="TSUeakjHYCE" data-title="Neil Rackham · el origen de SPIN Selling" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/TSUeakjHYCE/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=SPIN+Selling+Neil+Rackham" target="_blank" rel="noopener"><span class="bcover" data-book="SPIN Selling Neil Rackham"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--odoo-gold)">
+      <span class="tag-pill" style="background:rgba(228,169,0,.12);color:var(--odoo-gold)">Conversación</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">The Challenger Sale</h3>
+      <p style="font-size:14px">El mejor comercial no es el simpático: es el que <em>enseña</em> algo nuevo, <em>adapta</em> el mensaje al rol y <em>toma el control</em> (también del precio). Dixon y Adamson, con datos.</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13px">
+        <li><b>Teach</b> · "creéis que os hacen falta 4 programas; el coste oculto es que no se hablan"</li>
+        <li><b>Tailor</b> · al financiero, cash flow; al de operaciones, tiempos</li>
+        <li><b>Take control</b> · habla de ROI y precio sin miedo</li>
+      </ul>
+      <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=The+Challenger+Sale+Dixon+Adamson" target="_blank" rel="noopener"><span class="bcover" data-book="The Challenger Sale Matthew Dixon"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--odoo-learning)">
+      <span class="tag-pill" style="background:rgba(228,110,120,.12);color:var(--odoo-learning)">Descubrimiento</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">GAP Selling</h3>
+      <p style="font-size:14px">El hueco entre dónde está el cliente y dónde quiere estar. Cuanto mayor y más doloroso, mayor la urgencia. Keenan. Perfecto cuando el cliente no ve la urgencia de cambiar.</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13px">
+        <li>Estado actual (con datos) → estado deseado</li>
+        <li>El hueco, cuantificado: "20 h/semana en tareas manuales → 3"</li>
+        <li>Causa raíz e impacto de no actuar</li>
+      </ul>
+      <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=Gap+Selling+Keenan" target="_blank" rel="noopener"><span class="bcover" data-book="Gap Selling Keenan"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--odoo-silver)">
+      <span class="tag-pill" style="background:rgba(91,137,158,.12);color:var(--odoo-silver)">Consultiva</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">Sandler</h3>
+      <p style="font-size:14px">Invierte la presión: haces que el cliente se cualifique a sí mismo. Útil para no quemar horas en pymes que nunca van a comprar. "No puedes perder lo que no tienes": descalifica pronto.</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13px">
+        <li>Upfront contract · acordáis agenda y salida posible</li>
+        <li>Pain funnel · del síntoma a la raíz</li>
+        <li>Cualificas dinero y proceso antes de presentar</li>
+      </ul>
+      <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=The+Sandler+Rules+David+Mattson" target="_blank" rel="noopener"><span class="bcover" data-book="The Sandler Rules David Mattson"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--odoo-ready)">
+      <span class="tag-pill" style="background:rgba(33,183,153,.12);color:var(--odoo-ready)">Rápido</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">BANT · el filtro rápido</h3>
+      <p style="font-size:14px">El más simple, creado por IBM. Cuatro casillas para decidir en 1 minuto si un lead vale la pena. Úsalo como filtro inicial, no como método de todo el ciclo (pregunta por presupuesto demasiado pronto).</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13px">
+        <li><b>B</b>udget · ¿hay dinero?</li>
+        <li><b>A</b>uthority · ¿hablas con quien decide?</li>
+        <li><b>N</b>eed · ¿hay problema real?</li>
+        <li><b>T</b>iming · ¿cuándo lo resuelven?</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-top:16px"><h4>Command of the Message · el idioma del cliente</h4><p>Cuando el equipo dice cosas distintas del producto, alinéalos con un discurso de valor único: <strong>antes → consecuencias → resultados de negocio → capacidades (en lenguaje del cliente, no features) → métrica → diferenciación → pruebas</strong>. Para Odoo, "capacidad requerida" es <em>"que facturación y stock estén en un sitio y se actualicen solos"</em>, no "módulo de inventario con reglas de reabastecimiento".</p></div>
+</section>
+
+<!-- PROSPECCION -->
+<section id="prospeccion">
+  <div class="reveal">
+    <div class="section-tag">Ejecución · el día a día</div>
+    <h2 class="section-title">Cadencia multicanal y copywriting</h2>
+    <p class="section-desc">El modelo que creó la máquina de ventas de Salesforce (Aaron Ross, <em>Predictable Revenue</em>) separó prospectar de cerrar. Hoy se ejecuta con cadencias multicanal: varios toques, por email, LinkedIn y teléfono, cada uno aportando algo nuevo. Nunca "¿viste mi email?".</p>
+  </div>
+
+  <div class="grid-2 reveal" style="align-items:start">
+    <div>
+      <h3 style="font-size:17px;color:var(--text-dark);margin-bottom:10px">Cadencia tipo · 14-21 días</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-when" style="color:var(--odoo-secondary)">Día 0-2</div><h4>Calentar + primer contacto</h4><div class="row">Ves su perfil y conectas en LinkedIn (nota corta, sin pitch).</div><div class="row"><b>Email 1</b> con framework PAS: un problema concreto de su sector.</div></div>
+        <div class="tl-item"><div class="tl-when" style="color:var(--odoo-primary)">Día 4-5</div><h4>Llamada + prueba</h4><div class="row"><b>Llamada 1</b>: "el motivo de mi llamada es…".</div><div class="row"><b>Email 2</b> con un caso o dato (prueba social).</div></div>
+        <div class="tl-item hot"><div class="tl-when" style="color:var(--odoo-learning)">Día 8-13</div><h4>Insistir con valor</h4><div class="row"><b>Llamada 2</b> + mensaje LinkedIn que aporta un recurso, sin pedir nada.</div><div class="row"><b>Email 3</b> con un ángulo nuevo (Before-After-Bridge).</div></div>
+        <div class="tl-item"><div class="tl-when" style="color:var(--odoo-gold)">Día 16-19</div><h4>Último intento</h4><div class="row"><b>Llamada 3</b> y <b>email de despedida</b>: "cierro tu ficha, ¿te reabro si cambia algo?". El break-up suele traer respuestas.</div></div>
+      </div>
+      <div class="source">Base: Predictable Revenue (Aaron Ross) + benchmarks Martal/The Digital Bloom. La secuencia 3-7-7 captura el 93% de las respuestas para el día 10.</div>
+      <div class="rsrc-media"><button class="vthumb" data-yt="zGBVpE3DSqs" data-title="Aaron Ross · el modelo Predictable Revenue" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/zGBVpE3DSqs/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=Predictable+Revenue+Aaron+Ross" target="_blank" rel="noopener"><span class="bcover" data-book="Predictable Revenue Aaron Ross"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+    <div>
+      <h3 style="font-size:17px;color:var(--text-dark);margin-bottom:10px">Plantillas de copy · rellenables</h3>
+      <div class="note-card mb"><div class="note-title">PAS · el más fiable en frío</div><p style="font-size:13.5px;white-space:pre-line">Asunto: [el problema, en 3-4 palabras]
+
+[Problema] "[Rol], en [sector] es habitual [problema concreto]."
+[Agitar] "El coste no es solo [síntoma]: es [consecuencia mayor]. Y empeora cuando [temporada/crecimiento]."
+[Solución] "[Empresa parecida] lo resolvió con [solución] y [resultado con cifra]."
+[CTA único] "¿15 min esta semana para ver si aplica a vuestro caso?"</p></div>
+      <div class="note-card mb"><div class="note-title">BAB · transformación</div><p style="font-size:13.5px;white-space:pre-line">[Before] "Hoy: [proceso doloroso concreto]."
+[After] "Imagina: [estado resuelto concreto]."
+[Bridge] "El puente es [tu solución en una frase]."
+[CTA] "¿Te enseño cómo se vería con vuestros datos?"</p></div>
+      <div class="note-card"><div class="note-title">3 frases · directo</div><p style="font-size:13.5px;white-space:pre-line">1. Dolor: "[Empresa], llevar ventas, stock y contabilidad en programas separados os cuesta [consecuencia]."
+2. Qué haces: "Lo integramos todo en Odoo para pymes como la vuestra."
+3. CTA: "¿Merece 15 min ver si encaja?"</p></div>
+    </div>
+  </div>
+  <div class="callout callout-warm reveal" style="margin-top:16px"><h4>Reglas de oro del copy</h4><p><strong>Un solo CTA por mensaje.</strong> La persuasión depende del detalle concreto (una cifra, un caso real): si lo cambias por "ahorra tiempo y dinero", cualquier framework colapsa. En LinkedIn, la solicitud de conexión va <strong>sin pitch</strong>; el valor llega después de conectar.</p></div>
+</section>
+
+<!-- OBJECIONES -->
+<section id="objeciones">
+  <div class="reveal">
+    <div class="section-tag">Al teléfono</div>
+    <h2 class="section-title">La apertura y las objeciones</h2>
+    <p class="section-desc">Sobre 300 millones de llamadas (Gong), casi la mitad de las objeciones son reflejos, no objeciones reales: "no me interesa", "mándame info", "llámame en 6 meses". Lo que decides en los primeros 10 segundos define si te cuelgan. La buena noticia: es habilidad entrenable, no talento.</p>
+  </div>
+  <div class="compare reveal">
+    <div class="col yes"><h4>La apertura que funciona</h4><ul>
+      <li>"El motivo de mi llamada es…" · 2,1× más probabilidad de agendar.</li>
+      <li>"Sé que estás ocupado, así que voy al grano."</li>
+      <li>Pattern interrupt + permiso: "¿Te robo 30 segundos y decides si sigo?"</li>
+      <li>Un insight de una frase, y luego una pregunta.</li>
+    </ul></div>
+    <div class="col no"><h4>Lo que te cuelga</h4><ul>
+      <li>"¿Te pillo en mal momento?" · solo 2,15% de éxito.</li>
+      <li>Soltar el pitch de producto en el segundo uno.</li>
+      <li>Atacar al competidor cuando dicen "ya trabajo con otro".</li>
+      <li>Recitar un guion palabra por palabra, sin naturalidad.</li>
+    </ul></div>
+  </div>
+  <div class="reveal" style="margin-top:18px"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:8px">Respuestas a las objeciones típicas</h3>
+  <div class="qbank">
+    <div class="qgroup"><h4>"No me interesa"</h4><ol><li>"Faltaría más que te interesara, si todavía no te he contado nada. ¿Me das 20 segundos para cambiarlo?"</li><li>"¿Es el momento o la propuesta lo que no encaja?"</li></ol></div>
+    <div class="qgroup"><h4>"Mándame un email"</h4><ol><li>"Te mando algo. Y para ahorrarnos el ir y venir, ¿dejamos algo tentativo en la agenda? ¿Lunes o martes, mañana o tarde?"</li><li>"Claro. Para enviarte lo útil, ¿lidiáis más con [problema A] o con [problema B] ahora?"</li></ol></div>
+    <div class="qgroup"><h4>"No tengo tiempo"</h4><ol><li>No preguntes si es mal momento. "Sé que estás ocupado, voy a ser breve" + la razón + un solo ask.</li></ol></div>
+    <div class="qgroup"><h4>"Ya trabajo con otro"</h4><ol><li>Sin atacar: "Perfecto, tiene sentido. Sigo a empresas que ya usan [X] porque muchas nos llaman por [gap concreto]. ¿Cómo lleváis vosotros ese punto?"</li></ol></div>
+  </div>
+  <div class="source">Scripts verificados: Prospeo (cold calling objection handling) · datos Gong. El 49,5% de las objeciones son desestimatorias (reflejos); solo el 7,9% es "ya trabajo con otro".</div>
+  </div>
+  <div class="callout callout-info reveal" style="margin-top:16px"><h4>La empatía táctica funciona en cualquier "no"</h4><p>El negociador jefe del FBI, Chris Voss, enseña el <em>mirroring</em> y las preguntas calibradas para bajar la defensa del otro. Aplica igual al teléfono comercial que a una negociación de precio.</p><div class="rsrc-media"><button class="vthumb" data-yt="vr5hhgA84O4" data-title="Chris Voss · empatía táctica (Talks at Google)" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/vr5hhgA84O4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=Never+Split+the+Difference+Chris+Voss" target="_blank" rel="noopener"><span class="bcover" data-book="Never Split the Difference Chris Voss"></span><span class="blabel">Libro ↗</span></a></div></div>
+</section>
+
+<!-- CLIENTES -->
+<section id="clientes">
+  <div class="reveal">
+    <div class="section-tag">Vía 1 · captación de clientes</div>
+    <h2 class="section-title">Captar clientes para implantar Odoo</h2>
+    <p class="section-desc">El ICP típico de Odoo en España es la pyme (proyecto estándar de 3 a 25 usuarios) con software fragmentado: un programa por área que no se hablan entre sí, dependencia de Excel, cierres contables lentos y, a menudo, un SAP/Sage caro del que usan el 20%. Recuerda: la licencia es solo el 10-20% del gasto del primer año; lo que vendes de verdad es tu implantación.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="callout callout-alert"><h4>Los dolores que disparan la compra</h4><p>Excel por todas partes · stock que nunca cuadra · facturación y contabilidad en herramientas separadas · aprobaciones manuales · software caro tipo SAP/Sage · y un gancho de urgencia real en España: <strong>Verifactu y la factura electrónica B2B obligatoria</strong>. "Ya que tienes que tocar el software, ¿por qué parchear en vez de unificar?"</p></div>
+    <div class="callout callout-info"><h4>De-risking: tu expertise es el producto</h4><p>Entre el 55% y el 75% de los proyectos ERP no cumplen objetivos, y la causa suele ser el partner, no la herramienta. Vender bien es vender <em>certeza de ejecución</em>: análisis, migración, formación y acompañamiento post-arranque.</p></div>
+  </div>
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin-bottom:10px">Cuatro ganchos de primera línea (email / LinkedIn)</h3>
+  <div class="grid-2 reveal">
+    <div class="note-card"><div class="note-title">Excel / datos fragmentados</div><p style="font-size:13.5px"><em>Asunto: 3 Excel para el mismo stock.</em> "Vi que en [Empresa] lleváis pedidos, almacén y facturación en herramientas separadas. Eso es lo que más horas silenciosas come en una pyme. ¿Te enseño en 20 min cómo tres del sector lo unificaron sin cambiar su forma de trabajar?"</p></div>
+    <div class="note-card"><div class="note-title">Software caro tipo SAP/Sage</div><p style="font-size:13.5px">"Trabajo con pymes industriales que pagaban SAP/Sage a precio de multinacional para usar el 20%. La alternativa que implanto cuesta una fracción y hace lo mismo o más. ¿Te paso un caso parecido al vuestro?"</p></div>
+    <div class="note-card"><div class="note-title">Cumplimiento fiscal (Verifactu)</div><p style="font-size:13.5px">"Con Verifactu y la factura electrónica B2B a la vuelta de la esquina, muchas pymes de [sector] van a tener que tocar su software sí o sí. La mayoría aprovecha para unificar todo en un sistema. ¿Miramos 15 min si os compensa?"</p></div>
+    <div class="note-card"><div class="note-title">Crecimiento / dolor de escala</div><p style="font-size:13.5px">"Vi que estáis contratando en [área]. El salto de 10 a 25 personas es justo cuando el Excel deja de aguantar y aparecen los descuadres. Ayudo a montar el sistema antes de que llegue el caos. ¿Una charla sin compromiso?"</p></div>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-top:16px"><h4>Mercado español, en la práctica</h4><p>El canal ganador es <strong>LinkedIn + teléfono combinados</strong>: calienta al decisor en LinkedIn (comentarios de valor, no likes) antes de llamar. El objetivo de la llamada es <strong>la reunión</strong>, no vender. El boca a boca convierte muchísimo pero no escala: por eso hace falta un motor outbound encima. Las primeras oportunidades cualificadas aparecen en la semana 2-3; el pipeline serio, en el mes 2-3.</p><div class="source">Fuentes: Parada Visual · nocrm.io · tmsystem · Databay (implantación España) · Odoo.com.</div></div>
+</section>
+
+<!-- PARTNERS -->
+<section id="partners">
+  <div class="reveal">
+    <div class="section-tag">Vía 2 · captación de partners</div>
+    <h2 class="section-title">Captar partners para el ecosistema</h2>
+    <p class="section-desc">Reclutar un partner no es vender un producto: es venderle el negocio que monta contigo. En torno al 75% de las transacciones B2B mundiales pasan por canal, y los deals que trae un partner cierran mejor por una sola razón: la confianza. El objetivo aquí son consultoras y agencias que ya venden software de gestión a pymes.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="card" style="border-top:3px solid var(--odoo-primary)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">El perfil de partner ideal (IPP)</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li>Ya vende software de gestión a <b>tu misma pyme</b>, sector y geografía</li>
+      <li>Su forma de vender encaja con la venta consultiva de ERP</li>
+      <li>Le salen los números: sin margen, no invertirá por mucho interés que muestre</li>
+      <li>Capacidad de certificar 1-6 personas y orientación a proyecto recurrente</li>
+    </ul><p style="font-size:13px;color:var(--text-muted);margin-top:8px">Borrador Odoo España: consultora TIC de 5-50 personas que ya vende SaaS a pymes.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Qué le motiva (por orden de peso)</h3><ol class="steps" style="margin-top:4px">
+      <li><strong>Margen recurrente</strong> · lo primero que mira</li>
+      <li><strong>Leads</strong> · pasarle oportunidades es el gancho más potente</li>
+      <li><strong>Formación y certificación</strong> · le sube capacidad y reputación</li>
+      <li><strong>Co-marketing / MDF</strong> · presupuesto y visibilidad conjunta</li>
+    </ol></div>
+  </div>
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin-bottom:10px">El programa de partners de Odoo (oficial)</h3>
+  <div class="reveal"><table class="data-table"><thead><tr><th>Nivel</th><th>Usuarios Enterprise nuevos / año</th><th>Certificados activos</th><th>Retención</th><th>Comisión Enterprise</th></tr></thead><tbody>
+    <tr><th>Ready</th><td>10</td><td>1</td><td>—</td><td class="highlight">10%</td></tr>
+    <tr><th>Silver</th><td>75</td><td>3</td><td>70%</td><td class="highlight">15%</td></tr>
+    <tr><th>Gold</th><td>300</td><td>6</td><td>80%</td><td class="highlight">20%</td></tr>
+  </tbody></table>
+  <div class="source">Fuente: odoo.com/become-a-partner (ago. 2026). Packs: Learning Partner 490 € · Official Partner 2.450 €. Comisión Odoo.sh hasta 150 €/mes. Odoo revisa condiciones periódicamente: confirma con el account manager antes de usar cifras en material comercial.</div></div>
+  <div class="callout callout-info reveal" style="margin-top:16px"><h4>El primer deal en 30 días es el punto de no retorno</h4><p>Los partners que registran su primer deal en 30 días son 4-5× más propensos a seguir activos a los 12 meses; el 40-60% de los que no completan onboarding en 90 días quedan inactivos para siempre. <strong>Activación &gt; reclutamiento</strong>: subir la activación del 15% al 35% con la misma base da 3,5× más deals sin fichar a nadie nuevo.</p><div class="source">Fuentes: Magentrix · channels-as-a-strategy · scayul · Crossbeam. Herramientas de ecosistema que usan los mejores: PartnerStack (reclutamiento + pagos), Crossbeam/Reveal (account mapping), Impartner/Allbound (PRM).</div></div>
+</section>
+
+<!-- HERRAMIENTAS -->
+<section id="herramientas">
+  <div class="reveal">
+    <div class="section-tag">El stack real</div>
+    <h2 class="section-title">Las herramientas que usan los mejores</h2>
+    <p class="section-desc">No necesitas todo esto para empezar. El stack mínimo y suficiente para un Partner Manager de Odoo cabe en unos 150 €/mes: Sales Navigator para definir el ICP, Apollo (o Lusha) para sacar contactos con email verificado, y <strong>Odoo CRM</strong> como fuente de verdad del pipeline. No dupliques CRM.</p>
+  </div>
+  <div class="reveal"><table class="data-table"><thead><tr><th>Categoría</th><th>Líderes del mercado</th><th>Para qué</th></tr></thead><tbody>
+    <tr><th>Datos B2B</th><td><a href="https://www.apollo.io/pricing" target="_blank" rel="noopener" class="rsrc">Apollo</a> · <a href="https://www.lusha.com" target="_blank" rel="noopener" class="rsrc">Lusha</a> · <a href="https://www.cognism.com" target="_blank" rel="noopener" class="rsrc">Cognism</a> · ZoomInfo</td><td>Encontrar el contacto y su email/móvil. Cognism es el estándar de cumplimiento en Europa.</td></tr>
+    <tr><th>Listas y enriquecimiento</th><td><a href="https://business.linkedin.com/sales-solutions" target="_blank" rel="noopener" class="rsrc">LinkedIn Sales Navigator</a> · <a href="https://www.clay.com/pricing" target="_blank" rel="noopener" class="rsrc">Clay</a></td><td>Definir el ICP y construir/enriquecer listas con señales (contratación, cambio de ERP…).</td></tr>
+    <tr><th>Cold email / entregabilidad</th><td><a href="https://instantly.ai" target="_blank" rel="noopener" class="rsrc">Instantly</a> · <a href="https://www.smartlead.ai" target="_blank" rel="noopener" class="rsrc">Smartlead</a> · <a href="https://www.lemlist.com" target="_blank" rel="noopener" class="rsrc">Lemlist</a></td><td>Enviar en frío con warm-up y rotación de buzones. Nunca desde tu dominio principal.</td></tr>
+    <tr><th>Secuencias (sales engagement)</th><td><a href="https://reply.io" target="_blank" rel="noopener" class="rsrc">Reply.io</a> · <a href="https://www.salesloft.com" target="_blank" rel="noopener" class="rsrc">Salesloft</a> · Outreach</td><td>Orquestar los toques multicanal. Outreach/Salesloft son overkill para un comercial individual.</td></tr>
+    <tr><th>CRM</th><td class="highlight">Odoo CRM</td><td>Fuente de verdad del pipeline y el forecast. Todo el que responde entra aquí como lead.</td></tr>
+  </tbody></table>
+  <div class="source">Precios cambian a menudo: verifica en la web oficial de cada herramienta. Fuentes de comparativa: Cognism, Salesmotion, The Digital Bloom, webs oficiales.</div></div>
+  <div class="callout callout-warm reveal" style="margin-top:16px"><h4>Entregabilidad · las reglas que evitan el spam</h4><p><strong>Dominio secundario</strong> (nunca el principal), autenticado con <strong>SPF + DKIM + DMARC (p=reject)</strong>. Calienta cada buzón 4-6 semanas antes de enviar en frío. <strong>20-50 emails por buzón y día</strong>; para más volumen, añade más buzones, no subas el buzón. Quejas de spam &lt; 0,1% y rebotes &lt; 2% (verifica emails antes de enviar). Vigila con Google Postmaster Tools.</p></div>
+</section>
+
+<!-- LEGAL -->
+<section id="legal">
+  <div class="reveal">
+    <div class="section-tag">Antes de enviar nada</div>
+    <h2 class="section-title">Marco legal en España y la UE</h2>
+    <p class="section-desc">El error más común: creer que si el dato es "legal" ya puedes escribir. Son dos planos distintos. Esto no es asesoramiento legal; antes de lanzar campañas, valida tu caso con un abogado de protección de datos. La consulta cuesta ridículamente poco frente a una sanción de la AEPD.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:16px">
+    <div class="callout callout-info"><h4>Plano 1 · tratar el dato (RGPD / LOPDGDD)</h4><p>El interés legítimo (art. 6.1.f RGPD + art. 19 LOPDGDD) permite <strong>tratar</strong> datos de contacto profesionales, con test de ponderación (LIA) documentado. Pero tratar el dato <strong>no</strong> te autoriza a mandar el correo.</p></div>
+    <div class="callout callout-alert"><h4>Plano 2 · enviar el comercial (LSSICE art. 21)</h4><p>Prohibido enviar publicidad por email no solicitada ni autorizada, salvo <strong>relación contractual previa</strong> + producto similar + baja fácil en cada envío. Esta norma es especial del canal y <strong>prevalece</strong>.</p></div>
+  </div>
+  <div class="compare reveal">
+    <div class="col yes"><h4>Sí puedes</h4><ul>
+      <li><b>LinkedIn 1 a 1</b>: mensajes personalizados no son "comunicación comercial electrónica" del art. 21. El canal más seguro para el frío.</li>
+      <li><b>Llamada B2B</b> a un profesional, con interés legítimo. Consulta antes la <b>Lista Robinson</b>.</li>
+      <li><b>Email a cliente existente</b> sobre servicios similares, con baja fácil.</li>
+      <li>Si vas por interés legítimo: <b>LIA documentado</b> por campaña + baja gratuita en cada correo.</li>
+    </ul></div>
+    <div class="col no"><h4>No puedes</h4><ul>
+      <li><b>Email masivo en frío</b> a empresas sin relación previa ni consentimiento (aunque el dato sea B2B). Es lo que la AEPD sanciona.</li>
+      <li>Escudarte en el art. 19 LOPDGDD para justificar el envío (solo justifica tratar el dato).</li>
+      <li>Enviar sin identificar al remitente ni mecanismo de baja.</li>
+    </ul></div>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-top:16px"><h4>Regla de oro operativa</h4><p>Para captación en frío usa <strong>LinkedIn + teléfono</strong> como canales principales; reserva el <strong>email masivo</strong> para leads que ya consintieron o son clientes. Así minimizas el riesgo AEPD.</p><div class="source">Fuentes oficiales: BOE (Ley 34/2002 LSSICE art. 21-22 · L.O. 3/2018 LOPDGDD art. 19) · EUR-Lex (RGPD, Considerando 47) · AEPD (criterio prospección comercial). Sanciones: RGPD hasta 4% de la facturación global; LSSI hasta 150.000-600.000 €.</div></div>
+</section>
+
+<!-- RECURSOS -->
+<section id="recursos">
+  <div class="reveal">
+    <div class="section-tag">Para ir más allá</div>
+    <h2 class="section-title">Biblioteca de recursos</h2>
+    <p class="section-desc">Lo más buscado, seguido y recomendado del mundo, verificado uno a uno. Charlas para ver hoy, libros para el fin de semana, podcasts para el coche y perfiles para seguir a diario. Toca una charla para verla aquí mismo; el libro abre en Amazon.</p>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin-bottom:10px">Charlas imprescindibles</h3>
+  <div class="grid-4 reveal" id="talks">
+    <button class="vthumb" data-yt="TSUeakjHYCE" data-title="Neil Rackham · el origen de SPIN Selling" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/TSUeakjHYCE/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="zGBVpE3DSqs" data-title="Aaron Ross · Predictable Revenue" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/zGBVpE3DSqs/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="vr5hhgA84O4" data-title="Chris Voss · empatía táctica" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/vr5hhgA84O4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="eIho2S0ZahI" data-title="Julian Treasure · hablar para que te escuchen (TED)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/eIho2S0ZahI/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="qp0HIF3SfI4" data-title="Simon Sinek · empieza con el porqué (TED)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/qp0HIF3SfI4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="t24zBKSA3fY" data-title="La investigación detrás de SPIN Selling" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/t24zBKSA3fY/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin:28px 0 10px">Los libros que hay que leer</h3>
+  <div class="grid-4 reveal" id="bookshelf"></div>
+
+  <div class="grid-3 reveal" style="margin-top:28px;align-items:start">
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Canales de YouTube</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://www.youtube.com/@joshbraunsales" target="_blank" rel="noopener">Josh Braun</a> · cold email que no suena a vendedor</li>
+      <li><a class="rsrc" href="https://www.youtube.com/@30MPC" target="_blank" rel="noopener">30 Minutes to President's Club</a> · lo más accionable</li>
+      <li><a class="rsrc" href="https://www.youtube.com/user/salesgravy" target="_blank" rel="noopener">Sales Gravy (Jeb Blount)</a> · prospección fanática</li>
+      <li><a class="rsrc" href="https://www.youtube.com/@SellBetterXYZ" target="_blank" rel="noopener">Sell Better</a> · show diario de ventas B2B</li>
+      <li><a class="rsrc" href="https://www.youtube.com/@morganjingram" target="_blank" rel="noopener">Morgan J Ingram</a> · social selling y llamada</li>
+      <li><a class="rsrc" href="https://www.youtube.com/@patrickdang" target="_blank" rel="noopener">Patrick Dang</a> · empezar de cero</li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Podcasts</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://www.30mpc.com/" target="_blank" rel="noopener">30 Minutes to President's Club</a></li>
+      <li><a class="rsrc" href="https://open.spotify.com/show/3ib1Gyl5inxj07ZmB7whzQ" target="_blank" rel="noopener">Sales Gravy</a> · Jeb Blount</li>
+      <li><a class="rsrc" href="https://outboundsquad.com/podcast" target="_blank" rel="noopener">The Outbound Squad</a> · Jason Bay</li>
+      <li><a class="rsrc" href="https://www.forcemanagement.com/revenue-builders-podcast" target="_blank" rel="noopener">Revenue Builders</a></li>
+      <li><a class="rsrc" href="https://open.spotify.com/show/6Ez9GY0l2Ksfedhb2s0px0" target="_blank" rel="noopener">Nearbound Podcast</a> · partnerships</li>
+      <li><a class="rsrc" href="https://open.spotify.com/show/1DnllGVJc1Otlzp4gIWayU" target="_blank" rel="noopener">Howdy Partners</a> · alianzas</li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Blogs y newsletters</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://joshbraun.com" target="_blank" rel="noopener">Josh Braun · Stop Persuading</a></li>
+      <li><a class="rsrc" href="https://www.gong.io/blog/" target="_blank" rel="noopener">Gong Labs</a> · ventas con datos reales</li>
+      <li><a class="rsrc" href="https://www.lavender.ai/blog" target="_blank" rel="noopener">Lavender</a> · cold email</li>
+      <li><a class="rsrc" href="https://www.cognism.com/blog" target="_blank" rel="noopener">Cognism</a> · outbound en Europa</li>
+      <li><a class="rsrc" href="https://insider.crossbeam.com/" target="_blank" rel="noopener">ELG Insider</a> · partnerships</li>
+      <li><a class="rsrc" href="https://predictablerevenue.com/blog" target="_blank" rel="noopener">Predictable Revenue</a></li>
+    </ul></div>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin:28px 0 10px">Perfiles de LinkedIn a seguir</h3>
+  <div class="grid-4 reveal" style="gap:10px">
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/jebblount/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Jeb Blount</b><br><span style="font-size:12px;color:var(--text-muted)">Prospección fanática</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/josh-braun/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Josh Braun</b><br><span style="font-size:12px;color:var(--text-muted)">Outbound sin presión</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/jasondbay/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Jason Bay</b><br><span style="font-size:12px;color:var(--text-muted)">Cold calling moderno</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/kddorsey3/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Kevin D. Dorsey</b><br><span style="font-size:12px;color:var(--text-muted)">Liderazgo y discovery</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/samsalesli/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Samantha McKenna</b><br><span style="font-size:12px;color:var(--text-muted)">Outbound con clase</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/williamallred/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Will Allred</b><br><span style="font-size:12px;color:var(--text-muted)">Cold email · Lavender</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/jaredfuller/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Jared Fuller</b><br><span style="font-size:12px;color:var(--text-muted)">Nearbound · partnerships</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/robertjmoore/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Bob Moore</b><br><span style="font-size:12px;color:var(--text-muted)">Ecosystem-Led Growth</span></a>
+  </div>
+</section>
+
+<!-- CHULETA -->
+<section id="chuleta">
+  <div class="reveal">
+    <div class="section-tag">Para tener siempre a mano</div>
+    <h2 class="section-title">La chuleta de una página</h2>
+    <p class="section-desc">Si solo te llevas una cosa de toda la formación, que sea esta.</p>
+  </div>
+  <div class="grid-2 reveal">
+    <div class="card"><h3 style="font-size:16px;color:var(--odoo-primary);margin-bottom:8px">El proceso, en 6 pasos</h3><ol class="steps">
+      <li><strong>Lista</strong> · 80 empresas bien filtradas &gt; 500 genéricas</li>
+      <li><strong>Señal</strong> · una razón real para escribir a cada una</li>
+      <li><strong>Cadencia</strong> · varios toques, email + LinkedIn + teléfono</li>
+      <li><strong>Un solo CTA</strong> · pide la reunión, no vendas por email</li>
+      <li><strong>Seguimiento</strong> · el 42% de las respuestas está aquí</li>
+      <li><strong>Al CRM</strong> · todo el que responde entra en Odoo CRM</li>
+    </ol></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--odoo-secondary);margin-bottom:8px">Recordatorios de oro</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li>"El motivo de mi llamada es…" agenda 2,1× más</li>
+      <li>La mayoría de objeciones son reflejos, no un "no"</li>
+      <li>Personaliza: 2-3× más respuestas por casi 0 € de coste</li>
+      <li>En frío, LinkedIn + teléfono; email masivo solo con permiso</li>
+      <li>Al partner véndele negocio: margen, leads, formación</li>
+      <li>Corre la campaña 90 días antes de juzgarla</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- CIERRE -->
+<section id="cierre">
+  <div class="card reveal" style="text-align:center;padding:48px 28px;background:linear-gradient(135deg,#4C1D95,#7C3AED);border:none">
+    <p class="hand" style="font-size:34px;color:#fff;margin-bottom:8px">Ahora te toca salir a buscar</p>
+    <p style="max-width:560px;margin:0 auto 20px;font-size:15px;color:rgba(255,255,255,.92)">El método ya lo tienes. La diferencia entre saberlo y facturarlo es una sola cosa: constancia. Elige 80 empresas esta semana y arranca la cadencia.</p>
+    <a class="dna-cta" href="#explora" style="background:#fff;color:#4C1D95">Volver a explorar la formación →</a>
+  </div>
+</section>
+
+<footer>
+  <div style="max-width:1100px;margin:0 auto;padding:0 40px;text-align:center;color:var(--text-muted);font-size:13px">
+    <p style="font-family:'Caveat',cursive;font-size:22px;color:var(--odoo-primary);margin-bottom:6px">Brandooers · Odoo I+D+E Spain</p>
+    <p>Formación Outbound Sales · captación de clientes y partners. Todo el contenido con fuente verificada.</p>
+    <p style="margin-top:8px"><a href="index.html" class="rsrc" style="color:var(--odoo-secondary)">← Formación del Coach</a></p>
+  </div>
+</footer>
+
+<!-- MODAL DE VÍDEO -->
+<div class="vmodal" id="vmodal">
+  <div class="vmodal-box">
+    <div class="vmodal-head"><h4>Charla</h4><button class="close" aria-label="Cerrar">×</button></div>
+    <div class="vmodal-frame"></div>
+  </div>
+</div>
+<div class="userchip" id="userChip"><span class="dot"></span>Formación · <span class="uname"></span></div>
+
+<script>
+/* ===== Config plataforma ===== */
+const TRACK_URL = "";
+const APP_ID = "outbound-odoo-ide";
+
+/* ===== Tracking ===== */
+function nowISO(){return new Date().toISOString()}
+function sid(){let s=sessionStorage.getItem('ob_sid');if(!s){s='s_'+Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ob_sid',s)}return s}
+let USER=null;try{USER=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
+function track(ev,data){
+  const rec={app:APP_ID,sid:sid(),email:USER?USER.email:null,name:USER?USER.name:null,ev:ev,data:data||{},ts:nowISO(),path:location.pathname};
+  try{const arr=JSON.parse(localStorage.getItem('coach_events')||'[]');arr.push(rec);localStorage.setItem('coach_events',JSON.stringify(arr.slice(-3000)))}catch(e){}
+  if(TRACK_URL){try{navigator.sendBeacon(TRACK_URL,new Blob([JSON.stringify(rec)],{type:'text/plain'}))}catch(e){}}
+}
+
+/* ===== Registro (compartido con la formación Coach: misma clave coach_user) ===== */
+const overlay=document.getElementById('regOverlay');
+function showChip(){const c=document.getElementById('userChip');if(c&&USER){c.style.display='flex';c.querySelector('.uname').textContent=(USER.name||'').split(' ')[0]}}
+function unlock(){document.body.classList.remove('locked');overlay.classList.add('hide')}
+if(USER){unlock();showChip();track('page_open',{title:document.title})}else{document.body.classList.add('locked')}
+document.getElementById('regForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const n=document.getElementById('regName').value.trim();
+  const m=document.getElementById('regMail').value.trim();
+  const c=document.getElementById('regConsent').checked;
+  const err=document.getElementById('regErr');
+  if(n.length<2){err.textContent='Escribe tu nombre.';return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){err.textContent='Escribe un email válido.';return}
+  if(!c){err.textContent='Marca el consentimiento para continuar.';return}
+  USER={name:n,email:m,nick:n,at:nowISO()};localStorage.setItem('coach_user',JSON.stringify(USER));
+  track('register',{name:n,email:m});track('page_open',{title:document.title});
+  unlock();showChip();
+});
+
+/* ===== Barra de progreso + scrollspy del rail ===== */
+const navProgress=document.getElementById('navProgress');
+window.addEventListener('scroll',()=>{navProgress.style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'});
+const sections=document.querySelectorAll('section[id]'),railLinks=document.querySelectorAll('.rail-item[data-sec]');
+window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-220)cur=s.id});railLinks.forEach(l=>{l.classList.toggle('active',l.getAttribute('data-sec')===cur)})});
+
+/* ===== Reveal on scroll ===== */
+const observer=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*40);observer.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=this.getAttribute('href');if(t.length>1){e.preventDefault();document.querySelector(t)?.scrollIntoView({behavior:'smooth'})}})});
+
+/* ===== Rail (menú lateral, móvil) ===== */
+(function(){var b=document.getElementById('railBurger'),ov=document.getElementById('railOv'),r=document.getElementById('rail');
+ function op(){r.classList.add('open');ov.classList.add('open')}function cl(){r.classList.remove('open');ov.classList.remove('open')}
+ if(b)b.onclick=op;if(ov)ov.onclick=cl;r&&r.querySelectorAll('a').forEach(function(a){a.addEventListener('click',cl)});})();
+
+/* ===== Modal de vídeo ===== */
+const vm=document.getElementById('vmodal');let vOpen=null;
+function openVideo(id,title){
+  vm.querySelector('.vmodal-frame').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0&autoplay=1&modestbranding=1" title="'+(title||'')+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  vm.querySelector('h4').textContent=title||'Charla';
+  vm.classList.add('open');vOpen={id:id,title:title,start:Date.now()};track('video_open',{id:id,title:title});
+}
+function closeVideo(){if(vOpen){track('video_watch',{id:vOpen.id,title:vOpen.title,seconds:Math.round((Date.now()-vOpen.start)/1000)});vOpen=null}vm.classList.remove('open');vm.querySelector('.vmodal-frame').innerHTML=''}
+vm.querySelector('.close').addEventListener('click',closeVideo);
+vm.addEventListener('click',e=>{if(e.target===vm)closeVideo()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&vm.classList.contains('open'))closeVideo()});
+document.addEventListener('click',function(e){
+  const b=e.target.closest('[data-yt]');
+  if(b){e.preventDefault();openVideo(b.getAttribute('data-yt'),b.getAttribute('data-title'));return}
+  const lk=e.target.closest('a.rsrc, a.bthumb');
+  if(lk){track('link_click',{label:(lk.textContent||'').trim().slice(0,60),href:lk.getAttribute('href')})}
+});
+
+/* ===== Portadas de libros (Google Books) ===== */
+(function(){var covObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(!en.isIntersecting)return;var el=en.target;covObs.unobserve(el);var q=el.getAttribute('data-book');if(!q)return;
+  fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){
+    var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);
+    if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")';
+  }).catch(function(){})})},{rootMargin:'300px'});
+  document.querySelectorAll('.bcover[data-book]').forEach(function(el){covObs.observe(el)});
+})();
+
+/* ===== Estantería de libros ===== */
+(function(){var shelf=document.getElementById('bookshelf');if(!shelf)return;
+ var BOOKS=[
+  ["Predictable Revenue","Aaron Ross"],
+  ["Fanatical Prospecting","Jeb Blount"],
+  ["The Challenger Sale","Matthew Dixon"],
+  ["SPIN Selling","Neil Rackham"],
+  ["Gap Selling","Keenan"],
+  ["New Sales Simplified","Mike Weinberg"],
+  ["The Sales Development Playbook","Trish Bertuzzi"],
+  ["Combo Prospecting","Tony Hughes"],
+  ["100M Leads","Alex Hormozi"],
+  ["Never Split the Difference","Chris Voss"],
+  ["To Sell Is Human","Daniel Pink"],
+  ["Ecosystem-Led Growth","Bob Moore"],
+  ["Nearbound and the Rise of the Who Economy","Jared Fuller"],
+  ["How to Win Friends and Influence People","Dale Carnegie"]
+ ];
+ BOOKS.forEach(function(bk){var q=bk[0]+" "+bk[1];var a=document.createElement('a');a.className='card';a.href='https://www.amazon.es/s?k='+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.style.textDecoration='none';a.style.display='block';
+  a.innerHTML='<span class="bcover" data-book="'+q+'" style="display:block;width:100%;height:150px;border-radius:8px;background:#EDE7EB center/cover no-repeat;margin-bottom:10px"></span><h4 style="color:var(--text-dark);margin-bottom:2px;font-size:14px">'+bk[0]+'</h4><p style="font-size:12px;color:var(--text-muted);margin:0">'+bk[1]+'</p><p style="font-size:11.5px;color:var(--odoo-gold);margin-top:6px;font-weight:600">Amazon ↗</p>';
+  a.addEventListener('click',function(){track('book_click',{title:q})});shelf.appendChild(a);
+  var cov=a.querySelector('.bcover');covObsShelf(cov);});
+ function covObsShelf(el){var q=el.getAttribute('data-book');if(!q)return;
+  fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){
+   var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);
+   if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")';}).catch(function(){});}
+})();
+
+/* ===== Vistas de sección + tiempo ===== */
+const seenSec=new Set();
+const secObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){const id=en.target.id;if(id&&!seenSec.has(id)){seenSec.add(id);track('section_view',{id:id})}}})},{threshold:0.4});
+document.querySelectorAll('section[id]').forEach(s=>secObs.observe(s));
+let secs=0;setInterval(function(){if(!document.hidden&&USER){secs+=15}},15000);
+window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{seconds:secs})});
+
+/* ===== Ojos animados Brandooers ===== */
+(function(){
+  var svgs=[].slice.call(document.querySelectorAll('.beyes'));if(!svgs.length)return;
+  function brow(o,flip){var b=10+o;var lift=Math.min(o,0)*0.5;return flip?('M 6 '+(b+1)+' Q 20 '+(b-8+lift)+' 34 '+(b+2)):('M 6 '+(b+2)+' Q 20 '+(b-8+lift)+' 34 '+(b+1));}
+  var exprs=[{bl:-6,br:1,lx:2.5,ly:-1,e:'curious'},{bl:-3,br:-3,lx:0,ly:0,e:'happy'},{bl:2,br:-8,lx:-2,ly:0,e:'skeptical'},{bl:-8,br:-8,lx:0,ly:-1,e:'surprised'},{bl:0,br:0,lx:0,ly:0,e:'neutral'},{bl:-4,br:-1,lx:3,ly:0.5,e:'curious'}];
+  var st={bl:0,br:0,lx:0,ly:0,blink:false,e:'neutral'};
+  function setC(el,x,y,r){if(!el)return;el.setAttribute('cx',x);el.setAttribute('cy',y);if(r!=null)el.setAttribute('r',r);}
+  function apply(){svgs.forEach(function(svg){
+    var bL=svg.querySelector('.browL'),bR=svg.querySelector('.browR');if(bL)bL.setAttribute('d',brow(st.bl,false));if(bR)bR.setAttribute('d',brow(st.br,true));
+    var ry=st.blink?2:(st.e==='happy'?14:18);var sL=svg.querySelector('.socketL'),sR=svg.querySelector('.socketR');if(sL)sL.setAttribute('ry',ry);if(sR)sR.setAttribute('ry',ry);
+    var op=st.blink?'0':'1';['.irisL','.irisR','.pupilL','.pupilR'].forEach(function(c){var el=svg.querySelector(c);if(el)el.style.opacity=op;});
+    svg.querySelectorAll('.glint').forEach(function(g){g.style.opacity=st.blink?'0':(g.getAttribute('data-op')||'1');});
+    var ir=st.e==='surprised'?9:7.5,pr=st.e==='surprised'?4:3.5;
+    setC(svg.querySelector('.irisL'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilL'),20+st.lx*1.3,36+st.ly*1.3,pr);
+    setC(svg.querySelector('.irisR'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilR'),20+st.lx*1.3,36+st.ly*1.3,pr);
+  });}
+  apply();
+  setInterval(function(){var x=exprs[Math.floor(Math.random()*exprs.length)];st.bl=x.bl;st.br=x.br;st.lx=x.lx;st.ly=x.ly;st.e=x.e;apply();},2500);
+  (function blink(){setTimeout(function(){st.blink=true;apply();setTimeout(function(){st.blink=false;apply();blink();},130);},3000+Math.random()*2500);})();
+})();
+</script>
+
+</body>
+</html>

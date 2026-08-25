@@ -1,12 +1,16 @@
-# Formación del Coach · Odoo I+D+E
+# Formaciones · Odoo I+D+E (Brandooers)
 
-Plataforma de formación para los coaches que acompañan a los nuevos del equipo durante sus primeros 6 meses (antes del paso a Partner Manager). Sitio estático, sin servidor, alojado en GitHub Pages.
+Plataforma de formación del equipo Odoo I+D+E. Sitio estático, sin servidor, alojado en GitHub Pages. Dos formaciones que comparten diseño y registro:
+
+- **Formación del Coach** (`index.html`): acompañar a los nuevos del equipo durante sus primeros 6 meses (antes del paso a Partner Manager).
+- **Formación Outbound Sales** (`outbound-sales.html`): captación de clientes y captación de partners, con playbooks prácticos y recursos verificados.
 
 ## Qué hay
 
 | Archivo | Qué es |
 |---|---|
-| `index.html` | La formación. Puerta de registro (nombre + email, con consentimiento), Paso 1 «ADN del coachee», 4 pilares, técnicas de 20+ autores (cada una con su charla en popup + libro en Amazon), herramientas de perfil (Eneagrama con test, DISC/colores, Johari, zonas, rueda de emociones, Ikigai + tests gratis), rutinas y planificación del día, calendario de 6 meses, metas, plantillas y chuleta. |
+| `index.html` | Formación del Coach. Puerta de registro (nombre + email, con consentimiento), Paso 1 «ADN del coachee», 4 pilares, técnicas de 20+ autores (cada una con su charla en popup + libro en Amazon), herramientas de perfil (Eneagrama con test, DISC/colores, Johari, zonas, rueda de emociones, Ikigai + tests gratis), rutinas y planificación del día, calendario de 6 meses, metas, plantillas y chuleta. |
+| `outbound-sales.html` | Formación **Outbound Sales**: captación de clientes y de partners. Frameworks (MEDDIC, SPIN, Challenger, Sandler, GAP, BANT, Command of the Message) con charla + libro, cadencia multicanal 14-21 días y plantillas de copy (PAS/BAB/3 frases), objeciones al teléfono, ángulos de mensaje para pymes españolas, captación de partners (perfil ideal + programa oficial de Odoo), el stack de herramientas real, marco legal España/UE (RGPD/LSSI/AEPD) y biblioteca de recursos (libros, charlas, podcasts, blogs y perfiles de LinkedIn). Mismo diseño y mismo registro/tracking que la del Coach (comparten la clave `coach_user`). Todo con fuente verificada. |
 | `dashboard.html` | Panel de seguimiento: quién entra, qué charlas ve y cuánto tiempo dedica. |
 | `apps-script-tracking.gs` | Backend opcional (Google Apps Script) para el tracking real de todo el equipo. |
 | `guia-coach-odoo.html` | Copia de `index.html` (mismo contenido). |
