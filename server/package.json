@@ -1,0 +1,11 @@
+{
+  "name": "brandooers-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Servidor de personalización en vivo de Brandooers (para IONOS). Node 18+, sin dependencias.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

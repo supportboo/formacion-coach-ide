@@ -61,6 +61,8 @@
     + '<div class="pf-q">¿Qué ticket?</div><div class="pf-opts" data-k="ticket">'
     + '<button data-v="bajo">Bajo / volumen</button><button data-v="medio">Medio</button><button data-v="alto">Alto / consultivo</button></div>'
     + '<div class="pf-q">Tu sector concreto (opcional)</div><input id="pfSector" placeholder="Ej.: moda, industria, SaaS, hostelería…">'
+    + '<div class="pf-q">O cuéntalo con tus palabras</div><input id="pfText" placeholder="Ej.: vendo software dental a clínicas pequeñas">'
+    + (window.BOO_API_BASE ? '<p class="sub" style="margin:6px 0 0">El agente adaptará toda la formación a lo que escribas, en vivo.</p>' : '<p class="sub" style="margin:6px 0 0">De momento se usan los casos de arriba; con el servidor, el agente lo adaptará a cualquier caso que escribas.</p>')
     + '<button class="pf-save">Guardar y adaptar</button></div>';
   document.body.appendChild(ov);
 
@@ -69,35 +71,52 @@
     ov.querySelectorAll('.pf-opts').forEach(function(g){ var k=g.getAttribute('data-k');
       g.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', p[k]===b.getAttribute('data-v')); }); });
     ov.querySelector('#pfSector').value = p.sector || '';
+    var tx = ov.querySelector('#pfText'); if(tx) tx.value = p.profileText || '';
   }
   ov.querySelectorAll('.pf-opts button').forEach(function(b){
     b.onclick = function(){ var p = prefs(); p[b.parentNode.getAttribute('data-k')] = b.getAttribute('data-v');
       if(b.parentNode.getAttribute('data-k')==='preset'){ p.audience = (PRESETS[p.preset]||{}).audience; }
       setPrefs(p); paintOpts(); };
   });
-  ov.querySelector('.pf-save').onclick = function(){ var p = prefs(); p.sector = ov.querySelector('#pfSector').value.trim(); setPrefs(p); ov.classList.remove('open'); apply(); chipLabel(); };
+  ov.querySelector('.pf-save').onclick = function(){ var p = prefs(); p.sector = ov.querySelector('#pfSector').value.trim(); var tx=ov.querySelector('#pfText'); p.profileText = tx?tx.value.trim():''; setPrefs(p); ov.classList.remove('open'); apply(); chipLabel(); };
   ov.addEventListener('click', function(e){ if(e.target===ov) ov.classList.remove('open'); });
   chip.onclick = function(){ paintOpts(); ov.classList.add('open'); };
 
   // ---- reescribir slots de contenido con lo generado por el agente ----
-  function renderHooks(preset, hooks){
+  function renderHooks(label, hooks){
     return '<div class="grid-2">' + hooks.map(function(h){
-      return '<div class="note-card"><span class="pf-adapt">'+esc(PRESETS[preset].short)+'</span><div class="note-title" style="margin-top:6px">'+esc(h.title)+'</div><p style="font-size:13.5px">«'+esc(h.msg)+'»</p></div>';
+      return '<div class="note-card"><span class="pf-adapt">'+esc(label)+'</span><div class="note-title" style="margin-top:6px">'+esc(h.title)+'</div><p style="font-size:13.5px">«'+esc(h.msg)+'»</p></div>';
     }).join('') + '</div>';
   }
-  function fillSlots(preset){
+  function slotEls(){ return [].slice.call(document.querySelectorAll('[data-pf-slot]')); }
+  function groupsOnPage(){ var g={}; slotEls().forEach(function(el){var n=el.getAttribute('data-pf-slot');g[n.slice(0,n.lastIndexOf('-'))]=1;}); return Object.keys(g); }
+  function injectField(el, field, v, label){
+    if(el._pfCanon==null) el._pfCanon = el.innerHTML;
+    if(!v){ el.innerHTML = el._pfCanon; return; }
+    if(field==='title' && v.title!=null) el.textContent = v.title;
+    else if(field==='desc' && v.desc!=null) el.textContent = v.desc;
+    else if(field==='hooks' && v.hooks) el.innerHTML = renderHooks(label, v.hooks);
+    else if(field==='practica' && v.practica!=null) el.innerHTML = '<div class="callout callout-warm" style="margin-top:16px"><h4><span class="pf-adapt">Adaptado a ti</span>&nbsp; La práctica de hoy</h4><p>'+esc(v.practica)+'</p></div>';
+    else el.innerHTML = el._pfCanon;
+  }
+  function fillGroup(group, content, label){
+    slotEls().forEach(function(el){ var n=el.getAttribute('data-pf-slot'); var i=n.lastIndexOf('-'); if(n.slice(0,i)!==group) return; injectField(el, n.slice(i+1), content, label); });
+  }
+  function fillSlots(preset){   // pre-generado (estático)
     var DATA = window.BOO_PERSONALIZATION || {};
-    document.querySelectorAll('[data-pf-slot]').forEach(function(el){
-      if(el._pfCanon==null) el._pfCanon = el.innerHTML;   // guardar canónico una vez
-      var name = el.getAttribute('data-pf-slot'); var i = name.lastIndexOf('-');
-      var group = name.slice(0,i), field = name.slice(i+1);
-      var v = preset && DATA[group] && DATA[group][preset];
-      if(!v){ el.innerHTML = el._pfCanon; return; }  // sin caso → contenido canónico
-      if(field==='title' && v.title!=null) el.textContent = v.title;
-      else if(field==='desc' && v.desc!=null) el.textContent = v.desc;
-      else if(field==='hooks' && v.hooks) el.innerHTML = renderHooks(preset, v.hooks);
-      else if(field==='practica' && v.practica!=null) el.innerHTML = '<div class="callout callout-warm" style="margin-top:16px"><h4><span class="pf-adapt">Adaptado a ti</span>&nbsp; La práctica de hoy</h4><p>'+esc(v.practica)+'</p></div>';
-      else el.innerHTML = el._pfCanon;
+    slotEls().forEach(function(el){ var n=el.getAttribute('data-pf-slot'); var i=n.lastIndexOf('-'); var group=n.slice(0,i);
+      injectField(el, n.slice(i+1), preset && DATA[group] && DATA[group][preset], PRESETS[preset]?PRESETS[preset].short:'Tu caso'); });
+  }
+  function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return h; }
+  function livePersonalize(profileText){   // en vivo (agente en el servidor IONOS)
+    var DATA = window.BOO_PERSONALIZATION || {}; var base = (window.BOO_API_BASE||'').replace(/\/$/,'');
+    groupsOnPage().forEach(function(group){
+      var canon = DATA[group] && (DATA[group].odoo || DATA[group][Object.keys(DATA[group])[0]]); if(!canon) return;
+      var ck = 'pf_live_'+group+'_'+hash(profileText);
+      var cached; try{ cached = sessionStorage.getItem(ck); }catch(e){}
+      if(cached){ fillGroup(group, JSON.parse(cached), 'Tu caso'); return; }
+      fetch(base+'/api/personalize',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile:profileText, section:canon})})
+        .then(function(r){ return r.json(); }).then(function(v){ if(v && !v.error){ try{ sessionStorage.setItem(ck, JSON.stringify(v)); }catch(e){} fillGroup(group, v, 'Tu caso'); } }).catch(function(){});
     });
   }
 
@@ -115,7 +134,7 @@
       var show = !p[key] ? el.hasAttribute('data-when-default') : vals.indexOf(p[key])>=0;
       el.style.display = show ? '' : 'none';
     });
-    fillSlots(p.preset);
+    if(window.BOO_API_BASE && p.profileText){ livePersonalize(p.profileText); } else { fillSlots(p.preset); }
   }
 
   chipLabel();

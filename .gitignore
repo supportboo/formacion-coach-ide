@@ -1,2 +1,5 @@
 _mobile/
 _mobile_audit.py
+
+server/.env
+server/node_modules/
