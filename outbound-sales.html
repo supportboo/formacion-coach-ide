@@ -1154,6 +1154,45 @@ body{padding-left:66px}
 </div>
 <div class="userchip" id="userChip"><span class="dot"></span>Formación · <span class="uname"></span></div>
 
+<style>
+body{padding-bottom:66px}
+.flowbar{position:fixed;left:66px;right:0;bottom:0;z-index:65;display:flex;justify-content:center;pointer-events:none;padding:0 16px 14px}
+.flowbar-inner{pointer-events:auto;display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border:1px solid var(--border-light);border-radius:100px;padding:8px 14px;box-shadow:0 8px 28px rgba(113,75,103,.16);max-width:100%;overflow-x:auto}
+.flowbar-inner::-webkit-scrollbar{height:0}
+.fb-phase{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:0 5px 0 8px;white-space:nowrap}
+.fb-step{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.fb-step .fb-dot{display:flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;background:var(--bg-warm);color:var(--text-body);font-size:12.5px;font-weight:700;transition:transform .16s,background .16s,color .16s;border:2px solid transparent}
+.fb-step[data-phase="prep"] .fb-dot{background:rgba(91,137,158,.16);color:var(--odoo-silver)}
+.fb-step[data-phase="exec"] .fb-dot{background:rgba(1,126,132,.15);color:var(--odoo-secondary)}
+.fb-step[data-phase="anal"] .fb-dot{background:rgba(228,169,0,.18);color:#B98600}
+.fb-step[data-phase="res"] .fb-dot{background:rgba(113,75,103,.14);color:var(--odoo-primary)}
+.fb-step:hover .fb-dot{transform:scale(1.16)}
+.fb-step.active .fb-dot{background:var(--odoo-primary);color:#fff;border-color:#fff;box-shadow:0 2px 9px rgba(113,75,103,.45);transform:scale(1.12)}
+.fb-step:after{content:attr(data-tip);position:absolute;bottom:calc(100% + 11px);left:50%;transform:translateX(-50%);background:var(--text-dark);color:#fff;font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:6}
+.fb-step:before{content:"";position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--text-dark);opacity:0;transition:opacity .15s}
+.fb-step:hover:after,.fb-step:hover:before{opacity:1}
+.fb-sep{width:12px;height:2px;background:var(--border);flex:0 0 auto;border-radius:2px}
+@media(max-width:900px){.flowbar{left:0}.fb-phase{display:none}}
+</style>
+<div class="flowbar"><div class="flowbar-inner">
+  <a class="fb-step" href="#inicio" data-phase="res" data-tip="Portada"><span class="fb-dot">⌂</span></a>
+  <span class="fb-phase">Aprende</span>
+  <a class="fb-step" href="#fundamentos" data-phase="exec" data-tip="Fundamentos"><span class="fb-dot">1</span></a>
+  <a class="fb-step" href="#frameworks" data-phase="exec" data-tip="Frameworks"><span class="fb-dot">2</span></a>
+  <a class="fb-step" href="#prospeccion" data-phase="exec" data-tip="Prospección"><span class="fb-dot">3</span></a>
+  <a class="fb-step" href="#objeciones" data-phase="exec" data-tip="Objeciones"><span class="fb-dot">4</span></a>
+  <span class="fb-sep"></span><span class="fb-phase">Aplica</span>
+  <a class="fb-step" href="#clientes" data-phase="anal" data-tip="Captar clientes"><span class="fb-dot">5</span></a>
+  <a class="fb-step" href="#partners" data-phase="anal" data-tip="Captar partners"><span class="fb-dot">6</span></a>
+  <span class="fb-sep"></span><span class="fb-phase">Kit</span>
+  <a class="fb-step" href="#herramientas" data-phase="prep" data-tip="Herramientas"><span class="fb-dot">7</span></a>
+  <a class="fb-step" href="#legal" data-phase="prep" data-tip="Legal"><span class="fb-dot">8</span></a>
+  <span class="fb-sep"></span><span class="fb-phase">Extra</span>
+  <a class="fb-step" href="#recursos" data-phase="res" data-tip="Recursos"><span class="fb-dot">9</span></a>
+  <a class="fb-step" href="#chuleta" data-phase="res" data-tip="Chuleta"><span class="fb-dot">★</span></a>
+</div></div>
+<script>(function(){var secs=document.querySelectorAll('section[id]'),fb=document.querySelectorAll('.fb-step');window.addEventListener('scroll',function(){var cur='';secs.forEach(function(s){if(scrollY>=s.offsetTop-160)cur=s.id});fb.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur)})});})();</script>
+
 <script>
 /* ===== Config plataforma ===== */
 const TRACK_URL = "";
