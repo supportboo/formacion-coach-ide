@@ -3,3 +3,6 @@ _mobile_audit.py
 
 server/.env
 server/node_modules/
+affiliate/clicks.jsonl
+affiliate/affiliates.json
+affiliate/status-overrides.json

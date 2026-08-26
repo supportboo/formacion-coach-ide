@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brandooers · Afiliación</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--ink);padding:26px 30px 60px}
+h1{font-size:24px;margin:0}.sub{font-family:Caveat,cursive;font-size:24px;color:var(--t);margin:0 0 6px}
+.kpis{display:flex;gap:14px;margin:16px 0 22px;flex-wrap:wrap}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 20px;min-width:130px}
+.kpi .v{font-size:26px;font-weight:900}.kpi .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:14px}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid #F0EAEE;vertical-align:middle}
+th{background:var(--warm);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+tr:last-child td{border-bottom:0}
+.dom{font-weight:700}.dom a{color:var(--p);text-decoration:none}
+.net{font-size:12px;color:var(--t);font-weight:600}
+.badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.03em}
+.b-SIN_PROGRAMA{background:#eee;color:#888}.b-DISPONIBLE{background:#fff3bf;color:#a07a00}
+.b-SOLICITADA{background:#d0ebff;color:#1971c2}.b-EN_CURSO{background:#e5dbff;color:#6741d9}
+.b-MONETIZANDO{background:#d3f9d8;color:#2b8a3e}.b-AUTO_MONETIZADO{background:#c5f6fa;color:#0c8599}.b-RECHAZADA{background:#ffe3e3;color:#c92a2a}
+select,input{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}
+.tag input{width:70px}.note{font-size:12px;color:var(--mut);max-width:230px}
+.hint{font-size:13px;color:var(--mut);margin:0 0 18px;max-width:820px;line-height:1.6}
+button{font-family:inherit;font-size:12px;font-weight:700;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;background:var(--p);color:#fff}
+</style>
+</head>
+<body>
+<p class="sub">Monetización</p>
+<h1>Panel de afiliación</h1>
+<p class="hint">Cada dominio que recomendamos, con su estado. <b>Automático:</b> descubrimiento del programa, red detectada, nº de recursos y clics, y el tag aplicado por el redirector. <b>Manual (por diseño y por términos de las redes):</b> aplicar, aceptar condiciones y el alta fiscal (KYC). Cambia el estado y pega el tag cuando te aprueben, y el redirector empieza a monetizar sin tocar los cursos.</p>
+<div class="kpis" id="kpis"></div>
+<table id="tbl"><thead><tr><th>Dominio</th><th>Estado</th><th>Red</th><th>Recursos</th><th>Clics</th><th>Tag afiliado</th><th>Programa</th><th>Nota</th></tr></thead><tbody id="rows"></tbody></table>
+<script>
+var STATES=['SIN_PROGRAMA','DISPONIBLE','SOLICITADA','EN_CURSO','MONETIZANDO','AUTO_MONETIZADO','RECHAZADA'];
+function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+async function load(){
+  var d=await (await fetch('api/data')).json();
+  document.getElementById('kpis').innerHTML =
+    kpi(d.totals.dominios,'Dominios')+kpi(d.totals.disponibles,'Con programa')+kpi(d.totals.clics,'Clics registrados')+
+    kpi(d.rows.filter(function(r){return r.status==='MONETIZANDO'||r.status==='AUTO_MONETIZADO'}).length,'Monetizando');
+  document.getElementById('rows').innerHTML=d.rows.map(row).join('');
+}
+function kpi(v,l){return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>'}
+function row(r){
+  var opts=STATES.map(function(s){return '<option'+(s===r.status?' selected':'')+'>'+s+'</option>'}).join('');
+  var tag=r.tag||{param:'',value:''};
+  return '<tr data-d="'+esc(r.domain)+'">'+
+    '<td class="dom">'+esc(r.domain)+'</td>'+
+    '<td><span class="badge b-'+r.status+'">'+r.status.replace(/_/g,' ')+'</span><br><select class="st" style="margin-top:6px">'+opts+'</select></td>'+
+    '<td class="net">'+esc(r.network||'—')+'</td>'+
+    '<td>'+r.resources+'</td><td><b>'+r.clicks+'</b></td>'+
+    '<td class="tag"><input class="tp" placeholder="param" value="'+esc(tag.param)+'"><input class="tv" placeholder="valor" value="'+esc(tag.value)+'"><br><button class="savetag" style="margin-top:5px">Guardar tag</button></td>'+
+    '<td>'+(r.programUrl?'<a href="'+esc(r.programUrl)+'" target="_blank" rel="noopener">abrir ↗</a>':'—')+'</td>'+
+    '<td class="note">'+esc(r.note||'')+'</td></tr>';
+}
+document.addEventListener('change',function(e){
+  if(e.target.classList.contains('st')){var d=e.target.closest('tr').dataset.d;
+    fetch('api/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({domain:d,status:e.target.value})}).then(load);}
+});
+document.addEventListener('click',function(e){
+  if(e.target.classList.contains('savetag')){var tr=e.target.closest('tr');var d=tr.dataset.d;
+    fetch('api/tag',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({domain:d,param:tr.querySelector('.tp').value.trim(),value:tr.querySelector('.tv').value.trim()})}).then(function(){e.target.textContent='✓ Guardado';setTimeout(load,600)});}
+});
+load();
+</script>
+</body>
+</html>
