@@ -4,14 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandooers · Nueva contraseña</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background-image:radial-gradient(circle at 18% 12%,rgba(0,212,255,.06),transparent 42%),radial-gradient(circle at 84% 88%,rgba(236,72,153,.06),transparent 42%)}
 .card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(113,75,103,.08)}
+.brand{text-align:center;margin-bottom:14px}
+.brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--ink);user-select:none}
+.brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
+.beyes .socketL,.beyes .socketR,.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR,.beyes .glint{transform-box:fill-box;transform-origin:center;animation:bBlink 5.2s infinite}
+@keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
 h1{font-size:22px;font-weight:800;color:var(--ink);text-align:center}
-.sub{font-family:'Caveat',cursive;font-size:22px;color:var(--t);margin-bottom:24px;text-align:center}
+.sub{font-family:'Caveat',cursive;font-size:20px;color:var(--t);margin-bottom:20px;text-align:center}
 label{display:block;font-size:12px;font-weight:600;color:var(--ink);margin:14px 0 5px}
 input{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px}
 input:focus{outline:none;border-color:var(--p)}
@@ -22,9 +28,18 @@ a{color:var(--p);font-weight:600;text-decoration:none}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+<radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+</defs></svg>
 <form class="card" id="f">
-  <p class="sub">Brandooers</p>
+  <div class="brand">
+    <span class="brandooers-logo" style="font-size:28px">Brand<svg class="beyes" width="50" height="28" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g><g transform="translate(53,0)"><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g></svg>ers</span>
+  </div>
   <h1>Nueva contraseña</h1>
+  <p class="sub" style="margin-top:2px">Elige tu contraseña</p>
   <label for="p1">Contraseña nueva (mín. 8)</label>
   <input id="p1" type="password" autocomplete="new-password" required>
   <label for="p2">Repite la contraseña</label>
