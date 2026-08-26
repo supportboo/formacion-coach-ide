@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brandooers · La escuela del equipo Odoo I+D+E</title>
+<title>Por qué Brandooers · la formación que sí deja retorno</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -660,8 +660,6 @@ body{padding-left:66px}
 </style>
 </head>
 <body>
-
-<!-- SVG defs (gradientes del logo) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
 <linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
@@ -671,300 +669,113 @@ body{padding-left:66px}
 <radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
 </defs></svg>
 
-<style>
-/* Hub-only */
-.course-card{position:relative;display:flex;flex-direction:column;text-decoration:none;overflow:hidden}
-.course-card .cc-top{height:6px;border-radius:6px;margin:-4px 0 14px}
-.course-card h3{font-size:18px;color:var(--text-dark);margin-bottom:4px}
-.course-card p{font-size:13.5px;color:var(--text-body);flex:1}
-.course-meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 2px}
-.course-meta span{font-size:11px;font-weight:600;color:var(--text-muted);background:var(--bg-warm);border-radius:100px;padding:3px 9px}
-.cc-go{margin-top:12px;font-size:13px;font-weight:700}
-.soon{opacity:.62}
-.soon-pill{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--odoo-gold);background:rgba(228,169,0,.12);padding:3px 9px;border-radius:100px}
-.flow{position:relative;border:1px solid var(--border-light);border-radius:var(--radius);background:var(--bg-white);box-shadow:var(--shadow-sm);padding:22px 24px 22px 30px;margin-bottom:16px;transition:box-shadow .2s,transform .2s}
-.flow:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
-.flow:before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:4px;border-radius:0 4px 4px 0;background:linear-gradient(var(--odoo-secondary),var(--odoo-primary))}
-.flow h3{font-size:16px;color:var(--text-dark);margin-bottom:2px;display:flex;align-items:center;gap:10px}
-.flow .flow-sub{font-size:13px;color:var(--text-muted);margin-bottom:16px}
-.flow-steps{list-style:none;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.flow-steps li{display:flex;align-items:center;gap:6px}
-.flow-steps a,.flow-steps .node{display:inline-block;font-size:12.5px;font-weight:600;text-decoration:none;padding:8px 13px;border-radius:100px;background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border);box-shadow:var(--shadow-sm);transition:transform .16s,box-shadow .16s,background .16s,color .16s}
-.flow-steps a:hover{background:var(--odoo-primary);color:#fff;border-color:var(--odoo-primary);transform:translateY(-2px);box-shadow:0 5px 16px rgba(113,75,103,.28)}
-.flow-steps .node.soon{background:rgba(228,169,0,.06);color:var(--text-muted);border-style:dashed;box-shadow:none}
-.flow-steps .sep{color:var(--border);font-weight:700;font-size:13px}
-.wiz-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.wiz-chips button{font-family:inherit;font-size:13.5px;font-weight:600;color:var(--text-body);background:var(--bg-white);border:1px solid var(--border);border-radius:100px;padding:9px 16px;cursor:pointer;transition:all .18s}
-.wiz-chips button:hover{border-color:var(--odoo-primary);color:var(--odoo-primary)}
-.wiz-chips button.on{background:var(--odoo-primary);border-color:var(--odoo-primary);color:#fff}
-.wiz-q{font-family:'Caveat',cursive;font-size:24px;font-weight:600;color:var(--odoo-primary);margin-top:20px}
-.wiz-q:first-child{margin-top:0}
-.lvl-bar{display:flex;gap:4px;margin-top:6px}
-.lvl-bar i{height:5px;flex:1;border-radius:3px;background:var(--border)}
-</style>
-
 <div class="nav-progress" id="navProgress"></div>
 <button class="rail-burger" id="railBurger" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
 <div class="rail-ov" id="railOv"></div>
 <aside class="rail" id="rail">
-  <div class="rail-top">
-    <span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
-  </div>
+  <div class="rail-top"><span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span></div>
   <div class="rail-items">
-    <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
-    <a class="rail-item gold" href="#empezar" data-sec="empezar" title="Encuentra tu ruta"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V9a4 4 0 0 1 4-4h4"/><path d="M18 7v8a4 4 0 0 1-4 4h-4"/></svg></span><span class="ri-lb">Tu ruta</span></a>
-    <a class="rail-item" href="#cursos" data-sec="cursos" title="Todos los cursos"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="ri-lb">Cursos</span></a>
-    <a class="rail-item" href="#rutas" data-sec="rutas" title="Rutas de aprendizaje"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg></span><span class="ri-lb">Rutas</span></a>
-    <a class="rail-item" href="#como" data-sec="como" title="Cómo funciona"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="ri-lb">Cómo va</span></a>
-    <a class="rail-item gold" href="por-que-brandooers.html" title="Por qué Brandooers"><span class="ri-ic"><svg viewBox="0 0 24 24"><polygon points="12 3 14.7 8.6 21 9.3 16.5 13.6 17.8 20 12 16.8 6.2 20 7.5 13.6 3 9.3 9.3 8.6"/></svg></span><span class="ri-lb">Por qué</span></a>
+    <a class="rail-item gold" href="hub.html" title="Inicio"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
+    <a class="rail-item" href="#diferencia" data-sec="diferencia" title="Qué nos hace diferentes"><span class="ri-ic"><svg viewBox="0 0 24 24"><polygon points="12 3 14.7 8.6 21 9.3 16.5 13.6 17.8 20 12 16.8 6.2 20 7.5 13.6 3 9.3 9.3 8.6"/></svg></span><span class="ri-lb">Diferencia</span></a>
+    <a class="rail-item" href="#foso" data-sec="foso" title="Por qué es difícil de copiar"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></span><span class="ri-lb">El foso</span></a>
     <div class="rail-sep"></div>
-    <a class="rail-item" href="index.html" title="Formación del Coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Coach</span></a>
-    <a class="rail-item" href="outbound-sales.html" title="Outbound Sales"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg></span><span class="ri-lb">Outbound</span></a>
-    <a class="rail-item" href="reclutamiento-partners.html" title="Reclutamiento de Partners"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5M12 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5"/></svg></span><span class="ri-lb">Partners</span></a>
+    <a class="rail-item" href="index.html" title="Coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Coach</span></a>
+    <a class="rail-item" href="outbound-sales.html" title="Outbound"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg></span><span class="ri-lb">Outbound</span></a>
+    <a class="rail-item" href="marketing-partners.html" title="Marketing"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg></span><span class="ri-lb">Marketing</span></a>
   </div>
 </aside>
 
-<!-- HERO -->
 <section class="hero" id="inicio">
-  <div style="margin-bottom:34px;display:flex;flex-direction:column;align-items:center;gap:12px">
-    <span class="brandooers-logo" style="font-size:clamp(44px,8vw,64px)">Brand<svg class="beyes" width="150" height="86" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+  <div style="margin-bottom:30px;display:flex;flex-direction:column;align-items:center;gap:10px">
+    <span class="brandooers-logo" style="font-size:clamp(42px,7.5vw,60px)">Brand<svg class="beyes" width="140" height="80" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
     <span style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)">Investigación y desarrollo de expertos · para Odooers</span>
   </div>
-  <h1>La escuela del<br><span class="hand-accent">equipo</span></h1>
-  <p class="subtitle">Cursos prácticos que van <strong>de rookie a experto</strong>. No lecciones sueltas: rutas ordenadas que se conectan entre sí. Dinos qué necesitas y te montamos el camino.</p>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:12px">
-    <a class="dna-cta" href="#empezar">Encontrar mi ruta →</a>
-    <a class="dna-cta" href="#cursos" style="background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)">Ver los cursos</a>
-  </div>
-  <div class="hero-meta" style="margin-top:44px">
-    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-primary)">4</div><div class="lab">Cursos disponibles</div></div>
-    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-secondary)">5</div><div class="lab">Rutas de aprendizaje</div></div>
-    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-gold)">0→100</div><div class="lab">Rookie a experto</div></div>
+  <h1>La formación que <span class="hand-accent">sí deja retorno</span></h1>
+  <p class="subtitle">Los demás te venden un vídeo grabado en 2019 que ves solo. Brandooers te da una formación que <strong>se reescribe para tu negocio</strong>, se examina, se mantiene viva y demuestra que aprendes y aplicas.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+    <a class="dna-cta" href="#diferencia">Qué nos hace diferentes →</a>
+    <a class="dna-cta" href="hub.html" style="background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)">Ver los cursos</a>
   </div>
 </section>
 
-<!-- ONBOARDING / TU RUTA -->
-<section id="empezar">
+<section id="diferencia">
   <div class="reveal">
-    <div class="section-tag">Empieza por aquí</div>
-    <h2 class="section-title">Encuentra tu ruta en 15 segundos</h2>
-    <p class="section-desc">Dos preguntas y te decimos exactamente por dónde empezar y en qué orden seguir. Se guarda en tu navegador para que retomes donde lo dejaste.</p>
+    <div class="section-tag">Lo que nadie más hace</div>
+    <h2 class="section-title">Cinco diferencias de verdad</h2>
+    <p class="section-desc">El resto son detalles. Estas cinco son las que cambian el resultado.</p>
   </div>
-  <div class="card reveal" style="max-width:760px">
-    <div class="wiz-q">1 · ¿Qué quieres conseguir ahora?</div>
-    <div class="wiz-chips" id="wizGoal">
-      <button type="button" data-v="clientes">Captar clientes para Odoo</button>
-      <button type="button" data-v="partners">Captar partners para el ecosistema</button>
-      <button type="button" data-v="coach">Acompañar a un nuevo del equipo</button>
-      <button type="button" data-v="marca">Marca personal y contenido</button>
-    </div>
-    <div class="wiz-q">2 · ¿En qué punto estás?</div>
-    <div class="wiz-chips" id="wizLevel">
-      <button type="button" data-v="rookie">Rookie · empiezo de cero</button>
-      <button type="button" data-v="medio">Ya sé algo</button>
-      <button type="button" data-v="experto">Experto · quiero afinar</button>
-    </div>
-    <div id="wizResult" style="margin-top:22px"></div>
+
+  <div class="grid-2 reveal" style="align-items:start">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">01 · Personalización real</span><h3 style="font-size:18px;color:var(--text-dark);margin:4px 0 6px">Se adapta a ti, no al revés</h3><p style="font-size:14.5px">Un partner de Odoo ve ejemplos de ERP y Verifactu; una tienda ecommerce ve carritos abandonados y CAC; un despacho ve pipeline en dientes de sierra. Mismo método, tu mundo. Udemy o cualquier LMS dan lo mismo a todos. Esto es el WOW.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-primary)"><span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary)">02 · Cero inventos</span><h3 style="font-size:18px;color:var(--text-dark);margin:4px 0 6px">Verificado, con fuentes, seguro</h3><p style="font-size:14.5px">Formamos a profesionales; una plataforma que alucina datos es una denuncia esperando. Investigamos en fuentes de autoridad, un agente distinto lo verifica y otro tiene poder de veto. Contenido de nivel profesional y legalmente seguro. Casi nadie en «cursos con IA» puede decir esto.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><span class="tag-pill" style="background:rgba(228,169,0,.12);color:var(--odoo-gold)">03 · Aplicable 0→100</span><h3 style="font-size:18px;color:var(--text-dark);margin:4px 0 6px">Playbook, no teoría</h3><p style="font-size:14.5px">Plantillas, «esto lo haces el lunes», tests y badges. Se mide por lo que aplicas, no por horas de vídeo que nadie termina. De rookie a experto, paso a paso.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)"><span class="tag-pill" style="background:rgba(228,110,120,.12);color:var(--odoo-learning)">04 · Vivo y creciendo</span><h3 style="font-size:18px;color:var(--text-dark);margin:4px 0 6px">Se mantiene y se amplía solo</h3><p style="font-size:14.5px">Un pipeline de agentes genera y valida contenido nuevo según lo que la gente pide, y el feedback de alumnos y expertos corrige lo obsoleto. Los demás congelan un curso cinco años; el nuestro mejora cada semana.</p></div>
+  </div>
+  <div class="card reveal" style="border-top:3px solid var(--odoo-ready);margin-top:16px"><span class="tag-pill" style="background:rgba(33,183,153,.12);color:var(--odoo-ready)">05 · Suma al ecosistema</span><h3 style="font-size:18px;color:var(--text-dark);margin:4px 0 6px">Aliados de los autores, no un jardín cerrado</h3><p style="font-size:14.5px">Recomendamos libros, charlas y pódcast de los mejores expertos —fuera de derechos— y les mandamos visitas y ventas. Eso nos hace aliados de los autores (base para afiliación y para que ellos nos promocionen), no competencia.</p></div>
+
+  <div class="grid-2 reveal" style="margin-top:20px">
+    <div class="callout callout-primary"><h4>ROI que se ve y se contagia</h4><p>Te formas → aplicas → eres mejor profesional → invitas a tu equipo → los coacheas → ellos invitan a otros. Badges, ranking y referidos, configurables con cada empresa.</p></div>
+    <div class="callout callout-info"><h4>Para cualquier empresa y sector</h4><p>No solo Odoo: método universal + una «piel» por perfil. Sirve a un comercial de venta directa, a un partner recruiter, a una agencia o a una tienda online.</p></div>
   </div>
 </section>
 
-<!-- CURSOS -->
-<section id="cursos">
+<section id="foso">
   <div class="reveal">
-    <div class="section-tag">El catálogo</div>
-    <h2 class="section-title">Todos los cursos</h2>
-    <p class="section-desc">Cada curso es una experiencia completa, con su método, sus plantillas y sus recursos. Los que ves en gris están en camino: los publicamos y se enlazan solos a las rutas.</p>
+    <div class="section-tag">Por qué no es fácil de copiar</div>
+    <h2 class="section-title">El foso</h2>
+    <p class="section-desc">Cualquiera graba vídeos. Lo difícil es lo otro.</p>
   </div>
-  <div class="grid-4 reveal">
-    <a class="card course-card" href="index.html"><div class="cc-top" style="background:var(--odoo-primary)"></div><span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary)">Personas</span><h3>Coach de los que llegan</h3><p>Acompañar, motivar y sostener a un compañero nuevo durante sus primeros 6 meses. Sin operativa: presencia y confianza.</p><div class="course-meta"><span>Transversal</span><span>Con test de ADN</span></div><div class="cc-go" style="color:var(--odoo-primary)">Entrar al curso →</div></a>
-    <a class="card course-card" href="outbound-sales.html"><div class="cc-top" style="background:var(--odoo-secondary)"></div><span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">Ventas</span><h3>Outbound Sales</h3><p>Salir a buscar negocio con método: frameworks, cadencia multicanal, plantillas de copy y manejo de objeciones. Clientes y partners.</p><div class="course-meta"><span>Base → intermedio</span><span>7 frameworks</span></div><div class="cc-go" style="color:var(--odoo-secondary)">Entrar al curso →</div></a>
-    <a class="card course-card" href="reclutamiento-partners.html"><div class="cc-top" style="background:var(--odoo-gold)"></div><span class="tag-pill" style="background:rgba(228,169,0,.12);color:var(--odoo-gold)">Canal</span><h3>Reclutamiento de Partners</h3><p>El manual completo de 12 módulos para captar empresas tecnológicas y convertirlas en partners de Odoo. Outbound consultivo, de 0 a 100.</p><div class="course-meta"><span>Rookie → experto</span><span>12 módulos</span></div><div class="cc-go" style="color:var(--odoo-gold)">Entrar al curso →</div></a>
-    <a class="card course-card" href="marketing-partners.html"><div class="cc-top" style="background:var(--odoo-learning)"></div><span class="tag-pill" style="background:rgba(228,110,120,.12);color:var(--odoo-learning)">Marketing</span><h3>Marketing para Partners</h3><p>Marketing sin humo, de Intro a Advanced: prospección, LinkedIn y contenido, SEO/GEO, web, paid ads, eventos y automatización.</p><div class="course-meta"><span>Intro → Advanced</span><span>12 módulos</span></div><div class="cc-go" style="color:var(--odoo-learning)">Entrar al curso →</div></a>
+  <div class="compare reveal">
+    <div class="col yes"><h4>Brandooers</h4><ul>
+      <li>Personaliza el contenido con IA <strong>sin inventar nada</strong>.</li>
+      <li>Verificado por agentes independientes con veto.</li>
+      <li>Crece solo, con calidad, y se mantiene fresco.</li>
+      <li>Promociona a los autores: todos ganan.</li>
+      <li>Demuestra aprendizaje y aplicación (badges, ROI).</li>
+    </ul></div>
+    <div class="col no"><h4>Una plataforma de cursos normal</h4><ul>
+      <li>Mismo vídeo para todos, sin adaptar.</li>
+      <li>Opiniones sin verificar; riesgo de datos falsos.</li>
+      <li>Contenido congelado que envejece.</li>
+      <li>Jardín cerrado, cero relación con autores.</li>
+      <li>Horas vistas ≠ resultado.</li>
+    </ul></div>
   </div>
-  <p class="reveal" style="font-family:'Caveat',cursive;font-size:22px;color:var(--text-muted);margin:26px 0 12px">En camino…</p>
-  <div class="grid-3 reveal">
-    <div class="card course-card soon"><span class="soon-pill">Próximamente</span><div class="cc-top" style="background:var(--odoo-silver)"></div><h3 style="font-size:16px">Negociación y cierre</h3><p style="font-size:12.5px">Precio, propuesta y contrato: cerrar acuerdos sin regalar margen ni perder al cliente.</p></div>
-    <div class="card course-card soon"><span class="soon-pill">Próximamente</span><div class="cc-top" style="background:var(--odoo-ready)"></div><h3 style="font-size:16px">Marca personal & LinkedIn</h3><p style="font-size:12.5px">Contenido que te posiciona como referente y atrae clientes y partners sin perseguir a nadie.</p></div>
-    <div class="card course-card soon"><span class="soon-pill">Próximamente</span><div class="cc-top" style="background:var(--odoo-secondary)"></div><h3 style="font-size:16px">Onboarding de partners</h3><p style="font-size:12.5px">De la firma al primer deal en 30 días: activación, formación y acompañamiento del nuevo partner.</p></div>
-  </div>
-</section>
-
-<!-- RUTAS -->
-<section id="rutas">
-  <div class="reveal">
-    <div class="section-tag">De rookie a experto</div>
-    <h2 class="section-title">Rutas de aprendizaje</h2>
-    <p class="section-desc">Cada ruta es un playbook ordenado: empiezas por el primer paso y avanzas. Los pasos saltan de un curso a otro cuando toca, y los nodos en gris se activan cuando publiquemos ese contenido.</p>
-  </div>
-
-  <div class="flow reveal">
-    <h3><span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary);margin:0">Ruta A</span> Captar clientes para Odoo</h3>
-    <div class="flow-sub">Para quien vende implantación de Odoo a pymes. Del primer email a cerrar el proyecto.</div>
-    <ul class="flow-steps">
-      <li><a href="outbound-sales.html#fundamentos">1 · Fundamentos</a></li><li class="sep">→</li>
-      <li><a href="outbound-sales.html#frameworks">2 · Frameworks</a></li><li class="sep">→</li>
-      <li><a href="outbound-sales.html#prospeccion">3 · Prospección</a></li><li class="sep">→</li>
-      <li><a href="outbound-sales.html#objeciones">4 · Objeciones</a></li><li class="sep">→</li>
-      <li><a href="outbound-sales.html#clientes">5 · Captar clientes</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html">6 · Marketing (SEO, web, ads)</a></li><li class="sep">→</li>
-      <li><span class="node soon">7 · Negociación y cierre</span></li>
-    </ul>
-  </div>
-
-  <div class="flow reveal">
-    <h3><span class="tag-pill" style="background:rgba(228,169,0,.12);color:var(--odoo-gold);margin:0">Ruta B</span> Captar partners de 0 a 100</h3>
-    <div class="flow-sub">El camino completo del reclutador de canal. Empieza con la visión en Outbound y baja al detalle en los 12 módulos.</div>
-    <ul class="flow-steps">
-      <li><a href="outbound-sales.html#partners">Intro · Captar partners</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-01">M1 · El negocio</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-02">M2 · Mindset</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-03">M3 · Partner ideal</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-04">M4 · Prospección</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-05">M5 · Copywriting</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-06">M6 · LinkedIn</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-07">M7 · Email frío</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-08">M8 · Multicanal</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-09">M9 · Webinars</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-10">M10 · Objeciones</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-11">M11 · Stack e IA</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-12">M12 · Métricas</a></li>
-    </ul>
-  </div>
-
-  <div class="flow reveal">
-    <h3><span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary);margin:0">Ruta C</span> Acompañar a un nuevo (Coach)</h3>
-    <div class="flow-sub">Para quien recibe a un compañero nuevo en el equipo. Personas antes que operativa.</div>
-    <ul class="flow-steps">
-      <li><a href="index.html#adn">1 · Test de ADN</a></li><li class="sep">→</li>
-      <li><a href="index.html#perfil">2 · Personalidades</a></li><li class="sep">→</li>
-      <li><a href="index.html#pilares">3 · Liderazgo</a></li><li class="sep">→</li>
-      <li><a href="index.html#herramientas">4 · Coaching práctico</a></li><li class="sep">→</li>
-      <li><a href="index.html#calendario">5 · Plan de 6 meses</a></li>
-    </ul>
-  </div>
-
-  <div class="flow reveal">
-    <h3><span class="tag-pill" style="background:rgba(228,110,120,.12);color:var(--odoo-learning);margin:0">Ruta D</span> Webinars y eventos que convierten</h3>
-    <div class="flow-sub">Ejemplo de ruta que cruza cursos: aprendes el webinar como imán de partners y saltas al marketing que lo hace convertir.</div>
-    <ul class="flow-steps">
-      <li><a href="reclutamiento-partners.html#mod-09">1 · Webinars imán de partners</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-09">2 · Eventos y webinars (Marketing)</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-05">3 · LinkedIn y contenido (Marketing)</a></li><li class="sep">→</li>
-      <li><a href="reclutamiento-partners.html#mod-10">4 · Convertir en la sala (Objeciones)</a></li>
-    </ul>
-  </div>
-
-  <div class="flow reveal">
-    <h3><span class="tag-pill" style="background:rgba(228,110,120,.12);color:var(--odoo-learning);margin:0">Ruta E</span> Marketing de 0 a 100</h3>
-    <div class="flow-sub">El motor de marketing del partner, por niveles: de captar tu primer lead a un sistema de crecimiento medible.</div>
-    <ul class="flow-steps">
-      <li><a href="marketing-partners.html#mod-01">Intro · Sin humo</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-02">Prospección</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-05">LinkedIn</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-06">SEO+GEO</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-07">Web</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-08">Paid Ads</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-09">Eventos</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-10">Métricas</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-11">Automatización</a></li><li class="sep">→</li>
-      <li><a href="marketing-partners.html#mod-12">Atribución</a></li>
-    </ul>
-  </div>
-</section>
-
-<!-- COMO FUNCIONA -->
-<section id="como">
-  <div class="reveal">
-    <div class="section-tag">Cómo se navega</div>
-    <h2 class="section-title">Todo conecta con todo</h2>
-    <p class="section-desc">Brandooers no es una pila de PDFs: es un mapa. Cada tema vive en su curso, pero los cursos se enlazan cuando el aprendizaje lo pide.</p>
-  </div>
-  <div class="grid-3 reveal">
-    <div class="card"><span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary)">1</span><h3 style="font-size:16px;color:var(--text-dark);margin:6px 0 4px">Elige por objetivo</h3><p style="font-size:13.5px">Dinos qué quieres conseguir y en qué punto estás. Te damos la ruta, no una lista infinita de temas.</p></div>
-    <div class="card"><span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">2</span><h3 style="font-size:16px;color:var(--text-dark);margin:6px 0 4px">Sigue el camino</h3><p style="font-size:13.5px">Cada ruta va de lo básico a lo avanzado. Avanzas paso a paso y no te pierdes.</p></div>
-    <div class="card"><span class="tag-pill" style="background:rgba(228,169,0,.12);color:var(--odoo-gold)">3</span><h3 style="font-size:16px;color:var(--text-dark);margin:6px 0 4px">Salta cuando toca</h3><p style="font-size:13.5px">¿En Outbound aparece un webinar? Un clic y estás en el módulo que enseña a montarlo. Sin callejones sin salida.</p></div>
-  </div>
-  <div class="callout callout-info reveal" style="margin-top:16px"><h4>Esto va a crecer</h4><p>Iremos añadiendo cursos (Marketing, Negociación, Marca personal…) y afinando las rutas con más detalle. Los nodos en gris ya marcan por dónde va a crecer el mapa: cuando publiquemos ese contenido, se activan solos en las rutas de arriba.</p></div>
+  <div class="callout callout-warm reveal" style="margin-top:16px"><h4>En una frase</h4><p>Nuestra ventaja es <strong>producto e ingeniería</strong>, no un catálogo: personalizar con IA sin alucinar, mantenerlo verificado y hacer que crezca solo con calidad. Eso no se copia en un fin de semana.</p></div>
+  <div style="text-align:center;margin-top:28px"><a class="dna-cta" href="hub.html">Empieza tu ruta →</a></div>
 </section>
 
 <footer>
   <div style="max-width:1100px;margin:0 auto;padding:0 40px;text-align:center;color:var(--text-muted);font-size:13px">
-    <p style="font-family:'Caveat',cursive;font-size:22px;color:var(--odoo-primary);margin-bottom:6px">Brandooers · Odoo I+D+E Spain</p>
-    <p>La escuela del equipo. De rookie a experto, con método y sin humo.</p>
+    <p style="font-family:'Caveat',cursive;font-size:22px;color:var(--odoo-primary);margin-bottom:6px">Brandooers · la escuela del equipo</p>
+    <p>De rookie a experto, con método, sin humo y sin inventar.</p>
   </div>
 </footer>
-<div class="userchip" id="userChip"><span class="dot"></span><span class="uname">Brandooers</span></div>
 
 <script>
-/* ===== reveal + progreso + rail ===== */
-const navProgress=document.getElementById('navProgress');
-window.addEventListener('scroll',()=>{navProgress.style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'});
-const sections=document.querySelectorAll('section[id]'),railLinks=document.querySelectorAll('.rail-item[data-sec]');
-window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-220)cur=s.id});railLinks.forEach(l=>l.classList.toggle('active',l.getAttribute('data-sec')===cur))});
-const observer=new IntersectionObserver(es=>{es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*40);observer.unobserve(e.target)}})},{threshold:0.08});
-document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+const np=document.getElementById('navProgress');
+window.addEventListener('scroll',()=>{np.style.width=(scrollY/(document.documentElement.scrollHeight-innerHeight))*100+'%'});
+const io=new IntersectionObserver(es=>{es.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*40);io.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',function(e){const t=this.getAttribute('href');if(t.length>1){e.preventDefault();document.querySelector(t)?.scrollIntoView({behavior:'smooth'})}}));
 (function(){var b=document.getElementById('railBurger'),ov=document.getElementById('railOv'),r=document.getElementById('rail');
  function op(){r.classList.add('open');ov.classList.add('open')}function cl(){r.classList.remove('open');ov.classList.remove('open')}
  if(b)b.onclick=op;if(ov)ov.onclick=cl;r&&r.querySelectorAll('a').forEach(a=>a.addEventListener('click',cl));})();
-
-/* ===== Wizard: objetivo + nivel → ruta recomendada ===== */
-(function(){
-  var GOAL_LABEL={clientes:'Captar clientes',partners:'Captar partners',coach:'Acompañar (Coach)',marca:'Marca personal'};
-  var LVL_LABEL={rookie:'Rookie',medio:'Ya sé algo',experto:'Experto'};
-  var REC={
-    clientes:{ruta:'Ruta A · Captar clientes para Odoo',anchor:'#rutas',start:'outbound-sales.html#fundamentos',
-      copy:'Empieza en <b>Outbound Sales</b>: Fundamentos → Frameworks → Prospección → Objeciones → Captar clientes. Marketing y cierre llegan pronto.'},
-    partners:{ruta:'Ruta B · Captar partners de 0 a 100',anchor:'#rutas',start:'reclutamiento-partners.html#mod-01',
-      copy:'La visión rápida está en <b>Outbound Sales · Captar partners</b>; el detalle completo, en los <b>12 módulos de Reclutamiento de Partners</b>.'},
-    coach:{ruta:'Ruta C · Acompañar a un nuevo',anchor:'#rutas',start:'index.html',
-      copy:'Tu sitio es la <b>Formación del Coach</b>: empieza por el test de ADN y sigue con personalidades, liderazgo y el plan de 6 meses.'},
-    marca:{ruta:'Marca personal & LinkedIn',anchor:'#cursos',start:'reclutamiento-partners.html#mod-06',
-      copy:'El curso de <b>Marca personal</b> está en camino. Mientras, el módulo <b>LinkedIn</b> de Reclutamiento de Partners te da el social selling que ya puedes aplicar.'}
-  };
-  var st={goal:null,level:null};
-  function paint(){document.querySelectorAll('#wizGoal button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.goal));
-    document.querySelectorAll('#wizLevel button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.level));}
-  function render(){
-    if(!st.goal){document.getElementById('wizResult').innerHTML='';return;}
-    var r=REC[st.goal];var lvlNote=st.level==='experto'?' Como ya tienes nivel, puedes saltar directo a los módulos avanzados.':(st.level==='rookie'?' Empieza por el primer paso y no te saltes nada.':'');
-    document.getElementById('wizResult').innerHTML=
-      '<div class="callout callout-primary"><h4>Tu ruta: '+r.ruta+'</h4><p>'+r.copy+lvlNote+'</p>'+
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">'+
-      '<a class="dna-cta" href="'+r.start+'">Empezar ahora →</a>'+
-      '<a class="dna-cta" href="'+r.anchor+'" style="background:var(--bg-white);color:var(--odoo-primary);border:1px solid var(--border)">Ver la ruta completa</a>'+
-      '</div></div>';
-    try{localStorage.setItem('brand_prefs',JSON.stringify({goal:st.goal,level:st.level,ts:new Date().toISOString()}))}catch(e){}
-  }
-  document.querySelectorAll('#wizGoal button').forEach(b=>b.onclick=function(){st.goal=b.dataset.v;paint();render()});
-  document.querySelectorAll('#wizLevel button').forEach(b=>b.onclick=function(){st.level=b.dataset.v;paint();render()});
-  try{var p=JSON.parse(localStorage.getItem('brand_prefs')||'null');if(p){st.goal=p.goal;st.level=p.level;paint();render()}}catch(e){}
-})();
-
-/* ===== Ojos animados ===== */
-(function(){
-  var svgs=[].slice.call(document.querySelectorAll('.beyes'));if(!svgs.length)return;
-  function brow(o,flip){var b=10+o;var lift=Math.min(o,0)*0.5;return flip?('M 6 '+(b+1)+' Q 20 '+(b-8+lift)+' 34 '+(b+2)):('M 6 '+(b+2)+' Q 20 '+(b-8+lift)+' 34 '+(b+1));}
-  var exprs=[{bl:-6,br:1,lx:2.5,ly:-1,e:'curious'},{bl:-3,br:-3,lx:0,ly:0,e:'happy'},{bl:2,br:-8,lx:-2,ly:0,e:'skeptical'},{bl:-8,br:-8,lx:0,ly:-1,e:'surprised'},{bl:0,br:0,lx:0,ly:0,e:'neutral'},{bl:-4,br:-1,lx:3,ly:0.5,e:'curious'}];
-  var st={bl:0,br:0,lx:0,ly:0,blink:false,e:'neutral'};
-  function setC(el,x,y,r){if(!el)return;el.setAttribute('cx',x);el.setAttribute('cy',y);if(r!=null)el.setAttribute('r',r);}
-  function apply(){svgs.forEach(function(svg){
-    var bL=svg.querySelector('.browL'),bR=svg.querySelector('.browR');if(bL)bL.setAttribute('d',brow(st.bl,false));if(bR)bR.setAttribute('d',brow(st.br,true));
-    var ry=st.blink?2:(st.e==='happy'?14:18);var sL=svg.querySelector('.socketL'),sR=svg.querySelector('.socketR');if(sL)sL.setAttribute('ry',ry);if(sR)sR.setAttribute('ry',ry);
-    var op=st.blink?'0':'1';['.irisL','.irisR','.pupilL','.pupilR'].forEach(function(c){var el=svg.querySelector(c);if(el)el.style.opacity=op;});
-    svg.querySelectorAll('.glint').forEach(function(g){g.style.opacity=st.blink?'0':(g.getAttribute('data-op')||'1');});
-    var ir=st.e==='surprised'?9:7.5,pr=st.e==='surprised'?4:3.5;
-    setC(svg.querySelector('.irisL'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilL'),20+st.lx*1.3,36+st.ly*1.3,pr);
-    setC(svg.querySelector('.irisR'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilR'),20+st.lx*1.3,36+st.ly*1.3,pr);
-  });}
-  apply();setInterval(function(){var x=exprs[Math.floor(Math.random()*exprs.length)];st.bl=x.bl;st.br=x.br;st.lx=x.lx;st.ly=x.ly;st.e=x.e;apply();},2500);
-  (function blink(){setTimeout(function(){st.blink=true;apply();setTimeout(function(){st.blink=false;apply();blink();},130);},3000+Math.random()*2500);})();
-})();
+(function(){var svgs=[].slice.call(document.querySelectorAll('.beyes'));if(!svgs.length)return;
+ function brow(o,flip){var b=10+o;var lift=Math.min(o,0)*0.5;return flip?('M 6 '+(b+1)+' Q 20 '+(b-8+lift)+' 34 '+(b+2)):('M 6 '+(b+2)+' Q 20 '+(b-8+lift)+' 34 '+(b+1));}
+ var ex=[{bl:-6,br:1,lx:2.5,ly:-1,e:'curious'},{bl:-3,br:-3,lx:0,ly:0,e:'happy'},{bl:2,br:-8,lx:-2,ly:0,e:'skeptical'},{bl:-8,br:-8,lx:0,ly:-1,e:'surprised'},{bl:0,br:0,lx:0,ly:0,e:'neutral'}];
+ var s={bl:0,br:0,lx:0,ly:0,blink:false,e:'neutral'};
+ function setc(el,x,y,r){if(!el)return;el.setAttribute('cx',x);el.setAttribute('cy',y);if(r!=null)el.setAttribute('r',r)}
+ function ap(){svgs.forEach(function(g){var bL=g.querySelector('.browL'),bR=g.querySelector('.browR');if(bL)bL.setAttribute('d',brow(s.bl,false));if(bR)bR.setAttribute('d',brow(s.br,true));
+  var ry=s.blink?2:(s.e==='happy'?14:18);var sL=g.querySelector('.socketL'),sR=g.querySelector('.socketR');if(sL)sL.setAttribute('ry',ry);if(sR)sR.setAttribute('ry',ry);
+  var op=s.blink?'0':'1';['.irisL','.irisR','.pupilL','.pupilR'].forEach(function(c){var el=g.querySelector(c);if(el)el.style.opacity=op});
+  g.querySelectorAll('.glint').forEach(function(gg){gg.style.opacity=s.blink?'0':(gg.getAttribute('data-op')||'1')});
+  var ir=s.e==='surprised'?9:7.5,pr=s.e==='surprised'?4:3.5;
+  setc(g.querySelector('.irisL'),20+s.lx,36+s.ly,ir);setc(g.querySelector('.pupilL'),20+s.lx*1.3,36+s.ly*1.3,pr);
+  setc(g.querySelector('.irisR'),20+s.lx,36+s.ly,ir);setc(g.querySelector('.pupilR'),20+s.lx*1.3,36+s.ly*1.3,pr)})}
+ ap();setInterval(function(){var x=ex[Math.floor(Math.random()*ex.length)];s.bl=x.bl;s.br=x.br;s.lx=x.lx;s.ly=x.ly;s.e=x.e;ap()},2500);
+ (function bl(){setTimeout(function(){s.blink=true;ap();setTimeout(function(){s.blink=false;ap();bl()},130)},3000+Math.random()*2500)})()})();
 </script>
-
-<script>window.BOO_HOME = true;</script>
-<script src="profile.js"></script>
-<script src="feedback.js" data-course="brandooers-hub"></script>
 <script src="resources.js"></script>
 </body>
 </html>
