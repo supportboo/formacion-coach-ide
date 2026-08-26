@@ -6,6 +6,32 @@
 
 ---
 
+## Modo de ejecución (pre-venta · patrón BOO SEO PRO)
+
+Mientras Brandooers **no sea vendible**, minimizamos coste: el trabajo pesado de los agentes se hace
+**aquí, en Claude Code** (con la cuenta, sin API de pago), y se **empuja al app** ya generado y verificado.
+El VPS de IONOS solo **sirve** la plataforma y **guarda datos** (progreso, badges, ranking, referidos) —
+eso no usa modelo, es una base de datos. La personalización actual es **pre-generada aquí y servida**
+(sin API). La ruta de API en vivo (`server/server.mjs`, `/api/personalize`, chat de onboarding para
+cualquier sector) queda **reservada para cuando venda** y justifique el coste.
+
+Agentes ejecutables ya creados en `.claude/agents/` (se corren aquí, empujan resultados):
+
+| Agente | Modelo | Por qué |
+|---|---|---|
+| `brandooers-topic-strategist` | Sonnet 4.6 | decisión con datos |
+| `brandooers-researcher` | Sonnet 4.6 | research + web |
+| `brandooers-resource-curator` | Sonnet 4.6 | curación + web |
+| `brandooers-verifier` | **Opus 4.8** | guardián anti-invención (máx. rigor) |
+| `brandooers-course-builder` | Sonnet 4.6 | construcción + UX |
+| `brandooers-quality-gate` | **Opus 4.8** | veto (máx. rigor) |
+| `brandooers-legal-editor` | Sonnet 4.6 | disclaimers |
+| onboarding / personalizador / examinador (runtime, futuro) | Haiku 4.5 / Sonnet 4.6 | solo cuando venda |
+
+Prompts detallados de cada uno en `AGENT-PROMPTS.md`.
+
+---
+
 ## 0. Estado de automatización real (2026-08-26)
 
 | Agente / pieza | ¿Existe? | Dónde | ¿Automático? |

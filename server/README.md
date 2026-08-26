@@ -1,4 +1,14 @@
-# Brandooers · servidor de personalización en vivo (IONOS)
+# Brandooers · servidor (IONOS)
+
+> **Modo actual (pre-venta):** el VPS **sirve** la plataforma estática y (siguiente paso) guarda datos
+> (progreso, badges, ranking, referidos) en Postgres. La generación de contenido y la personalización se
+> hacen **en Claude Code** (agentes de `.claude/agents/`, sin API de pago) y se empujan ya hechas. Los
+> endpoints de IA de abajo (`/api/personalize`, `/api/onboard`, `/api/exam`) quedan **listos para activar
+> cuando Brandooers sea vendible** y el coste de API se justifique. Ver `PIPELINE.md`.
+
+---
+
+## (Futuro) servidor de personalización en vivo
 
 El sitio funciona **estático** en GitHub Pages con personalización pre-generada (3 casos).
 Este servidor añade lo que el estático no puede: un **agente que entrevista en lenguaje
