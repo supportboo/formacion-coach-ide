@@ -788,7 +788,7 @@ function start(){
   document.getElementById('ccDoneTopic').textContent=topic;
   ask.style.display='none'; done.style.display='none'; load.style.display='block';
   // pintar etapas
-  stagesEl.innerHTML=STAGES.map(function(s){var m=s[2]?('<span class="cc-model">'+s[2]+'</span>'):'';return '<li><span class="si"><span class="sp"></span><span class="ck">✓</span></span><div><b>'+esc(s[0])+'</b>'+m+'<br><span>'+esc(s[1].replace('{T}',topic))+'</span></div></li>';}).join('');
+  stagesEl.innerHTML=STAGES.map(function(s){return '<li><span class="si"><span class="sp"></span><span class="ck">✓</span></span><div><b>'+esc(s[0])+'</b><br><span>'+esc(s[1].replace('{T}',topic))+'</span></div></li>';}).join('');
   var items=stagesEl.querySelectorAll('li');
   // cronómetro
   var t0=Date.now(); var tmr=setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);timerEl.textContent=Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);},250);
