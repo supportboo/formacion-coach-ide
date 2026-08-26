@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · La formación de tu equipo, hecha a medida</title>
+<meta name="description" content="SkillUp crea y personaliza la formación de cada persona según su sector y su día a día. Se aplica desde el primer día. Desde 9€/mes.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --dark:#0E0B14;--dark2:#171121;--ink:#ECE9F3;--ink-mut:#A79FB8;
+  --bg:#FAFAFA;--white:#FFF;--text:#2D2D2D;--body:#4A4A4A;--mut:#8F8F8F;--line:#E8E0E5;--warm:#F5F0EE;
+  --p:#714B67;--t:#017E84;--gold:#E4A900;--green:#21B799;
+  --grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);--radius:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--body);line-height:1.65;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+.hand{font-family:'Caveat',cursive}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+.brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;user-select:none}
+.brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
+.beyes .socketL,.beyes .socketR,.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR,.beyes .glint{transform-box:fill-box;transform-origin:center;animation:bBlink 5.4s infinite}
+@keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;border-radius:100px;padding:12px 24px;cursor:pointer;border:0;transition:transform .18s,box-shadow .18s,opacity .18s;font-family:inherit}
+.btn-grad{background:var(--grad);color:#fff;box-shadow:0 6px 22px rgba(139,92,246,.35)}
+.btn-grad:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(139,92,246,.5)}
+.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18)}
+.btn-ghost:hover{background:rgba(255,255,255,.15)}
+.btn-dark{background:var(--text);color:#fff}.btn-dark:hover{transform:translateY(-2px)}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+nav.solid{background:rgba(14,11,20,.85);backdrop-filter:blur(16px);border-bottom-color:rgba(255,255,255,.08)}
+nav .row{display:flex;align-items:center;justify-content:space-between;height:64px}
+nav .brandooers-logo{font-size:19px;color:#fff}
+nav .sk{font-family:'Caveat',cursive;font-size:20px;color:#67E8F9;margin-left:8px}
+.nav-r{display:flex;align-items:center;gap:10px}
+.nav-r a.txt{color:var(--ink-mut);font-size:14px;font-weight:600;padding:8px 12px}
+.nav-r a.txt:hover{color:#fff}
+
+.hero{position:relative;background:#0E0B14 url('assets/char/char-hero.jpg') center right/cover no-repeat;color:var(--ink);overflow:hidden;padding:150px 0 110px;min-height:92vh;display:flex;align-items:center}
+.hero .ovl{position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(14,11,20,.97) 0%,rgba(14,11,20,.9) 34%,rgba(14,11,20,.52) 62%,rgba(14,11,20,.25) 100%)}
+.hero .wrap{position:relative;z-index:1}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mut);border:1px solid rgba(255,255,255,.14);border-radius:100px;padding:8px 16px;margin-bottom:26px}
+.kicker .d{width:6px;height:6px;border-radius:50%;background:var(--grad)}
+.hero h1{font-size:clamp(38px,6vw,68px);font-weight:900;letter-spacing:-.035em;line-height:1.05;color:#fff;max-width:17ch;margin:0 0 22px}
+.hero p.lead{font-size:clamp(17px,2vw,20px);color:var(--ink-mut);max-width:560px;margin:0 0 18px;line-height:1.65}
+.hero .roi{font-family:'Caveat',cursive;font-size:26px;color:#67E8F9;margin:0 0 34px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-note{margin-top:30px;font-size:13px;color:var(--ink-mut)}
+
+section{padding:92px 0}
+.tag{font-family:'Caveat',cursive;font-size:30px;font-weight:700;color:var(--t);margin-bottom:6px}
+.h2{font-size:clamp(28px,3.6vw,42px);font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1.14;margin-bottom:16px;max-width:20ch}
+.lead2{font-size:17px;color:var(--body);max-width:660px;line-height:1.7}
+.center{text-align:center;margin:0 auto}.center .h2,.center .lead2{margin-left:auto;margin-right:auto}
+
+.band{background:var(--dark2);color:var(--ink)}
+.bene{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:10px}
+.bene .b{padding:6px 4px}
+.bene .b .big{font-size:30px;font-weight:900;letter-spacing:-.02em;color:#fff;margin-bottom:6px}
+.bene .b .big .grad{font-weight:900}
+.bene .b p{font-size:14.5px;color:var(--ink-mut)}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.pain-list{list-style:none;margin-top:8px}
+.pain-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;font-size:15.5px;color:var(--body)}
+.pain-list li .x{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:#ffe3e3;color:#c92a2a;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.pain-list li.ok .x{background:#d3f9d8;color:#2b8a3e}
+.shot{border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 50px rgba(113,75,103,.12);aspect-ratio:4/3;background:#0E0B14 url('assets/char/char-hero.jpg') center/cover}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:52px}
+.step{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px 22px}
+.step .n{width:36px;height:36px;border-radius:11px;background:var(--grad);color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.step h4{font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px}
+.step p{font-size:13.5px;color:var(--body)}
+
+.why{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:50px}
+.why .w{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px 26px;display:flex;gap:16px;align-items:flex-start}
+.why .w .ic{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--warm);display:flex;align-items:center;justify-content:center}
+.why .w .ic svg{width:22px;height:22px;stroke:var(--p);fill:none;stroke-width:2}
+.why .w h4{font-size:16.5px;font-weight:800;color:var(--text);margin-bottom:4px}
+.why .w p{font-size:14px;color:var(--body)}
+
+.pricing{background:var(--dark);color:var(--ink)}
+.pricing .tag{color:#8B5CF6}.pricing .h2{color:#fff}.pricing .lead2{color:var(--ink-mut)}
+.plans{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;max-width:820px;margin:52px auto 0}
+.plan{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:34px 30px}
+.plan.feat{border-color:rgba(139,92,246,.55);box-shadow:0 20px 60px rgba(139,92,246,.22)}
+.plan .pop{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:5px 14px;border-radius:100px;white-space:nowrap}
+.plan h3{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mut);margin-bottom:14px}
+.plan .price{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.plan .price .now{font-size:52px;font-weight:900;color:#fff;letter-spacing:-.03em}
+.plan .price .u{font-size:16px;color:var(--ink-mut);font-weight:600}
+.plan .was{font-size:14px;color:var(--ink-mut);margin-bottom:20px}
+.plan .was s{color:#EC4899;opacity:.8}
+.plan ul{list-style:none;margin-bottom:26px}
+.plan ul li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:14.5px;color:var(--ink)}
+.plan ul li:before{content:"";flex:0 0 auto;width:18px;height:18px;margin-top:2px;border-radius:50%;background:var(--grad);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center/13px no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center/13px no-repeat}
+.plan .btn{width:100%;justify-content:center}
+.plan .roi{font-size:12.5px;color:var(--ink-mut);text-align:center;margin-top:12px}
+.launch{text-align:center;margin-top:26px;font-size:13.5px;color:var(--ink-mut)}
+.launch b{color:#67E8F9}
+
+.access{background:var(--warm)}
+.access .box{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.card-a{background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px 30px}
+.card-a h3{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
+.card-a p.s{font-size:14px;color:var(--mut);margin-bottom:18px}
+.card-a label{display:block;font-size:12px;font-weight:600;color:var(--text);margin:12px 0 5px}
+.card-a input{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px}
+.card-a input:focus{outline:none;border-color:var(--p)}
+.card-a button{width:100%;margin-top:18px}
+.card-a .msg{font-size:13px;margin-top:12px;min-height:16px}
+
+footer{background:var(--dark);color:var(--ink-mut);padding:44px 0 38px}
+footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer .brandooers-logo{font-size:16px;color:#fff}
+footer a{color:var(--ink-mut);font-size:13.5px}footer a:hover{color:#fff}
+footer .fl{display:flex;gap:22px;flex-wrap:wrap}
+footer .cp{font-size:12.5px;color:#6b6480;margin-top:24px;border-top:1px solid rgba(255,255,255,.08);padding-top:20px}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media(max-width:860px){
+  .bene,.steps,.why,.plans,.split,.access .box{grid-template-columns:1fr}
+  .nav-r a.txt{display:none}
+  section{padding:64px 0}
+  .hero{background-position:center top;min-height:86vh}
+  .hero .ovl{background:linear-gradient(180deg,rgba(14,11,20,.62),rgba(14,11,20,.9) 55%,rgba(14,11,20,.96))}
+  .shot{display:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+<radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+</defs></svg>
+
+<nav id="nav"><div class="wrap"><div class="row">
+  <a href="#top" style="display:flex;align-items:baseline"><span class="brandooers-logo">Brand<svg class="beyes" width="38" height="22" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g><g transform="translate(53,0)"><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g></svg>ers</span><span class="sk">SkillUp</span></a>
+  <div class="nav-r">
+    <a class="txt" href="#como">Cómo funciona</a>
+    <a class="txt" href="#precios">Precios</a>
+    <a class="btn btn-grad" href="#acceso">Empezar</a>
+  </div>
+</div></div></nav>
+
+<header class="hero" id="top">
+  <div class="ovl"></div>
+  <div class="wrap">
+    <span class="kicker"><span class="d"></span>Formación para equipos · personalizada por IA</span>
+    <h1>Tu equipo aprende <span class="grad">lo que de verdad usa</span>.</h1>
+    <p class="lead">SkillUp crea y personaliza la formación de cada persona según su sector, su rol y su día a día. Se aplica desde el primer día. Tú solo ves cómo crecen.</p>
+    <p class="roi">Un curso aplicado ya paga meses de SkillUp.</p>
+    <div class="hero-cta">
+      <a href="#precios" class="btn btn-grad">Empieza desde 9€/mes →</a>
+      <a href="#como" class="btn btn-ghost">Cómo funciona</a>
+    </div>
+    <p class="hero-note">Contenido verificado · cero relleno · se adapta a cada alumno</p>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap"><div class="bene">
+    <div class="b reveal"><div class="big">Se <span class="grad">aplica</span>, no se olvida</div><p>Cada curso usa ejemplos del sector y del puesto de la persona. Lo que aprende hoy, lo usa mañana.</p></div>
+    <div class="b reveal"><div class="big">Cero <span class="grad">horas perdidas</span></div><p>Al grano, práctico, sin relleno. Menos tiempo formando, más tiempo aplicando.</p></div>
+    <div class="b reveal"><div class="big">Crecen y lo <span class="grad">demuestran</span></div><p>Rutas a medida, comunidad y badges. La gente ve su progreso y quiere más.</p></div>
+  </div></div>
+</section>
+
+<section id="problema">
+  <div class="wrap"><div class="split">
+    <div class="reveal">
+      <p class="tag">El problema</p>
+      <h2 class="h2">La formación de siempre no cala.</h2>
+      <p class="lead2" style="margin-bottom:10px">Cursos genéricos, ejemplos que no son los tuyos, gente que empieza y no termina. Pagas formación y nadie la aplica.</p>
+      <ul class="pain-list">
+        <li><span class="x">✕</span>Contenido genérico que no habla de tu negocio</li>
+        <li><span class="x">✕</span>Vídeos larguísimos que nadie acaba</li>
+        <li><span class="x">✕</span>Se olvida en una semana porque no se usa</li>
+        <li class="ok"><span class="x">✓</span>SkillUp lo cambia: cada persona, su contexto</li>
+      </ul>
+    </div>
+    <div class="shot reveal" aria-hidden="true"></div>
+  </div></div>
+</section>
+
+<section id="como">
+  <div class="wrap center reveal">
+    <p class="tag">Cómo funciona</p>
+    <h2 class="h2">De cero a equipo formado, casi solo.</h2>
+    <p class="lead2">Tú cuentas quién es tu equipo. SkillUp hace el resto y lo adapta a cada uno.</p>
+  </div>
+  <div class="wrap"><div class="steps">
+    <div class="step reveal"><div class="n">1</div><h4>Cuéntanos tu equipo</h4><p>Un onboarding tipo entrevista detecta sector, nivel y objetivos de cada persona.</p></div>
+    <div class="step reveal"><div class="n">2</div><h4>Rutas a medida</h4><p>SkillUp arma la ruta de aprendizaje de cada uno, combinando los cursos que le sirven.</p></div>
+    <div class="step reveal"><div class="n">3</div><h4>Aprende con tu mundo</h4><p>Titulares, ejemplos y prácticas reescritos para su sector. Todo verificado, con fuentes.</p></div>
+    <div class="step reveal"><div class="n">4</div><h4>Lo demuestra</h4><p>Exámenes y badges al superar cada curso. El progreso se ve, y engancha.</p></div>
+  </div></div>
+</section>
+
+<section id="porque" class="band">
+  <div class="wrap center reveal">
+    <p class="tag" style="color:#67E8F9">Por qué SkillUp</p>
+    <h2 class="h2" style="color:#fff">No es otro catálogo de vídeos.</h2>
+    <p class="lead2" style="color:var(--ink-mut)">Lo que nos hace distintos es lo que hace que tu equipo de verdad aprenda.</p>
+  </div>
+  <div class="wrap"><div class="why">
+    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div><div><h4>Personalización real, por IA</h4><p>No cambia cuatro palabras: reescribe ejemplos y prácticas para el mundo de cada alumno.</p></div></div>
+    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div><h4>Contenido verificado</h4><p>Cero información inventada. Cada dato con su fuente, cada enlace comprobado. Formamos con rigor.</p></div></div>
+    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/></svg></div><div><h4>Comunidad y rankings</h4><p>Se aprende mejor acompañado. Retos, invitaciones y clasificaciones que empujan a seguir.</p></div></div>
+    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13"/><path d="M8 7h6M8 11h8"/></svg></div><div><h4>Recursos de los mejores</h4><p>Libros, charlas y herramientas de referentes reales, seleccionados para cada tema.</p></div></div>
+  </div></div>
+</section>
+
+<section id="precios" class="pricing">
+  <div class="wrap center reveal">
+    <p class="tag">Precios</p>
+    <h2 class="h2">Empieza por menos que una comida.</h2>
+    <p class="lead2">Precio de lanzamiento mientras crece el catálogo. Sin permanencia. Sube cuando haya más cursos: hoy entras al mejor precio que habrá.</p>
+  </div>
+  <div class="wrap"><div class="plans">
+    <div class="plan reveal">
+      <h3>Starter</h3>
+      <div class="price"><span class="now">9€</span><span class="u">/mes</span></div>
+      <p class="was"><s>45€</s> · precio de lanzamiento</p>
+      <ul>
+        <li>3 cursos personalizados al mes</li>
+        <li>Rutas de aprendizaje a medida</li>
+        <li>Exámenes y badges</li>
+        <li>Contenido verificado con fuentes</li>
+      </ul>
+      <a href="#acceso" class="btn btn-ghost">Empezar por 9€</a>
+      <p class="roi">Menos que 3 cafés al mes.</p>
+    </div>
+    <div class="plan feat reveal">
+      <span class="pop">El más elegido</span>
+      <h3>Equipo</h3>
+      <div class="price"><span class="now">29€</span><span class="u">/mes</span></div>
+      <p class="was"><s>99€</s> · precio de lanzamiento</p>
+      <ul>
+        <li>5 cursos personalizados al mes</li>
+        <li>Todo lo de Starter</li>
+        <li>Comunidad, retos y rankings</li>
+        <li>Recursos premium seleccionados</li>
+        <li>Prioridad en cursos nuevos</li>
+      </ul>
+      <a href="#acceso" class="btn btn-grad">Empezar por 29€</a>
+      <p class="roi">Un solo curso aplicado ya se paga solo.</p>
+    </div>
+  </div>
+  <p class="launch"><b>Precio de fundador:</b> quien entra ahora, se queda con este precio. Subirá al ampliar el catálogo.</p>
+  </div>
+</section>
+
+<section id="acceso" class="access">
+  <div class="wrap center reveal" style="margin-bottom:44px">
+    <p class="tag">Empieza hoy</p>
+    <h2 class="h2">Da el paso. Tu equipo lo notará esta semana.</h2>
+  </div>
+  <div class="wrap"><div class="box">
+    <div class="card-a reveal">
+      <h3>Ya tengo cuenta</h3>
+      <p class="s">Entra a tu formación.</p>
+      <form id="loginForm">
+        <label for="u">Usuario</label>
+        <input id="u" autocomplete="username" required>
+        <label for="p">Contraseña</label>
+        <input id="p" type="password" autocomplete="current-password" required>
+        <button class="btn btn-dark" type="submit">Entrar</button>
+        <div class="msg" id="loginMsg" style="color:#c92a2a"></div>
+      </form>
+    </div>
+    <div class="card-a reveal">
+      <h3>Quiero SkillUp para mi equipo</h3>
+      <p class="s">Déjanos tu email y te damos acceso al precio de lanzamiento.</p>
+      <form id="leadForm">
+        <label for="lname">Tu nombre</label>
+        <input id="lname" autocomplete="name">
+        <label for="lemail">Email de empresa</label>
+        <input id="lemail" type="email" autocomplete="email" required>
+        <label for="lcompany">Empresa</label>
+        <input id="lcompany" autocomplete="organization">
+        <button class="btn btn-grad" type="submit">Solicitar acceso</button>
+        <div class="msg" id="leadMsg"></div>
+      </form>
+    </div>
+  </div></div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <a href="#top" style="display:flex;align-items:baseline"><span class="brandooers-logo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>ers</span><span class="sk">SkillUp</span></a>
+      <div class="fl">
+        <a href="#como">Cómo funciona</a>
+        <a href="#precios">Precios</a>
+        <a href="#acceso">Entrar</a>
+        <a href="https://brandooers.com">Brandooers</a>
+      </div>
+    </div>
+    <p class="cp">SkillUp es una vertical de Brandooers · formación autogenerada y personalizada para empresas. De la idea a la realidad.</p>
+  </div>
+</footer>
+
+<script>
+var nav=document.getElementById('nav');
+function onScroll(){ nav.classList.toggle('solid', window.scrollY>20); }
+onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+try{
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+}catch(e){ document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');}); }
+
+var lf=document.getElementById('loginForm'),lm=document.getElementById('loginMsg');
+lf.addEventListener('submit',async function(ev){
+  ev.preventDefault(); lm.textContent='';
+  try{
+    var r=await fetch('/auth/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({u:document.getElementById('u').value.trim(),p:document.getElementById('p').value})});
+    var d=await r.json();
+    if(r.ok&&d.ok){ location.href='/hub.html'; return; }
+    lm.textContent=d.error||'No se pudo entrar';
+  }catch(_){ lm.textContent='Error de conexión'; }
+});
+var lead=document.getElementById('leadForm'),ldm=document.getElementById('leadMsg');
+lead.addEventListener('submit',async function(ev){
+  ev.preventDefault(); ldm.textContent=''; ldm.style.color='#c92a2a';
+  try{
+    var r=await fetch('/auth/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:document.getElementById('lname').value.trim(),email:document.getElementById('lemail').value.trim(),company:document.getElementById('lcompany').value.trim()})});
+    var d=await r.json();
+    if(r.ok&&d.ok){ ldm.style.color='#2b8a3e'; ldm.textContent='¡Recibido! Te escribimos en breve con tu acceso.'; lead.reset(); return; }
+    ldm.textContent=d.error||'No se pudo enviar';
+  }catch(_){ ldm.textContent='Error de conexión'; }
+});
+</script>
+</body>
+</html>

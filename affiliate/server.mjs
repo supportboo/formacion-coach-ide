@@ -127,6 +127,17 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(302, { 'set-cookie': 'bd_sess=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax', location: '/login.html' });
     return res.end();
   }
+  // captura de leads desde la landing (solicitar acceso) — público, anti-spam por IP
+  if (path === '/auth/lead' && req.method === 'POST') {
+    const ip = String(req.headers['x-real-ip'] || req.socket.remoteAddress || '');
+    if (!rateOk(ip)) return json(res, 429, { error: 'Demasiadas solicitudes, prueba en un rato' });
+    const b = await body(req);
+    const email = String(b.email || '').slice(0, 120).trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json(res, 400, { error: 'Email no válido' });
+    const rec = { name: String(b.name || '').slice(0, 80).trim(), email, company: String(b.company || '').slice(0, 120).trim(), ts: new Date().toISOString() };
+    try { appendFileSync(W('leads.jsonl'), JSON.stringify(rec) + '\n'); } catch {}
+    return json(res, 200, { ok: true });
+  }
   if (path === '/auth/password' && req.method === 'POST') {
     const s = session(req); if (!s) return json(res, 401, { error: 'no autenticado' });
     const b = await body(req);
