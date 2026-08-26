@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brandooers · Pipeline de agentes (diagrama)</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--bg:#FAFAFA;--ink:#2D2D2D;--mut:#8F8F8F}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--ink);padding:28px 32px 60px}
+h1{font-size:26px;margin:0 0 2px;letter-spacing:-.02em}
+.sub{font-family:Caveat,cursive;font-size:26px;color:var(--t);margin:0 0 18px}
+.wrap{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.diagram{flex:1;min-width:520px;background:#fff;border:1px solid #eee;border-radius:16px;padding:18px;box-shadow:0 4px 16px rgba(113,75,103,.06)}
+.side{width:340px;display:flex;flex-direction:column;gap:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:#555;margin:0 0 16px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.15)}
+.card{border-radius:14px;padding:18px 20px}
+.doc{background:#fff4f4;border:1px solid #ffc9c9}
+.doc h3{margin:0 0 8px;color:#c92a2a;font-size:16px}
+.doc ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7}
+.reuse{background:#e7f5ff;border:1px solid #a5d8ff}
+.reuse h3{margin:0 0 6px;color:#1971c2;font-size:15px}
+.reuse p{margin:0;font-size:13px;line-height:1.6;color:#333}
+.human{background:#f3f0ff;border:1px solid #d0bfff}
+.human h3{margin:0 0 4px;color:var(--p);font-size:15px}
+.human p{margin:0;font-size:13px}
+.mermaid{font-size:14px}
+</style>
+</head>
+<body>
+<h1>Brandooers · Pipeline de agentes</h1>
+<p class="sub">de un tema a un curso examinado</p>
+<div class="legend">
+  <span><i class="dot" style="background:#b2f2bb"></i> construido / listo</span>
+  <span><i class="dot" style="background:#ffec99"></i> especificado (reusa tus agentes)</span>
+  <span><i class="dot" style="background:#e9ecef"></i> pendiente</span>
+  <span><i class="dot" style="background:#d0bfff"></i> puerta humana</span>
+</div>
+<div class="wrap">
+  <div class="diagram">
+<pre class="mermaid">
+flowchart TD
+  A["1 · Estratega de temas<br/><small>decide QUÉ crear, por demanda real</small>"]:::gris
+  B["2 · Investigador técnico<br/><small>research Tier-1 · fuente por dato</small>"]:::ama
+  C["3 · Verificador de fuentes<br/><small>fact-check independiente · enlaces 200</small>"]:::ama
+  D["4 · Constructor de curso<br/><small>SOLO con lo verificado</small>"]:::ama
+  E["5 · Validador de calidad<br/><small>poder de VETO</small>"]:::ama
+  F["6 · Editor legal<br/><small>disclaimers · sin afirmar sin fuente</small>"]:::gris
+  G{"Puerta humana<br/>Marc revisa"}:::gate
+  H["7 · Publicación<br/><small>al sitio (Pages → VPS)</small>"]:::verde
+  I["8 · Personalizador<br/><small>adapta al perfil, sin tocar los hechos</small>"]:::verde
+  J["9 · Examinador → BADGES<br/><small>test, corrige, da la insignia</small>"]:::verde
+  K["10 · Feedback + Refresh<br/><small>marcar / corregir / re-verificar</small>"]:::ama
+  A --> B --> C --> D --> E --> F --> G
+  G -- OK --> H
+  G -- a corregir --> D
+  H --> I --> J --> K
+  K -. re-verifica lo obsoleto .-> B
+  K -. demanda real .-> A
+  classDef verde fill:#b2f2bb,stroke:#2f9e44,color:#12331b;
+  classDef ama fill:#ffec99,stroke:#e8b000,color:#4a3800;
+  classDef gris fill:#e9ecef,stroke:#adb5bd,color:#333;
+  classDef gate fill:#d0bfff,stroke:#7048e8,color:#2b1a66;
+</pre>
+  </div>
+  <div class="side">
+    <div class="card doc">
+      <h3>Doctrina anti-invención</h3>
+      <ul>
+        <li>Grounding: solo se afirma lo verificado.</li>
+        <li>Fuente + fecha en cada dato.</li>
+        <li>Enlaces: solo si responden 200.</li>
+        <li>Cada frase: HECHO / INFERENCIA / SIN DATOS.</li>
+        <li>Verifica un agente distinto al que investiga.</li>
+        <li>Validador con VETO.</li>
+        <li>Disclaimers en precios y normativa.</li>
+        <li>Puerta humana: Marc aprueba.</li>
+        <li>Refresh: lo obsoleto se re-verifica.</li>
+      </ul>
+    </div>
+    <div class="card human">
+      <h3>Puerta humana</h3>
+      <p>Nada sale a alumnos sin el OK de Marc. La automatización propone; Marc dispone.</p>
+    </div>
+    <div class="card reuse">
+      <h3>Reusa agentes que ya tienes</h3>
+      <p>industry-research-expert · blog-seo-fact-checker · quality-gate-supreme · boo-post-grader · boo-data-certainty</p>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, flowchart:{curve:'basis', nodeSpacing:40, rankSpacing:44}, themeVariables:{fontFamily:'Inter, sans-serif'}});</script>
+</body>
+</html>
