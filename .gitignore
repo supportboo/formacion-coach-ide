@@ -6,3 +6,7 @@ server/node_modules/
 affiliate/clicks.jsonl
 affiliate/affiliates.json
 affiliate/status-overrides.json
+affiliate/users.json
+affiliate/resets.json
+affiliate/auth-secret
+affiliate/.tst/

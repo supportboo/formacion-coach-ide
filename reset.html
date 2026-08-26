@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Nueva contraseña</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(113,75,103,.08)}
+h1{font-size:22px;font-weight:800;color:var(--ink);text-align:center}
+.sub{font-family:'Caveat',cursive;font-size:22px;color:var(--t);margin-bottom:24px;text-align:center}
+label{display:block;font-size:12px;font-weight:600;color:var(--ink);margin:14px 0 5px}
+input{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px}
+input:focus{outline:none;border-color:var(--p)}
+button{width:100%;margin-top:22px;font-family:inherit;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#fff;background:var(--p);border:0;border-radius:10px;padding:13px;cursor:pointer}
+button:disabled{opacity:.5}
+.msg{font-size:13px;margin-top:14px;text-align:center;min-height:18px}
+a{color:var(--p);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<form class="card" id="f">
+  <p class="sub">Brandooers</p>
+  <h1>Nueva contraseña</h1>
+  <label for="p1">Contraseña nueva (mín. 8)</label>
+  <input id="p1" type="password" autocomplete="new-password" required>
+  <label for="p2">Repite la contraseña</label>
+  <input id="p2" type="password" autocomplete="new-password" required>
+  <button id="b" type="submit">Guardar</button>
+  <div class="msg" id="m"></div>
+</form>
+<script>
+var token=new URLSearchParams(location.search).get('token')||'';
+var m=document.getElementById('m'),b=document.getElementById('b');
+if(!token){ m.style.color='#c92a2a'; m.textContent='Falta el enlace de recuperación.'; b.disabled=true; }
+document.getElementById('f').addEventListener('submit',async function(ev){
+  ev.preventDefault(); m.textContent='';
+  var p1=document.getElementById('p1').value,p2=document.getElementById('p2').value;
+  if(p1!==p2){ m.style.color='#c92a2a'; m.textContent='Las contraseñas no coinciden'; return; }
+  b.disabled=true;
+  try{
+    var r=await fetch('/auth/reset',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:token,'new':p1})});
+    var d=await r.json();
+    if(r.ok&&d.ok){ m.style.color='#2b8a3e'; m.innerHTML='Contraseña actualizada. <a href="/login.html">Iniciar sesión</a>'; b.style.display='none'; return; }
+    m.style.color='#c92a2a'; m.textContent=d.error||'No se pudo actualizar';
+  }catch(_){ m.style.color='#c92a2a'; m.textContent='Error de conexión'; }
+  b.disabled=false;
+});
+</script>
+</body>
+</html>

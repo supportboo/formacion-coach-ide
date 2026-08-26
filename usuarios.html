@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Usuarios</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;padding:34px 30px 70px}
+.hand{font-family:'Caveat',cursive;color:var(--t);font-size:24px}
+h1{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:6px}
+.hint{font-size:13px;color:var(--mut);max-width:720px;line-height:1.6;margin-bottom:22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:20px;max-width:900px}
+.card h2{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 10px;text-align:left;border-bottom:1px solid #F0EAEE;vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.u{font-weight:700;color:var(--ink)}
+select,input{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff}
+button{font-family:inherit;font-size:12px;font-weight:700;border:0;border-radius:8px;padding:7px 11px;cursor:pointer;background:var(--p);color:#fff}
+button.ghost{background:var(--warm);color:var(--p)}
+button.danger{background:#ffe3e3;color:#c92a2a}
+.row-form{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.row-form>div{display:flex;flex-direction:column;gap:4px}
+.row-form label{font-size:11px;color:var(--mut);font-weight:600}
+.msg{font-size:13px;margin-top:10px;min-height:16px}
+.link{font-size:12px;color:var(--t);word-break:break-all}
+.back{display:inline-block;margin-top:8px;color:var(--p);font-weight:600;text-decoration:none;font-size:14px}
+.role-pill{font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:100px;background:var(--warm);color:var(--p)}
+.role-pill.admin{background:#e5dbff;color:#6741d9}
+</style>
+</head>
+<body>
+<p class="hand">Administración</p>
+<h1>Usuarios del equipo</h1>
+<p class="hint">Da de alta a cada miembro, asigna su rol y, si alguien pierde la contraseña, genera un enlace de recuperación y pásaselo. Rol <b>admin</b> = acceso a esta página y al panel de afiliación.</p>
+
+<div class="card">
+  <h2>Añadir usuario</h2>
+  <form class="row-form" id="add">
+    <div><label>Usuario</label><input id="nu" placeholder="nombre" required></div>
+    <div><label>Contraseña</label><input id="np" placeholder="mín. 8" required></div>
+    <div><label>Rol</label><select id="nr"><option value="member">Miembro</option><option value="admin">Admin</option></select></div>
+    <button type="submit">Crear</button>
+  </form>
+  <div class="msg" id="addmsg"></div>
+</div>
+
+<div class="card">
+  <h2>Equipo</h2>
+  <table><thead><tr><th>Usuario</th><th>Rol</th><th>Alta</th><th>Acciones</th></tr></thead><tbody id="rows"></tbody></table>
+</div>
+
+<div class="card" id="resetsCard" style="display:none">
+  <h2>Recuperaciones pendientes</h2>
+  <p class="hint" style="margin-bottom:12px">Alguien pidió recuperar su contraseña. Copia el enlace y pásaselo (cuando conectemos el correo, se enviará solo).</p>
+  <table><tbody id="resets"></tbody></table>
+</div>
+
+<a class="back" href="/hub.html">← Volver a Brandooers</a>
+<script>
+var api={
+  list:function(){return fetch('/auth/users').then(function(r){if(r.status===403){document.body.innerHTML='<p style="font-family:Inter;padding:40px">Solo un administrador puede ver esta página. <a href="/hub.html">Volver</a></p>';throw 0;}return r.json();});},
+  post:function(p,b){return fetch('/auth/users/'+p,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json();});}
+};
+function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+async function load(){
+  var d=await api.list();
+  document.getElementById('rows').innerHTML=d.users.map(function(u){
+    var opts=['member','admin'].map(function(r){return '<option value="'+r+'"'+(r===u.role?' selected':'')+'>'+(r==='admin'?'Admin':'Miembro')+'</option>';}).join('');
+    return '<tr data-u="'+esc(u.u)+'"><td class="u">'+esc(u.u)+'</td>'+
+      '<td><select class="rr">'+opts+'</select></td>'+
+      '<td style="color:var(--mut);font-size:12px">'+(u.created?u.created.slice(0,10):'—')+'</td>'+
+      '<td><button class="ghost rst">Recuperar</button> <button class="danger del">Borrar</button><div class="link"></div></td></tr>';
+  }).join('');
+  var rc=document.getElementById('resetsCard');
+  if(d.resets&&d.resets.length){ rc.style.display='';
+    document.getElementById('resets').innerHTML=d.resets.map(function(r){return '<tr><td class="u">'+esc(r.u)+'</td><td class="link">'+location.origin+esc(r.link)+'</td></tr>';}).join('');
+  } else rc.style.display='none';
+}
+document.getElementById('add').addEventListener('submit',async function(ev){
+  ev.preventDefault(); var m=document.getElementById('addmsg'); m.textContent='';
+  var d=await api.post('save',{u:document.getElementById('nu').value.trim(),password:document.getElementById('np').value,role:document.getElementById('nr').value});
+  if(d.ok){ m.style.color='#2b8a3e'; m.textContent='Usuario creado.'; document.getElementById('add').reset(); load(); }
+  else { m.style.color='#c92a2a'; m.textContent=d.error||'Error'; }
+});
+document.addEventListener('change',function(e){
+  if(e.target.classList.contains('rr')){ var u=e.target.closest('tr').dataset.u; api.post('save',{u:u,role:e.target.value}).then(load); }
+});
+document.addEventListener('click',async function(e){
+  var tr=e.target.closest('tr'); if(!tr)return; var u=tr.dataset.u;
+  if(e.target.classList.contains('del')){ if(!confirm('¿Borrar a '+u+'?'))return; await api.post('delete',{u:u}); load(); }
+  if(e.target.classList.contains('rst')){ var d=await api.post('reset',{u:u}); if(d.link) tr.querySelector('.link').innerHTML='Enlace: '+location.origin+d.link; }
+});
+load();
+</script>
+</body>
+</html>

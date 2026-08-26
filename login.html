@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Acceso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--body:#4A4A4A;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background-image:radial-gradient(circle at 20% 10%,rgba(113,75,103,.05),transparent 40%),radial-gradient(circle at 85% 90%,rgba(1,126,132,.05),transparent 40%)}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(113,75,103,.08)}
+.brand{text-align:center;margin-bottom:8px}
+.eyes{display:inline-flex;gap:7px;margin-bottom:10px}
+.eye{width:30px;height:30px;border-radius:50%;background:#fff;border:2.5px solid var(--p);display:flex;align-items:center;justify-content:center}
+.eye:after{content:"";width:11px;height:11px;border-radius:50%;background:var(--p);animation:look 4s infinite}
+@keyframes look{0%,40%{transform:translate(0,0)}50%,60%{transform:translate(4px,2px)}70%,100%{transform:translate(-3px,-1px)}}
+h1{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.sub{font-family:'Caveat',cursive;font-size:22px;color:var(--t);margin-bottom:26px;text-align:center}
+label{display:block;font-size:12px;font-weight:600;color:var(--ink);margin:14px 0 5px}
+input{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;transition:border .15s}
+input:focus{outline:none;border-color:var(--p)}
+button{width:100%;margin-top:22px;font-family:inherit;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#fff;background:var(--p);border:0;border-radius:10px;padding:13px;cursor:pointer;transition:opacity .15s}
+button:hover{opacity:.92}button:disabled{opacity:.5;cursor:default}
+.err{color:#c92a2a;font-size:13px;margin-top:14px;text-align:center;min-height:18px}
+.foot{margin-top:22px;text-align:center;font-size:12px;color:var(--mut)}
+</style>
+</head>
+<body>
+<form class="card" id="f">
+  <div class="brand">
+    <div class="eyes"><span class="eye"></span><span class="eye"></span></div>
+    <h1>Brandooers</h1>
+  </div>
+  <p class="sub">Acceso del equipo</p>
+  <label for="u">Usuario</label>
+  <input id="u" name="u" autocomplete="username" autofocus required>
+  <label for="p">Contraseña</label>
+  <input id="p" name="p" type="password" autocomplete="current-password" required>
+  <button id="b" type="submit">Entrar</button>
+  <div class="err" id="e"></div>
+  <p class="foot"><a href="#" id="forgot" style="color:var(--p);text-decoration:none;font-weight:600">¿Olvidaste tu contraseña?</a></p>
+  <p class="foot">Acceso privado. Si no tienes cuenta, pídesela a tu administrador.</p>
+</form>
+<script>
+var f=document.getElementById('f'),e=document.getElementById('e'),b=document.getElementById('b');
+f.addEventListener('submit',async function(ev){
+  ev.preventDefault(); e.textContent=''; b.disabled=true; b.textContent='Entrando…';
+  try{
+    var r=await fetch('/auth/login',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({u:document.getElementById('u').value.trim(),p:document.getElementById('p').value})});
+    var d=await r.json();
+    if(r.ok&&d.ok){ location.href='/hub.html'; return; }
+    e.textContent=d.error||'No se pudo entrar';
+  }catch(_){ e.textContent='Error de conexión'; }
+  b.disabled=false; b.textContent='Entrar';
+});
+document.getElementById('forgot').addEventListener('click',async function(ev){
+  ev.preventDefault();
+  var u=document.getElementById('u').value.trim();
+  if(!u){ e.style.color='#c92a2a'; e.textContent='Escribe tu usuario arriba y pulsa de nuevo'; document.getElementById('u').focus(); return; }
+  try{ await fetch('/auth/forgot',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({u:u})}); }catch(_){}
+  e.style.color='#2b8a3e'; e.textContent='Si la cuenta existe, se ha generado un enlace de recuperación. Tu administrador o tu correo te lo harán llegar.';
+});
+</script>
+</body>
+</html>
