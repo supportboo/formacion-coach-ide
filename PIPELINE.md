@@ -26,6 +26,7 @@ Agentes ejecutables ya creados en `.claude/agents/` (se corren aquí, empujan re
 | `brandooers-course-builder` | Sonnet 4.6 | construcción + UX |
 | `brandooers-quality-gate` | **Opus 4.8** | veto (máx. rigor) |
 | `brandooers-legal-editor` | Sonnet 4.6 | disclaimers |
+| `brandooers-affiliate-monetizer` | Sonnet 4.6 | monetización segura (descubre programas, no auto-aplica) |
 | onboarding / personalizador / examinador (runtime, futuro) | Haiku 4.5 / Sonnet 4.6 | solo cuando venda |
 
 Prompts detallados de cada uno en `AGENT-PROMPTS.md`.
@@ -46,6 +47,7 @@ Prompts detallados de cada uno en `AGENT-PROMPTS.md`.
 | **Validador de calidad** (veto) | Especificado + **reusa** `quality-gate-supreme`, `boo-post-grader` | — | Pendiente de encadenar |
 | **Editor legal / disclaimers** | Especificado aquí | — | Pendiente |
 | **Feedback + refresh** | `feedback.js` funcionando; refresh pendiente | todas las páginas | Feedback sí; refresh no |
+| **Monetizador de afiliación** | **Construido y desplegado** | `affiliate/` + servicio VPS (`/r/`, `/aff/`) | **Sí** — corre en cada creación (registra recursos, descubre programas) |
 
 **Resumen honesto:** los agentes de *uso* (onboarding, personalizar, examinar) están **escritos y listos**;
 faltan el VPS y la base de datos para que corran solos. Los agentes de *creación* (research → construir →
@@ -95,6 +97,12 @@ siguiente peldaño sin pasar la puerta).
 - Entra: curso aprobado.
 - Sale: curso con disclaimers donde toca (precios, normativa, benchmarks) y con el lenguaje ajustado para no afirmar como hecho lo que es estimación.
 - Puerta: toda cifra sensible lleva "estimación de referencia, no vinculante" y su fuente y fecha.
+
+**Peldaño 6.5 · Monetizador de afiliación**  *(`brandooers-affiliate-monetizer`, automático)*
+- Función: sobre el set final de recursos, registra cada enlace externo y **descubre** si su dominio tiene programa de afiliados (Amazon, PartnerStack, Rewardful, Impact…), y actualiza el panel de oportunidades (`/aff/`).
+- Entra: curso aprobado con sus recursos.
+- Sale: `affiliate/resources.json` + `affiliate/opportunities.json` actualizados; oportunidades nuevas priorizadas por valor esperado (recursos × clics × comisión potencial).
+- Puerta: **descubrir sí, aplicar NO** — el alta, las condiciones y el KYC de cada red son manuales (los hace una persona), nunca por bot (viola sus términos). Solo se enlaza/embebe al **origen del autor** (promoción, jamás alojar su contenido). Clics **anónimos** (RGPD). El **aviso de afiliación** debe estar visible antes de activar cualquier tag. El redirector es cerrado (registro + allowlist): **no hay open-redirect**.
 
 **Peldaño 7 · Publicación** → se sube al repo (GitHub Pages hoy, VPS mañana).
 
