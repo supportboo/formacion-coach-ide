@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Panel de control</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;padding:34px 30px 70px}
+.hand{font-family:'Caveat',cursive;color:var(--t);font-size:24px}
+h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.hint{font-size:13px;color:var(--mut);margin-bottom:22px}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.links a{font-size:13px;font-weight:700;color:var(--p);background:#fff;border:1px solid var(--line);border-radius:100px;padding:9px 16px;text-decoration:none}
+.links a:hover{border-color:var(--p)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.kpi .v{font-size:30px;font-weight:900;color:var(--ink);letter-spacing:-.02em}
+.kpi .l{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.kpi.warn .v{color:var(--p)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.card h2{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.card h2 a{font-size:12px;font-weight:700;color:var(--t);text-decoration:none}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F0EAEE;font-size:14px}
+.row:last-child{border-bottom:0}.row b{color:var(--ink)}
+.pill{font-size:11px;font-weight:800;text-transform:uppercase;padding:2px 9px;border-radius:100px;background:var(--warm);color:var(--p)}
+.empty{color:var(--mut);font-size:13.5px;padding:10px 0}
+.instr{background:var(--warm);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:13.5px;color:var(--ink)}
+.instr .m{font-size:11px;color:var(--mut);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em}
+.note{font-size:12.5px;color:var(--mut);line-height:1.6;margin-top:6px}
+@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<p class="hand">Panel de control</p>
+<h1>Brandooers · Admin</h1>
+<p class="hint">Todo lo que pasa en la plataforma, en un vistazo. Datos reales; lo que aún no se mide se marca como pendiente (nunca inventamos cifras).</p>
+<div class="links">
+  <a href="/revisiones.html">Revisiones →</a>
+  <a href="/usuarios.html">Usuarios →</a>
+  <a href="/aff/">Afiliación →</a>
+  <a href="/hub.html">Volver a la app</a>
+</div>
+<div class="kpis" id="kpis"></div>
+<div class="grid">
+  <div class="card"><h2>Peticiones de curso <a href="/revisiones.html">gestionar</a></h2><div id="reqs"></div></div>
+  <div class="card"><h2>Feedback <a href="/revisiones.html">gestionar</a></h2><div id="fb"></div></div>
+  <div class="card" style="grid-column:1/-1"><h2>Instrucciones para el motor (Claude Code interno)</h2><div id="instr"></div>
+    <p class="note">Cada feedback/petición que aceptas y conviertes en instrucción entra aquí. El Claude Code interno lee esta cola (<code>GET /api/admin/queue</code> o el fichero <code>inbox-meta.json</code>), ejecuta la mejora con verificación de fuentes, publica y se marca como <b>aplicado</b>. Tú puedes editar cada instrucción antes.</p>
+  </div>
+  <div class="card" style="grid-column:1/-1"><h2>Economía</h2><div id="eco"></div></div>
+</div>
+<script>
+function n(v){return (v==null?0:v).toLocaleString('es-ES');}
+function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var TYPE={good:'Útil',improve:'Mejorar',stale:'Obsoleto',note:'Comentario'};
+async function load(){
+  var r=await fetch('/api/admin/dashboard');
+  if(r.status===403){document.body.innerHTML='<p style="font-family:Inter;padding:40px">Solo admin. <a href="/hub.html">Volver</a></p>';return;}
+  var d=await r.json();
+  var pend=d.peticiones.estados.nuevo||0, fbNew=d.feedback.estados.nuevo||0;
+  document.getElementById('kpis').innerHTML=[
+    ['Usuarios',n(d.usuarios)],['Perfiles onboarding',n(d.onboardings)],
+    ['Peticiones curso',n(d.peticiones.total)],['Feedback',n(d.feedback.total)],
+    ['Leads',n(d.leads)],['Vistas (uso)',n(d.vistas)],
+    ['Clics afiliación',n(d.clicsAfiliacion)],['Instrucciones en cola',n((d.instrucciones||[]).filter(function(i){return i.status!=='aplicado';}).length)]
+  ].map(function(k,idx){return '<div class="kpi'+((idx===2&&pend)||(idx===3&&fbNew)?' warn':'')+'"><div class="v">'+k[1]+'</div><div class="l">'+k[0]+'</div></div>';}).join('');
+
+  var rq=d.peticiones;
+  document.getElementById('reqs').innerHTML = rq.total? (
+    Object.keys(rq.estados).map(function(s){return '<div class="row"><span>'+esc(s)+'</span><b>'+rq.estados[s]+'</b></div>';}).join('')
+    +'<div style="margin-top:10px">'+(rq.ultimas||[]).map(function(u){return '<div class="row"><span>📚 '+esc((u.topic||'').slice(0,42))+'</span><span class="pill">'+esc(u.status)+'</span></div>';}).join('')+'</div>'
+  ) : '<div class="empty">Aún no hay peticiones. Pídelas desde «Pide un tema».</div>';
+
+  var f=d.feedback;
+  document.getElementById('fb').innerHTML = f.total? (
+    '<div class="row"><span>Por tipo</span><span>'+Object.keys(f.tipos).map(function(t){return (TYPE[t]||t)+': <b>'+f.tipos[t]+'</b>';}).join(' · ')+'</span></div>'
+    +Object.keys(f.estados).map(function(s){return '<div class="row"><span>'+esc(s)+'</span><b>'+f.estados[s]+'</b></div>';}).join('')
+  ) : '<div class="empty">Sin feedback todavía. Marca contenido con «Revisar» en un curso.</div>';
+
+  var ins=(d.instrucciones||[]);
+  document.getElementById('instr').innerHTML = ins.length? ins.map(function(i){
+    return '<div class="instr"><div class="m">'+esc(i.kind)+' · '+esc(i.status)+' · '+esc((i.ref||'').slice(0,40))+'</div>'+esc(i.instruction)+'</div>';
+  }).join('') : '<div class="empty">Ninguna instrucción todavía. En Revisiones, acepta un feedback y pulsa «Convertir en instrucción».</div>';
+
+  document.getElementById('eco').innerHTML =
+    '<div class="row"><span>Ingresos suscripción (SkillUp)</span><span class="pill">pendiente pasarela de pago</span></div>'
+    +'<div class="row"><span>Leads recibidos (solicitudes de acceso)</span><b>'+n(d.leads)+'</b></div>'
+    +'<div class="row"><span>Afiliación · clics registrados</span><b>'+n(d.clicsAfiliacion)+'</b></div>'
+    +'<div class="row"><span>Afiliación · monetizando</span><span class="pill">requiere alta manual en las redes</span></div>'
+    +'<div class="row"><span>Coste de generación de cursos</span><span class="pill">en Claude Code interno · 0€ API en la app</span></div>'
+    +'<p class="note">Doctrina: no mostramos ROI ni % inventados. Cuando conectemos la pasarela de pago y el alta de afiliación, estas filas pasarán a cifras reales.</p>';
+}
+load();
+</script>
+</body>
+</html>

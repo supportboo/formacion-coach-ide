@@ -105,11 +105,14 @@ function inboxAppend(kind, data) {
   try { appendFileSync(W('inbox.jsonl'), JSON.stringify({ id, kind, data, ts: new Date().toISOString() }) + '\n'); } catch {}
   return id;
 }
+function inboxMeta() { return jload(W('inbox-meta.json'), {}); }
+function inboxSetMeta(id, patch) { const m = inboxMeta(); m[id] = { ...(m[id] || {}), ...patch, updatedTs: new Date().toISOString() }; jsave(W('inbox-meta.json'), m); }
+function countLines(p) { try { return readFileSync(p, 'utf8').split('\n').filter(Boolean).length; } catch { return 0; } }
 function inboxAll() {
   const items = [];
   try { for (const l of readFileSync(W('inbox.jsonl'), 'utf8').split('\n')) { if (!l) continue; try { items.push(JSON.parse(l)); } catch {} } } catch {}
-  const st = jload(W('inbox-status.json'), {});
-  return items.map(it => ({ ...it, status: st[it.id] || 'nuevo' }));
+  const m = inboxMeta();
+  return items.map(it => ({ ...it, status: (m[it.id] || {}).status || 'nuevo', instruction: (m[it.id] || {}).instruction || '', reply: (m[it.id] || {}).reply || '' }));
 }
 
 const server = http.createServer(async (req, res) => {
@@ -232,6 +235,11 @@ const server = http.createServer(async (req, res) => {
   if (path === '/api/onboarding' && req.method === 'POST') {
     const b = await body(req); inboxAppend('onboarding', b); return json(res, 200, { ok: true });
   }
+  if (path === '/api/view' && req.method === 'POST') {
+    const b = await body(req);
+    try { appendFileSync(W('views.jsonl'), JSON.stringify({ page: String(b.page || '').slice(0, 80), user: String(b.user || '').slice(0, 60), ts: new Date().toISOString() }) + '\n'); } catch {}
+    return json(res, 200, { ok: true });
+  }
   if (path === '/api/admin/inbox') {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     const g = { feedback: [], request: [], onboarding: [] };
@@ -241,9 +249,40 @@ const server = http.createServer(async (req, res) => {
   }
   if (path === '/api/admin/status' && req.method === 'POST') {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
-    const b = await body(req); if (!b.id || !b.status) return json(res, 400, { error: 'faltan datos' });
-    const st = jload(W('inbox-status.json'), {}); st[b.id] = String(b.status).slice(0, 20); jsave(W('inbox-status.json'), st);
+    const b = await body(req); if (!b.id) return json(res, 400, { error: 'falta id' });
+    const patch = {};
+    if (b.status != null) patch.status = String(b.status).slice(0, 20);
+    if (b.instruction != null) patch.instruction = String(b.instruction).slice(0, 4000);
+    if (b.reply != null) patch.reply = String(b.reply).slice(0, 2000);
+    if (!Object.keys(patch).length) return json(res, 400, { error: 'nada que cambiar' });
+    inboxSetMeta(b.id, patch);
     return json(res, 200, { ok: true });
+  }
+  if (path === '/api/admin/dashboard') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const all = inboxAll();
+    const of = k => all.filter(x => x.kind === k);
+    const byStatus = arr => arr.reduce((a, x) => { a[x.status] = (a[x.status] || 0) + 1; return a; }, {});
+    const fb = of('feedback'), rq = of('request'), ob = of('onboarding');
+    const fbType = fb.reduce((a, x) => { const t = (x.data || {}).type || 'note'; a[t] = (a[t] || 0) + 1; return a; }, {});
+    const clicks = clicksByDomain(); const totalClicks = Object.values(clicks).reduce((a, b) => a + b, 0);
+    const instrucciones = all.filter(x => x.instruction).map(x => ({ id: x.id, kind: x.kind, status: x.status, instruction: x.instruction, ref: (x.data || {}).course || (x.data || {}).topic || '' }));
+    return json(res, 200, {
+      usuarios: Object.keys(users()).length,
+      onboardings: ob.length,
+      peticiones: { total: rq.length, estados: byStatus(rq), ultimas: rq.slice(0, 6).map(x => ({ topic: (x.data || {}).topic, status: x.status, ts: x.ts })) },
+      feedback: { total: fb.length, tipos: fbType, estados: byStatus(fb) },
+      leads: countLines(W('leads.jsonl')),
+      vistas: countLines(W('views.jsonl')),
+      clicsAfiliacion: totalClicks,
+      instrucciones,
+    });
+  }
+  if (path === '/api/admin/queue') {   // cola de instrucciones para Claude Code interno (solo admin)
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const q = inboxAll().filter(x => x.instruction && x.status !== 'aplicado' && x.status !== 'rechazado')
+      .map(x => ({ id: x.id, kind: x.kind, status: x.status, ref: (x.data || {}).course || (x.data || {}).topic || '', instruction: x.instruction }));
+    return json(res, 200, { queue: q });
   }
 
   /* ----- AFILIACIÓN ----- */

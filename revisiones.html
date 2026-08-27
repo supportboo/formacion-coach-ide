@@ -34,6 +34,13 @@ h1{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:6px}
 .empty{color:var(--mut);font-size:14px;padding:26px 4px}
 .kv{font-size:13px;color:#4A4A4A;margin-top:4px}.kv b{color:var(--ink)}
 .back{display:inline-block;margin-top:20px;color:var(--p);font-weight:600;text-decoration:none;font-size:14px}
+.conv{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.conv label{display:block;font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.03em;margin:8px 0 4px}
+.conv textarea{width:100%;font-family:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-height:52px;resize:vertical}
+.conv textarea:focus{outline:none;border-color:var(--p)}
+.conv .crow{display:flex;align-items:center;gap:10px;margin-top:6px}
+.a-save{font-family:inherit;font-size:12px;font-weight:700;border:0;border-radius:8px;padding:7px 12px;cursor:pointer;background:var(--p);color:#fff}
+.ok2{font-size:11px;color:#2b8a3e;font-weight:700}
 </style>
 </head>
 <body>
@@ -66,13 +73,13 @@ function feedbackCard(it){
     '<div class="quote">“'+esc((d.quote||'').slice(0,300))+'”</div>'+
     (d.comment?'<div class="cm">'+esc(d.comment)+'</div>':'')+
     '<div class="meta">'+esc(d.name||d.user||'anónimo')+(d.section?' · sección #'+esc(d.section):'')+' · '+esc((it.ts||'').slice(0,16).replace('T',' '))+'</div>'+
-    acts(it.id,it.status)+'</div>';
+    acts(it.id,it.status)+instrBlock(it,d)+'</div>';
 }
 function requestCard(it){
   var d=it.data||{};
   return '<div class="item"><div class="top"><span class="topic">📚 '+esc(d.topic||'')+'</span>'+badge(it.status)+'</div>'+
     '<div class="meta">'+esc(d.email||'anónimo')+' · '+esc((it.ts||'').slice(0,16).replace('T',' '))+'</div>'+
-    acts(it.id,it.status)+'</div>';
+    acts(it.id,it.status)+instrBlock(it,d)+'</div>';
 }
 function onbCard(it){
   var d=it.data||{},p=d.prefs||{};
@@ -86,6 +93,23 @@ function onbCard(it){
     '<div class="kv">'+(parts.join(' · ')||'sin datos de perfil')+'</div>'+
     '<div class="meta">'+esc((it.ts||'').slice(0,16).replace('T',' '))+'</div>'+
     acts(it.id,it.status)+'</div>';
+}
+function suggest(it,d){
+  if(it.kind==='request') return 'Generar curso sobre «'+(d.topic||'')+'»: revisar el contenido existente, buscar contenido nuevo de fuentes de autoridad y montar la ruta 0→100 por niveles (rookie → intermedio → pro) con tests personalizados por sector y perfil del alumno.';
+  var lbl=(TYPE[d.type]||TYPE.note).l;
+  var base = lbl==='Obsoleto'?'Revisar y actualizar':(lbl==='Mejorar'?'Mejorar':'Revisar');
+  return base+' en el curso "'+(d.course||'')+'"'+(d.section?' (sección '+d.section+')':'')+': '+(d.comment||'')+(d.quote?' — Texto señalado: «'+d.quote.slice(0,200)+'»':'');
+}
+function instrBlock(it,d){
+  var sug=it.instruction||suggest(it,d);
+  return '<div class="conv" data-id="'+esc(it.id)+'">'+
+    '<label>Instrucción para el motor (editable) '+(it.instruction?'<span class="ok2">✓ en cola</span>':'')+'</label>'+
+    '<textarea class="ins">'+esc(sug)+'</textarea>'+
+    '<div class="crow"><button class="a-save" data-f="instruction">'+(it.instruction?'Actualizar instrucción':'Convertir en instrucción')+'</button></div>'+
+    '<label>Respuesta al alumno (opcional)</label>'+
+    '<textarea class="rep" placeholder="Gracias por el aviso, lo hemos revisado y…">'+esc(it.reply||'')+'</textarea>'+
+    '<div class="crow"><button class="a-save" data-f="reply">Guardar respuesta</button></div>'+
+    '</div>';
 }
 async function load(){
   var r=await fetch('/api/admin/inbox');
@@ -103,6 +127,15 @@ document.getElementById('tabs').addEventListener('click',function(e){
   document.querySelectorAll('.pane').forEach(function(x){x.classList.toggle('on',x.id==='p-'+k);});
 });
 document.addEventListener('click',async function(e){
+  var save=e.target.closest('.a-save');
+  if(save){
+    var conv=save.closest('.conv'); var id=conv.dataset.id; var field=save.dataset.f;
+    var payload={id:id}; payload[field]= field==='instruction'?conv.querySelector('.ins').value:conv.querySelector('.rep').value;
+    if(field==='instruction') payload.status='aceptado';
+    save.textContent='Guardado ✓';
+    await fetch('/api/admin/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+    load(); return;
+  }
   var btn=e.target.closest('.acts button'); if(!btn)return;
   var id=btn.closest('.acts').dataset.id, status=btn.dataset.a;
   await fetch('/api/admin/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:id,status:status})});

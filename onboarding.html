@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Tu perfil de aprendizaje</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--body:#4A4A4A;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE;--grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body);min-height:100vh;
+  background-image:radial-gradient(circle at 15% 10%,rgba(0,212,255,.05),transparent 40%),radial-gradient(circle at 85% 90%,rgba(236,72,153,.05),transparent 40%)}
+.top{position:fixed;top:0;left:0;right:0;height:6px;background:var(--warm);z-index:10}
+.top .bar{height:100%;width:0;background:var(--grad);transition:width .4s}
+.wrap{max-width:640px;margin:0 auto;padding:80px 24px 60px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.brandooers-logo{display:inline-flex;align-items:baseline;font-weight:900;letter-spacing:-.02em;font-size:22px;color:var(--ink);justify-content:center;margin-bottom:4px}
+.brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
+.beyes .socketL,.beyes .socketR,.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR,.beyes .glint{transform-box:fill-box;transform-origin:center;animation:bBlink 5.2s infinite}
+@keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
+.step{display:none}.step.on{display:block;animation:fade .4s}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.kx{font-family:'Caveat',cursive;font-size:26px;color:var(--t);text-align:center;margin-bottom:2px}
+h2{font-size:clamp(24px,4vw,32px);font-weight:800;color:var(--ink);letter-spacing:-.02em;text-align:center;line-height:1.2;margin-bottom:8px}
+.sub{font-size:15px;color:var(--mut);text-align:center;margin-bottom:28px;max-width:460px;margin-left:auto;margin-right:auto}
+.opts{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.opt{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:15px 18px;cursor:pointer;transition:all .15s;text-align:left}
+.opt:hover{border-color:var(--p)}
+.opt.sel{border-color:var(--p);background:rgba(113,75,103,.05);box-shadow:0 4px 16px rgba(113,75,103,.1)}
+.opt .em{font-size:22px;flex:0 0 auto;width:26px;text-align:center}
+.opt .tx b{display:block;font-size:15.5px;color:var(--ink);font-weight:700}
+.opt .tx span{font-size:13px;color:var(--mut)}
+input.free{width:100%;font-family:inherit;font-size:16px;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px}
+input.free:focus{outline:none;border-color:var(--p)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:26px}
+.nav .n{font-size:13px;color:var(--mut)}
+.btn{font-family:inherit;font-size:14px;font-weight:700;border:0;border-radius:100px;padding:13px 26px;cursor:pointer;transition:transform .15s,opacity .15s}
+.btn-p{background:var(--p);color:#fff}.btn-p:hover{transform:translateY(-1px)}.btn-p:disabled{opacity:.4;cursor:default;transform:none}
+.btn-g{background:none;color:var(--mut);padding:13px 10px}
+.skip{display:block;text-align:center;margin-top:18px;font-size:13px;color:var(--mut);text-decoration:none}
+/* resultado */
+.res{text-align:center}
+.res .badge{display:inline-block;background:var(--grad);color:#fff;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:6px 16px;border-radius:100px;margin-bottom:16px}
+.res h1{font-size:clamp(30px,6vw,44px);font-weight:900;letter-spacing:-.03em;color:var(--ink);margin-bottom:10px}
+.res .desc{font-size:16px;color:var(--body);max-width:480px;margin:0 auto 24px;line-height:1.6}
+.route{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px;text-align:left;max-width:480px;margin:0 auto 26px}
+.route h3{font-size:14px;font-weight:800;color:var(--p);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px}
+.route ol{list-style:none;counter-reset:s}
+.route li{counter-increment:s;display:flex;gap:12px;padding:7px 0;font-size:14.5px;color:var(--ink)}
+.route li:before{content:counter(s);flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--warm);color:var(--p);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+.tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.tags span{font-size:12px;font-weight:600;color:var(--p);background:var(--warm);border-radius:100px;padding:5px 12px}
+</style>
+</head>
+<body>
+<div class="top"><div class="bar" id="bar"></div></div>
+<div class="wrap">
+  <div class="brandooers-logo" style="margin-bottom:22px">Brand<svg class="beyes" width="40" height="23" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>ers
+    <svg width="0" height="0" style="position:absolute"><defs>
+    <linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+    <radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    </defs></svg>
+  </div>
+  <div id="steps"></div>
+  <div class="nav" id="navbar">
+    <button class="btn btn-g" id="prev">← Atrás</button>
+    <span class="n" id="counter"></span>
+    <button class="btn btn-p" id="next" disabled>Siguiente →</button>
+  </div>
+  <a class="skip" href="/hub.html" id="skip">Saltar de momento</a>
+</div>
+<script>
+var Q=[
+ {k:'level',kx:'Empecemos',q:'¿Hasta dónde quieres llegar?',sub:'Ajustamos la profundidad de tus rutas a tu ambición.',opts:[
+   {v:'rookie',em:'🌱',b:'Lo básico (Rookie)',s:'Quiero entender lo esencial y aplicarlo ya'},
+   {v:'intermedio',em:'🚀',b:'Ir en serio (Intermedio)',s:'Quiero soltura y buenos resultados'},
+   {v:'pro',em:'🏆',b:'Ser PRO',s:'Quiero dominar el tema a nivel profesional'}]},
+ {k:'sector',kx:'Tu contexto',q:'¿A qué te dedicas?',sub:'Así los ejemplos y los casos serán de tu mundo, no genéricos.',free:'Ej.: ecommerce de moda, clínica dental, SaaS B2B, hostelería…'},
+ {k:'role',kx:'Tu contexto',q:'¿Cuál es tu rol?',sub:'Enfocamos la práctica a tu día a día.',opts:[
+   {v:'comercial',em:'📞',b:'Ventas / comercial',s:''},{v:'marketing',em:'📣',b:'Marketing',s:''},
+   {v:'fundador',em:'💡',b:'Fundador / dirección',s:''},{v:'operaciones',em:'⚙️',b:'Operaciones / equipo',s:''}]},
+ {k:'learn',kx:'Cómo aprendes',q:'¿Cómo se te queda mejor?',sub:'Priorizamos el formato con el que más aprendes.',opts:[
+   {v:'visual',em:'🎬',b:'Viendo',s:'Vídeos, esquemas, ejemplos visuales'},
+   {v:'lectura',em:'📖',b:'Leyendo',s:'Textos, guías, al detalle'},
+   {v:'audio',em:'🎧',b:'Escuchando',s:'Pódcast, audio, en movimiento'},
+   {v:'practico',em:'🛠️',b:'Haciendo',s:'Práctica, casos, aprender sobre la marcha'}]},
+ {k:'mindset',kx:'Cómo eres',q:'¿Con qué te convences?',sub:'Adaptamos el tono y las pruebas que te damos.',opts:[
+   {v:'esceptico',em:'🔍',b:'Con datos',s:'Soy escéptico: enséñame la evidencia'},
+   {v:'analitico',em:'🧩',b:'Paso a paso',s:'Analítico: dame el método ordenado'},
+   {v:'pragmatico',em:'⚡',b:'Al grano',s:'Pragmático: dime qué funciona y ya'},
+   {v:'innovador',em:'✨',b:'Con lo nuevo',s:'Innovador: enséñame lo que viene'}]},
+ {k:'time',kx:'Cómo eres',q:'¿Dónde tienes la cabeza?',sub:'Calibramos si tiras de casos probados o de tendencias.',opts:[
+   {v:'pasado',em:'📚',b:'En lo probado',s:'Casos reales que ya han funcionado'},
+   {v:'presente',em:'🎯',b:'En lo aplicable hoy',s:'Lo que puedo usar esta semana'},
+   {v:'futuro',em:'🔮',b:'En lo que viene',s:'Tendencias, visión, adelantarme'}]},
+ {k:'driver',kx:'Qué te mueve',q:'¿Qué te motiva más?',sub:'Lo último: entender qué te empuja a crecer.',opts:[
+   {v:'logro',em:'🥇',b:'Conseguir resultados',s:''},{v:'conocimiento',em:'🧠',b:'Saber más que nadie',s:''},
+   {v:'reconocimiento',em:'🌟',b:'Que se me reconozca',s:''},{v:'ayudar',em:'🤝',b:'Ayudar a mi equipo/clientes',s:''},
+   {v:'libertad',em:'🕊️',b:'Autonomía y libertad',s:''},{v:'seguridad',em:'🛡️',b:'Estabilidad y control',s:''}]}
+];
+var prof={}, i=0;
+var stepsEl=document.getElementById('steps'),bar=document.getElementById('bar'),
+    prev=document.getElementById('prev'),next=document.getElementById('next'),counter=document.getElementById('counter');
+function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function render(){
+  var q=Q[i];
+  bar.style.width=((i)/(Q.length))*100+'%';
+  counter.textContent=(i+1)+' / '+Q.length;
+  prev.style.visibility=i===0?'hidden':'visible';
+  var h='<div class="step on"><p class="kx">'+q.kx+'</p><h2>'+esc(q.q)+'</h2><p class="sub">'+esc(q.sub)+'</p>';
+  if(q.free){
+    h+='<input class="free" id="freein" placeholder="'+esc(q.free)+'" value="'+esc(prof[q.k]||'')+'">';
+  } else {
+    h+='<div class="opts">'+q.opts.map(function(o){
+      return '<button class="opt'+(prof[q.k]===o.v?' sel':'')+'" data-v="'+o.v+'"><span class="em">'+o.em+'</span><span class="tx"><b>'+esc(o.b)+'</b>'+(o.s?'<span>'+esc(o.s)+'</span>':'')+'</span></button>';
+    }).join('')+'</div>';
+  }
+  h+='</div>';
+  stepsEl.innerHTML=h;
+  next.textContent = i===Q.length-1 ? 'Ver mi perfil ✦' : 'Siguiente →';
+  var q2=Q[i];
+  if(q2.free){ var fi=document.getElementById('freein'); next.disabled=!(prof[q2.k]&&prof[q2.k].length>1);
+    fi.addEventListener('input',function(){prof[q2.k]=fi.value.trim();next.disabled=fi.value.trim().length<2;});
+    fi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!next.disabled)go(1);});
+  } else { next.disabled=!prof[q2.k]; }
+}
+stepsEl.addEventListener('click',function(e){
+  var o=e.target.closest('.opt'); if(!o)return;
+  prof[Q[i].k]=o.getAttribute('data-v');
+  stepsEl.querySelectorAll('.opt').forEach(function(x){x.classList.toggle('sel',x===o);});
+  next.disabled=false;
+});
+function go(d){ i+=d; if(i>=Q.length){finish();return;} if(i<0)i=0; render(); }
+prev.addEventListener('click',function(){go(-1);});
+next.addEventListener('click',function(){go(1);});
+
+var ARCH={
+  esceptico:{n:'El Verificador',d:'No te la cuelan. Aprendes cuando ves la prueba, el dato y el porqué.'},
+  analitico:{n:'El Estratega',d:'Te gusta el método ordenado, de lo simple a lo complejo, sin saltos.'},
+  pragmatico:{n:'El Ejecutor',d:'Vas al grano. Quieres lo que funciona y aplicarlo hoy mismo.'},
+  innovador:{n:'El Explorador',d:'Te mueve lo nuevo. Aprendes probando lo que casi nadie usa aún.'}
+};
+function routeFor(){
+  var L=prof.level, steps;
+  if(L==='rookie') steps=['Fundamentos: los básicos que sí importan','Un caso guiado de tu sector','Práctica corta + test para fijarlo'];
+  else if(L==='pro') steps=['Fundamentos exprés (repaso rápido)','Profundidad profesional, tema a tema','Casos avanzados de tu industria','Errores caros y cómo evitarlos','Proyecto real + test de dominio'];
+  else steps=['Fundamentos aplicados','Técnicas que marcan la diferencia','Casos reales de tu sector','Test con tu caso para consolidar'];
+  return steps;
+}
+function finish(){
+  var a=ARCH[prof.mindset]||ARCH.pragmatico;
+  prof.archetype=a.n; prof.ts=new Date().toISOString();
+  // compatibilidad con el motor de personalización (profile.js lee sector/goal/level)
+  try{ localStorage.setItem('brand_prefs', JSON.stringify(prof)); localStorage.removeItem('boo_ob_sent'); }catch(e){}
+  // avisar al servidor para que el admin lo revise
+  try{ fetch('/api/onboarding',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({prefs:prof})}); }catch(e){}
+  bar.style.width='100%'; document.getElementById('navbar').style.display='none'; document.getElementById('skip').style.display='none';
+  var learnLb={visual:'ver',lectura:'leer',audio:'escuchar',practico:'hacer'}[prof.learn]||'aprender';
+  var lvlLb={rookie:'Rookie',intermedio:'Intermedio',pro:'PRO'}[prof.level]||'';
+  stepsEl.innerHTML='<div class="step on res">'
+    +'<span class="badge">Tu perfil de aprendizaje</span>'
+    +'<h1>'+esc(a.n)+'</h1>'
+    +'<p class="desc">'+esc(a.d)+' Aprendes mejor al <b>'+learnLb+'</b>, así que priorizaremos ese formato.</p>'
+    +'<div class="tags"><span>Nivel: '+lvlLb+'</span>'+(prof.sector?'<span>'+esc(prof.sector)+'</span>':'')+'<span>'+esc(prof.mindset)+'</span><span>mira al '+esc(prof.time)+'</span></div>'
+    +'<div class="route"><h3>Tu ruta, de 0 a 100</h3><ol>'+routeFor().map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ol></div>'
+    +'<button class="btn btn-p" style="font-size:15px;padding:15px 34px" onclick="location.href=\'/hub.html\'">Empezar mi ruta →</button>'
+    +'<p style="font-size:12.5px;color:var(--mut);margin-top:16px">Los cursos y los tests se adaptarán a este perfil. Podrás ajustarlo cuando quieras.</p>'
+    +'</div>';
+}
+render();
+</script>
+</body>
+</html>
