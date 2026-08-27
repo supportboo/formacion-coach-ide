@@ -99,6 +99,19 @@ function clicksByDomain() {
   return out;
 }
 
+// bandeja de revisión: feedback de alumnos, solicitudes de curso y onboarding
+function inboxAppend(kind, data) {
+  const id = (data && data.id) ? String(data.id) : ('i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+  try { appendFileSync(W('inbox.jsonl'), JSON.stringify({ id, kind, data, ts: new Date().toISOString() }) + '\n'); } catch {}
+  return id;
+}
+function inboxAll() {
+  const items = [];
+  try { for (const l of readFileSync(W('inbox.jsonl'), 'utf8').split('\n')) { if (!l) continue; try { items.push(JSON.parse(l)); } catch {} } } catch {}
+  const st = jload(W('inbox-status.json'), {});
+  return items.map(it => ({ ...it, status: st[it.id] || 'nuevo' }));
+}
+
 const server = http.createServer(async (req, res) => {
   const https = (req.headers['x-forwarded-proto'] || '') === 'https';
   const url = new URL(req.url, 'http://x');
@@ -204,6 +217,33 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { ok: true });
     }
     return json(res, 404, { error: 'no' });
+  }
+
+  /* ----- BANDEJA (captura pública + revisión admin) ----- */
+  if (path === '/api/feedback' && req.method === 'POST') {
+    const b = await body(req); if (!b || !b.type) return json(res, 400, { error: 'no' });
+    inboxAppend('feedback', b); return json(res, 200, { ok: true });
+  }
+  if (path === '/api/track' && req.method === 'POST') {
+    const b = await body(req);
+    if (b && b.ev === 'course_request' && b.topic) inboxAppend('request', b);
+    return json(res, 200, { ok: true });
+  }
+  if (path === '/api/onboarding' && req.method === 'POST') {
+    const b = await body(req); inboxAppend('onboarding', b); return json(res, 200, { ok: true });
+  }
+  if (path === '/api/admin/inbox') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const g = { feedback: [], request: [], onboarding: [] };
+    for (const it of inboxAll()) (g[it.kind] || (g[it.kind] = [])).push(it);
+    for (const k in g) g[k].reverse();
+    return json(res, 200, g);
+  }
+  if (path === '/api/admin/status' && req.method === 'POST') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const b = await body(req); if (!b.id || !b.status) return json(res, 400, { error: 'faltan datos' });
+    const st = jload(W('inbox-status.json'), {}); st[b.id] = String(b.status).slice(0, 20); jsave(W('inbox-status.json'), st);
+    return json(res, 200, { ok: true });
   }
 
   /* ----- AFILIACIÓN ----- */

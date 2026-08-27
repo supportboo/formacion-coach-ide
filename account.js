@@ -31,12 +31,22 @@
       '<div class="bd-menu" id="bdMenu">' +
       '<div class="who"><b>' + me.user + '</b><span>' + (isAdmin ? 'Administrador' : 'Miembro') + '</span></div>' +
       '<a href="/perfil.html">Mi perfil</a>' +
-      (isAdmin ? '<a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
+      (isAdmin ? '<a href="/revisiones.html">Revisiones</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
       '<a class="out" href="/auth/logout">Cerrar sesión</a>' +
       '</div>';
     document.body.appendChild(wrap);
     var menu = document.getElementById('bdMenu');
     document.getElementById('bdChip').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('open'); });
     document.addEventListener('click', function () { menu.classList.remove('open'); });
+    // captura del onboarding (perfil elegido) para que el admin lo revise — una vez
+    try {
+      if (!localStorage.getItem('boo_ob_sent')) {
+        var prefs = null; try { prefs = JSON.parse(localStorage.getItem('brand_prefs') || 'null'); } catch (_) {}
+        if (prefs && (prefs.goal || prefs.preset || prefs.profileText)) {
+          fetch('/api/onboarding', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ user: me.user, prefs: prefs }) });
+          localStorage.setItem('boo_ob_sent', '1');
+        }
+      }
+    } catch (e) {}
   }).catch(function () {});
 })();
