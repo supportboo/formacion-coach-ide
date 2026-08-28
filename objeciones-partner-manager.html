@@ -8,12 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --odoo-primary:#714B67; --odoo-secondary:#017E84; --odoo-grey:#8F8F8F;
+  --odoo-primary:#8B5CF6; --odoo-secondary:#0891B2; --odoo-grey:#8F8F8F;
   --odoo-learning:#E46E78; --odoo-ready:#21B799; --odoo-silver:#5B899E; --odoo-gold:#E4A900;
   --bg:#FAFAFA; --bg-white:#FFFFFF; --bg-warm:#F5F0EE;
   --text-dark:#2D2D2D; --text-body:#4A4A4A; --text-muted:#8F8F8F;
   --border:#E8E0E5; --border-light:#F0EAEE;
-  --shadow-sm:0 1px 3px rgba(113,75,103,0.06); --shadow-md:0 4px 16px rgba(113,75,103,0.08);
+  --shadow-sm:0 1px 3px rgba(139,92,246,0.06); --shadow-md:0 4px 16px rgba(139,92,246,0.08);
   --radius:16px; --radius-sm:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -53,9 +53,9 @@ section{max-width:1100px;margin:0 auto;padding:100px 40px 60px}
 .callout{border-left:3px solid;padding:16px 20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:14.5px;line-height:1.65}
 .callout h4{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:6px}
 .callout-warm{border-color:var(--odoo-gold);background:rgba(228,169,0,0.06)}
-.callout-info{border-color:var(--odoo-secondary);background:rgba(1,126,132,0.05)}
+.callout-info{border-color:var(--odoo-secondary);background:rgba(8,145,178,0.05)}
 .callout-alert{border-color:var(--odoo-learning);background:rgba(228,110,120,0.06)}
-.callout-primary{border-color:var(--odoo-primary);background:rgba(113,75,103,0.05)}
+.callout-primary{border-color:var(--odoo-primary);background:rgba(139,92,246,0.05)}
 
 .note-card{background:var(--bg-warm);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:24px}
 .note-card .note-title{font-family:'Caveat',cursive;font-size:26px;font-weight:600;color:var(--odoo-primary);margin-bottom:8px;line-height:1.1}
@@ -178,7 +178,7 @@ img,svg,video{-webkit-user-drag:none}
 .rail-items{display:flex;flex-direction:column;gap:2px;padding:6px 10px;flex:1;overflow-y:auto;overflow-x:hidden}
 .rail-item{display:flex;align-items:center;gap:15px;padding:10px 12px;border-radius:11px;color:var(--text-body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
 .rail-item:hover{background:var(--bg-warm)}
-.rail-item.active{background:rgba(113,75,103,.08);color:var(--odoo-primary)}
+.rail-item.active{background:rgba(139,92,246,.08);color:var(--odoo-primary)}
 .rail-item .ri-ic{flex-shrink:0;width:22px;height:22px;display:grid;place-items:center}
 .rail-item .ri-ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .rail-item .ri-lb{font-size:14px;font-weight:500;opacity:0;transition:opacity .18s}
@@ -195,7 +195,7 @@ body{padding-left:66px}
 /* Nivel pill (Rookie / Intermedio / PRO) */
 .lvl-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:14px}
 .lvl-rookie{background:rgba(91,137,158,.14);color:var(--odoo-silver)}
-.lvl-inter{background:rgba(1,126,132,.12);color:var(--odoo-secondary)}
+.lvl-inter{background:rgba(8,145,178,.12);color:var(--odoo-secondary)}
 .lvl-pro{background:rgba(228,169,0,.16);color:#B98600}
 /* Guion / diálogo */
 .script{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow-sm);margin-bottom:14px}
@@ -415,7 +415,7 @@ body{padding-left:66px}
 
   <div class="grid-2 reveal" style="margin-bottom:18px">
     <div class="card" style="border-top:3px solid var(--odoo-primary)">
-      <span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary)">Estructura de conversación</span>
+      <span class="tag-pill" style="background:rgba(139,92,246,.12);color:var(--odoo-primary)">Estructura de conversación</span>
       <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">LAER · el bucle de la objeción</h3>
       <p style="font-size:14px">Divulgado por Carew International como "The LAER Bucle of Objection Handling". Cuatro pasos en orden, y el orden importa: la mayoría se salta los dos primeros y por eso fracasa.</p>
       <ul class="pillar-items" style="margin-top:8px;font-size:13.5px">
@@ -426,7 +426,7 @@ body{padding-left:66px}
       </ul>
     </div>
     <div class="card" style="border-top:3px solid var(--odoo-secondary)">
-      <span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">Estructura de conversación</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,.12);color:var(--odoo-secondary)">Estructura de conversación</span>
       <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">LAARC · la variante que confirma</h3>
       <p style="font-size:14px">Muy usada en formación de ventas B2B. Añade un paso clave sobre LAER: confirmar que has resuelto la objeción antes de avanzar. Evita el error de creer que has convencido cuando no.</p>
       <ul class="pillar-items" style="margin-top:8px;font-size:13.5px">

@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE}
+:root{--p:#8B5CF6;--t:#0891B2;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;padding:34px 30px 70px}
 .hand{font-family:'Caveat',cursive;color:var(--t);font-size:24px}
@@ -19,7 +19,7 @@ h1{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:6px}
 .tabs button .c{background:rgba(0,0,0,.12);border-radius:100px;font-size:11px;padding:1px 7px;margin-left:6px}
 .pane{display:none}.pane.on{display:block}
 .item{background:#fff;border:1px solid var(--line);border-left:4px solid var(--p);border-radius:12px;padding:16px 18px;margin-bottom:12px;max-width:920px}
-.item.good{border-left-color:#21B799}.item.improve{border-left-color:#E46E78}.item.stale{border-left-color:#E4A900}.item.note{border-left-color:#714B67}
+.item.good{border-left-color:#21B799}.item.improve{border-left-color:#E46E78}.item.stale{border-left-color:#E4A900}.item.note{border-left-color:#8B5CF6}
 .item .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .type{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
 .quote{font-size:14.5px;color:var(--ink);font-style:italic;line-height:1.5}
@@ -57,7 +57,7 @@ h1{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:6px}
 <div class="pane" id="p-onboarding"></div>
 <a class="back" href="/hub.html">← Volver a Brandooers</a>
 <script>
-var TYPE={good:{l:'Útil',c:'#21B799'},improve:{l:'Mejorar',c:'#E46E78'},stale:{l:'Obsoleto',c:'#E4A900'},note:{l:'Comentario',c:'#714B67'}};
+var TYPE={good:{l:'Útil',c:'#21B799'},improve:{l:'Mejorar',c:'#E46E78'},stale:{l:'Obsoleto',c:'#E4A900'},note:{l:'Comentario',c:'#8B5CF6'}};
 function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function badge(s){return '<span class="badge b-'+s+'">'+s+'</span>';}
 function acts(id,s){

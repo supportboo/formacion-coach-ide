@@ -9,8 +9,8 @@
 <script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <style>
 :root {
-  --odoo-primary: #714B67;
-  --odoo-secondary: #017E84;
+  --odoo-primary: #8B5CF6;
+  --odoo-secondary: #0891B2;
   --odoo-grey: #8F8F8F;
   --odoo-learning: #E46E78;
   --odoo-ready: #21B799;
@@ -19,9 +19,9 @@
   --bg: #FAFAFA; --bg-white: #FFFFFF; --bg-warm: #F5F0EE;
   --text-dark: #2D2D2D; --text-body: #4A4A4A; --text-muted: #8F8F8F;
   --border: #E8E0E5; --border-light: #F0EAEE;
-  --shadow-sm: 0 1px 3px rgba(113,75,103,0.06);
-  --shadow-md: 0 4px 16px rgba(113,75,103,0.08);
-  --shadow-lg: 0 12px 40px rgba(113,75,103,0.12);
+  --shadow-sm: 0 1px 3px rgba(139,92,246,0.06);
+  --shadow-md: 0 4px 16px rgba(139,92,246,0.08);
+  --shadow-lg: 0 12px 40px rgba(139,92,246,0.12);
   --radius: 16px; --radius-sm: 10px;
   /* DISC colors */
   --disc-d: #C0392B; --disc-i: #E4A900; --disc-s: #21B799; --disc-c: #2980B9;
@@ -68,18 +68,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 32px;display:fl
 
 /* HERO */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 60px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(113,75,103,0.06),transparent 70%);border-radius:50%}
-.hero::after{content:'';position:absolute;bottom:-150px;left:-150px;width:400px;height:400px;background:radial-gradient(circle,rgba(113,75,103,0.05),transparent 70%);border-radius:50%}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.06),transparent 70%);border-radius:50%}
+.hero::after{content:'';position:absolute;bottom:-150px;left:-150px;width:400px;height:400px;background:radial-gradient(circle,rgba(139,92,246,0.05),transparent 70%);border-radius:50%}
 .hero>*{position:relative;z-index:1}
 
 /* QUESTION ANIMATED ACCENTS */
 .q-card{position:relative;overflow:hidden}
-.q-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(113,75,103,0.04),transparent 70%);animation:qGlow 4s ease-in-out infinite}
-.q-card::after{content:'';position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(1,126,132,0.03),transparent 70%);animation:qGlow 4s ease-in-out infinite 2s}
+.q-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.04),transparent 70%);animation:qGlow 4s ease-in-out infinite}
+.q-card::after{content:'';position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(8,145,178,0.03),transparent 70%);animation:qGlow 4s ease-in-out infinite 2s}
 @keyframes qGlow{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.3);opacity:1}}
 
 /* PROGRESS PULSE */
-.nav-progress-bar{position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,var(--odoo-primary),var(--odoo-secondary),var(--odoo-ready));transition:width .4s ease;border-radius:0 2px 2px 0;box-shadow:0 0 8px rgba(1,126,132,0.3)}
+.nav-progress-bar{position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,var(--odoo-primary),var(--odoo-secondary),var(--odoo-ready));transition:width .4s ease;border-radius:0 2px 2px 0;box-shadow:0 0 8px rgba(8,145,178,0.3)}
 
 /* OPTION HOVER GLOW */
 .option{position:relative;overflow:hidden}
@@ -109,7 +109,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 32px;display:fl
 .field{margin-bottom:20px}
 .field label{display:block;font-size:13px;font-weight:600;color:var(--text-dark);margin-bottom:6px}
 .field input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;transition:all .2s;background:var(--bg)}
-.field input:focus{outline:none;border-color:var(--odoo-secondary);box-shadow:0 0 0 3px rgba(1,126,132,0.1)}
+.field input:focus{outline:none;border-color:var(--odoo-secondary);box-shadow:0 0 0 3px rgba(8,145,178,0.1)}
 .field input::placeholder{color:var(--text-muted)}
 
 /* BUTTONS */
@@ -119,7 +119,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 32px;display:fl
 .btn-secondary{background:var(--odoo-secondary);color:#fff}
 .btn-secondary:hover{background:#016068;transform:translateY(-1px);box-shadow:var(--shadow-md)}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-dark)}
-.btn-outline:hover{border-color:var(--odoo-primary);color:var(--odoo-primary);background:rgba(113,75,103,0.03)}
+.btn-outline:hover{border-color:var(--odoo-primary);color:var(--odoo-primary);background:rgba(139,92,246,0.03)}
 .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
 .btn-lg{padding:16px 40px;font-size:16px;border-radius:14px}
 
@@ -137,7 +137,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 32px;display:fl
 .options{display:flex;flex-direction:column;gap:10px}
 .option{display:flex;align-items:center;gap:14px;padding:16px 20px;border:1.5px solid var(--border-light);border-radius:14px;cursor:pointer;transition:all .2s;background:var(--bg);user-select:none}
 .option:hover{border-color:var(--border);background:var(--bg-warm);transform:translateX(4px)}
-.option.selected{border-color:var(--odoo-secondary);background:rgba(1,126,132,0.04);box-shadow:0 0 0 3px rgba(1,126,132,0.08)}
+.option.selected{border-color:var(--odoo-secondary);background:rgba(8,145,178,0.04);box-shadow:0 0 0 3px rgba(8,145,178,0.08)}
 .option-marker{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:12px;font-weight:700;color:transparent}
 .option.selected .option-marker{border-color:var(--odoo-secondary);background:var(--odoo-secondary);color:#fff}
 .option-text{font-size:15px;color:var(--text-body);line-height:1.5}
@@ -202,7 +202,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 32px;display:fl
 /* EMAIL STATUS */
 .email-status{text-align:center;padding:24px;margin-top:24px;border-radius:var(--radius);font-size:14px;font-weight:500}
 .email-status.success{background:rgba(33,183,153,0.08);color:var(--odoo-ready);border:1px solid rgba(33,183,153,0.15)}
-.email-status.sending{background:rgba(1,126,132,0.06);color:var(--odoo-secondary);border:1px solid rgba(1,126,132,0.12)}
+.email-status.sending{background:rgba(8,145,178,0.06);color:var(--odoo-secondary);border:1px solid rgba(8,145,178,0.12)}
 .email-status.error{background:rgba(228,110,120,0.08);color:var(--odoo-learning);border:1px solid rgba(228,110,120,0.15)}
 
 /* SUPERHERO REVEAL */
@@ -211,7 +211,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 32px;display:fl
 .reveal-content{text-align:center;animation:revealContent 3s ease}
 @keyframes revealContent{0%{opacity:0;transform:scale(0.8)}15%{opacity:1;transform:scale(1.05)}25%{transform:scale(1)}85%{opacity:1}100%{opacity:0}}
 .reveal-tagline{font-family:'Caveat',cursive;font-size:28px;color:rgba(255,255,255,0.6);margin-bottom:8px;animation:revealSlide .6s ease .2s both}
-.reveal-title{font-size:clamp(40px,7vw,72px);font-weight:900;background:linear-gradient(135deg,#E4A900,#21B799,#017E84);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.04em;line-height:1.1;animation:revealSlide .6s ease .5s both}
+.reveal-title{font-size:clamp(40px,7vw,72px);font-weight:900;background:linear-gradient(135deg,#E4A900,#21B799,#0891B2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.04em;line-height:1.1;animation:revealSlide .6s ease .5s both}
 .reveal-role{font-size:clamp(20px,3vw,32px);color:#fff;font-weight:300;margin-top:12px;letter-spacing:0.02em;animation:revealSlide .6s ease .8s both}
 @keyframes revealSlide{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .reveal-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -227,7 +227,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 32px;display:fl
 /* SUPERPOWER CARD */
 .superpower-card{background:linear-gradient(135deg,#1a1025 0%,#0d2b2e 50%,#1a1025 100%);border-radius:24px;padding:48px;margin-bottom:32px;position:relative;overflow:hidden;color:#fff}
 .superpower-card::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(228,169,0,0.15),transparent 70%);border-radius:50%}
-.superpower-card::after{content:'';position:absolute;bottom:-80px;left:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(1,126,132,0.12),transparent 70%);border-radius:50%}
+.superpower-card::after{content:'';position:absolute;bottom:-80px;left:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(8,145,178,0.12),transparent 70%);border-radius:50%}
 .superpower-card>*{position:relative;z-index:1}
 .sp-eyebrow{font-family:'Caveat',cursive;font-size:22px;color:var(--odoo-gold);margin-bottom:4px}
 .sp-title{font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px;background:linear-gradient(135deg,#fff,#E4A900);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -971,7 +971,7 @@ function finishTest() {
   const reveal = document.createElement('div');
   reveal.className = 'reveal-overlay';
   reveal.innerHTML = `
-    <div class="reveal-particles">${Array.from({length:30},(_,i)=>`<div class="reveal-particle" style="left:${Math.random()*100}%;bottom:${Math.random()*30}%;background:${['#E4A900','#21B799','#017E84','#714B67','#fff'][i%5]};animation-delay:${Math.random()*2}s;animation-duration:${1.5+Math.random()*1.5}s"></div>`).join('')}</div>
+    <div class="reveal-particles">${Array.from({length:30},(_,i)=>`<div class="reveal-particle" style="left:${Math.random()*100}%;bottom:${Math.random()*30}%;background:${['#E4A900','#21B799','#0891B2','#8B5CF6','#fff'][i%5]};animation-delay:${Math.random()*2}s;animation-duration:${1.5+Math.random()*1.5}s"></div>`).join('')}</div>
     <div class="reveal-content">
       <div class="reveal-tagline">Tu identidad ha sido descubierta</div>
       <div class="reveal-title">${discProfile.heroName}</div>
@@ -996,8 +996,8 @@ function finishTest() {
   html += `<div class="dna-strand">
     <div class="dna-node"><div class="dna-dot" style="background:${discProfile.color}15"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${discProfile.color}" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div><div class="dna-label">DISC</div><div class="dna-value">${discProfile.name.split(' (')[0]}</div></div>
     <div class="dna-node"><div class="dna-dot" style="background:rgba(228,169,0,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--odoo-gold)" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="dna-label">Innovacion</div><div class="dna-value">${innovProfile.name.split(' /')[0]}</div></div>
-    <div class="dna-node"><div class="dna-dot" style="background:rgba(1,126,132,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--odoo-secondary)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="dna-label">Equipo</div><div class="dna-value">${teamProfile.name.split(' /')[0]}</div></div>
-    <div class="dna-node"><div class="dna-dot" style="background:rgba(113,75,103,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--odoo-primary)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="dna-label">Liderazgo</div><div class="dna-value">${leadProfile.name.split(' /')[0]}</div></div>
+    <div class="dna-node"><div class="dna-dot" style="background:rgba(8,145,178,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--odoo-secondary)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="dna-label">Equipo</div><div class="dna-value">${teamProfile.name.split(' /')[0]}</div></div>
+    <div class="dna-node"><div class="dna-dot" style="background:rgba(139,92,246,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--odoo-primary)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="dna-label">Liderazgo</div><div class="dna-value">${leadProfile.name.split(' /')[0]}</div></div>
     <div class="dna-node"><div class="dna-dot" style="background:rgba(33,183,153,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--odoo-ready)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="dna-label">Fortaleza</div><div class="dna-value">${strProfile.name.split(' ')[0]}</div></div>
   </div>`;
 
@@ -1009,7 +1009,7 @@ function finishTest() {
     <div class="sp-desc">${cofounderRole.desc}</div>
     <div class="sp-powers">
       <span class="sp-power"><span class="pw-dot" style="background:${discProfile.colorHex}"></span>${discProfile.heroPower}</span>
-      ${cofounderRole.responsibilities.map((r,i) => `<span class="sp-power"><span class="pw-dot" style="background:${['#E4A900','#21B799','#2980B9','#714B67'][i]}"></span>${r}</span>`).join('')}
+      ${cofounderRole.responsibilities.map((r,i) => `<span class="sp-power"><span class="pw-dot" style="background:${['#E4A900','#21B799','#2980B9','#8B5CF6'][i]}"></span>${r}</span>`).join('')}
     </div>
     <div style="margin-top:24px;display:flex;align-items:center;gap:16px">
       <div style="font-size:48px;font-weight:900;font-family:'Caveat',cursive;background:linear-gradient(135deg,#E4A900,#21B799);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${cofounderRole.power || 95}/100</div>
@@ -1067,7 +1067,7 @@ function finishTest() {
   // TEAM ROLE
   html += `<div class="profile-card">
     <div class="pc-header">
-      <div class="pc-icon" style="background:rgba(1,126,132,0.1)">
+      <div class="pc-icon" style="background:rgba(8,145,178,0.1)">
         <svg viewBox="0 0 24 24" fill="none" stroke="var(--odoo-secondary)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
       <div>
@@ -1082,7 +1082,7 @@ function finishTest() {
   // LEADERSHIP
   html += `<div class="profile-card">
     <div class="pc-header">
-      <div class="pc-icon" style="background:rgba(113,75,103,0.1)">
+      <div class="pc-icon" style="background:rgba(139,92,246,0.1)">
         <svg viewBox="0 0 24 24" fill="none" stroke="var(--odoo-primary)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       </div>
       <div>
@@ -1296,8 +1296,8 @@ function downloadDiplomaPDF() {
   const traits = [
     {label:'DISC', value:r.discProfile.name.split(' (')[0], color:r.discProfile.colorHex},
     {label:'Innovacion', value:r.innovProfile.name.split(' /')[0], color:'#E4A900'},
-    {label:'Equipo', value:r.teamProfile.name.split(' /')[0], color:'#017E84'},
-    {label:'Liderazgo', value:r.leadProfile.name.split(' /')[0], color:'#714B67'},
+    {label:'Equipo', value:r.teamProfile.name.split(' /')[0], color:'#0891B2'},
+    {label:'Liderazgo', value:r.leadProfile.name.split(' /')[0], color:'#8B5CF6'},
     {label:'Fortaleza', value:r.strProfile.name, color:'#21B799'}
   ];
 

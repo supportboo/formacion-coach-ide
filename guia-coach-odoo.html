@@ -8,12 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --odoo-primary:#714B67; --odoo-secondary:#017E84; --odoo-grey:#8F8F8F;
+  --odoo-primary:#8B5CF6; --odoo-secondary:#0891B2; --odoo-grey:#8F8F8F;
   --odoo-learning:#E46E78; --odoo-ready:#21B799; --odoo-silver:#5B899E; --odoo-gold:#E4A900;
   --bg:#FAFAFA; --bg-white:#FFFFFF; --bg-warm:#F5F0EE;
   --text-dark:#2D2D2D; --text-body:#4A4A4A; --text-muted:#8F8F8F;
   --border:#E8E0E5; --border-light:#F0EAEE;
-  --shadow-sm:0 1px 3px rgba(113,75,103,0.06); --shadow-md:0 4px 16px rgba(113,75,103,0.08);
+  --shadow-sm:0 1px 3px rgba(139,92,246,0.06); --shadow-md:0 4px 16px rgba(139,92,246,0.08);
   --radius:16px; --radius-sm:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -24,7 +24,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:10px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(250,250,250,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-light)}
 .nav-links{display:flex;gap:2px;list-style:none}
 .nav-links a{color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:8px;transition:all .2s}
-.nav-links a:hover,.nav-links a.active{color:var(--odoo-primary);background:rgba(113,75,103,0.06)}
+.nav-links a:hover,.nav-links a.active{color:var(--odoo-primary);background:rgba(139,92,246,0.06)}
 .nav-progress{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--odoo-primary),var(--odoo-secondary));transition:width .15s}
 .logo-lockup{display:flex;flex-direction:column;align-items:center;line-height:1}
 .logo-lockup .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary)}
@@ -63,9 +63,9 @@ section{max-width:1100px;margin:0 auto;padding:100px 40px 60px}
 .callout{border-left:3px solid;padding:16px 20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:14.5px;line-height:1.65}
 .callout h4{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:6px}
 .callout-warm{border-color:var(--odoo-gold);background:rgba(228,169,0,0.06)}
-.callout-info{border-color:var(--odoo-secondary);background:rgba(1,126,132,0.05)}
+.callout-info{border-color:var(--odoo-secondary);background:rgba(8,145,178,0.05)}
 .callout-alert{border-color:var(--odoo-learning);background:rgba(228,110,120,0.06)}
-.callout-primary{border-color:var(--odoo-primary);background:rgba(113,75,103,0.05)}
+.callout-primary{border-color:var(--odoo-primary);background:rgba(139,92,246,0.05)}
 
 .note-card{background:var(--bg-warm);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:24px}
 .note-card .note-title{font-family:'Caveat',cursive;font-size:26px;font-weight:600;color:var(--odoo-primary);margin-bottom:8px;line-height:1.1}
@@ -149,15 +149,15 @@ ol.steps li strong{display:block;color:var(--text-dark);margin-bottom:1px}
 .cheat .ci b{display:block;font-family:'Caveat',cursive;font-size:22px;font-weight:600;margin-bottom:1px;color:#fff}
 .cheat .ci span{font-size:14px;color:rgba(255,255,255,0.85)}
 
-.cta-box{background:var(--bg-white);border:2px solid var(--odoo-primary);border-radius:20px;padding:48px;text-align:center;box-shadow:0 8px 32px rgba(113,75,103,0.1)}
+.cta-box{background:var(--bg-white);border:2px solid var(--odoo-primary);border-radius:20px;padding:48px;text-align:center;box-shadow:0 8px 32px rgba(139,92,246,0.1)}
 .cta-box .hand{font-size:34px;color:var(--odoo-primary);margin-bottom:10px}
 
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .reveal{opacity:0;transform:translateY(20px);transition:all .5s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
-.printbtn{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;background:var(--odoo-primary);border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 24px rgba(113,75,103,0.3);transition:all .3s}
-.printbtn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(113,75,103,0.4);background:var(--odoo-secondary)}
+.printbtn{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;background:var(--odoo-primary);border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 24px rgba(139,92,246,0.3);transition:all .3s}
+.printbtn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(139,92,246,0.4);background:var(--odoo-secondary)}
 
 footer{text-align:left;max-width:1100px;margin:0 auto;padding:40px;font-size:13px;color:var(--text-muted);border-top:1px solid var(--border-light)}
 footer h3{font-size:20px;color:var(--text-dark);margin-bottom:6px}
@@ -173,7 +173,7 @@ footer .bib p{break-inside:avoid;margin-bottom:10px;font-size:13px;line-height:1
 .quad2 .q b{display:block;font-family:'Caveat',cursive;font-size:23px;line-height:1;margin-bottom:3px}
 .quad2 .q span{font-size:12.5px;line-height:1.45;opacity:.96}
 .johari .q{background:var(--bg-warm);color:var(--text-dark);border:1px solid var(--border)}
-.johari .q.open{background:rgba(1,126,132,0.10);border-color:rgba(1,126,132,0.35)}
+.johari .q.open{background:rgba(8,145,178,0.10);border-color:rgba(8,145,178,0.35)}
 .johari .q b{color:var(--odoo-primary)}
 .zones-wrap{width:300px;height:300px;position:relative;margin:0 auto}
 .zone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:flex-start;justify-content:center;text-align:center;font-weight:700}
@@ -343,7 +343,7 @@ body.locked{overflow:hidden}
 .coach-opts .coach-go{background:var(--odoo-primary);color:#fff;border-color:var(--odoo-primary)}
 .guide-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .guide-chips button{border:1px solid var(--border);background:var(--bg-warm);color:var(--odoo-primary);border-radius:100px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
-.guide-chips button:hover{border-color:var(--odoo-primary);background:rgba(113,75,103,.06)}
+.guide-chips button:hover{border-color:var(--odoo-primary);background:rgba(139,92,246,.06)}
 /* Kiosco de conocimiento */
 .kio-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
 .kio-cart{display:flex;align-items:center;gap:6px;background:var(--odoo-primary);color:#fff;border-radius:100px;padding:7px 13px;font-weight:700;font-size:13px;flex-shrink:0}
@@ -422,16 +422,16 @@ html,body{overflow-x:hidden;max-width:100%}
 @media(max-width:800px){.dna-grid{grid-template-columns:1fr}}
 /* Hub de rutas */
 .hub{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.hub-card{display:block;text-decoration:none;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);transition:all .25s;border-top:3px solid var(--c,#714B67)}
+.hub-card{display:block;text-decoration:none;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);transition:all .25s;border-top:3px solid var(--c,#8B5CF6)}
 .hub-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
-.hub-num{font-family:'Caveat',cursive;font-size:32px;font-weight:700;line-height:1;color:var(--c,#714B67)}
+.hub-num{font-family:'Caveat',cursive;font-size:32px;font-weight:700;line-height:1;color:var(--c,#8B5CF6)}
 .hub-card h3{font-size:19px;color:var(--text-dark);margin:2px 0 6px}
 .hub-card p{font-size:13.5px;color:var(--text-body);margin:0}
-.hub-card .go{display:inline-block;margin-top:12px;font-size:12.5px;font-weight:700;color:var(--c,#714B67)}
+.hub-card .go{display:inline-block;margin-top:12px;font-size:12.5px;font-weight:700;color:var(--c,#8B5CF6)}
 @media(max-width:800px){.hub{grid-template-columns:1fr}}
 /* Panel de expertos (chat) */
-.agent-fab{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;background:var(--odoo-secondary);border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 24px rgba(1,126,132,.3);transition:all .3s}
-.agent-fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(1,126,132,.4)}
+.agent-fab{position:fixed;bottom:24px;right:24px;z-index:900;display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;background:var(--odoo-secondary);border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 6px 24px rgba(8,145,178,.3);transition:all .3s}
+.agent-fab:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(8,145,178,.4)}
 .agent-overlay{position:fixed;inset:0;background:rgba(45,45,45,.25);z-index:998;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(3px)}
 .agent-overlay.open{opacity:1;pointer-events:auto}
 .agent-panel{position:fixed;right:-470px;top:0;bottom:0;width:450px;max-width:100%;z-index:999;background:var(--bg);border-left:1px solid var(--border);transition:right .35s cubic-bezier(.23,1,.32,1);display:flex;flex-direction:column;box-shadow:-4px 0 32px rgba(0,0,0,.1)}
@@ -456,7 +456,7 @@ html,body{overflow-x:hidden;max-width:100%}
 .cbub.user{background:var(--odoo-secondary);color:#fff;border-top-right-radius:4px}
 .chat-sug{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 8px;flex-shrink:0}
 .sug{font-size:11.5px;padding:6px 11px;border-radius:100px;background:transparent;border:1px solid var(--border);color:var(--odoo-secondary);cursor:pointer;font-family:inherit}
-.sug:hover{background:rgba(1,126,132,.06)}
+.sug:hover{background:rgba(8,145,178,.06)}
 .chat-in{padding:12px 16px;border-top:1px solid var(--border-light);flex-shrink:0;background:var(--bg-white);display:flex;gap:6px;align-items:flex-end}
 .chat-in textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text-dark);font-family:inherit;font-size:13.5px;resize:none;outline:none;padding:9px 12px;max-height:90px}
 .chat-in button{width:36px;height:36px;border-radius:9px;background:var(--odoo-secondary);border:none;color:#fff;font-size:15px;cursor:pointer;flex-shrink:0}
@@ -518,7 +518,7 @@ img,svg,video{-webkit-user-drag:none}
 .rail-items{display:flex;flex-direction:column;gap:2px;padding:6px 10px;flex:1;overflow-y:auto;overflow-x:hidden}
 .rail-item{display:flex;align-items:center;gap:15px;padding:10px 12px;border-radius:11px;color:var(--text-body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
 .rail-item:hover{background:var(--bg-warm)}
-.rail-item.active{background:rgba(113,75,103,.08);color:var(--odoo-primary)}
+.rail-item.active{background:rgba(139,92,246,.08);color:var(--odoo-primary)}
 .rail-item .ri-ic{flex-shrink:0;width:22px;height:22px;display:grid;place-items:center}
 .rail-item .ri-ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .rail-item .ri-lb{font-size:14px;font-weight:500;opacity:0;transition:opacity .18s}
@@ -548,19 +548,19 @@ body{padding-left:66px}
 .ob-opts label{display:block;cursor:pointer}
 .ob-opts input{display:none}
 .ob-opts span{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:10px;font-size:13.5px;color:var(--text-body);transition:all .15s}
-.ob-opts input:checked+span{background:rgba(113,75,103,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
+.ob-opts input:checked+span{background:rgba(139,92,246,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
 .ob-chips{display:flex;flex-wrap:wrap;gap:6px}
 .ob-chips label{cursor:pointer}
 .ob-chips input{display:none}
 .ob-chips span{display:inline-block;padding:7px 12px;border:1px solid var(--border);border-radius:100px;font-size:12.5px;color:var(--text-body);transition:all .15s}
-.ob-chips input:checked+span{background:rgba(113,75,103,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
+.ob-chips input:checked+span{background:rgba(139,92,246,.08);border-color:var(--odoo-primary);color:var(--odoo-primary);font-weight:600}
 .ob-ta{width:100%;border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:13.5px;font-family:inherit;color:var(--text-dark);resize:vertical;min-height:52px;margin-top:8px;box-sizing:border-box}
 .ob-ta:focus{outline:none;border-color:var(--odoo-primary)}
 .prof-blk{margin-bottom:14px;border-bottom:1px dashed var(--border-light);padding-bottom:12px}
 .prof-blk h4{font-size:13px;font-weight:700;color:var(--odoo-primary);margin-bottom:6px}
 .prof-blk p{font-size:13.5px;color:var(--text-body);margin:6px 0 0;white-space:pre-wrap}
 .prof-tags{display:flex;flex-wrap:wrap;gap:5px}
-.prof-tag{display:inline-block;padding:3px 10px;border-radius:100px;background:rgba(113,75,103,.08);color:var(--odoo-primary);font-size:12px;font-weight:600}
+.prof-tag{display:inline-block;padding:3px 10px;border-radius:100px;background:rgba(139,92,246,.08);color:var(--odoo-primary);font-size:12px;font-weight:600}
 .inv-row{display:flex;gap:8px;margin-bottom:8px}
 .inv-row input{flex:1;min-width:0;border:1px solid var(--border);border-radius:9px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box}
 .inv-add{background:var(--odoo-primary);color:#fff;border:none;border-radius:9px;padding:0 16px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap}
@@ -576,7 +576,7 @@ body{padding-left:66px}
 .prog-rank{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--odoo-primary)}
 .prog-av{width:92px;height:92px;margin:8px auto 6px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:38px;background:radial-gradient(circle at 50% 38%,#8b5cf6,#4c1d95);box-shadow:0 0 0 4px rgba(139,92,246,.18),0 10px 30px rgba(139,92,246,.4)}
 .prog-av.lv2{background:radial-gradient(circle at 50% 38%,#22d3ee,#0e7490);box-shadow:0 0 0 4px rgba(34,211,238,.18),0 10px 30px rgba(34,211,238,.45)}
-.prog-av.lv3{background:radial-gradient(circle at 50% 38%,#21B799,#017E84);box-shadow:0 0 0 4px rgba(33,183,153,.18),0 10px 30px rgba(33,183,153,.45)}
+.prog-av.lv3{background:radial-gradient(circle at 50% 38%,#21B799,#0891B2);box-shadow:0 0 0 4px rgba(33,183,153,.18),0 10px 30px rgba(33,183,153,.45)}
 .prog-av.lv4{background:radial-gradient(circle at 50% 38%,#E4A900,#a97e00);box-shadow:0 0 0 4px rgba(228,169,0,.2),0 10px 30px rgba(228,169,0,.45)}
 .prog-av.lv5{background:radial-gradient(circle at 50% 38%,#E46E78,#8b1e3f);box-shadow:0 0 0 5px rgba(228,110,120,.24),0 12px 42px rgba(228,110,120,.5)}
 .prog-name{font-family:'Caveat',cursive;font-size:30px;color:var(--text-dark);line-height:1.05}
@@ -587,7 +587,7 @@ body{padding-left:66px}
 .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:6px 0 4px}
 .badge{width:76px;text-align:center;font-size:10px;color:var(--text-body);line-height:1.2}
 .badge .bi{width:46px;height:46px;margin:0 auto 4px;border-radius:14px;display:grid;place-items:center;background:var(--bg-warm);border:1px solid var(--border-light)}
-.badge.on .bi{background:linear-gradient(135deg,rgba(228,169,0,.18),rgba(113,75,103,.1));border-color:var(--odoo-gold)}
+.badge.on .bi{background:linear-gradient(135deg,rgba(228,169,0,.18),rgba(139,92,246,.1));border-color:var(--odoo-gold)}
 .badge.off{opacity:.42}
 .prog-how{text-align:left;background:var(--bg-warm);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--text-body);margin-top:16px;line-height:1.55}
 .prog-how b{color:var(--text-dark)}
@@ -956,7 +956,7 @@ body{padding-left:66px}
   <div class="story reveal" id="story">
     <div class="story-track" id="storyTrack">
       <div class="story-slide" style="background:linear-gradient(135deg,rgba(76,29,149,.82),rgba(124,58,237,.82)),url('assets/banner-1.png');background-size:cover;background-position:center"><div class="ch">Capítulo 1</div><h3>Primero, sé tú quien da la bienvenida</h3><p>Tu trabajo no es enseñarle a vender, es que no se sienta solo. Empieza por definir su ADN: quién es, sus fortalezas y sus objetivos.</p><a class="more" href="#rol">Conocer más →</a></div>
-      <div class="story-slide" style="background:linear-gradient(135deg,rgba(14,116,144,.82),rgba(1,126,132,.82)),url('assets/banner-2.png');background-size:cover;background-position:center"><div class="ch">Capítulo 2</div><h3>Conócele antes de guiarle</h3><p>Su eneatipo, su color DISC, en qué zona está. Saber quién es te dice cómo hablarle, qué le motiva y por dónde acompañarle.</p><a class="more" href="#perfil">Conocer más →</a></div>
+      <div class="story-slide" style="background:linear-gradient(135deg,rgba(14,116,144,.82),rgba(8,145,178,.82)),url('assets/banner-2.png');background-size:cover;background-position:center"><div class="ch">Capítulo 2</div><h3>Conócele antes de guiarle</h3><p>Su eneatipo, su color DISC, en qué zona está. Saber quién es te dice cómo hablarle, qué le motiva y por dónde acompañarle.</p><a class="more" href="#perfil">Conocer más →</a></div>
       <div class="story-slide" style="background:linear-gradient(135deg,rgba(180,83,9,.82),rgba(228,169,0,.82)),url('assets/banner-3.png');background-size:cover;background-position:center"><div class="ch">Capítulo 3</div><h3>Lidera con lo que dicen los grandes</h3><p>Sinek, Robbins, Sharma, Covey, Maxwell… técnicas con nombre y apellidos, con su charla y su libro, listas para el día a día.</p><a class="more" href="#pilares">Conocer más →</a></div>
       <div class="story-slide" style="background:linear-gradient(135deg,rgba(190,18,60,.82),rgba(228,110,120,.82)),url('assets/banner-4.png');background-size:cover;background-position:center"><div class="ch">Capítulo 4</div><h3>Ten la caja de herramientas a mano</h3><p>Las 7 preguntas mágicas, la escucha de verdad y el apoyo emocional para cuando aprieta. Método, no improvisación.</p><a class="more" href="#herramientas">Conocer más →</a></div>
       <div class="story-slide" style="background:linear-gradient(135deg,rgba(4,120,87,.82),rgba(33,183,153,.82)),url('assets/banner-5.png');background-size:cover;background-position:center"><div class="ch">Capítulo 5</div><h3>Organiza el día para que rinda</h3><p>Rutinas y foco: priming, 20/20/20, cómete la rana, Pomodoro, hábitos atómicos. Lo práctico que también le enseñas a él.</p><a class="more" href="#rutinas">Conocer más →</a></div>
@@ -1121,33 +1121,33 @@ body{padding-left:66px}
   <p class="hand reveal" style="font-size:28px;color:var(--odoo-primary);margin-bottom:14px">Para generar Confianza</p>
   <div class="grid-3 reveal" style="margin-bottom:26px">
     <div class="card">
-      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Simon Sinek</span>
+      <span class="tag-pill" style="background:rgba(139,92,246,0.08);color:var(--odoo-primary)">Simon Sinek</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Círculo de Seguridad</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="27" r="23" fill="none" stroke="#714B67" stroke-width="2" opacity=".45"/><circle cx="60" cy="27" r="14" fill="#714B67" opacity=".1"/><circle cx="53" cy="27" r="3.4" fill="#714B67"/><circle cx="67" cy="24" r="3.4" fill="#714B67"/><circle cx="61" cy="33" r="3.4" fill="#714B67"/></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="27" r="23" fill="none" stroke="#8B5CF6" stroke-width="2" opacity=".45"/><circle cx="60" cy="27" r="14" fill="#8B5CF6" opacity=".1"/><circle cx="53" cy="27" r="3.4" fill="#8B5CF6"/><circle cx="67" cy="24" r="3.4" fill="#8B5CF6"/><circle cx="61" cy="33" r="3.4" fill="#8B5CF6"/></svg></div>
       <p style="font-size:13px">El líder crea un entorno donde los de dentro se sienten a salvo, y «come el último»: sirve antes a su gente.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> dale cobertura ante un fallo: «este error lo asumo yo, aún estás aprendiendo».</p>
       <a class="src" href="https://www.ted.com/talks/simon_sinek_why_good_leaders_make_you_feel_safe" target="_blank" rel="noopener">Leaders Eat Last · charla TED ↗</a>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Stephen Covey</span>
+      <span class="tag-pill" style="background:rgba(139,92,246,0.08);color:var(--odoo-primary)">Stephen Covey</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Cuenta Bancaria Emocional</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><rect x="35" y="15" width="50" height="26" rx="6" fill="#714B67" opacity=".1" stroke="#714B67" stroke-width="1.6"/><line x1="60" y1="15" x2="60" y2="41" stroke="#714B67" stroke-width="1.3" opacity=".5"/><text x="47" y="35" font-family="Inter,sans-serif" font-size="17" font-weight="800" fill="#714B67" text-anchor="middle">+</text><text x="72" y="34" font-family="Inter,sans-serif" font-size="14" font-weight="800" fill="#714B67" text-anchor="middle" opacity=".45">−</text></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><rect x="35" y="15" width="50" height="26" rx="6" fill="#8B5CF6" opacity=".1" stroke="#8B5CF6" stroke-width="1.6"/><line x1="60" y1="15" x2="60" y2="41" stroke="#8B5CF6" stroke-width="1.3" opacity=".5"/><text x="47" y="35" font-family="Inter,sans-serif" font-size="17" font-weight="800" fill="#8B5CF6" text-anchor="middle">+</text><text x="72" y="34" font-family="Inter,sans-serif" font-size="14" font-weight="800" fill="#8B5CF6" text-anchor="middle" opacity=".45">−</text></svg></div>
       <p style="font-size:13px">La confianza es una cuenta: cumplir y cuidar son depósitos; fallar o faltar es un reintegro.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> haz depósitos pronto (cumple tu palabra, detalles) para tener saldo el día que toque corregir.</p>
       <a class="src" href="https://es.wikipedia.org/wiki/Los_siete_h%C3%A1bitos_de_la_gente_altamente_efectiva" target="_blank" rel="noopener">Los 7 hábitos · Wikipedia ↗</a>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Dale Carnegie</span>
+      <span class="tag-pill" style="background:rgba(139,92,246,0.08);color:var(--odoo-primary)">Dale Carnegie</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Su nombre y su mundo</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><rect x="34" y="12" width="52" height="30" rx="5" fill="#714B67" opacity=".1" stroke="#714B67" stroke-width="1.6"/><rect x="34" y="12" width="52" height="9" rx="4" fill="#714B67"/><line x1="43" y1="31" x2="77" y2="31" stroke="#714B67" stroke-width="2.4" stroke-linecap="round"/><line x1="43" y1="37" x2="64" y2="37" stroke="#714B67" stroke-width="2.4" stroke-linecap="round" opacity=".5"/></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><rect x="34" y="12" width="52" height="30" rx="5" fill="#8B5CF6" opacity=".1" stroke="#8B5CF6" stroke-width="1.6"/><rect x="34" y="12" width="52" height="9" rx="4" fill="#8B5CF6"/><line x1="43" y1="31" x2="77" y2="31" stroke="#8B5CF6" stroke-width="2.4" stroke-linecap="round"/><line x1="43" y1="37" x2="64" y2="37" stroke="#8B5CF6" stroke-width="2.4" stroke-linecap="round" opacity=".5"/></svg></div>
       <p style="font-size:13px">Interés sincero, su nombre y hablar de lo que le importa a él abren a cualquiera.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> «Buenos días, Marta» + una pregunta por su afición. Y nunca le corrijas en público.</p>
       <a class="src" href="https://es.wikipedia.org/wiki/C%C3%B3mo_ganar_amigos_e_influir_sobre_las_personas" target="_blank" rel="noopener">Cómo ganar amigos · Wikipedia ↗</a>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Brené Brown</span>
+      <span class="tag-pill" style="background:rgba(139,92,246,0.08);color:var(--odoo-primary)">Brené Brown</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Empatía sin «al menos»</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="52" cy="27" r="15" fill="#714B67" opacity=".18" stroke="#714B67" stroke-width="1.6"/><circle cx="68" cy="27" r="15" fill="#714B67" opacity=".18" stroke="#714B67" stroke-width="1.6"/></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="52" cy="27" r="15" fill="#8B5CF6" opacity=".18" stroke="#8B5CF6" stroke-width="1.6"/><circle cx="68" cy="27" r="15" fill="#8B5CF6" opacity=".18" stroke="#8B5CF6" stroke-width="1.6"/></svg></div>
       <p style="font-size:13px">Conectar con su emoción, no arreglarla ni suavizarla con un «al menos…».</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-primary)">Aplícalo:</strong> «Esto es duro y te entiendo; a mí también me temblaba la voz al principio.»</p>
       <a class="src" href="https://www.youtube.com/watch?v=1Evwgu369Jw" target="_blank" rel="noopener">Brené Brown · vídeo sobre empatía ↗</a>
@@ -1158,41 +1158,41 @@ body{padding-left:66px}
   <p class="hand reveal" style="font-size:28px;color:var(--odoo-secondary);margin-bottom:14px">Para Escuchar</p>
   <div class="grid-3 reveal" style="margin-bottom:26px">
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Nancy Kline</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Nancy Kline</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">No interrumpas nunca</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="48" cy="27" r="5" fill="#017E84"/><path d="M58 17 A14 14 0 0 1 58 37" fill="none" stroke="#017E84" stroke-width="2" stroke-linecap="round"/><path d="M64 12 A21 21 0 0 1 64 42" fill="none" stroke="#017E84" stroke-width="2" stroke-linecap="round" opacity=".6"/><path d="M70 8 A27 27 0 0 1 70 46" fill="none" stroke="#017E84" stroke-width="2" stroke-linecap="round" opacity=".35"/></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="48" cy="27" r="5" fill="#0891B2"/><path d="M58 17 A14 14 0 0 1 58 37" fill="none" stroke="#0891B2" stroke-width="2" stroke-linecap="round"/><path d="M64 12 A21 21 0 0 1 64 42" fill="none" stroke="#0891B2" stroke-width="2" stroke-linecap="round" opacity=".6"/><path d="M70 8 A27 27 0 0 1 70 46" fill="none" stroke="#0891B2" stroke-width="2" stroke-linecap="round" opacity=".35"/></svg></div>
       <p style="font-size:13px">Tu atención total, sin cortar, hace que la persona piense mejor por sí misma.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> «Cuéntame, yo no te corto. Cuando termines del todo, seguimos» — y aguanta el silencio.</p>
       <a class="src" href="https://en.wikipedia.org/wiki/Thinking_environment" target="_blank" rel="noopener">Entorno de Pensamiento · Wikipedia ↗</a>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Stephen Covey</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Stephen Covey</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Entender antes de ser entendido</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="27" r="9" fill="#017E84" opacity=".15" stroke="#017E84" stroke-width="1.6"/><path d="M30 22 H48 M42 17 L48 22 L42 27" fill="none" stroke="#017E84" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M72 33 H90 M84 28 L90 33 L84 38" fill="none" stroke="#017E84" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><circle cx="60" cy="27" r="9" fill="#0891B2" opacity=".15" stroke="#0891B2" stroke-width="1.6"/><path d="M30 22 H48 M42 17 L48 22 L42 27" fill="none" stroke="#0891B2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M72 33 H90 M84 28 L90 33 L84 38" fill="none" stroke="#0891B2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/></svg></div>
       <p style="font-size:13px">Hábito 5: escuchar para comprender, no para responder.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> antes de tu solución, refleja: «lo que me dices es que te sientes perdido, ¿es eso?».</p>
       <a class="src" href="https://es.wikipedia.org/wiki/Los_siete_h%C3%A1bitos_de_la_gente_altamente_efectiva" target="_blank" rel="noopener">Los 7 hábitos · Wikipedia ↗</a>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Tim Gallwey</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Tim Gallwey</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Baja al juez interior</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><text x="52" y="35" font-family="Inter,sans-serif" font-size="21" font-weight="800" fill="#017E84" text-anchor="middle">P−I</text><path d="M76 35 V19 M71 24 L76 19 L81 24" fill="none" stroke="#017E84" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><text x="52" y="35" font-family="Inter,sans-serif" font-size="21" font-weight="800" fill="#0891B2" text-anchor="middle">P−I</text><path d="M76 35 V19 M71 24 L76 19 L81 24" fill="none" stroke="#0891B2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <p style="font-size:13px">Rendimiento = Potencial − Interferencia. El crítico interno estorba al que ya sabe hacerlo.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> «No es técnica, es tu juez interior. En la próxima llamada solo observa el tono del cliente, sin juzgarte.»</p>
       <a class="src" href="https://en.wikipedia.org/wiki/The_Inner_Game_of_Tennis" target="_blank" rel="noopener">The Inner Game of Tennis · Wikipedia ↗</a>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Michael Bungay Stanier</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Michael Bungay Stanier</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">«¿Y qué más?»</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><g fill="none" stroke="#017E84" stroke-width="1.8"><rect x="30" y="22" width="20" height="15" rx="4" opacity=".35"/><rect x="43" y="18" width="22" height="16" rx="4" opacity=".6"/><rect x="57" y="13" width="27" height="18" rx="4"/></g><text x="70" y="26" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#017E84" text-anchor="middle">+</text></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><g fill="none" stroke="#0891B2" stroke-width="1.8"><rect x="30" y="22" width="20" height="15" rx="4" opacity=".35"/><rect x="43" y="18" width="22" height="16" rx="4" opacity=".6"/><rect x="57" y="13" width="27" height="18" rx="4"/></g><text x="70" y="26" font-family="Inter,sans-serif" font-size="13" font-weight="800" fill="#0891B2" text-anchor="middle">+</text></svg></div>
       <p style="font-size:13px">La mejor pregunta del mundo: saca a la persona de su primera respuesta, siempre superficial.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> repítela 2-3 veces antes de opinar. Lo importante aparece en la tercera.</p>
       <a class="src" href="https://www.youtube.com/watch?v=8IxKUUEsdQU" target="_blank" rel="noopener">The Coaching Habit · charla TEDx ↗</a>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">John Whitmore</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">John Whitmore</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">El modelo GROW</h3>
-      <div class="gfx"><svg viewBox="0 0 120 54"><text x="60" y="28" font-family="Caveat,cursive" font-size="20" font-weight="700" fill="#017E84" text-anchor="middle">G→R→O→W</text><line x1="20" y1="39" x2="100" y2="39" stroke="#017E84" stroke-width="2" stroke-linecap="round" opacity=".3"/></svg></div>
+      <div class="gfx"><svg viewBox="0 0 120 54"><text x="60" y="28" font-family="Caveat,cursive" font-size="20" font-weight="700" fill="#0891B2" text-anchor="middle">G→R→O→W</text><line x1="20" y1="39" x2="100" y2="39" stroke="#0891B2" stroke-width="2" stroke-linecap="round" opacity=".3"/></svg></div>
       <p style="font-size:13px">Mapa de conversación: Meta → Realidad → Opciones → Voluntad. Guías con preguntas.</p>
       <p style="font-size:13px;margin-top:7px"><strong style="color:var(--odoo-secondary)">Aplícalo:</strong> cierra con un número: «Del 1 al 10, ¿cuántas ganas tienes de hacerlo?».</p>
       <a class="src" href="https://en.wikipedia.org/wiki/GROW_model" target="_blank" rel="noopener">Modelo GROW · Wikipedia ↗</a>
@@ -1366,18 +1366,18 @@ body{padding-left:66px}
     <div class="viz">
       <svg viewBox="0 0 300 300" width="300" role="img" aria-label="Símbolo del Eneagrama con 9 tipos">
         <circle cx="150" cy="150" r="120" fill="none" stroke="#E8E0E5" stroke-width="2"/>
-        <polygon points="150,30 254,210 46,210" fill="none" stroke="#714B67" stroke-width="1.4" stroke-opacity="0.4"/>
-        <path d="M227,58 L191,263 L268,129 L73,58 L109,263 L32,129 Z" fill="none" stroke="#017E84" stroke-width="1.4" stroke-opacity="0.4"/>
+        <polygon points="150,30 254,210 46,210" fill="none" stroke="#8B5CF6" stroke-width="1.4" stroke-opacity="0.4"/>
+        <path d="M227,58 L191,263 L268,129 L73,58 L109,263 L32,129 Z" fill="none" stroke="#0891B2" stroke-width="1.4" stroke-opacity="0.4"/>
         <g font-family="Inter,sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">
-          <circle cx="227" cy="58" r="18" fill="#714B67"/><text x="227" y="58" dy=".35em">1</text>
+          <circle cx="227" cy="58" r="18" fill="#8B5CF6"/><text x="227" y="58" dy=".35em">1</text>
           <circle cx="268" cy="129" r="18" fill="#E46E78"/><text x="268" y="129" dy=".35em">2</text>
           <circle cx="254" cy="210" r="18" fill="#E46E78"/><text x="254" y="210" dy=".35em">3</text>
           <circle cx="191" cy="263" r="18" fill="#E46E78"/><text x="191" y="263" dy=".35em">4</text>
-          <circle cx="109" cy="263" r="18" fill="#017E84"/><text x="109" y="263" dy=".35em">5</text>
-          <circle cx="46" cy="210" r="18" fill="#017E84"/><text x="46" y="210" dy=".35em">6</text>
-          <circle cx="32" cy="129" r="18" fill="#017E84"/><text x="32" y="129" dy=".35em">7</text>
-          <circle cx="73" cy="58" r="18" fill="#714B67"/><text x="73" y="58" dy=".35em">8</text>
-          <circle cx="150" cy="30" r="18" fill="#714B67"/><text x="150" y="30" dy=".35em">9</text>
+          <circle cx="109" cy="263" r="18" fill="#0891B2"/><text x="109" y="263" dy=".35em">5</text>
+          <circle cx="46" cy="210" r="18" fill="#0891B2"/><text x="46" y="210" dy=".35em">6</text>
+          <circle cx="32" cy="129" r="18" fill="#0891B2"/><text x="32" y="129" dy=".35em">7</text>
+          <circle cx="73" cy="58" r="18" fill="#8B5CF6"/><text x="73" y="58" dy=".35em">8</text>
+          <circle cx="150" cy="30" r="18" fill="#8B5CF6"/><text x="150" y="30" dy=".35em">9</text>
         </g>
       </svg>
       <div class="viz-cap">Los 9 puntos, el triángulo (3-6-9) y las flechas internas que unen los tipos.</div>
@@ -1400,9 +1400,9 @@ body{padding-left:66px}
 
   <div class="grid-3 reveal" style="margin-bottom:16px">
     <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#714B67;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">1</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Reformador</h3></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#8B5CF6;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">1</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Reformador</h3></div>
       <p style="font-size:12.5px"><strong>Miedo:</strong> ser defectuoso. <strong>Deseo:</strong> ser íntegro y correcto.</p>
-      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#714B67">Acompáñale:</strong> feedback justo y concreto, reconoce su esfuerzo. No le corrijas en público; ayúdale a ver que «suficientemente bueno» ya vale.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#8B5CF6">Acompáñale:</strong> feedback justo y concreto, reconoce su esfuerzo. No le corrijas en público; ayúdale a ver que «suficientemente bueno» ya vale.</p>
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#E46E78;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">2</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Ayudador</h3></div>
@@ -1420,29 +1420,29 @@ body{padding-left:66px}
       <p style="font-size:12.5px;margin-top:6px"><strong style="color:#E46E78">Acompáñale:</strong> escúchale y valida su emoción sin querer «arreglarla». No le compares ni le digas «no exageres».</p>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#017E84;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">5</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Investigador</h3></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#0891B2;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">5</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Investigador</h3></div>
       <p style="font-size:12.5px"><strong>Miedo:</strong> ser invadido o incapaz. <strong>Deseo:</strong> ser competente y autónomo.</p>
-      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#017E84">Acompáñale:</strong> dale información, tiempo y espacio; avisa antes de exigir. No le abrumes con intensidad emocional.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#0891B2">Acompáñale:</strong> dale información, tiempo y espacio; avisa antes de exigir. No le abrumes con intensidad emocional.</p>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#017E84;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">6</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Leal</h3></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#0891B2;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">6</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Leal</h3></div>
       <p style="font-size:12.5px"><strong>Miedo:</strong> quedarse sin apoyo, la incertidumbre. <strong>Deseo:</strong> seguridad y confianza.</p>
-      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#017E84">Acompáñale:</strong> sé coherente y cumple lo prometido; sé su apoyo estable. Refuerza su confianza en su propio criterio.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#0891B2">Acompáñale:</strong> sé coherente y cumple lo prometido; sé su apoyo estable. Refuerza su confianza en su propio criterio.</p>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#017E84;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">7</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Entusiasta</h3></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#0891B2;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">7</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Entusiasta</h3></div>
       <p style="font-size:12.5px"><strong>Miedo:</strong> quedar atrapado, el aburrimiento. <strong>Deseo:</strong> libertad y satisfacción.</p>
-      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#017E84">Acompáñale:</strong> mantén energía y opciones; ayúdale a terminar lo que empieza. No le encierres en críticas.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#0891B2">Acompáñale:</strong> mantén energía y opciones; ayúdale a terminar lo que empieza. No le encierres en críticas.</p>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#714B67;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">8</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Desafiador</h3></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#8B5CF6;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">8</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Desafiador</h3></div>
       <p style="font-size:12.5px"><strong>Miedo:</strong> ser controlado o traicionado. <strong>Deseo:</strong> ser dueño de sí.</p>
-      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#714B67">Acompáñale:</strong> sé directo y honesto; se gana con verdad, no con adulación. Muéstrale que la vulnerabilidad no es debilidad.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#8B5CF6">Acompáñale:</strong> sé directo y honesto; se gana con verdad, no con adulación. Muéstrale que la vulnerabilidad no es debilidad.</p>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#714B67;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">9</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Pacificador</h3></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:50%;background:#8B5CF6;color:#fff;font-family:'Caveat',cursive;font-weight:700;font-size:18px;display:grid;place-items:center;flex-shrink:0">9</span><h3 style="font-size:15px;color:var(--text-dark);margin:0">Pacificador</h3></div>
       <p style="font-size:12.5px"><strong>Miedo:</strong> el conflicto, la separación. <strong>Deseo:</strong> paz y armonía.</p>
-      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#714B67">Acompáñale:</strong> pregúntale de verdad qué quiere y dale espacio; no le presiones. Ayúdale a priorizar y a decir lo que piensa.</p>
+      <p style="font-size:12.5px;margin-top:6px"><strong style="color:#8B5CF6">Acompáñale:</strong> pregúntale de verdad qué quiere y dale espacio; no le presiones. Ayúdale a priorizar y a decir lo que piensa.</p>
     </div>
   </div>
   <div class="callout callout-info reveal" style="margin-bottom:44px">
@@ -1525,9 +1525,9 @@ body{padding-left:66px}
       <svg viewBox="0 0 300 300" width="270" role="img" aria-label="Diagrama Ikigai de cuatro círculos">
         <g style="mix-blend-mode:multiply">
           <circle cx="150" cy="106" r="86" fill="#E4A900" fill-opacity="0.28"/>
-          <circle cx="194" cy="150" r="86" fill="#017E84" fill-opacity="0.28"/>
+          <circle cx="194" cy="150" r="86" fill="#0891B2" fill-opacity="0.28"/>
           <circle cx="150" cy="194" r="86" fill="#21B799" fill-opacity="0.28"/>
-          <circle cx="106" cy="150" r="86" fill="#714B67" fill-opacity="0.28"/>
+          <circle cx="106" cy="150" r="86" fill="#8B5CF6" fill-opacity="0.28"/>
         </g>
         <g font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#2D2D2D" text-anchor="middle">
           <text x="150" y="52">Lo que AMAS</text>
@@ -1535,7 +1535,7 @@ body{padding-left:66px}
           <text x="58" y="152">Se te da BIEN</text>
           <text x="244" y="152">El mundo NECESITA</text>
         </g>
-        <text x="150" y="156" text-anchor="middle" font-family="Caveat,cursive" font-size="24" font-weight="700" fill="#714B67">IKIGAI</text>
+        <text x="150" y="156" text-anchor="middle" font-family="Caveat,cursive" font-size="24" font-weight="700" fill="#8B5CF6">IKIGAI</text>
       </svg>
       <p style="font-size:13px;margin-top:16px">Amas + se te da bien = <strong>Pasión</strong> · se te da bien + te pagan = <strong>Profesión</strong> · te pagan + se necesita = <strong>Vocación</strong> · se necesita + amas = <strong>Misión</strong>. Los cuatro juntos = su razón de ser. Úsalo para ayudarle a ver qué le motiva de verdad.</p>
       <div class="rsrc-row" style="align-self:stretch"><a class="rsrc" href="https://es.wikipedia.org/wiki/Ikigai" target="_blank" rel="noopener">Ampliar ↗</a></div>
@@ -1561,7 +1561,7 @@ body{padding-left:66px}
   </div>
 
   <div class="card reveal mb">
-    <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Herramienta 1</span>
+    <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Herramienta 1</span>
     <h3 style="color:var(--text-dark);font-size:19px;margin-bottom:8px">Las 7 preguntas mágicas</h3>
     <p style="font-size:14px;margin-bottom:14px">Un buen encuentro cabe casi entero en estas siete preguntas. Haz una cada vez y espera la respuesta sin rellenar el silencio.</p>
     <table class="data-table">
@@ -1580,7 +1580,7 @@ body{padding-left:66px}
   </div>
 
   <div class="card reveal mb">
-    <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Herramienta 2</span>
+    <span class="tag-pill" style="background:rgba(139,92,246,0.08);color:var(--odoo-primary)">Herramienta 2</span>
     <h3 style="color:var(--text-dark);font-size:19px;margin-bottom:8px">Una conversación con sentido en 20-30 min (modelo GROW)</h3>
     <ol class="steps">
       <li><strong>Meta (0-5 min)</strong>«¿Qué te gustaría sacar de esta charla? ¿Qué querrías que fuera distinto?»</li>
@@ -1853,31 +1853,31 @@ body{padding-left:66px}
   <p class="hand reveal" style="font-size:26px;color:var(--odoo-secondary);margin-bottom:14px">Priorizar y enfocar</p>
   <div class="grid-3 reveal">
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Brian Tracy</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Brian Tracy</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Cómete la rana</h3>
       <p style="font-size:13px">Haz primero la tarea más importante y más incómoda del día, a primera hora. Todo lo demás pesa menos después.</p>
       <div class="rsrc-row"><button class="rsrc play" data-yt="iDV1sSoL0_I" data-title="Cómete la rana · Brian Tracy">Ver la charla</button><a class="rsrc book" href="https://www.amazon.es/s?k=Traguese+ese+sapo+Brian+Tracy" data-title="¡Tráguese ese sapo! — Brian Tracy" target="_blank" rel="noopener">Libro en Amazon ↗</a></div>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Matriz de Eisenhower</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Matriz de Eisenhower</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Urgente vs importante</h3>
       <p style="font-size:13px">Clasifica cada tarea en urgente/importante. Haz lo importante no urgente antes de que se vuelva urgente; delega o elimina el ruido.</p>
       <div class="rsrc-row"><button class="rsrc play" data-yt="GE2VNw6zpeE" data-title="Matriz de Eisenhower">Ver el vídeo</button></div>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(1,126,132,0.08);color:var(--odoo-secondary)">Método Ivy Lee</span>
+      <span class="tag-pill" style="background:rgba(8,145,178,0.08);color:var(--odoo-secondary)">Método Ivy Lee</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Las 6 tareas de mañana</h3>
       <p style="font-size:13px">Cada noche apunta las 6 tareas del día siguiente por orden de prioridad. Al día siguiente, de una en una, sin saltar a la 2 sin cerrar la 1.</p>
       <div class="rsrc-row"><button class="rsrc play" data-yt="JgbAdOhB-b0" data-title="Método Ivy Lee">Ver el vídeo</button></div>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Cal Newport</span>
+      <span class="tag-pill" style="background:rgba(139,92,246,0.08);color:var(--odoo-primary)">Cal Newport</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Time-blocking</h3>
       <p style="font-size:13px">Da a cada franja del día una tarea concreta en el calendario. Lo que no tiene bloque, no se hace. Es planificar el día antes de vivirlo.</p>
       <div class="rsrc-row"><button class="rsrc play" data-yt="ykNcnrNvpTI" data-title="Time-blocking · Cal Newport">Ver la charla</button><a class="rsrc book" href="https://www.amazon.es/s?k=Centrate+Deep+Work+Cal+Newport" data-title="Céntrate (Deep Work) — Cal Newport" target="_blank" rel="noopener">Libro en Amazon ↗</a></div>
     </div>
     <div class="card">
-      <span class="tag-pill" style="background:rgba(113,75,103,0.08);color:var(--odoo-primary)">Técnica Pomodoro</span>
+      <span class="tag-pill" style="background:rgba(139,92,246,0.08);color:var(--odoo-primary)">Técnica Pomodoro</span>
       <h3 style="color:var(--text-dark);font-size:16px;margin-bottom:5px">Foco en bloques de 25</h3>
       <p style="font-size:13px">25 minutos de foco total y 5 de descanso. Cada cuatro pomodoros, un descanso largo. El truco: nada de móvil durante los 25.</p>
       <div class="rsrc-row"><button class="rsrc play" data-yt="aQ_xKuXo0D0" data-title="Técnica Pomodoro">Ver el vídeo</button></div>
@@ -2238,10 +2238,10 @@ window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{se
 // Proxy de Gemini (Apps Script con la clave guardada en el servidor). Vacío = respuestas locales por palabras clave.
 const CHAT_URL="https://script.google.com/macros/s/AKfycbwnWMSnRWRMJyqgjgWvyaDFArHT9-hTQybInZMLVpI6VbJHZvvixL1T0FjYLnbZwf0/exec";
 const EXPERTS=[
- {id:'liderazgo',name:'Liderazgo y acompañamiento',role:'Sinek · Covey · Maxwell · Greenleaf · Kim Scott',color:'#714B67',ini:'L',
+ {id:'liderazgo',name:'Liderazgo y acompañamiento',role:'Sinek · Covey · Maxwell · Greenleaf · Kim Scott',color:'#8B5CF6',ini:'L',
   sug:['¿Cómo doy feedback sin herir?','¿Cómo genero confianza rápido?','Mi coachee no se abre','¿Qué es el círculo de seguridad?'],
   k:'Simon Sinek dice que los grandes líderes empiezan por el porqué, el Círculo de Oro: el propósito antes que la tarea. Sinek también habla del Círculo de Seguridad: el líder crea un entorno donde los de dentro se sienten protegidos y come el último, sirve antes a su gente. Robert Greenleaf define el liderazgo de servicio: el buen líder sirve al crecimiento del otro y trabaja para volverse innecesario. John Maxwell resume que la gente te sigue cuando siente que te importa, antes de que sepas más, y describe los 5 niveles de liderazgo: posición, permiso, producción, desarrollo de personas y pináculo. Stephen Covey propone la cuenta bancaria emocional: cumplir y cuidar son depósitos, fallar o faltar es un reintegro; y el hábito 5, buscar primero entender y luego ser entendido. Kim Scott, con la franqueza radical, pide preocuparte de verdad por la persona y a la vez decirle las cosas con claridad; el error frecuente es la empatía ruinosa, callar por no incomodar. Marshall Goldsmith recomienda el feedforward: en vez de criticar el pasado, dar dos ideas para el futuro. El modelo SBI reconoce o corrige sin herir: describe la situación, la conducta y el impacto, sin juzgar a la persona. Para generar confianza, cumple lo pequeño que prometes y guarda lo que te confíen; la confianza se construye canica a canica.'},
- {id:'personalidades',name:'Personalidades y ADN',role:'Eneagrama · DISC · zonas · emociones',color:'#017E84',ini:'P',
+ {id:'personalidades',name:'Personalidades y ADN',role:'Eneagrama · DISC · zonas · emociones',color:'#0891B2',ini:'P',
   sug:['¿Cómo acompaño a un eneatipo 6?','¿Qué es la zona de aprendizaje?','Mi coachee es muy analítico','¿DISC o eneagrama?'],
   k:'El Eneagrama describe a la persona por su miedo y su deseo profundos. El tipo 1 Reformador teme ser defectuoso: dale feedback justo y no le exijas perfección. El 2 Ayudador teme no ser querido: reconoce lo que aporta y enséñale a pedir para sí. El 3 Triunfador teme fracasar: dale metas y no le humilles en público. El 4 Individualista teme ser corriente: valida su emoción sin arreglarla. El 5 Investigador teme ser invadido: dale información, tiempo y espacio. El 6 Leal teme la incertidumbre: sé coherente y cumple lo prometido, refuerza su criterio. El 7 Entusiasta teme el aburrimiento: dale variedad y ayúdale a terminar. El 8 Desafiador teme ser controlado: sé directo y honesto. El 9 Pacificador teme el conflicto: pregúntale qué quiere y dale espacio. El DISC describe el estilo visible en colores: rojo dominante ve al grano, amarillo influyente dale energía, verde estable dale calma, azul concienzudo dale datos. La ventana de Johari: cada conversación honesta agranda el área abierta y da más confianza. Las tres zonas: confort seguro pero sin crecer, aprendizaje reto asumible donde crece, y pánico donde se bloquea; empújale un paso fuera del confort, nunca dos. La rueda de emociones ayuda a poner nombre exacto a lo que siente. El Ikigai cruza lo que ama, lo que se le da bien, lo que el mundo necesita y por lo que le pagan. El Big Five es el único modelo de personalidad con respaldo científico sólido.'},
  {id:'motivacion',name:'Motivación y mente',role:'Robbins · Pink · Dweck · Frankl · Seligman',color:'#E4A900',ini:'M',
@@ -2461,13 +2461,13 @@ const EXPERTS=[
  var SAYS=['¡Hola! Yo te acompaño.','Las de siempre… bah.','El talento ya está dentro.','Pequeño gesto, gran salto.','Con firmas que pesan.','Lo medimos todo, ¿eh?','¡Mira cómo sube!'];
  var EXPR=['happy','skeptic','happy','focus','wow','look','wow'];
  var VIS=[
-  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M24 122 L72 82 L104 100 L172 40" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 38 h24 v24" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="48" cy="118" r="16" fill="#E4A900"/></g><text x="48" y="124" font-size="17" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-weight="800">€</text><text x="150" y="130" font-size="22" fill="#714B67" font-family="Caveat,cursive" font-weight="700">+ROI</text></svg>',
+  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M24 122 L72 82 L104 100 L172 40" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M150 38 h24 v24" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="48" cy="118" r="16" fill="#E4A900"/></g><text x="48" y="124" font-size="17" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-weight="800">€</text><text x="150" y="130" font-size="22" fill="#8B5CF6" font-family="Caveat,cursive" font-weight="700">+ROI</text></svg>',
   '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M22 92 C64 88 96 98 178 92" fill="none" stroke="#c3bcc8" stroke-width="7" stroke-linecap="round"/><circle cx="150" cy="58" r="16" fill="none" stroke="#c3bcc8" stroke-width="6"/><line x1="139" y1="47" x2="161" y2="69" stroke="#c3bcc8" stroke-width="6"/></g><text x="34" y="124" font-size="23" fill="#c3bcc8" font-family="Caveat,cursive" font-weight="700">se rechaza…</text></svg>',
-  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><g stroke="#c4b5fd" stroke-width="4"><line x1="58" y1="52" x2="142" y2="52"/><line x1="58" y1="52" x2="100" y2="106"/><line x1="142" y1="52" x2="100" y2="106"/></g><circle cx="58" cy="52" r="17" fill="url(#bo-bg1)"/><circle cx="142" cy="52" r="17" fill="url(#bo-bg2)"/><circle cx="100" cy="106" r="17" fill="url(#bo-iris1)"/></g><g fill="#fff"><circle cx="58" cy="48" r="4"/><circle cx="142" cy="48" r="4"/><circle cx="100" cy="102" r="4"/></g><text x="100" y="140" font-size="21" text-anchor="middle" fill="#714B67" font-family="Caveat,cursive" font-weight="700">tu equipo</text></svg>',
-  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)" fill="none"><circle cx="96" cy="66" r="44" stroke="#e2dce6" stroke-width="7"/><circle cx="96" cy="66" r="27" stroke="#c4b5fd" stroke-width="7"/><circle cx="96" cy="66" r="11" stroke="url(#bo-iris1)" stroke-width="7"/></g><circle cx="96" cy="66" r="5" fill="#22d3ee"/><text x="96" y="136" font-size="21" text-anchor="middle" fill="#714B67" font-family="Caveat,cursive" font-weight="700">al grano</text></svg>',
-  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M100 22 L146 38 V76 C146 104 126 120 100 130 C74 120 54 104 54 76 V38 Z" fill="rgba(139,92,246,.12)" stroke="url(#bo-iris1)" stroke-width="6"/><path d="M82 74 l12 12 l24 -26" fill="none" stroke="#22d3ee" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g><text x="100" y="146" font-size="20" text-anchor="middle" fill="#714B67" font-family="Caveat,cursive" font-weight="700">avalado</text></svg>',
-  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><g fill="url(#bo-bg1)"><rect x="34" y="84" width="22" height="40" rx="4"/><rect x="72" y="64" width="22" height="60" rx="4"/><rect x="110" y="46" width="22" height="78" rx="4"/></g><line x1="30" y1="124" x2="150" y2="124" stroke="#3a2a45" stroke-width="4"/><circle cx="152" cy="50" r="17" fill="#21B799"/><path d="M144 50 l6 6 l10 -12" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g><text x="88" y="146" font-size="20" text-anchor="middle" fill="#714B67" font-family="Caveat,cursive" font-weight="700">medido</text></svg>',
-  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M26 14 V122 H184" fill="none" stroke="#3a2a45" stroke-width="4"/><path d="M32 114 C 78 104 106 78 138 56 S 176 24 182 16" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="182" cy="16" r="7" fill="#22d3ee"/></g><text x="150" y="120" font-size="26" fill="#714B67" font-family="Caveat,cursive" font-weight="700">×2</text></svg>'
+  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><g stroke="#c4b5fd" stroke-width="4"><line x1="58" y1="52" x2="142" y2="52"/><line x1="58" y1="52" x2="100" y2="106"/><line x1="142" y1="52" x2="100" y2="106"/></g><circle cx="58" cy="52" r="17" fill="url(#bo-bg1)"/><circle cx="142" cy="52" r="17" fill="url(#bo-bg2)"/><circle cx="100" cy="106" r="17" fill="url(#bo-iris1)"/></g><g fill="#fff"><circle cx="58" cy="48" r="4"/><circle cx="142" cy="48" r="4"/><circle cx="100" cy="102" r="4"/></g><text x="100" y="140" font-size="21" text-anchor="middle" fill="#8B5CF6" font-family="Caveat,cursive" font-weight="700">tu equipo</text></svg>',
+  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)" fill="none"><circle cx="96" cy="66" r="44" stroke="#e2dce6" stroke-width="7"/><circle cx="96" cy="66" r="27" stroke="#c4b5fd" stroke-width="7"/><circle cx="96" cy="66" r="11" stroke="url(#bo-iris1)" stroke-width="7"/></g><circle cx="96" cy="66" r="5" fill="#22d3ee"/><text x="96" y="136" font-size="21" text-anchor="middle" fill="#8B5CF6" font-family="Caveat,cursive" font-weight="700">al grano</text></svg>',
+  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M100 22 L146 38 V76 C146 104 126 120 100 130 C74 120 54 104 54 76 V38 Z" fill="rgba(139,92,246,.12)" stroke="url(#bo-iris1)" stroke-width="6"/><path d="M82 74 l12 12 l24 -26" fill="none" stroke="#22d3ee" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g><text x="100" y="146" font-size="20" text-anchor="middle" fill="#8B5CF6" font-family="Caveat,cursive" font-weight="700">avalado</text></svg>',
+  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><g fill="url(#bo-bg1)"><rect x="34" y="84" width="22" height="40" rx="4"/><rect x="72" y="64" width="22" height="60" rx="4"/><rect x="110" y="46" width="22" height="78" rx="4"/></g><line x1="30" y1="124" x2="150" y2="124" stroke="#3a2a45" stroke-width="4"/><circle cx="152" cy="50" r="17" fill="#21B799"/><path d="M144 50 l6 6 l10 -12" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g><text x="88" y="146" font-size="20" text-anchor="middle" fill="#8B5CF6" font-family="Caveat,cursive" font-weight="700">medido</text></svg>',
+  '<svg viewBox="0 0 200 150"><g filter="url(#sketch)"><path d="M26 14 V122 H184" fill="none" stroke="#3a2a45" stroke-width="4"/><path d="M32 114 C 78 104 106 78 138 56 S 176 24 182 16" fill="none" stroke="url(#bo-iris1)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="182" cy="16" r="7" fill="#22d3ee"/></g><text x="150" y="120" font-size="26" fill="#8B5CF6" font-family="Caveat,cursive" font-weight="700">×2</text></svg>'
  ];
  var lastIdx=-1;
  function upd(){var max=track.offsetHeight-ov.clientHeight;var pr=max>0?Math.min(1,Math.max(0,ov.scrollTop/max)):0;var idx=Math.round(pr*(N-1));for(var i=0;i<N;i++){scenes[i].classList.toggle('active',i===idx);if(dots[i])dots[i].classList.toggle('on',i===idx)}

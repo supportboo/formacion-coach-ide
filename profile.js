@@ -28,7 +28,7 @@
 
   var s = document.createElement('style');
   s.textContent = [
-    '.pf-adapt{display:inline-block;font:700 11px Inter,sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#875A7B;background:rgba(135,90,123,.1);border-radius:100px;padding:3px 10px}',
+    '.pf-adapt{display:inline-block;font:700 11px Inter,sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#8B5CF6;background:rgba(139,92,246,.1);border-radius:100px;padding:3px 10px}',
     '[data-when]{transition:opacity .2s}'
   ].join('');
   document.head.appendChild(s);
