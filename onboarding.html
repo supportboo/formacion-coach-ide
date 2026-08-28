@@ -32,6 +32,10 @@ h2{font-size:clamp(24px,4vw,32px);font-weight:800;color:var(--ink);letter-spacin
 .opt .tx span{font-size:13px;color:var(--mut)}
 input.free{width:100%;font-family:inherit;font-size:16px;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px}
 input.free:focus{outline:none;border-color:var(--p)}
+.other{margin-top:10px}
+.other input{width:100%;font-family:inherit;font-size:14px;padding:12px 15px;border:1.5px dashed var(--line);border-radius:12px;color:var(--ink);background:#fff}
+.other input::placeholder{color:var(--mut)}
+.other input:focus{outline:none;border-color:var(--p);border-style:solid}
 .nav{display:flex;justify-content:space-between;align-items:center;margin-top:26px}
 .nav .n{font-size:13px;color:var(--mut)}
 .btn{font-family:inherit;font-size:14px;font-weight:700;border:0;border-radius:100px;padding:13px 26px;cursor:pointer;transition:transform .15s,opacity .15s}
@@ -113,9 +117,11 @@ function render(){
   if(q.free){
     h+='<input class="free" id="freein" placeholder="'+esc(q.free)+'" value="'+esc(prof[q.k]||'')+'">';
   } else {
+    var custom=(prof[q.k]&&!q.opts.some(function(o){return o.v===prof[q.k];}))?prof[q.k]:'';
     h+='<div class="opts">'+q.opts.map(function(o){
       return '<button class="opt'+(prof[q.k]===o.v?' sel':'')+'" data-v="'+o.v+'"><span class="em">'+o.em+'</span><span class="tx"><b>'+esc(o.b)+'</b>'+(o.s?'<span>'+esc(o.s)+'</span>':'')+'</span></button>';
-    }).join('')+'</div>';
+    }).join('')+'</div>'+
+    '<div class="other"><input class="otherin" id="otherin" placeholder="¿No te cuadra? Escríbelo tú con tus palabras…" value="'+esc(custom)+'"></div>';
   }
   h+='</div>';
   stepsEl.innerHTML=h;
@@ -124,12 +130,23 @@ function render(){
   if(q2.free){ var fi=document.getElementById('freein'); next.disabled=!(prof[q2.k]&&prof[q2.k].length>1);
     fi.addEventListener('input',function(){prof[q2.k]=fi.value.trim();next.disabled=fi.value.trim().length<2;});
     fi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!next.disabled)go(1);});
-  } else { next.disabled=!prof[q2.k]; }
+  } else {
+    next.disabled=!prof[q2.k];
+    var oi=document.getElementById('otherin');
+    if(oi){
+      oi.addEventListener('input',function(){
+        if(oi.value.trim()){ prof[q2.k]=oi.value.trim(); stepsEl.querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel');}); next.disabled=false; }
+        else { var s=stepsEl.querySelector('.opt.sel'); prof[q2.k]=s?s.getAttribute('data-v'):null; next.disabled=!prof[q2.k]; }
+      });
+      oi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!next.disabled)go(1);});
+    }
+  }
 }
 stepsEl.addEventListener('click',function(e){
   var o=e.target.closest('.opt'); if(!o)return;
   prof[Q[i].k]=o.getAttribute('data-v');
   stepsEl.querySelectorAll('.opt').forEach(function(x){x.classList.toggle('sel',x===o);});
+  var oi=document.getElementById('otherin'); if(oi) oi.value='';
   next.disabled=false;
 });
 function go(d){ i+=d; if(i>=Q.length){finish();return;} if(i<0)i=0; render(); }

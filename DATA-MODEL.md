@@ -54,9 +54,21 @@ inventadas** — lo que no se mide se muestra como *pendiente*, nunca como un n�
 
 ## 5. Endpoints
 
-Captura (público): `POST /api/feedback` · `POST /api/track` (peticiones) · `POST /api/onboarding` · `POST /api/view`.
+Captura (público): `POST /api/feedback` · `POST /api/track` (peticiones) · `POST /api/onboarding` ·
+`POST /api/view` · `POST /api/progress` (compleción de curso) · `POST /api/exam` (nota → badge).
 Admin (sesión rol admin): `GET /api/admin/dashboard` · `GET /api/admin/inbox` · `POST /api/admin/status`
-(`{id,status?,instruction?,reply?}`) · `GET /api/admin/queue`.
+(`{id,status?,instruction?,reply?}`) · `GET /api/admin/queue` · `GET /api/admin/insights` (ranking + detalle por alumno).
+
+## Insights, recompensas y ranking
+
+- **Compleción** (`progress.jsonl`: `{user,course,done,pct,ts}`) — se marca al llegar al final de un curso.
+- **Examen** (`exams.jsonl`: `{user,course,score,passed,ts}`) — al aprobar otorga badge y puntos extra.
+- **Badges** = cursos completados (+ examen aprobado sube el badge).
+- **Puntos**: completar curso **+100** · aprobar examen **+50** · feedback aceptado **+20**
+  (referido que se registra **+80** — pendiente de wiring).
+- **Ranking**: alumnos ordenados por puntos → premios/gamificación. Vista admin en `insights.html`.
+- **Por alumno**: cursos completados, badges, exámenes, feedback dado/aceptado, uso (vistas), último acceso, puntos.
+- Sirve para: **premiar**, **rankings** y **mejorar la herramienta** (ver qué se completa, qué se abandona, qué se pide).
 
 ## 6. Pendiente (definido, aún no medido)
 

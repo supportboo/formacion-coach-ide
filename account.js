@@ -18,6 +18,23 @@
     }
     // registro de uso (vista de página)
     try { fetch('/api/view', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ page: path, user: me.user }) }); } catch (e) {}
+    // compleción de curso: al llegar al ~90% de una página de curso
+    try {
+      if (/(index|outbound-sales|reclutamiento-partners|marketing-partners|guia-coach-odoo)\.html$/.test(path)) {
+        var cs = document.querySelector('script[data-course]');
+        var course = (cs && cs.getAttribute('data-course')) || document.title || path;
+        var doneSent = false;
+        var chk = function () {
+          if (doneSent) return;
+          var h = document.documentElement;
+          if ((h.scrollTop + window.innerHeight) / (h.scrollHeight || 1) > 0.9) {
+            doneSent = true;
+            fetch('/api/progress', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ course: course, done: true, user: me.user }) });
+          }
+        };
+        window.addEventListener('scroll', chk, { passive: true }); setTimeout(chk, 2000);
+      }
+    } catch (e) {}
     var css = document.createElement('style');
     css.textContent =
       '.bd-acc{position:fixed;top:9px;right:14px;z-index:3000;font-family:Inter,system-ui,sans-serif}' +
@@ -39,7 +56,7 @@
       '<div class="bd-menu" id="bdMenu">' +
       '<div class="who"><b>' + me.user + '</b><span>' + (isAdmin ? 'Administrador' : 'Miembro') + '</span></div>' +
       '<a href="/perfil.html">Mi perfil</a>' +
-      (isAdmin ? '<a href="/panel.html">Panel de control</a><a href="/revisiones.html">Revisiones</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
+      (isAdmin ? '<a href="/panel.html">Panel de control</a><a href="/insights.html">Insights &amp; ranking</a><a href="/revisiones.html">Revisiones</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
       '<a class="out" href="/auth/logout">Cerrar sesión</a>' +
       '</div>';
     document.body.appendChild(wrap);

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Insights & ranking</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE;--gold:#E4A900}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;padding:34px 30px 70px}
+.hand{font-family:'Caveat',cursive;color:var(--t);font-size:24px}
+h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.hint{font-size:13px;color:var(--mut);margin-bottom:20px;max-width:820px;line-height:1.6}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.links a{font-size:13px;font-weight:700;color:var(--p);background:#fff;border:1px solid var(--line);border-radius:100px;padding:9px 16px;text-decoration:none}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.kpi .v{font-size:30px;font-weight:900;color:var(--ink)}.kpi .l{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.card h2{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:14px}
+.rank{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F0EAEE}
+.rank:last-child{border-bottom:0}
+.rank .pos{width:28px;height:28px;border-radius:50%;background:var(--warm);color:var(--p);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rank.g1 .pos{background:#FFF3BF;color:#a07a00}.rank.g2 .pos{background:#E9ECEF;color:#555}.rank.g3 .pos{background:#FFE8CC;color:#b5651d}
+.rank .u{flex:1;font-weight:700;color:var(--ink);font-size:14px}
+.rank .pts{font-weight:900;color:var(--p);font-size:15px}.rank .pts small{font-weight:600;color:var(--mut);font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 8px;text-align:left;border-bottom:1px solid #F0EAEE;vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+.u{font-weight:700;color:var(--ink)}
+.chip{display:inline-block;font-size:11px;font-weight:700;background:var(--warm);color:var(--p);border-radius:100px;padding:2px 8px;margin:1px 2px}
+.badge{font-size:12px;font-weight:800;color:#2b8a3e}
+.pts2{font-weight:900;color:var(--p)}
+.empty{color:var(--mut);font-size:13.5px;padding:16px 0}
+.legend{font-size:12.5px;color:var(--mut);margin-top:14px}
+.legend b{color:var(--ink)}
+.back{display:inline-block;margin-top:20px;color:var(--p);font-weight:600;text-decoration:none;font-size:14px}
+@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<p class="hand">Insights</p>
+<h1>Rendimiento, ranking y recompensas</h1>
+<p class="hint">Quién avanza, quién se estanca y quién merece premio. Los puntos alimentan el <b>ranking</b> y las <b>recompensas</b>. Datos reales de uso; lo que aún no se mide (examen con nota, referidos) se irá sumando en cuanto lo activemos.</p>
+<div class="links"><a href="/panel.html">← Panel de control</a><a href="/revisiones.html">Revisiones</a><a href="/hub.html">Volver a la app</a></div>
+<div class="kpis" id="kpis"></div>
+<div class="grid">
+  <div class="card"><h2>🏆 Ranking</h2><div id="rank"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="card"><h2>Alumnos · detalle</h2><div style="overflow-x:auto"><table><thead><tr><th>Alumno</th><th>Cursos</th><th>Badges</th><th>Feedback</th><th>Uso</th><th>Últ. acceso</th><th>Puntos</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+</div>
+<a class="back" href="/hub.html">← Volver a Brandooers</a>
+<script>
+function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function shortCourse(c){return esc((c||'').replace(/\.html$/,'').replace(/-/g,' ').slice(0,24));}
+async function load(){
+  var r=await fetch('/api/admin/insights');
+  if(r.status===403){document.body.innerHTML='<p style="font-family:Inter;padding:40px">Solo admin. <a href="/hub.html">Volver</a></p>';return;}
+  var d=await r.json(),a=d.aggregates;
+  document.getElementById('kpis').innerHTML=[
+    ['Usuarios',a.usuarios],['Activos',a.activos],['Cursos completados',a.completaciones],['Exámenes aprobados',a.examenes]
+  ].map(function(k){return '<div class="kpi"><div class="v">'+k[1]+'</div><div class="l">'+k[0]+'</div></div>';}).join('');
+
+  document.getElementById('rank').innerHTML = d.ranking.length? d.ranking.map(function(u,i){
+    return '<div class="rank g'+(i+1)+'"><div class="pos">'+(i+1)+'</div><div class="u">'+esc(u.user)+'</div><div class="pts">'+u.points+'<small> pts</small></div></div>';
+  }).join('') : '<div class="empty">Aún nadie ha sumado puntos. En cuanto un alumno complete un curso o su feedback se acepte, aparece aquí.</div>';
+
+  document.getElementById('legend').innerHTML='Puntos: completar curso <b>+'+d.puntos.curso+'</b> · aprobar examen <b>+'+d.puntos.examen+'</b> · feedback aceptado <b>+'+d.puntos.feedbackAceptado+'</b>';
+
+  document.getElementById('rows').innerHTML = d.rows.length? d.rows.map(function(u){
+    return '<tr><td class="u">'+esc(u.user)+(u.cuenta?'':' <span class="chip">invitado</span>')+'</td>'
+      +'<td>'+(u.completions.length?u.completions.map(shortCourse).map(function(c){return '<span class="chip">'+c+'</span>';}).join(''):'—')+'</td>'
+      +'<td><span class="badge">'+u.badges+'</span>'+(u.examenes?' · '+u.examenes+' ✓':'')+'</td>'
+      +'<td>'+u.feedbackDado+' <span style="color:var(--mut)">('+u.feedbackAceptado+' acept.)</span></td>'
+      +'<td>'+u.vistas+'</td>'
+      +'<td style="color:var(--mut);font-size:12px">'+(u.lastSeen?u.lastSeen.slice(0,10):'—')+'</td>'
+      +'<td class="pts2">'+u.points+'</td></tr>';
+  }).join('') : '<div class="empty">Sin alumnos con actividad todavía.</div>';
+}
+load();
+</script>
+</body>
+</html>

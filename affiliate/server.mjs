@@ -114,6 +114,7 @@ function inboxAll() {
   const m = inboxMeta();
   return items.map(it => ({ ...it, status: (m[it.id] || {}).status || 'nuevo', instruction: (m[it.id] || {}).instruction || '', reply: (m[it.id] || {}).reply || '' }));
 }
+function readJsonl(f) { const rows = []; try { for (const l of readFileSync(W(f), 'utf8').split('\n')) { if (!l) continue; try { rows.push(JSON.parse(l)); } catch {} } } catch {} return rows; }
 
 const server = http.createServer(async (req, res) => {
   const https = (req.headers['x-forwarded-proto'] || '') === 'https';
@@ -240,6 +241,16 @@ const server = http.createServer(async (req, res) => {
     try { appendFileSync(W('views.jsonl'), JSON.stringify({ page: String(b.page || '').slice(0, 80), user: String(b.user || '').slice(0, 60), ts: new Date().toISOString() }) + '\n'); } catch {}
     return json(res, 200, { ok: true });
   }
+  if (path === '/api/progress' && req.method === 'POST') {
+    const b = await body(req);
+    try { appendFileSync(W('progress.jsonl'), JSON.stringify({ user: String(b.user || '').slice(0, 60), course: String(b.course || '').slice(0, 80), done: !!b.done, pct: Number(b.pct) || null, ts: new Date().toISOString() }) + '\n'); } catch {}
+    return json(res, 200, { ok: true });
+  }
+  if (path === '/api/exam' && req.method === 'POST') {   // resultado de examen -> badge
+    const b = await body(req);
+    try { appendFileSync(W('exams.jsonl'), JSON.stringify({ user: String(b.user || '').slice(0, 60), course: String(b.course || '').slice(0, 80), score: Number(b.score) || 0, passed: !!b.passed, ts: new Date().toISOString() }) + '\n'); } catch {}
+    return json(res, 200, { ok: true });
+  }
   if (path === '/api/admin/inbox') {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     const g = { feedback: [], request: [], onboarding: [] };
@@ -283,6 +294,27 @@ const server = http.createServer(async (req, res) => {
     const q = inboxAll().filter(x => x.instruction && x.status !== 'aplicado' && x.status !== 'rechazado')
       .map(x => ({ id: x.id, kind: x.kind, status: x.status, ref: (x.data || {}).course || (x.data || {}).topic || '', instruction: x.instruction }));
     return json(res, 200, { queue: q });
+  }
+  if (path === '/api/admin/insights') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const prog = readJsonl('progress.jsonl'), views = readJsonl('views.jsonl'), exams = readJsonl('exams.jsonl');
+    const comp = {}; for (const r of prog) { if (r.done && r.user && r.course) (comp[r.user] = comp[r.user] || new Set()).add(r.course); }
+    const passed = {}; for (const e of exams) { if (e.passed && e.user && e.course) (passed[e.user] = passed[e.user] || new Set()).add(e.course); }
+    const lastSeen = {}, viewCount = {}; for (const v of views) { if (v.user) { if (!lastSeen[v.user] || v.ts > lastSeen[v.user]) lastSeen[v.user] = v.ts; viewCount[v.user] = (viewCount[v.user] || 0) + 1; } }
+    const fb = inboxAll().filter(x => x.kind === 'feedback');
+    const fbGiven = {}, fbAcc = {}; for (const f of fb) { const u = (f.data || {}).user || (f.data || {}).name; if (!u) continue; fbGiven[u] = (fbGiven[u] || 0) + 1; if (f.status === 'aceptado' || f.status === 'aplicado') fbAcc[u] = (fbAcc[u] || 0) + 1; }
+    const known = Object.keys(users());
+    const allU = new Set([...known, ...Object.keys(comp), ...Object.keys(lastSeen), ...Object.keys(fbGiven)]);
+    const rows = [...allU].map(u => {
+      const completions = [...(comp[u] || [])], aprobados = [...(passed[u] || [])], acc = fbAcc[u] || 0;
+      const points = completions.length * 100 + aprobados.length * 50 + acc * 20;
+      return { user: u, cuenta: known.includes(u), completions, badges: completions.length, examenes: aprobados.length, feedbackDado: fbGiven[u] || 0, feedbackAceptado: acc, vistas: viewCount[u] || 0, lastSeen: lastSeen[u] || '', points };
+    }).sort((a, b) => b.points - a.points);
+    return json(res, 200, {
+      rows, ranking: rows.filter(r => r.points > 0).slice(0, 20),
+      aggregates: { usuarios: known.length, activos: Object.keys(lastSeen).length, completaciones: rows.reduce((a, r) => a + r.completions.length, 0), examenes: exams.filter(e => e.passed).length },
+      puntos: { curso: 100, examen: 50, feedbackAceptado: 20 },
+    });
   }
 
   /* ----- AFILIACIÓN ----- */
