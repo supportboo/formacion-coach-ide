@@ -173,11 +173,11 @@ document.getElementById('go').addEventListener('click',async function(){
   var chosen=[].slice.call(document.querySelectorAll('.card.prop.sel')).map(function(x){return x.getAttribute('data-t');});
   var free=document.getElementById('freeAsk').value.trim();
   var reqs=chosen.slice(); if(free) reqs.push(free);
-  // enviar cada curso nuevo pedido al motor (aparece en Revisiones + cola)
-  var me=null; try{ me=(document.querySelector('script[data-user]')||{}).getAttribute; }catch(e){}
+  // enviar cada curso nuevo pedido al motor (aparece en Revisiones + cola + panel del alumno)
+  var ME=null; try{ var m=await (await fetch('/auth/me')).json(); ME=m&&m.user?m.user:null; }catch(e){}
   for(var j=0;j<reqs.length;j++){
     try{ await fetch('/api/track',{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({ev:'course_request',topic:reqs[j],from:'agente',profile:{level:prof.level,sector:prof.sector,role:prof.role,archetype:prof.archetype}})}); }catch(e){}
+      body:JSON.stringify({ev:'course_request',topic:reqs[j],from:'agente',user:ME,profile:{level:prof.level,sector:prof.sector,role:prof.role,archetype:prof.archetype}})}); }catch(e){}
   }
   var ex=buildExisting();
   document.getElementById('plan').classList.remove('on');

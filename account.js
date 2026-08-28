@@ -48,7 +48,19 @@
       '.bd-menu .who span{font-size:11px;color:#8F8F8F;text-transform:uppercase;letter-spacing:.04em}' +
       '.bd-menu a{display:block;padding:9px 10px;font-size:13px;color:#4A4A4A;text-decoration:none;border-radius:8px}' +
       '.bd-menu a:hover{background:#F5F0EE;color:#714B67}' +
-      '.bd-menu a.out{color:#c92a2a;border-top:1px solid #F0EAEE;margin-top:4px;padding-top:11px}';
+      '.bd-menu a.out{color:#c92a2a;border-top:1px solid #F0EAEE;margin-top:4px;padding-top:11px}' +
+      '.bd-prep{position:fixed;left:14px;bottom:14px;z-index:3000;font-family:Inter,sans-serif}' +
+      '.bd-prep .pill{display:flex;align-items:center;gap:8px;background:#2D2D2D;color:#fff;border-radius:100px;padding:9px 14px;font-size:12.5px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.22)}' +
+      '.bd-prep .spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#67E8F9;border-radius:50%;animation:bdspin .8s linear infinite}' +
+      '@keyframes bdspin{to{transform:rotate(360deg)}}' +
+      '.bd-prep .box{position:absolute;left:0;bottom:46px;background:#fff;border:1px solid #E8E0E5;border-radius:12px;box-shadow:0 10px 34px rgba(113,75,103,.16);width:288px;padding:8px;display:none}' +
+      '.bd-prep.open .box{display:block}' +
+      '.bd-prep .it{padding:9px 8px;border-bottom:1px solid #F0EAEE}.bd-prep .it:last-child{border-bottom:0}' +
+      '.bd-prep .it b{display:block;font-size:12.5px;color:#2D2D2D;line-height:1.3}' +
+      '.bd-prep .it .s{font-size:11px;color:#8F8F8F;margin-top:2px}' +
+      '.bd-prep .it .ready{color:#017E84;font-weight:700;font-size:12px;text-decoration:none}' +
+      '.bd-prep .barp{height:5px;background:#F0EAEE;border-radius:3px;margin-top:5px;overflow:hidden}' +
+      '.bd-prep .barp i{display:block;height:100%;background:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);transition:width .4s}';
     document.head.appendChild(css);
     var wrap = document.createElement('div'); wrap.className = 'bd-acc';
     wrap.innerHTML =
@@ -56,12 +68,27 @@
       '<div class="bd-menu" id="bdMenu">' +
       '<div class="who"><b>' + me.user + '</b><span>' + (isAdmin ? 'Administrador' : 'Miembro') + '</span></div>' +
       '<a href="/perfil.html">Mi perfil</a>' +
-      (isAdmin ? '<a href="/panel.html">Panel de control</a><a href="/insights.html">Insights &amp; ranking</a><a href="/revisiones.html">Revisiones</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
+      (isAdmin ? '<a href="/panel.html">Panel de control</a><a href="/insights.html">Insights &amp; ranking</a><a href="/revisiones.html">Revisiones</a><a href="/produccion.html">Producción</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
       '<a class="out" href="/auth/logout">Cerrar sesión</a>' +
       '</div>';
     document.body.appendChild(wrap);
     var menu = document.getElementById('bdMenu');
     document.getElementById('bdChip').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('open'); });
     document.addEventListener('click', function () { menu.classList.remove('open'); });
+    // indicador de cursos en preparación (barra lateral) para el alumno
+    var STG = { solicitado: ['Solicitado', 10], cola: ['En cola', 20], research: ['Investigando', 40], verify: ['Verificando', 55], build: ['Construyendo', 70], validate: ['Validando', 88], publish: ['Publicado', 100] };
+    fetch('/api/mis-cursos', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (mc) {
+      if (!mc || !mc.cursos || !mc.cursos.length) return;
+      var prep = mc.cursos.filter(function (c) { return !(c.stage === 'publish' && c.courseUrl); });
+      var items = mc.cursos.map(function (c) {
+        var st = STG[c.stage] || STG.cola, pub = (c.stage === 'publish' && c.courseUrl), safe = (c.topic || '').replace(/[&<>"]/g, function (x) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]; });
+        return '<div class="it"><b>' + safe + '</b>' + (pub ? '<a class="ready" href="' + c.courseUrl + '">✓ Listo · abrir curso →</a>' : '<div class="s">' + st[0] + ' · ' + (c.eta || 'ETA 24 h') + '</div><div class="barp"><i style="width:' + st[1] + '%"></i></div>') + '</div>';
+      }).join('');
+      var w = document.createElement('div'); w.className = 'bd-prep';
+      w.innerHTML = '<div class="pill" id="bdPrepPill">' + (prep.length ? '<span class="spin"></span> ' + prep.length + ' curso' + (prep.length > 1 ? 's' : '') + ' en preparación' : '✓ tus cursos listos') + '</div><div class="box">' + items + '</div>';
+      document.body.appendChild(w);
+      document.getElementById('bdPrepPill').addEventListener('click', function (e) { e.stopPropagation(); w.classList.toggle('open'); });
+      document.addEventListener('click', function () { w.classList.remove('open'); });
+    }).catch(function () {});
   }).catch(function () {});
 })();

@@ -112,7 +112,7 @@ function inboxAll() {
   const items = [];
   try { for (const l of readFileSync(W('inbox.jsonl'), 'utf8').split('\n')) { if (!l) continue; try { items.push(JSON.parse(l)); } catch {} } } catch {}
   const m = inboxMeta();
-  return items.map(it => ({ ...it, status: (m[it.id] || {}).status || 'nuevo', instruction: (m[it.id] || {}).instruction || '', reply: (m[it.id] || {}).reply || '' }));
+  return items.map(it => { const x = m[it.id] || {}; return { ...it, status: x.status || 'nuevo', instruction: x.instruction || '', reply: x.reply || '', stage: x.stage || '', eta: x.eta || '', courseUrl: x.courseUrl || '' }; });
 }
 function readJsonl(f) { const rows = []; try { for (const l of readFileSync(W(f), 'utf8').split('\n')) { if (!l) continue; try { rows.push(JSON.parse(l)); } catch {} } } catch {} return rows; }
 
@@ -251,6 +251,13 @@ const server = http.createServer(async (req, res) => {
     try { appendFileSync(W('exams.jsonl'), JSON.stringify({ user: String(b.user || '').slice(0, 60), course: String(b.course || '').slice(0, 80), score: Number(b.score) || 0, passed: !!b.passed, ts: new Date().toISOString() }) + '\n'); } catch {}
     return json(res, 200, { ok: true });
   }
+  if (path === '/api/mis-cursos') {   // cursos que el alumno ha pedido y su estado de producción
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
+    const rows = inboxAll().filter(x => x.kind === 'request' && (x.data || {}).user === s.u)
+      .map(x => ({ id: x.id, topic: (x.data || {}).topic || '', status: x.status, stage: x.stage || (x.status === 'aceptado' ? 'cola' : (x.status === 'nuevo' ? 'solicitado' : x.status)), eta: x.eta || '', courseUrl: x.courseUrl || '', ts: x.ts }))
+      .reverse();
+    return json(res, 200, { cursos: rows });
+  }
   if (path === '/api/admin/inbox') {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     const g = { feedback: [], request: [], onboarding: [] };
@@ -265,6 +272,9 @@ const server = http.createServer(async (req, res) => {
     if (b.status != null) patch.status = String(b.status).slice(0, 20);
     if (b.instruction != null) patch.instruction = String(b.instruction).slice(0, 4000);
     if (b.reply != null) patch.reply = String(b.reply).slice(0, 2000);
+    if (b.stage != null) patch.stage = String(b.stage).slice(0, 20);
+    if (b.eta != null) patch.eta = String(b.eta).slice(0, 40);
+    if (b.courseUrl != null) patch.courseUrl = String(b.courseUrl).slice(0, 160);
     if (!Object.keys(patch).length) return json(res, 400, { error: 'nada que cambiar' });
     inboxSetMeta(b.id, patch);
     return json(res, 200, { ok: true });

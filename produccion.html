@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Producción</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#714B67;--t:#017E84;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE;--green:#21B799;--grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;padding:34px 30px 70px}
+.hand{font-family:'Caveat',cursive;color:var(--t);font-size:24px}
+h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.hint{font-size:13px;color:var(--mut);margin-bottom:20px;max-width:840px;line-height:1.6}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.links a{font-size:13px;font-weight:700;color:var(--p);background:#fff;border:1px solid var(--line);border-radius:100px;padding:9px 16px;text-decoration:none}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:16px;max-width:960px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.top .t{font-size:16.5px;font-weight:700;color:var(--ink)}
+.top .m{font-size:12px;color:var(--mut);margin-top:3px}
+.eta{font-size:12px;font-weight:700;color:var(--t);white-space:nowrap;background:var(--warm);border-radius:100px;padding:4px 11px}
+/* barra de etapas */
+.stages{display:flex;gap:0;margin:8px 0 4px}
+.stg{flex:1;text-align:center;position:relative}
+.stg .bar{height:6px;background:var(--line);border-radius:3px;margin:0 2px}
+.stg.done .bar{background:var(--grad)}
+.stg.cur .bar{background:var(--grad);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.stg .lb{font-size:11px;color:var(--mut);margin-top:7px;font-weight:600}
+.stg.done .lb,.stg.cur .lb{color:var(--ink)}
+.stg.cur .lb:after{content:" ●";color:var(--green)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.acts button{font-family:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--p);border-radius:8px;padding:7px 11px;cursor:pointer}
+.acts button.on{background:var(--p);color:#fff;border-color:var(--p)}
+.acts input{font-family:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;flex:1;min-width:180px}
+.acts .save{background:var(--green);color:#fff;border:0}
+.pub{color:var(--green);font-weight:700;font-size:13px}
+.empty{color:var(--mut);font-size:14px;padding:20px 0}
+.back{display:inline-block;margin-top:16px;color:var(--p);font-weight:600;text-decoration:none;font-size:14px}
+</style>
+</head>
+<body>
+<p class="hand">Fábrica</p>
+<h1>Producción de cursos</h1>
+<p class="hint">Cada curso pedido, con la <b>evolución de los agentes</b> trabajando en él: investigación → verificación de fuentes → construcción → validación → publicación. Marca la etapa según avanza el motor (o el Cron de Claude Code lo hace solo). Al publicar, pega el enlace del curso y el alumno lo verá listo en su ruta.</p>
+<div class="links"><a href="/panel.html">← Panel de control</a><a href="/revisiones.html">Revisiones</a><a href="/hub.html">Volver a la app</a></div>
+<div id="list"></div>
+<a class="back" href="/hub.html">← Volver a Brandooers</a>
+<script>
+var STAGES=[['cola','En cola'],['research','Investigando'],['verify','Verificando'],['build','Construyendo'],['validate','Validando'],['publish','Publicado']];
+function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function idx(st){var i=STAGES.map(function(s){return s[0];}).indexOf(st);return i<0?0:i;}
+function card(it){
+  var d=it.data||{}, cur=idx(it.stage||'cola');
+  var bars=STAGES.map(function(s,i){
+    var cls=i<cur?'done':(i===cur?'cur':'');
+    return '<div class="stg '+cls+'"><div class="bar"></div><div class="lb">'+s[1]+'</div></div>';
+  }).join('');
+  var btns=STAGES.map(function(s,i){return '<button class="stgbtn'+(i===cur?' on':'')+'" data-s="'+s[0]+'">'+s[1]+'</button>';}).join('');
+  var pubRow = '<input class="url" placeholder="Enlace del curso publicado (p. ej. /nuevo-curso.html)" value="'+esc(it.courseUrl||'')+'"><button class="save saveurl">Guardar enlace</button>';
+  return '<div class="card" data-id="'+esc(it.id)+'"><div class="top"><div><div class="t">📚 '+esc(d.topic||'')+'</div>'+
+    '<div class="m">pedido por '+esc(d.user||'anónimo')+(d.profile&&d.profile.sector?' · '+esc(d.profile.sector):'')+' · '+esc((it.ts||'').slice(0,16).replace('T',' '))+' · estado: '+esc(it.status)+'</div></div>'+
+    '<span class="eta">'+(it.eta?esc(it.eta):'ETA 24 h')+'</span></div>'+
+    '<div class="stages">'+bars+'</div>'+
+    '<div class="acts">'+btns+'</div>'+
+    '<div class="acts">'+pubRow+(it.courseUrl?' <span class="pub">✓ visible para el alumno</span>':'')+'</div></div>';
+}
+async function load(){
+  var r=await fetch('/api/admin/inbox');
+  if(r.status===403){document.body.innerHTML='<p style="font-family:Inter;padding:40px">Solo admin. <a href="/hub.html">Volver</a></p>';return;}
+  var d=await r.json();
+  var reqs=(d.request||[]);
+  document.getElementById('list').innerHTML = reqs.length? reqs.map(card).join('') : '<div class="empty">No hay cursos en producción. Cuando aceptes una solicitud en Revisiones, aparece aquí.</div>';
+}
+async function setField(id,patch){ await fetch('/api/admin/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({id:id},patch))}); load(); }
+document.addEventListener('click',function(e){
+  var card=e.target.closest('.card'); if(!card)return; var id=card.dataset.id;
+  if(e.target.classList.contains('stgbtn')){ var st=e.target.dataset.s; setField(id,{stage:st, status: st==='publish'?'aplicado':'aceptado'}); }
+  if(e.target.classList.contains('saveurl')){ var u=card.querySelector('.url').value.trim(); setField(id,{courseUrl:u, stage:'publish', status:'aplicado'}); }
+});
+load();
+</script>
+</body>
+</html>
