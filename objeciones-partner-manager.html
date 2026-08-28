@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Objeciones difíciles · Partner Manager | Guion probado para captación de partners Odoo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --odoo-primary:#714B67; --odoo-secondary:#017E84; --odoo-grey:#8F8F8F;
+  --odoo-learning:#E46E78; --odoo-ready:#21B799; --odoo-silver:#5B899E; --odoo-gold:#E4A900;
+  --bg:#FAFAFA; --bg-white:#FFFFFF; --bg-warm:#F5F0EE;
+  --text-dark:#2D2D2D; --text-body:#4A4A4A; --text-muted:#8F8F8F;
+  --border:#E8E0E5; --border-light:#F0EAEE;
+  --shadow-sm:0 1px 3px rgba(113,75,103,0.06); --shadow-md:0 4px 16px rgba(113,75,103,0.08);
+  --radius:16px; --radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+.hand{font-family:'Caveat',cursive}
+
+section{max-width:1100px;margin:0 auto;padding:100px 40px 60px}
+.section-tag{font-family:'Caveat',cursive;font-size:52px;font-weight:700;color:var(--odoo-secondary);margin-bottom:4px;line-height:1.1}
+.section-title{font-size:clamp(28px,3.5vw,40px);font-weight:800;color:var(--text-dark);letter-spacing:-0.03em;line-height:1.15;margin-bottom:12px}
+.section-desc{font-size:16px;color:var(--text-body);max-width:640px;line-height:1.7;margin-bottom:48px}
+
+.card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:28px;transition:all .25s;box-shadow:var(--shadow-sm)}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mb{margin-bottom:16px}
+
+.source,.src{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);font-style:italic;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-light);width:100%}
+
+.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:100vh;padding-top:80px}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:900;color:var(--text-dark);letter-spacing:-0.04em;line-height:1.1;margin-bottom:20px}
+.hero h1 .hand-accent{font-family:'Caveat',cursive;color:var(--odoo-secondary);font-size:1.15em}
+.hero .subtitle{font-size:18px;color:var(--text-body);max-width:600px;line-height:1.7;margin-bottom:48px}
+.hero-meta{display:flex;gap:48px}
+.hero-meta-item{text-align:center}
+.hero-meta-item .val{font-size:26px;font-weight:800;letter-spacing:-0.02em}
+.hero-meta-item .lab{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px}
+
+.tag-pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:12px}
+
+.pillar-items{list-style:none;margin-top:12px}
+.pillar-items li{padding:5px 0;font-size:14px;display:flex;align-items:flex-start;gap:8px}
+.pillar-items li::before{content:'→';color:var(--odoo-secondary);font-weight:600;flex-shrink:0}
+
+.callout{border-left:3px solid;padding:16px 20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:14.5px;line-height:1.65}
+.callout h4{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:6px}
+.callout-warm{border-color:var(--odoo-gold);background:rgba(228,169,0,0.06)}
+.callout-info{border-color:var(--odoo-secondary);background:rgba(1,126,132,0.05)}
+.callout-alert{border-color:var(--odoo-learning);background:rgba(228,110,120,0.06)}
+.callout-primary{border-color:var(--odoo-primary);background:rgba(113,75,103,0.05)}
+
+.note-card{background:var(--bg-warm);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:24px}
+.note-card .note-title{font-family:'Caveat',cursive;font-size:26px;font-weight:600;color:var(--odoo-primary);margin-bottom:8px;line-height:1.1}
+
+.data-table{width:100%;border-collapse:collapse;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.data-table th,.data-table td{padding:12px 16px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--border-light);vertical-align:top}
+.data-table thead th{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-warm)}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table .highlight{color:var(--odoo-secondary);font-weight:700}
+.data-table tbody th{font-weight:700;color:var(--odoo-primary);white-space:nowrap;font-size:13.5px}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.compare .col{border-radius:var(--radius);padding:24px;border:1px solid var(--border-light)}
+.compare .yes{background:rgba(33,183,153,0.05);border-color:rgba(33,183,153,0.25)}
+.compare .no{background:rgba(228,110,120,0.05);border-color:rgba(228,110,120,0.25)}
+.compare h4{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.compare .yes h4{color:var(--odoo-ready)}
+.compare .no h4{color:var(--odoo-learning)}
+.compare ul{list-style:none}
+.compare li{position:relative;padding-left:22px;margin-bottom:10px;font-size:14px;line-height:1.5}
+.compare .yes li::before{content:'✓';position:absolute;left:0;color:var(--odoo-ready);font-weight:800}
+.compare .no li::before{content:'✕';position:absolute;left:0;color:var(--odoo-learning);font-weight:800}
+
+ol.steps{counter-reset:s;list-style:none;margin-top:8px}
+ol.steps li{position:relative;padding-left:50px;margin-bottom:16px;min-height:34px;font-size:14.5px}
+ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;width:34px;height:34px;border-radius:10px;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-size:20px;font-weight:700;display:grid;place-items:center}
+ol.steps li strong{display:block;color:var(--text-dark);margin-bottom:1px}
+
+.qbank{columns:2;column-gap:28px}
+.qgroup{break-inside:avoid;margin-bottom:20px}
+.qgroup h4{font-family:'Caveat',cursive;font-size:22px;font-weight:600;color:var(--odoo-primary);margin-bottom:6px}
+.qgroup ol{margin:0;padding-left:20px}
+.qgroup li{margin-bottom:6px;font-size:14.5px;line-height:1.45}
+
+.timeline{position:relative;padding-left:36px;margin-top:8px}
+.timeline::before{content:'';position:absolute;left:13px;top:6px;bottom:6px;width:2px;background:linear-gradient(to bottom,var(--odoo-silver),var(--odoo-secondary),var(--odoo-learning),var(--odoo-gold),var(--odoo-ready),var(--odoo-primary))}
+.tl-item{position:relative;margin-bottom:20px;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);padding:20px 22px}
+.tl-item::before{content:'';position:absolute;left:-30px;top:22px;width:14px;height:14px;border-radius:50%;border:3px solid var(--odoo-secondary);background:var(--bg)}
+.tl-item.hot{border-color:rgba(228,110,120,0.35);background:rgba(228,110,120,0.05)}
+.tl-when{font-family:'Caveat',cursive;font-size:20px;font-weight:600;line-height:1;margin-bottom:4px}
+.tl-item h4{font-size:16px;font-weight:700;color:var(--text-dark);margin-bottom:8px}
+.tl-item .row{font-size:13.5px;margin-bottom:5px;line-height:1.5}
+.tl-item .row b{color:var(--text-dark)}
+
+.cheat{background:var(--odoo-primary);color:#fff;border-radius:20px;padding:44px}
+.cheat .section-tag{color:#Ebc9dd}
+.cheat .section-title{color:#fff}
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 34px;margin-top:8px}
+.cheat .ci{border-top:1px solid rgba(255,255,255,0.2);padding-top:12px}
+.cheat .ci b{display:block;font-family:'Caveat',cursive;font-size:22px;font-weight:600;margin-bottom:1px;color:#fff}
+.cheat .ci span{font-size:14px;color:rgba(255,255,255,0.85)}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .5s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+footer{text-align:left;max-width:1100px;margin:0 auto;padding:40px;font-size:13px;color:var(--text-muted);border-top:1px solid var(--border-light)}
+footer h3{font-size:20px;color:var(--text-dark);margin-bottom:6px}
+footer .bib{columns:2;column-gap:32px;margin-top:16px}
+footer .bib p{break-inside:avoid;margin-bottom:10px;font-size:13px;line-height:1.5}
+
+a.src{text-decoration:none;transition:color .2s,border-color .2s}
+a.src:hover{color:var(--odoo-primary);border-top-color:var(--odoo-primary)}
+
+/* ==== PLATAFORMA (registro) ==== */
+body.locked{overflow:hidden}
+.reg-overlay{position:fixed;inset:0;z-index:2000;background:rgba(45,45,45,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+.reg-overlay.hide{display:none}
+.reg-box{background:var(--bg-white);border-radius:20px;max-width:440px;width:100%;padding:36px 32px;box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
+.reg-box .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary);font-size:16px;display:block;margin-top:-8px;margin-bottom:16px}
+.reg-box h2{font-size:24px;color:var(--text-dark);margin-bottom:6px}
+.reg-box .rsub{font-size:14px;color:var(--text-body);margin-bottom:20px}
+.reg-box input[type=text],.reg-box input[type=email]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:15px;margin-bottom:12px;outline:none}
+.reg-box input:focus{border-color:var(--odoo-primary)}
+.reg-consent{display:flex;gap:9px;align-items:flex-start;text-align:left;font-size:11.5px;color:var(--text-muted);margin-bottom:18px;line-height:1.5}
+.reg-consent input{width:auto;margin:2px 0 0;flex-shrink:0}
+.reg-box button{width:100%;background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:13px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .2s}
+.reg-box button:hover{background:#5d3e56}
+.reg-box .err{color:var(--odoo-learning);font-size:12px;margin-bottom:10px;min-height:15px;font-weight:600}
+.userchip{position:fixed;bottom:24px;left:24px;z-index:60;background:var(--bg-white);border:1px solid var(--border-light);border-radius:999px;padding:8px 15px;font-size:12.5px;color:var(--text-body);box-shadow:var(--shadow-sm);display:none;align-items:center;gap:8px}
+.userchip .dot{width:8px;height:8px;border-radius:50%;background:var(--odoo-ready)}
+
+/* ==== recursos (previews vídeo/libro) ==== */
+.rsrc{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:600;border-radius:8px;padding:6px 11px;cursor:pointer;border:1px solid var(--border);background:var(--bg-white);color:var(--text-body);text-decoration:none;transition:all .2s}
+.rsrc:hover{border-color:var(--odoo-primary);color:var(--odoo-primary)}
+.rsrc-media{display:flex;gap:12px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-light);align-items:flex-start}
+.vthumb{position:relative;flex:1;min-width:0;border:none;padding:0;background:#000;cursor:pointer;border-radius:9px;overflow:hidden;aspect-ratio:16/9;box-shadow:var(--shadow-sm)}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.94;transition:opacity .2s,transform .3s}
+.vthumb:hover img{opacity:1;transform:scale(1.04)}
+.vthumb .vplay-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.5);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.vthumb::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-38%,-50%);border-style:solid;border-width:8px 0 8px 14px;border-color:transparent transparent transparent #fff;pointer-events:none}
+.bthumb{flex-shrink:0;width:62px;display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none}
+.bcover{width:60px;height:88px;border-radius:5px;background:var(--bg-warm) center/cover no-repeat;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:block}
+.blabel{font-size:10px;font-weight:700;color:var(--odoo-gold);text-align:center;line-height:1.15}
+@media(max-width:500px){.rsrc-media{flex-direction:column}.bthumb{flex-direction:row;width:auto;gap:8px}.bcover{width:44px;height:64px}}
+.vmodal{position:fixed;inset:0;z-index:1500;background:rgba(45,45,45,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.vmodal.open{display:flex}
+.vmodal-box{background:#000;border-radius:16px;width:min(900px,100%);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden}
+.vmodal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;background:var(--bg-white)}
+.vmodal-head h4{font-size:15px;color:var(--text-dark)}
+.vmodal-head .close{background:none;border:none;font-size:26px;color:var(--text-muted);cursor:pointer;line-height:1;padding:0 4px}
+.vmodal-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.vmodal-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* Logo Brandooers */
+.brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--text-dark);user-select:none}
+.brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
+body{-webkit-user-select:none;-moz-user-select:none;user-select:none}
+input,textarea,.cbub{-webkit-user-select:text;user-select:text}
+img,svg,video{-webkit-user-drag:none}
+@media print{body{visibility:hidden!important}html::after{content:"Contenido protegido · Formación Brandooers para Odoo";position:fixed;top:40px;left:40px;font:600 16px Inter,sans-serif;color:#000;visibility:visible}}
+
+/* Barra de progreso + rail */
+.nav-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#8B5CF6,#EC4899);z-index:60;transition:width .15s}
+.rail{position:fixed;top:0;left:0;bottom:0;z-index:70;width:66px;background:var(--bg-white);border-right:1px solid var(--border-light);display:flex;flex-direction:column;padding:6px 0 10px;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:1px 0 14px rgba(0,0,0,.04)}
+.rail:hover,.rail.open{width:242px}
+.rail-top{display:flex;align-items:center;min-height:46px;padding:8px 16px 8px 19px;overflow:hidden}
+.rail-top .brandooers-logo{opacity:0;transition:opacity .2s;white-space:nowrap}
+.rail:hover .rail-top .brandooers-logo,.rail.open .rail-top .brandooers-logo{opacity:1}
+.rail-items{display:flex;flex-direction:column;gap:2px;padding:6px 10px;flex:1;overflow-y:auto;overflow-x:hidden}
+.rail-item{display:flex;align-items:center;gap:15px;padding:10px 12px;border-radius:11px;color:var(--text-body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.rail-item:hover{background:var(--bg-warm)}
+.rail-item.active{background:rgba(113,75,103,.08);color:var(--odoo-primary)}
+.rail-item .ri-ic{flex-shrink:0;width:22px;height:22px;display:grid;place-items:center}
+.rail-item .ri-ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail-item .ri-lb{font-size:14px;font-weight:500;opacity:0;transition:opacity .18s}
+.rail:hover .rail-item .ri-lb,.rail.open .rail-item .ri-lb{opacity:1}
+.rail-item.gold{color:var(--odoo-gold)}
+.rail-sep{height:1px;background:var(--border-light);margin:8px 10px}
+.rail-burger{position:fixed;top:14px;left:12px;z-index:75;width:44px;height:44px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:none;place-items:center}
+.rail-burger svg{width:22px;height:22px;stroke:var(--text-dark)}
+.rail-ov{position:fixed;inset:0;background:rgba(45,45,45,.3);z-index:69;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
+.rail-ov.open{opacity:1;pointer-events:auto}
+body{padding-left:66px}
+@media(max-width:900px){body{padding-left:0}.rail{width:242px;display:none}.rail.open{display:flex}.rail-burger{display:grid}}
+
+/* Nivel pill (Rookie / Intermedio / PRO) */
+.lvl-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:14px}
+.lvl-rookie{background:rgba(91,137,158,.14);color:var(--odoo-silver)}
+.lvl-inter{background:rgba(1,126,132,.12);color:var(--odoo-secondary)}
+.lvl-pro{background:rgba(228,169,0,.16);color:#B98600}
+/* Guion / diálogo */
+.script{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow-sm);margin-bottom:14px}
+.script h4{font-size:15px;color:var(--text-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.script .line{display:flex;gap:10px;margin-bottom:9px;font-size:14px;line-height:1.55}
+.script .line .who{flex-shrink:0;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;width:82px;padding-top:2px}
+.script .line.them .who{color:var(--odoo-learning)}
+.script .line.you .who{color:var(--odoo-secondary)}
+.script .line .txt{flex:1;color:var(--text-body)}
+.script .line.you .txt{color:var(--text-dark)}
+.script .tech{margin-top:10px;font-size:12px;color:var(--text-muted);font-style:italic;border-top:1px dashed var(--border-light);padding-top:9px}
+.script .tech b{color:var(--odoo-primary);font-style:normal}
+/* Ejercicio */
+.exercise{border:1px solid rgba(228,169,0,.35);background:rgba(228,169,0,.05);border-radius:var(--radius);padding:22px 24px}
+.exercise .ex-tag{font-family:'Caveat',cursive;font-size:24px;color:var(--odoo-gold);line-height:1;margin-bottom:6px}
+.exercise h4{font-size:16px;color:var(--text-dark);margin-bottom:8px}
+.exercise ol{padding-left:20px;font-size:14px;line-height:1.6}
+.exercise li{margin-bottom:5px}
+
+@media(max-width:800px){
+  section{padding:80px 20px 40px}
+  .grid-3,.grid-4,.grid-2,.compare,.cheat-grid{grid-template-columns:1fr}
+  .qbank{columns:1}
+  .hero-meta{flex-direction:column;gap:16px}
+  .section-tag{font-size:36px}
+  footer .bib{columns:1}
+  .script .line{flex-direction:column;gap:2px}
+  .script .line .who{width:auto}
+}
+@media print{
+  .printbtn{display:none}
+  body{background:#fff}
+  section{padding:24px 40px;break-inside:avoid;min-height:auto}
+  .hero{min-height:auto;padding:20px 40px}
+  .reveal{opacity:1;transform:none}
+  .card,.tl-item,.data-table,.script{box-shadow:none}
+  .cheat{background:#fff;color:var(--text-dark);border:2px solid var(--odoo-primary)}
+  .cheat .section-title,.cheat .ci b{color:var(--text-dark)}
+  .cheat .ci span{color:var(--text-muted)}
+  a{color:var(--text-dark)}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- REGISTRO -->
+<div class="reg-overlay" id="regOverlay">
+  <div class="reg-box">
+    <span class="brandooers-logo" style="font-size:24px;justify-content:center;margin-bottom:2px">Brand<svg class="beyes" width="46" height="27" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+    <span class="ide">Investigación y desarrollo de expertos · para Odooers</span>
+    <h2>Objeciones difíciles</h2>
+    <p class="rsub">El guion probado para un Partner Manager de Odoo. Pon tu nombre y tu email de trabajo para llevar tu progreso.</p>
+    <form id="regForm">
+      <div class="err" id="regErr"></div>
+      <input id="regName" type="text" placeholder="Tu nombre" autocomplete="name">
+      <input id="regMail" type="email" placeholder="Tu email de trabajo" autocomplete="email">
+      <label class="reg-consent"><input type="checkbox" id="regConsent"><span>Acepto que se registren mi nombre, email y actividad formativa (vídeos y secciones vistas) con fines internos de seguimiento del equipo. No se comparte con terceros.</span></label>
+      <button type="submit">Entrar a la formación</button>
+    </form>
+  </div>
+</div>
+
+<!-- SVG defs (gradientes del logo) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-brow1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient>
+<linearGradient id="bo-brow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+<radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+</defs></svg>
+
+<div class="nav-progress" id="navProgress"></div>
+<button class="rail-burger" id="railBurger" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+<div class="rail-ov" id="railOv"></div>
+<aside class="rail" id="rail">
+  <div class="rail-top">
+    <span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+  </div>
+  <div class="rail-items">
+    <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
+    <a class="rail-item" href="#ruta" data-sec="ruta" title="Cómo se estudia este curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">La ruta</span></a>
+    <a class="rail-item" href="#r-que-es" data-sec="r-que-es" title="Rookie · qué es una objeción real"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1 .9-1 1.7"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg></span><span class="ri-lb">Rookie · Qué es</span></a>
+    <a class="rail-item" href="#r-mentalidad" data-sec="r-mentalidad" title="Rookie · mentalidad y escucha"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M9.5 3.5A5 5 0 0 0 5 11a3.5 3.5 0 0 0 1 5v2.5h6V13a5 5 0 0 0 1-6.5"/><path d="M12 3.5a5 5 0 0 1 4.5 12.5V19"/></svg></span><span class="ri-lb">Rookie · Mentalidad</span></a>
+    <a class="rail-item" href="#r-escucha" data-sec="r-escucha" title="Rookie · escucha y empatía táctica"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0c0 4-3 4-3 7a3 3 0 0 1-6 0"/></svg></span><span class="ri-lb">Rookie · Escucha</span></a>
+    <a class="rail-item" href="#i-frameworks" data-sec="i-frameworks" title="Intermedio · frameworks"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="ri-lb">Inter · Frameworks</span></a>
+    <a class="rail-item" href="#i-guiones" data-sec="i-guiones" title="Intermedio · guiones por objeción"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4z"/></svg></span><span class="ri-lb">Inter · Guiones</span></a>
+    <a class="rail-item" href="#i-cualificar" data-sec="i-cualificar" title="Intermedio · cualificar con MEDDIC"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></span><span class="ri-lb">Inter · Cualificar</span></a>
+    <a class="rail-item" href="#p-dificiles" data-sec="p-dificiles" title="PRO · objeciones difíciles"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3 7.8-8 9-5-1.2-8-4.5-8-9V7z"/></svg></span><span class="ri-lb">PRO · Difíciles</span></a>
+    <a class="rail-item" href="#p-negociacion" data-sec="p-negociacion" title="PRO · negociación avanzada"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18" cy="17" r="2.4"/></svg></span><span class="ri-lb">PRO · Negociación</span></a>
+    <a class="rail-item" href="#p-casos" data-sec="p-casos" title="PRO · casos Odoo partners"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5M12 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5"/></svg></span><span class="ri-lb">PRO · Casos Odoo</span></a>
+    <a class="rail-item" href="#practica" data-sec="practica" title="Ejercicios prácticos"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3l-6 6 3 3 6-6a4 4 0 0 0 5.3-5.3l-2.5 2.5-3-3z"/></svg></span><span class="ri-lb">Práctica</span></a>
+    <a class="rail-item" href="#recursos" data-sec="recursos" title="Libros, charlas, podcasts y perfiles"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 5v14"/></svg></span><span class="ri-lb">Recursos</span></a>
+    <a class="rail-item" href="#chuleta" data-sec="chuleta" title="La chuleta de una página"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">Chuleta</span></a>
+    <div class="rail-sep"></div>
+    <a class="rail-item gold" href="hub.html" title="Brandooers · todos los cursos y rutas"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Brandooers</span></a>
+    <a class="rail-item" href="outbound-sales.html" title="Outbound Sales · captar clientes y partners"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg></span><span class="ri-lb">Outbound Sales</span></a>
+    <a class="rail-item" href="reclutamiento-partners.html" title="Reclutamiento de Partners · 12 módulos"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5M12 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5"/></svg></span><span class="ri-lb">Partners · 12</span></a>
+    <a class="rail-item" href="index.html" title="Ir a la formación del Coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Coach</span></a>
+  </div>
+</aside>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div style="margin-bottom:36px;display:flex;flex-direction:column;align-items:center;gap:12px">
+    <span class="brandooers-logo" style="font-size:clamp(40px,7vw,56px)">Brand<svg class="beyes" width="132" height="76" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)">Investigación y desarrollo de expertos · para Odooers</span>
+  </div>
+  <h1>Objeciones<br><span class="hand-accent">difíciles</span></h1>
+  <p class="subtitle">El guion probado para el <strong>Partner Manager de Odoo</strong>. De cero a experto: qué es una objeción de verdad, la mentalidad para no ponerse a la defensiva, los frameworks de los mejores negociadores y comerciales del mundo, y los guiones concretos para las conversaciones más duras de captar y gestionar partners.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-silver)">3 niveles</div><div class="lab">Rookie · Intermedio · PRO</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-secondary)">Frameworks reales</div><div class="lab">Voss · Sandler · Challenger · Blount</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-gold)">Guiones listos</div><div class="lab">Adaptados a partners Odoo</div></div>
+  </div>
+  <p style="margin-top:44px;font-family:'Caveat',cursive;font-size:18px;color:var(--odoo-primary);opacity:0.75">Técnicas citadas a sus autores. Ninguna cifra inventada. Práctico desde el minuto uno.</p>
+</section>
+
+<!-- RUTA -->
+<section id="ruta">
+  <div class="reveal">
+    <div class="section-tag">Cómo se estudia</div>
+    <h2 class="section-title">De cero a cerrar la conversación difícil</h2>
+    <p class="section-desc">Este curso está ordenado por nivel. No saltes: la mentalidad de Rookie es lo que hace que los guiones de PRO funcionen. Cada técnica lleva el nombre de su autor y su libro o charla, para que puedas ir a la fuente. Todo el contenido está pensado para un Partner Manager que capta consultoras y agencias para el ecosistema Odoo, pero el método sirve para cualquier venta B2B consultiva.</p>
+  </div>
+  <div class="grid-3 reveal">
+    <div class="card" style="border-top:3px solid var(--odoo-silver)"><span class="lvl-pill lvl-rookie">Rookie</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Los fundamentos</h3><p style="font-size:13.5px">Qué es una objeción real frente a una excusa, cómo dejar de tomártelo como un ataque, y la escucha que baja la guardia del otro.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><span class="lvl-pill lvl-inter">Intermedio</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Frameworks y guiones</h3><p style="font-size:13.5px">Los métodos con nombre (LAER, Sandler, feel-felt-found) y guiones concretos para las objeciones habituales del partner.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><span class="lvl-pill lvl-pro">PRO</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Lo difícil de verdad</h3><p style="font-size:13.5px">Objeciones que parecen definitivas, negociación de márgenes y exclusividad, y los casos reales de gestión de partners Odoo.</p></div>
+  </div>
+  <div class="callout callout-info reveal" style="margin-top:20px"><h4>Una advertencia de calidad, por delante</h4><p>Aquí no vas a encontrar frases tipo "el 80% de las ventas se cierran tras el quinto contacto". Ese tipo de estadística circula sin fuente fiable y no la vamos a repetir. Lo que sí encontrarás son <strong>técnicas verificables</strong> atribuidas a sus autores (Chris Voss, David Sandler, Jeb Blount, Matthew Dixon), porque son conocimiento establecido y citable. Si en algún punto quieres un dato numérico, ve a la fuente primaria del autor: nosotros te la enlazamos.</p></div>
+</section>
+
+<!-- ========================= ROOKIE ========================= -->
+
+<!-- R · QUÉ ES UNA OBJECIÓN -->
+<section id="r-que-es">
+  <div class="reveal">
+    <span class="lvl-pill lvl-rookie">Rookie · Fundamentos</span>
+    <div class="section-tag">Empecemos por lo básico</div>
+    <h2 class="section-title">Objeción real, excusa y condición: no son lo mismo</h2>
+    <p class="section-desc">La mayoría de comerciales pierde conversaciones porque trata todo "no" igual. Pero un "no" puede significar tres cosas muy distintas, y cada una pide una respuesta distinta. Aprender a distinguirlas es el primer salto de nivel.</p>
+  </div>
+  <div class="grid-3 reveal" style="margin-bottom:20px">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Objeción real</h3><p style="font-size:14px">Una duda legítima que, si la resuelves, deja el camino libre. "No sé si mi equipo tiene tiempo para certificarse este trimestre." Hay interés; hay un obstáculo concreto. <strong>Se trabaja.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Excusa / reflejo</h3><p style="font-size:14px">Una respuesta automática para quitarte de encima antes de haber escuchado nada. "Ahora no es el momento", "mándame info". No es una razón; es una puerta que se cierra por costumbre. <strong>Se reencuadra.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-silver)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Condición</h3><p style="font-size:14px">Un impedimento estructural que no depende de tu argumentación. "No podemos revender software cerrado por contrato con otro fabricante hasta 2027." Es real y firme. <strong>Se respeta y se aparca.</strong></p></div>
+  </div>
+  <div class="callout callout-primary reveal"><h4>La regla que lo ordena todo</h4><p>Antes de responder a un "no", pregúntate: ¿esto lo puedo resolver hablando (objeción), lo dice por inercia (excusa) o es un hecho que no cambia con palabras (condición)? Insistir sobre una <strong>condición</strong> te hace pesado; reencuadrar una <strong>objeción real</strong> como si fuera excusa te hace parecer que no escuchas. El diagnóstico va antes que la respuesta.</p></div>
+  <div class="callout callout-info reveal" style="margin-top:16px"><h4>Por qué el partner objeta (aunque le interese)</h4><p>Un socio potencial (una consultora TIC, una agencia) no objeta porque tu propuesta sea mala. Objeta porque añadir una línea de negocio nueva le da <strong>miedo al coste de oportunidad</strong>: horas de su equipo, certificaciones, un pipeline que aún no existe. La objeción casi nunca es sobre Odoo; es sobre <em>su</em> riesgo. Quien entiende esto deja de defender el producto y empieza a reducir el riesgo del otro.</p></div>
+</section>
+
+<!-- R · MENTALIDAD -->
+<section id="r-mentalidad">
+  <div class="reveal">
+    <span class="lvl-pill lvl-rookie">Rookie · Fundamentos</span>
+    <div class="section-tag">Antes de la técnica, la cabeza</div>
+    <h2 class="section-title">Mentalidad: la objeción no es un ataque</h2>
+    <p class="section-desc">Ninguna técnica funciona si la ejecutas a la defensiva. El comercial novato oye "no" y su cuerpo lo interpreta como rechazo personal; se acelera, interrumpe, contraargumenta. El profesional oye "no" y lo interpreta como información. La diferencia no es el guion: es la mentalidad con la que llegas al guion.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">El "no" es el principio, no el final</h3><p style="font-size:14px">Jeb Blount, en <em>Objections</em>, insiste en que el miedo al rechazo es el mayor freno del comercial, y que ese miedo se combate con exposición y método, no con carisma. Una objeción es la señal de que la conversación sigue viva: el que dice "no" todavía está hablando contigo.</p>
+    <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=Objections+Jeb+Blount" target="_blank" rel="noopener"><span class="bcover" data-book="Objections Jeb Blount"></span><span class="blabel">Libro ↗</span></a></div></div>
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">"No" calibrado: dar permiso a decir no</h3><p style="font-size:14px">Chris Voss, ex negociador jefe de secuestros del FBI, defiende en <em>Never Split the Difference</em> que el "no" da control y seguridad al otro. Invitar a un "no" a salvo ("¿Sería una locura que…?") baja las defensas mucho más que forzar un "sí" que la gente aprende a resistir.</p>
+    <div class="rsrc-media"><button class="vthumb" data-yt="vr5hhgA84O4" data-title="Chris Voss · empatía táctica (Talks at Google)" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/vr5hhgA84O4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=Never+Split+the+Difference+Chris+Voss" target="_blank" rel="noopener"><span class="bcover" data-book="Never Split the Difference Chris Voss"></span><span class="blabel">Libro ↗</span></a></div></div>
+  </div>
+  <div class="compare reveal">
+    <div class="col yes"><h4>Mentalidad de profesional</h4><ul>
+      <li>Trato el "no" como un dato que me dice qué falta por resolver.</li>
+      <li>Hago una pausa antes de responder. El silencio no me incomoda.</li>
+      <li>Mi objetivo de la llamada no es cerrar hoy, es entender.</li>
+      <li>Me da igual gustar. Me importa ser útil y claro.</li>
+      <li>Si es una condición real, la respeto y no fuerzo.</li>
+    </ul></div>
+    <div class="col no"><h4>Mentalidad que sabotea</h4><ul>
+      <li>Oigo "no" y contraargumento en el segundo uno.</li>
+      <li>Hablo más rápido y más alto para "convencer".</li>
+      <li>Me lo tomo como personal y me pongo tenso.</li>
+      <li>Necesito ganar la discusión más que ayudar.</li>
+      <li>Insisto sobre algo que el otro ya dijo que es imposible.</li>
+    </ul></div>
+  </div>
+  <div class="callout callout-warm reveal" style="margin-top:16px"><h4>El principio de no contradecir</h4><p>Dale Carnegie lo escribió hace casi un siglo en <em>Cómo ganar amigos e influir sobre las personas</em>: nadie gana una discusión; el que "gana" pierde al interlocutor. Ante una objeción, la peor primera palabra es "pero". Sustitúyela por "entiendo" o por una pregunta. Ganar la razón y perder al partner es el peor negocio posible.</p></div>
+</section>
+
+<!-- R · ESCUCHA -->
+<section id="r-escucha">
+  <div class="reveal">
+    <span class="lvl-pill lvl-rookie">Rookie · Fundamentos</span>
+    <div class="section-tag">La habilidad que casi nadie entrena</div>
+    <h2 class="section-title">Escuchar de verdad: mirroring y labeling</h2>
+    <p class="section-desc">La respuesta a una objeción empieza mucho antes de tu primera frase: empieza en cómo escuchas la objeción. Chris Voss llama a esto empatía táctica, y sus dos herramientas más simples (el espejo y la etiqueta) se aprenden en minutos y cambian cada conversación.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="note-card"><div class="note-title">Mirroring · el espejo</div><p style="font-size:13.5px">Repite las últimas 1-3 palabras de lo que ha dicho el otro, con tono de curiosidad. Le invita a explicarse más sin que sientas que le interrogas.<br><br><strong>Partner:</strong> "Ahora mismo no tenemos ancho de banda."<br><strong>Tú:</strong> "¿No tenéis ancho de banda?"<br><em>(Y te callas. Casi siempre desarrolla el motivo real.)</em></p></div>
+    <div class="note-card"><div class="note-title">Labeling · la etiqueta</div><p style="font-size:13.5px">Nombra en voz alta la emoción o la resistencia que percibes. Empieza por "parece que", "suena a", "da la impresión de que". Desactiva la emoción al ponerle nombre.<br><br><strong>Tú:</strong> "Parece que te preocupa meter a tu equipo en algo que luego no dé retorno."<br><em>(Si aciertas, se abre. Si fallas, te corrige y también ganas información.)</em></p></div>
+  </div>
+  <div class="callout callout-info reveal"><h4>La escucha activa que sí es negocio</h4><p>Julian Treasure, en su charla TED sobre cómo hablar para que te escuchen, recuerda algo obvio y olvidado: escuchamos para responder, no para entender. Da la vuelta: escucha para entender, y tu respuesta llegará ya calibrada. En la práctica, esto significa <strong>una pausa de dos segundos</strong> tras la objeción antes de decir nada. Esa pausa comunica que te tomas en serio lo que ha dicho.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="eIho2S0ZahI" data-title="Julian Treasure · hablar para que te escuchen (TED)" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/eIho2S0ZahI/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button></div></div>
+  <div class="exercise reveal" style="margin-top:16px"><div class="ex-tag">Ejercicio Rookie</div><h4>El espejo de dos segundos</h4><ol>
+    <li>En tus próximas cinco conversaciones (comerciales o no), cuando la otra persona diga algo con carga, repite sus últimas 2-3 palabras en tono de pregunta y luego calla.</li>
+    <li>Cuenta mentalmente hasta dos antes de hablar.</li>
+    <li>Anota qué te contó de más gracias a ese silencio. Verás que casi siempre aparece el motivo real, que no era el primero que dijo.</li>
+  </ol></div>
+</section>
+
+<!-- ========================= INTERMEDIO ========================= -->
+
+<!-- I · FRAMEWORKS -->
+<section id="i-frameworks">
+  <div class="reveal">
+    <span class="lvl-pill lvl-inter">Intermedio · Método</span>
+    <div class="section-tag">Método con nombre y apellidos</div>
+    <h2 class="section-title">Los frameworks para manejar cualquier objeción</h2>
+    <p class="section-desc">Un framework es un raíl para no improvisar bajo presión. No son excluyentes: la mayoría de profesionales usa una estructura de conversación (LAER o LAARC), la aroma con las técnicas de empatía de Voss, y aplica un clásico como feel-felt-found cuando encaja. Cada uno tiene autor y origen; aquí van los que de verdad se usan.</p>
+  </div>
+
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="card" style="border-top:3px solid var(--odoo-primary)">
+      <span class="tag-pill" style="background:rgba(113,75,103,.12);color:var(--odoo-primary)">Estructura de conversación</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">LAER · el bucle de la objeción</h3>
+      <p style="font-size:14px">Divulgado por Carew International como "The LAER Bucle of Objection Handling". Cuatro pasos en orden, y el orden importa: la mayoría se salta los dos primeros y por eso fracasa.</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13.5px">
+        <li><b>L</b>isten · escucha entera, sin interrumpir</li>
+        <li><b>A</b>cknowledge · reconoce lo que ha dicho (no "pero")</li>
+        <li><b>E</b>xplore · pregunta para llegar a la objeción real</li>
+        <li><b>R</b>espond · solo ahora respondes, ya con la info</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)">
+      <span class="tag-pill" style="background:rgba(1,126,132,.12);color:var(--odoo-secondary)">Estructura de conversación</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">LAARC · la variante que confirma</h3>
+      <p style="font-size:14px">Muy usada en formación de ventas B2B. Añade un paso clave sobre LAER: confirmar que has resuelto la objeción antes de avanzar. Evita el error de creer que has convencido cuando no.</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13.5px">
+        <li><b>L</b>isten · <b>A</b>cknowledge · <b>A</b>ssess (evalúa si es real)</li>
+        <li><b>R</b>espond · da tu respuesta a la objeción real</li>
+        <li><b>C</b>onfirm · "¿Esto te deja tranquilo con ese punto?"</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-2 reveal">
+    <div class="card" style="border-top:3px solid var(--odoo-gold)">
+      <span class="tag-pill" style="background:rgba(228,169,0,.12);color:var(--odoo-gold)">Clásico probado</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">Feel · Felt · Found</h3>
+      <p style="font-size:14px">Técnica clásica de venta consultiva ("siente, sintió, descubrió"). Alinea antes de rebatir: valida la emoción, cuenta que otros sintieron lo mismo, y comparte lo que descubrieron. Úsala con moderación: si suena a fórmula, la gente lo nota.</p>
+      <div class="note-card" style="margin-top:12px"><p style="font-size:13px;white-space:pre-line"><b>Feel:</b> "Entiendo cómo te sientes con esto."
+<b>Felt:</b> "Otras consultoras como la tuya sentían justo lo mismo al principio."
+<b>Found:</b> "Lo que descubrieron es que [resultado concreto que resuelve la duda]."</p></div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)">
+      <span class="tag-pill" style="background:rgba(228,110,120,.12);color:var(--odoo-learning)">Escuela Sandler</span>
+      <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">Sandler · reversing y up-front contract</h3>
+      <p style="font-size:14px">David Sandler creó un sistema entero para no perseguir al cliente. Dos piezas son oro contra objeciones: el <em>reversing</em> (responder a una objeción con una pregunta que devuelve el balón) y el <em>up-front contract</em> (acordar al inicio qué pasa al final de la reunión, para que no te den largas).</p>
+      <ul class="pillar-items" style="margin-top:8px;font-size:13.5px">
+        <li><b>Reversing:</b> "Es cara" → "Cuando dices cara, ¿comparada con qué?"</li>
+        <li><b>Up-front:</b> "Al final de estos 20 min, tú decides: seguimos o lo dejamos. ¿Te parece justo?"</li>
+      </ul>
+      <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=You+Cant+Teach+a+Kid+to+Ride+a+Bike+at+a+Seminar+Sandler" target="_blank" rel="noopener"><span class="bcover" data-book="You Cant Teach a Kid to Ride a Bike at a Seminar David Sandler"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+  </div>
+
+  <div class="callout callout-primary reveal" style="margin-top:16px"><h4>Challenger: el reencuadre como palanca</h4><p>Matthew Dixon y Brent Adamson, en <em>The Challenger Sale</em>, mostraron que el comercial que más gana en venta compleja no es el que construye relación, sino el que <strong>enseña algo nuevo</strong>, adapta el mensaje al interlocutor y toma el control de la conversación (también del precio). Contra una objeción, esto se traduce en reencuadrar: en vez de defender tu precio, cambia el marco de lo que el partner está comparando. "No compares el coste de certificarte con cero; compáralo con lo que dejas de facturar cada año que no tienes una línea recurrente."</p>
+  <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=The+Challenger+Sale+Dixon+Adamson" target="_blank" rel="noopener"><span class="bcover" data-book="The Challenger Sale Matthew Dixon"></span><span class="blabel">Libro ↗</span></a></div></div>
+</section>
+
+<!-- I · GUIONES -->
+<section id="i-guiones">
+  <div class="reveal">
+    <span class="lvl-pill lvl-inter">Intermedio · Guiones</span>
+    <div class="section-tag">Del método a las palabras</div>
+    <h2 class="section-title">Guiones para las objeciones habituales del partner</h2>
+    <p class="section-desc">Aquí bajamos los frameworks a diálogo real. Estos guiones están construidos aplicando las técnicas de arriba al contexto de captar consultoras y agencias para Odoo. No son para recitar palabra por palabra: son un raíl para que, cuando llegue el "no", ya sepas el camino. Cada uno indica qué técnica usa.</p>
+  </div>
+
+  <div class="script reveal">
+    <h4>Objeción · "Ahora no es el momento / no tenemos ancho de banda"</h4>
+    <div class="line them"><span class="who">Partner</span><span class="txt">La verdad es que ahora mismo vamos hasta arriba, no es el momento de meternos en algo nuevo.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">¿Vais hasta arriba? <em>(pausa)</em></span></div>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Sí, entre los proyectos abiertos y que somos pocos, no damos abasto.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Tiene todo el sentido, y no te voy a pedir que abras nada este trimestre. Precisamente por eso muchas consultoras empiezan aquí solo derivándonos un lead que no encaja en su foco, sin tocar a su equipo. ¿Sería una locura que dedicáramos 15 minutos a ver si eso os cuadra, y ya deciden ellos si más adelante?</span></div>
+    <div class="tech"><b>Técnicas:</b> mirroring ("¿vais hasta arriba?") + acknowledge sin "pero" + reencuadre del compromiso (de "montar un negocio" a "derivar un lead") + "no" calibrado ("¿sería una locura…?", Voss).</div>
+  </div>
+
+  <div class="script reveal">
+    <h4>Objeción · "Mándame la información por email"</h4>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Mira, mándame la info y ya lo miro cuando tenga un hueco.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Te la mando encantado. Para no enviarte un PDF genérico de 20 páginas que no vas a leer, ¿qué te sería más útil que te resuma: el modelo de márgenes recurrentes, o cómo funciona el flujo de leads que pasamos al canal?</span></div>
+    <div class="line them"><span class="who">Partner</span><span class="txt">El tema de los leads, la verdad.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Perfecto, eso te lo cuento mejor en 10 minutos de voz que en un email. ¿Te va bien el jueves a primera hora o prefieres el viernes después de comer?</span></div>
+    <div class="tech"><b>Técnicas:</b> acordar sin resistir + explore (LAER) para descubrir el interés real + cierre alternativo suave. El "mándame info" casi nunca es sobre el email; es una forma educada de colgar.</div>
+  </div>
+
+  <div class="script reveal">
+    <h4>Objeción · "No me interesa"</h4>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Pues no, no nos interesa.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Y haces bien en decírmelo así de claro, faltaría más si todavía no te he contado nada que merezca tu interés. Solo por curiosidad, para no volver a molestarte: ¿es que ya trabajáis un ERP y estáis cómodos, o es que ampliar servicios no está ahora en vuestros planes?</span></div>
+    <div class="line them"><span class="who">Partner</span><span class="txt">No, ERP no llevamos, pero no queremos dispersarnos.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Eso lo respeto mucho, la dispersión mata a las consultoras pequeñas. Lo que hacemos no es que os disperséis, es sumar una capa que vuestros clientes actuales ya os están pidiendo sin que lo sepáis. ¿Te enseño en un ejemplo concreto a qué me refiero y tú juzgas?</span></div>
+    <div class="tech"><b>Técnicas:</b> desactivar sin discutir ("haces bien") + explore con dos opciones para reabrir + labeling implícito de su miedo ("dispersarse") + reencuadre Challenger.</div>
+  </div>
+
+  <div class="callout callout-warm reveal" style="margin-top:16px"><h4>La regla de las tres capas</h4><p>La primera objeción casi nunca es la verdadera. Detrás de "no es el momento" suele haber "no veo el retorno", y detrás de eso "no me fío de que esto funcione en mi mercado". Antes de responder, baja una o dos capas con preguntas ("¿qué te haría falta ver para que sí fuera el momento?"). Responder a la objeción de superficie es gastar munición en el sitio equivocado.</p></div>
+</section>
+
+<!-- I · CUALIFICAR -->
+<section id="i-cualificar">
+  <div class="reveal">
+    <span class="lvl-pill lvl-inter">Intermedio · Diagnóstico</span>
+    <div class="section-tag">La mejor objeción es la que no llega</div>
+    <h2 class="section-title">Cualificar con MEDDIC para prevenir objeciones</h2>
+    <p class="section-desc">Muchas objeciones difíciles aparecen porque avanzaste con un partner mal cualificado: no había presupuesto para certificar, no hablabas con quien decide, o no había un dolor real. MEDDIC es una rejilla para saber, pronto, si merece la pena invertir tu tiempo. Prevenir es más barato que rebatir.</p>
+  </div>
+  <div class="grid-2 reveal" style="align-items:start;margin-bottom:16px">
+    <div class="card" style="border-top:3px solid var(--odoo-primary)">
+      <h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">MEDDIC, aplicado al partner</h3>
+      <ul class="pillar-items" style="font-size:13.5px">
+        <li><b>Metrics</b> · qué número mejora al sumar Odoo (margen recurrente, nuevos proyectos)</li>
+        <li><b>Economic buyer</b> · ¿hablas con el socio que decide invertir, o con un técnico?</li>
+        <li><b>Decision criteria</b> · qué necesita ver para decir sí (margen, leads, esfuerzo de certificación)</li>
+        <li><b>Decision process</b> · cómo y con quién decide dentro de la consultora</li>
+        <li><b>Identify pain</b> · qué dolor real tiene hoy (clientes que se van, servicios estancados)</li>
+        <li><b>Champion</b> · quién dentro empuja tu propuesta cuando tú no estás</li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--text-muted);margin-top:10px">MEDDIC nació en la venta de software empresarial en los años 90 (Dick Dunkel y Jack Napoli, en PTC). Su variante ampliada es MEDDPICC, que añade Paper process y Competition.</p>
+      <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=MEDDICC+Andy+Whyte" target="_blank" rel="noopener"><span class="bcover" data-book="MEDDICC Andy Whyte"></span><span class="blabel">Libro ↗</span></a></div>
+    </div>
+    <div>
+      <div class="callout callout-alert mb"><h4>Objeción como síntoma de mala cualificación</h4><p>Si un partner te suelta "esto es muy caro" al final, quizá nunca identificaste que su <em>economic buyer</em> era otra persona con otro presupuesto. La objeción de precio, muchas veces, es una objeción de valor mal diagnosticada tres reuniones antes.</p></div>
+      <div class="callout callout-info"><h4>Preguntas de cualificación que evitan el "no" final</h4><p style="margin:0">
+        · "Si esto os funcionara, ¿quién más tendría que dar el visto bueno además de ti?"<br>
+        · "¿Qué tendríais que ver en los primeros 90 días para considerar que ha merecido la pena?"<br>
+        · "¿Habéis intentado antes ampliar con otra línea de producto? ¿Qué pasó?"</p></div>
+    </div>
+  </div>
+  <div class="exercise reveal"><div class="ex-tag">Ejercicio Intermedio</div><h4>Rellena la ficha MEDDIC de tu último partner en el pipeline</h4><ol>
+    <li>Coge el partner potencial más avanzado que tengas ahora mismo.</li>
+    <li>Rellena las seis letras. Sé honesto: si no sabes quién es el economic buyer, márcalo como hueco.</li>
+    <li>Cada hueco es una objeción futura esperando a estallar. Escribe la pregunta que harías en el próximo contacto para tapar ese hueco.</li>
+  </ol></div>
+</section>
+
+<!-- ========================= PRO ========================= -->
+
+<!-- P · DIFÍCILES -->
+<section id="p-dificiles">
+  <div class="reveal">
+    <span class="lvl-pill lvl-pro">PRO · Objeciones difíciles</span>
+    <div class="section-tag">Lo que separa al senior</div>
+    <h2 class="section-title">Las objeciones que parecen definitivas</h2>
+    <p class="section-desc">Hasta aquí, objeciones que se reconducen con oficio. Ahora las difíciles: las que suenan a puerta cerrada, las que tocan el ego del otro, las que te ponen contra el precio o contra un competidor. La diferencia del PRO no es tener una frase mágica, es no perder la calma y saber cuándo insistir y cuándo soltar.</p>
+  </div>
+
+  <div class="script reveal">
+    <h4>Objeción dura · "Ya trabajamos con otro fabricante / otro ERP"</h4>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Nosotros ya somos partners de [otro ERP], no vamos a cambiar de caballo.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Y no te pido que cambies, sería una tontería tirar una relación que os funciona. Precisamente sigo a consultoras que ya trabajan [otro ERP], porque muchas nos llaman por un hueco muy concreto: clientes pequeños a los que [otro ERP] les queda grande y caro, y que acaban perdiendo. ¿Os pasa eso, que hay clientes a los que decís que no porque no os salen los números?</span></div>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Hombre, alguno hay, sí.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Pues ahí es donde encajamos, sin competir con lo que ya tenéis. No es cambiar de caballo, es tener un segundo para los clientes que hoy dejáis pasar. ¿Le damos 15 minutos?</span></div>
+    <div class="tech"><b>Técnicas:</b> nunca atacar al competidor (Prospeo, manejo de objeción de competencia) + reencuadre de "cambiar" a "sumar" + pregunta que expone el dolor latente (clientes perdidos) + Challenger (enseñar un hueco que no veían).</div>
+  </div>
+
+  <div class="script reveal">
+    <h4>Objeción dura · "Los márgenes que ofrecéis son bajos"</h4>
+    <div class="line them"><span class="who">Partner</span><span class="txt">La comisión que ofrecéis es baja, con eso no nos compensa el esfuerzo.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Cuando dices que es baja, ¿la comparas con qué exactamente? <em>(reversing)</em></span></div>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Con lo que sacamos revendiendo licencias de [otro producto].</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Tiene sentido comparar. La diferencia es dónde está el negocio: en nuestro modelo, el margen de la licencia es solo una parte pequeña; lo grande está en la implantación, la formación y el mantenimiento recurrente, que os quedáis vosotros y se repite cada año. Si comparamos solo la comisión de licencia, tienes razón, es baja. Si comparamos el ingreso total por cliente a tres años, la foto cambia. ¿Miramos ese cálculo con un cliente tipo vuestro?</span></div>
+    <div class="tech"><b>Técnicas:</b> reversing Sandler ("¿comparada con qué?") + reencuadre del marco de comparación (de "comisión" a "ingreso total a 3 años", Challenger) + cierre hacia un cálculo concreto.</div>
+  </div>
+
+  <div class="script reveal">
+    <h4>Objeción dura · "No me fío de que esto funcione en mi mercado"</h4>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Sí, muy bonito, pero en mi zona / mi sector esto no se vende.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Parece que ya has visto a otros prometer mucho y luego nada. <em>(labeling · pausa)</em></span></div>
+    <div class="line them"><span class="who">Partner</span><span class="txt">Exacto, me han vendido humo más de una vez.</span></div>
+    <div class="line you"><span class="who">Tú</span><span class="txt">Entonces lo último que quiero es sumarme a esa lista. No te voy a pedir que te lo creas por mi palabra. ¿Qué te haría falta ver, con datos y no con promesas, para que dejaras de dudar? Si es un caso de una consultora parecida a la tuya, te lo consigo. Si es empezar por un piloto pequeño sin compromiso, lo montamos. Dime tú qué prueba necesitas.</span></div>
+    <div class="tech"><b>Técnicas:</b> labeling de la desconfianza (Voss) + acknowledge honesto + devolver el control al otro ("dime qué prueba necesitas") en vez de defenderse. Contra la desconfianza, la prueba pesa más que el argumento.</div>
+  </div>
+
+  <div class="callout callout-primary reveal" style="margin-top:16px"><h4>El "no" que es un "no": saber soltar</h4><p>El PRO se distingue del insistente en una cosa: sabe cuándo parar. Si detrás de la objeción hay una condición real (contrato de exclusividad, decisión ya tomada arriba, prohibición legal), insistir solo quema la relación. La jugada de nivel es un cierre elegante que deja la puerta abierta: "Lo entiendo perfectamente y no te voy a insistir. ¿Te importa si te vuelvo a escribir en seis meses por si algo hubiera cambiado?". Un "no" respetado hoy es un "sí" posible mañana; un "no" forzado es una puerta cerrada para siempre.</p></div>
+</section>
+
+<!-- P · NEGOCIACIÓN -->
+<section id="p-negociacion">
+  <div class="reveal">
+    <span class="lvl-pill lvl-pro">PRO · Negociación avanzada</span>
+    <div class="section-tag">Cuando ya hay un sí, pero con condiciones</div>
+    <h2 class="section-title">Negociar sin regalar: márgenes, exclusividad y expectativas</h2>
+    <p class="section-desc">Manejar una objeción es que el partner siga hablando. Negociar es repartir valor cuando ya quiere avanzar pero pide algo a cambio. Aquí el error caro es ceder por miedo a perder el trato. Chris Voss y la escuela de negociación tienen herramientas concretas para no regalar lo que no hace falta.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Nunca cedas sin pedir algo a cambio</h3><p style="font-size:14px">Si el partner pide más margen o una zona en exclusiva, no lo concedas gratis. Cada concesión tuya se acompaña de una petición: "Puedo mirar lo de la exclusiva de tu provincia, y para justificarlo internamente necesitaría un compromiso de volumen mínimo. ¿Lo vemos?". Regalar concesiones enseña al otro a pedir más.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Preguntas calibradas: que resuelva él</h3><p style="font-size:14px">Voss propone preguntas de "cómo" y "qué" que trasladan el problema al otro sin decir "no". Ante "necesito que me deis los leads en exclusiva desde el día uno": <strong>"¿Cómo se supone que hago eso sin haber visto todavía un solo deal cerrado por vuestra parte?"</strong>. No es un no; es hacerle ver la desproporción él mismo.</p>
+    <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=Never+Split+the+Difference+Chris+Voss" target="_blank" rel="noopener"><span class="bcover" data-book="Never Split the Difference Chris Voss"></span><span class="blabel">Libro ↗</span></a></div></div>
+  </div>
+  <div class="compare reveal">
+    <div class="col yes"><h4>Negociación de nivel</h4><ul>
+      <li>Toda concesión mía lleva una contrapartida pedida.</li>
+      <li>Uso preguntas de "cómo/qué" para que el otro vea los límites.</li>
+      <li>Conozco mi punto de no acuerdo antes de sentarme.</li>
+      <li>Separo a la persona del problema: firme con el tema, suave con el trato.</li>
+      <li>Dejo que el otro proponga primero cuando puedo.</li>
+    </ul></div>
+    <div class="col no"><h4>Errores que salen caros</h4><ul>
+      <li>Bajo el precio o el mínimo al primer titubeo.</li>
+      <li>Digo "sí" a la exclusividad para "no perderlo".</li>
+      <li>Negocio sin saber cuál es mi límite real.</li>
+      <li>Me lo tomo como pulso de egos en vez de reparto de valor.</li>
+      <li>Cierro rápido y luego el partner queda descontento.</li>
+    </ul></div>
+  </div>
+  <div class="callout callout-info reveal" style="margin-top:16px"><h4>El marco de Harvard: intereses, no posiciones</h4><p>Roger Fisher y William Ury, en <em>Getting to Yes</em> (Obtenga el sí), enseñan a negociar sobre intereses, no sobre posiciones. Cuando el partner dice "quiero exclusividad en toda España" (posición), el interés detrás suele ser "quiero seguridad de que no invierto para que otro me robe los clientes". Ataca el interés (dale seguridad con una cláusula de protección de cuentas) sin conceder la posición (la exclusividad total). Casi siempre hay una solución que satisface el interés real sin regalar lo que pedía.</p>
+  <div class="rsrc-media"><a class="bthumb" href="https://www.amazon.es/s?k=Getting+to+Yes+Fisher+Ury" target="_blank" rel="noopener"><span class="bcover" data-book="Getting to Yes Roger Fisher William Ury"></span><span class="blabel">Libro ↗</span></a></div></div>
+</section>
+
+<!-- P · CASOS ODOO -->
+<section id="p-casos">
+  <div class="reveal">
+    <span class="lvl-pill lvl-pro">PRO · Casos Odoo partners</span>
+    <div class="section-tag">El contexto real</div>
+    <h2 class="section-title">Objeciones específicas de captar partners de Odoo</h2>
+    <p class="section-desc">Estas son las que un Partner Manager de Odoo oye una y otra vez. Ninguna se resuelve con teoría genérica: piden conocer el modelo del ecosistema y responder con honestidad. Se trabajan igual que el resto (escuchar, reconocer, explorar, responder), pero con el argumento correcto detrás.</p>
+  </div>
+
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="callout callout-alert"><h4>"Odoo es open source, ¿para qué os necesito?"</h4><p>Válida y frecuente. Respuesta honesta: justamente porque tiene una edición Community gratuita, el valor no está en la licencia, está en la implantación, la formación y el soporte, que es lo que se factura. El partner no vende un producto que se descarga; vende que funcione en una empresa real. Reencuadra: "El código abierto es tu mejor argumento de venta, no tu competencia".</p></div>
+    <div class="callout callout-info"><h4>"Odoo saca versión nueva cada año, no puedo seguir el ritmo"</h4><p>Real. Respuesta: la certificación y la formación continua del programa existen justo para eso, y el mantenimiento recurrente que cobras al cliente por mantenerle actualizado es una línea de ingreso, no un coste. Convierte la objeción (el ritmo de versiones) en el argumento (ingreso recurrente por mantenimiento).</p></div>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="callout callout-warm"><h4>"El cliente puede contratar a Odoo directamente y saltarnos"</h4><p>Miedo legítimo del canal. Respuesta con datos verificables solo: no inventes porcentajes de retención. Céntrate en el hecho comprobable de que el partner local aporta cercanía, idioma, conocimiento del sector y presencia física que un equipo central no da. Ese es tu foso. Y remite las condiciones concretas del programa a la fuente oficial.</p></div>
+    <div class="callout callout-primary"><h4>"Ya lo intenté con Odoo y no me funcionó"</h4><p>La más dura, porque hay una herida. Aquí manda el labeling: "Parece que la experiencia anterior te dejó mal sabor". Escucha entero qué falló (casi siempre: falta de activación, ningún primer deal, se quedó solo). Reencuadra hacia lo que harías distinto: acompañamiento en el primer deal, no dejarle solo tras firmar. Sin prometer resultados: promete proceso.</p></div>
+  </div>
+  <div class="callout callout-primary reveal"><h4>La honestidad como técnica avanzada</h4><p>Con partners, la sobreventa se paga carísima: son profesionales que detectan el humo y, si les fallas, lo cuentan en un sector pequeño. La técnica PRO definitiva para las objeciones de Odoo es la honestidad calibrada: reconoce lo que es verdad de la objeción ("sí, saca versión cada año", "sí, existe la Community"), y a partir de esa verdad construye el argumento real. Nunca cites cifras de programa (packs, comisiones, condiciones de nivel) de memoria: esas condiciones las revisa Odoo periódicamente. <strong>Remite siempre a la página oficial y al account manager antes de comprometer un número.</strong></p>
+  <div class="source"><a class="rsrc" href="https://www.odoo.com/es_ES/page/become-a-partner" target="_blank" rel="noopener">odoo.com · become a partner</a> — fuente oficial del programa de partners. Verifica ahí las condiciones vigentes antes de usarlas en una conversación comercial. Estimación de referencia, no vinculante; Odoo revisa el programa periódicamente.</div></div>
+  <a class="card reveal" href="reclutamiento-partners.html" style="margin-top:16px;text-decoration:none;display:flex;gap:18px;align-items:center;border:1px solid rgba(228,169,0,.35);background:rgba(228,169,0,.05)"><div style="flex-shrink:0;width:52px;height:52px;border-radius:14px;background:var(--odoo-gold);display:grid;place-items:center;color:#fff"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5M12 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5"/></svg></div><div><div class="tag-pill" style="background:rgba(228,169,0,.14);color:var(--odoo-gold)">Curso completo</div><h3 style="font-size:17px;color:var(--text-dark);margin:2px 0 3px">El manual completo de reclutamiento de partners</h3><p style="font-size:13.5px;margin:0">Las objeciones son una pieza. El proceso entero (ICP, prospección, LinkedIn, email, webinars, métricas, stack e IA) está en el curso <strong>Reclutamiento de Partners</strong>, de 0 a 100. <span style="color:var(--odoo-gold);font-weight:700">Abrir el curso →</span></p></div></a>
+</section>
+
+<!-- PRÁCTICA -->
+<section id="practica">
+  <div class="reveal">
+    <div class="section-tag">Ahora tú</div>
+    <h2 class="section-title">Ejercicios para entrenar antes de la llamada real</h2>
+    <p class="section-desc">Manejar objeciones es como cualquier deporte: se entrena en frío para que salga en caliente. Estos ejercicios son para hacer en pareja (role-play) o en solitario, en voz alta. Nadie improvisa bien bajo presión de cuota; se ejecuta bien lo que se ha repetido antes.</p>
+  </div>
+  <div class="grid-2 reveal">
+    <div class="exercise"><div class="ex-tag">Ejercicio 1 · El banco de objeciones</div><h4>Tu top 5 real, con su guion</h4><ol>
+      <li>Escribe las cinco objeciones que más oyes de partners potenciales.</li>
+      <li>Para cada una, clasifícala: ¿objeción real, excusa o condición?</li>
+      <li>Escribe tu respuesta usando la estructura LAER: escucha, reconoce, explora, responde.</li>
+      <li>Ensáyala en voz alta hasta que suene a tuya, no a guion leído.</li>
+    </ol></div>
+    <div class="exercise"><div class="ex-tag">Ejercicio 2 · Role-play del "no" duro</div><h4>El partner escéptico</h4><ol>
+      <li>Un compañero hace de partner que "ya lo intentó y no funcionó". Su trabajo es ponértelo difícil.</li>
+      <li>Tú aplicas: pausa, labeling, escucha entera antes de responder.</li>
+      <li>Prohibido usar la palabra "pero" y prohibido citar cifras que no puedas fundamentar.</li>
+      <li>Al acabar, el "partner" te dice en qué momento sintió que le escuchabas de verdad y en cuál no.</li>
+    </ol></div>
+    <div class="exercise"><div class="ex-tag">Ejercicio 3 · El reversing</div><h4>Devolver la pregunta</h4><ol>
+      <li>Coge cinco objeciones de precio o margen ("es caro", "la comisión es baja", "no sale a cuenta").</li>
+      <li>Para cada una, escribe una pregunta de reversing en vez de una defensa ("¿comparado con qué?", "¿qué te haría verlo a cuenta?").</li>
+      <li>Nota la diferencia: defender te pone a ti en el banquillo; preguntar pone al otro a razonar.</li>
+    </ol></div>
+    <div class="exercise"><div class="ex-tag">Ejercicio 4 · La grabación</div><h4>Escúchate a ti mismo</h4><ol>
+      <li>Con permiso, graba (o pide notas de) tu próxima conversación con un partner.</li>
+      <li>Cuenta cuántas veces interrumpiste tras una objeción y cuántas hiciste una pausa.</li>
+      <li>Cuenta cuántas veces dijiste "pero" justo después de un "no" del otro.</li>
+      <li>Un solo objetivo para la siguiente: una pausa de dos segundos tras cada objeción.</li>
+    </ol></div>
+  </div>
+  <div class="callout callout-info reveal" style="margin-top:16px"><h4>Cómo medir tu mejora (sin datos inventados)</h4><p>No te fijes una cifra mágica de conversión que hayas leído por ahí. Fija tus propias métricas de proceso y compáralas contigo mismo: cuántas conversaciones tras un "no" siguen vivas, cuántas objeciones diagnosticas bien antes de responder, cuántas veces logras la siguiente reunión pese a la objeción inicial. La mejora real es la que ves en tu propio registro semana a semana.</p></div>
+</section>
+
+<!-- RECURSOS -->
+<section id="recursos">
+  <div class="reveal">
+    <div class="section-tag">Para ir más allá</div>
+    <h2 class="section-title">Biblioteca de recursos</h2>
+    <p class="section-desc">Las fuentes originales de todo lo que has visto en el curso, verificadas una a una. Toca una charla para verla aquí mismo; el libro abre en Amazon. Ve a la fuente primaria siempre que quieras el detalle o un dato concreto: aquí no hemos repetido ninguna cifra que no puedas comprobar en el autor.</p>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin-bottom:10px">Charlas imprescindibles</h3>
+  <div class="grid-4 reveal" id="talks">
+    <button class="vthumb" data-yt="vr5hhgA84O4" data-title="Chris Voss · empatía táctica (Talks at Google)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/vr5hhgA84O4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="eIho2S0ZahI" data-title="Julian Treasure · hablar para que te escuchen (TED)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/eIho2S0ZahI/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="qp0HIF3SfI4" data-title="Simon Sinek · empieza con el porqué (TED)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/qp0HIF3SfI4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="TSUeakjHYCE" data-title="Neil Rackham · el origen de SPIN Selling" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/TSUeakjHYCE/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin:28px 0 10px">Los libros que hay que leer</h3>
+  <div class="grid-4 reveal" id="bookshelf"></div>
+
+  <div class="grid-3 reveal" style="margin-top:28px;align-items:start">
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Canales de YouTube</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://www.youtube.com/user/salesgravy" target="_blank" rel="noopener">Sales Gravy (Jeb Blount)</a> · objeciones y prospección</li>
+      <li><a class="rsrc" href="https://blog.blackswanltd.com/" target="_blank" rel="noopener">The Black Swan Group (Chris Voss)</a> · negociación táctica</li>
+      <li><a class="rsrc" href="https://www.youtube.com/@SandlerWorldwide" target="_blank" rel="noopener">Sandler</a> · reversing y up-front contract</li>
+      <li><a class="rsrc" href="https://www.youtube.com/@30MPC" target="_blank" rel="noopener">30 Minutes to President's Club</a> · lo más accionable</li>
+      <li><a class="rsrc" href="https://www.youtube.com/@joshbraunsales" target="_blank" rel="noopener">Josh Braun</a> · outbound sin presión</li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Podcasts</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://open.spotify.com/show/3ib1Gyl5inxj07ZmB7whzQ" target="_blank" rel="noopener">Sales Gravy</a> · Jeb Blount</li>
+      <li><a class="rsrc" href="https://www.30mpc.com/" target="_blank" rel="noopener">30 Minutes to President's Club</a></li>
+      <li><a class="rsrc" href="https://outboundsquad.com/podcast" target="_blank" rel="noopener">The Outbound Squad</a> · Jason Bay</li>
+      <li><a class="rsrc" href="https://www.forcemanagement.com/revenue-builders-podcast" target="_blank" rel="noopener">Revenue Builders</a> · venta compleja</li>
+      <li><a class="rsrc" href="https://open.spotify.com/show/1DnllGVJc1Otlzp4gIWayU" target="_blank" rel="noopener">Howdy Partners</a> · alianzas y canal</li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Blogs y recursos</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://blog.blackswanltd.com/" target="_blank" rel="noopener">The Black Swan Group · blog</a></li>
+      <li><a class="rsrc" href="https://www.sandler.com/blog/" target="_blank" rel="noopener">Sandler · blog</a></li>
+      <li><a class="rsrc" href="https://joshbraun.com" target="_blank" rel="noopener">Josh Braun · Stop Persuading</a></li>
+      <li><a class="rsrc" href="https://www.gong.io/blog/" target="_blank" rel="noopener">Gong Labs</a> · ventas con datos reales</li>
+      <li><a class="rsrc" href="https://www.pon.harvard.edu/" target="_blank" rel="noopener">Harvard · Program on Negotiation</a></li>
+    </ul></div>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin:28px 0 10px">Perfiles de LinkedIn a seguir</h3>
+  <div class="grid-4 reveal" style="gap:10px">
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/christophervoss/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Chris Voss</b><br><span style="font-size:12px;color:var(--text-muted)">Negociación · empatía táctica</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/jebblount/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Jeb Blount</b><br><span style="font-size:12px;color:var(--text-muted)">Objeciones y prospección</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/matthewxdixon/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Matthew Dixon</b><br><span style="font-size:12px;color:var(--text-muted)">The Challenger Sale</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/josh-braun/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Josh Braun</b><br><span style="font-size:12px;color:var(--text-muted)">Outbound sin presión</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/jasondbay/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Jason Bay</b><br><span style="font-size:12px;color:var(--text-muted)">Cold calling moderno</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/kddorsey3/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Kevin D. Dorsey</b><br><span style="font-size:12px;color:var(--text-muted)">Discovery y liderazgo</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/andywhyte/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Andy Whyte</b><br><span style="font-size:12px;color:var(--text-muted)">MEDDICC · cualificación</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/jaredfuller/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Jared Fuller</b><br><span style="font-size:12px;color:var(--text-muted)">Nearbound · partnerships</span></a>
+  </div>
+</section>
+
+<!-- CHULETA -->
+<section id="chuleta">
+  <div class="reveal">
+    <div class="section-tag">Para tener siempre a mano</div>
+    <h2 class="section-title">La chuleta de una página</h2>
+    <p class="section-desc">Si solo te llevas una cosa antes de la próxima llamada difícil, que sea esta.</p>
+  </div>
+  <div class="cheat reveal">
+    <div class="section-tag">Chuleta</div>
+    <h2 class="section-title" style="font-size:26px;margin-bottom:20px">Objeciones difíciles, en una cara</h2>
+    <div class="cheat-grid">
+      <div class="ci"><b>Diagnostica primero</b><span>¿Objeción real (se trabaja), excusa (se reencuadra) o condición (se respeta)? El diagnóstico va antes que la respuesta.</span></div>
+      <div class="ci"><b>Pausa de dos segundos</b><span>Tras cada "no", calla dos segundos. Comunica respeto y te da tiempo a calibrar.</span></div>
+      <div class="ci"><b>Nunca digas "pero"</b><span>Sustitúyelo por "entiendo" o por una pregunta. Ganar la razón y perder al partner es mal negocio (Carnegie).</span></div>
+      <div class="ci"><b>Espejo y etiqueta</b><span>Repite sus últimas palabras; nombra su emoción ("parece que te preocupa…"). Baja la guardia (Voss).</span></div>
+      <div class="ci"><b>LAER en orden</b><span>Listen, Acknowledge, Explore, Respond. La mayoría se salta explorar y responde a la objeción equivocada.</span></div>
+      <div class="ci"><b>Baja tres capas</b><span>La primera objeción casi nunca es la real. Pregunta hasta el motivo de fondo antes de gastar munición.</span></div>
+      <div class="ci"><b>Reversing con el precio</b><span>"Es caro / la comisión es baja" → "¿comparado con qué?". Reencuadra a ingreso total, no comisión de licencia.</span></div>
+      <div class="ci"><b>No cedas gratis</b><span>Cada concesión (margen, exclusiva) lleva una contrapartida pedida. Negocia intereses, no posiciones (Fisher-Ury).</span></div>
+      <div class="ci"><b>Con Odoo, honestidad</b><span>Reconoce lo cierto (Community existe, saca versión al año) y construye el argumento desde ahí. Cifras del programa: a la web oficial.</span></div>
+      <div class="ci"><b>Sabe soltar</b><span>Si es condición real, cierra elegante y deja la puerta abierta a seis meses. Un "no" respetado hoy puede ser un "sí" mañana.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CIERRE -->
+<section id="cierre">
+  <div class="card reveal" style="text-align:center;padding:48px 28px;background:linear-gradient(135deg,#4C1D95,#7C3AED);border:none">
+    <p class="hand" style="font-size:34px;color:#fff;margin-bottom:8px">La próxima objeción es una oportunidad</p>
+    <p style="max-width:560px;margin:0 auto 20px;font-size:15px;color:rgba(255,255,255,.92)">Ya tienes el método y los guiones. Lo que separa saberlo de hacerlo es una sola cosa: entrenar en frío para que salga en caliente. Elige tu top 5 de objeciones y ensáyalas en voz alta esta semana.</p>
+    <a href="#ruta" style="display:inline-block;background:#fff;color:#4C1D95;text-decoration:none;padding:14px 30px;border-radius:100px;font-weight:700;font-size:16px;box-shadow:0 8px 26px rgba(0,0,0,.22)">Volver a la ruta del curso →</a>
+  </div>
+</section>
+
+<footer>
+  <div style="max-width:1100px;margin:0 auto;padding:0 40px 24px;text-align:center;color:var(--text-muted);font-size:13px">
+    <p style="font-family:'Caveat',cursive;font-size:22px;color:var(--odoo-primary);margin-bottom:6px">Brandooers · Odoo I+D+E Spain</p>
+    <p>Objeciones difíciles · guion probado para Partner Manager de Odoo. Todas las técnicas atribuidas a sus autores; ninguna cifra sin fuente verificable.</p>
+    <p style="margin-top:8px"><a href="outbound-sales.html" class="rsrc" style="color:var(--odoo-secondary)">← Outbound Sales</a> · <a href="reclutamiento-partners.html" class="rsrc" style="color:var(--odoo-secondary)">Reclutamiento de Partners →</a></p>
+  </div>
+  <h3 style="text-align:left;max-width:1100px;margin:0 auto;padding:24px 40px 0">Fuentes y bibliografía</h3>
+  <div class="bib" style="max-width:1100px;margin:0 auto;padding:0 40px 20px">
+    <p><strong>Chris Voss & Tahl Raz</strong> · <em>Never Split the Difference</em> (2016). Empatía táctica, mirroring, labeling, "no" calibrado y preguntas de "cómo/qué". <a class="src" href="https://www.amazon.es/s?k=Never+Split+the+Difference+Chris+Voss" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Jeb Blount</strong> · <em>Objections: The Ultimate Guide for Mastering the Art and Science of Getting Past No</em> (2018). Psicología del "no" y manejo de objeciones. <a class="src" href="https://www.amazon.es/s?k=Objections+Jeb+Blount" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Matthew Dixon & Brent Adamson</strong> · <em>The Challenger Sale</em> (2011). Enseñar, adaptar y tomar el control; el reencuadre. <a class="src" href="https://www.amazon.es/s?k=The+Challenger+Sale+Dixon+Adamson" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>David Sandler & John Hayes</strong> · <em>You Can't Teach a Kid to Ride a Bike at a Seminar</em>. El sistema Sandler: reversing, up-front contract, la venta sin perseguir. <a class="src" href="https://www.amazon.es/s?k=You+Cant+Teach+a+Kid+to+Ride+a+Bike+at+a+Seminar+Sandler" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Roger Fisher & William Ury</strong> · <em>Getting to Yes</em> (Obtenga el sí). Negociar sobre intereses, no posiciones; el proyecto de negociación de Harvard. <a class="src" href="https://www.amazon.es/s?k=Getting+to+Yes+Fisher+Ury" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Andy Whyte</strong> · <em>MEDDICC</em>. Cualificación en venta compleja; origen del método en PTC (Dunkel y Napoli). <a class="src" href="https://www.amazon.es/s?k=MEDDICC+Andy+Whyte" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Neil Rackham</strong> · <em>SPIN Selling</em> (1988). Vender preguntando; investigación sobre venta consultiva. <a class="src" href="https://www.amazon.es/s?k=SPIN+Selling+Neil+Rackham" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Dale Carnegie</strong> · <em>Cómo ganar amigos e influir sobre las personas</em>. El principio de no discutir; escuchar antes que rebatir. <a class="src" href="https://www.amazon.es/s?k=Como+ganar+amigos+e+influir+sobre+las+personas+Dale+Carnegie" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Carew International</strong> · The LAER Bucle of Objection Handling. Marco Listen-Acknowledge-Explore-Respond. <a class="src" href="https://www.carew.com/" target="_blank" rel="noopener">carew.com ↗</a></p>
+    <p><strong>Chris Voss</strong> · charla "Tactical Empathy" (Talks at Google). <a class="src" href="https://www.youtube.com/watch?v=vr5hhgA84O4" target="_blank" rel="noopener">YouTube ↗</a></p>
+    <p><strong>Julian Treasure</strong> · "How to speak so that people want to listen" (TED). Escucha activa. <a class="src" href="https://www.youtube.com/watch?v=eIho2S0ZahI" target="_blank" rel="noopener">YouTube ↗</a></p>
+    <p><strong>Odoo</strong> · programa oficial de partners (become a partner). Fuente para condiciones vigentes del canal. <a class="src" href="https://www.odoo.com/es_ES/page/become-a-partner" target="_blank" rel="noopener">odoo.com ↗</a></p>
+  </div>
+  <p style="max-width:1100px;margin:0 auto;padding:0 40px 8px;font-size:11.5px;color:var(--text-muted)">Aviso: los guiones son material formativo, no garantizan resultados. Las condiciones del programa de partners de Odoo (packs, comisiones, niveles) son estimaciones de referencia no vinculantes y las revisa Odoo periódicamente; confirma siempre en la fuente oficial antes de usarlas en material comercial. Antes de lanzar campañas de captación en frío, valida el marco legal (RGPD/LOPDGDD y LSSI-CE) con un profesional; esto no es asesoramiento legal.</p>
+</footer>
+
+<!-- MODAL DE VÍDEO -->
+<div class="vmodal" id="vmodal">
+  <div class="vmodal-box">
+    <div class="vmodal-head"><h4>Charla</h4><button class="close" aria-label="Cerrar">×</button></div>
+    <div class="vmodal-frame"></div>
+  </div>
+</div>
+<div class="userchip" id="userChip"><span class="dot"></span>Formación · <span class="uname"></span></div>
+
+<script>
+/* ===== Config plataforma ===== */
+const TRACK_URL = "";
+const APP_ID = "objeciones-partner-manager";
+
+/* ===== Tracking ===== */
+function nowISO(){return new Date().toISOString()}
+function sid(){let s=sessionStorage.getItem('ob_sid');if(!s){s='s_'+Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ob_sid',s)}return s}
+let USER=null;try{USER=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
+function track(ev,data){
+  const rec={app:APP_ID,sid:sid(),email:USER?USER.email:null,name:USER?USER.name:null,ev:ev,data:data||{},ts:nowISO(),path:location.pathname};
+  try{const arr=JSON.parse(localStorage.getItem('coach_events')||'[]');arr.push(rec);localStorage.setItem('coach_events',JSON.stringify(arr.slice(-3000)))}catch(e){}
+  if(TRACK_URL){try{navigator.sendBeacon(TRACK_URL,new Blob([JSON.stringify(rec)],{type:'text/plain'}))}catch(e){}}
+}
+
+/* ===== Registro (compartido con la formación: misma clave coach_user) ===== */
+const overlay=document.getElementById('regOverlay');
+function showChip(){const c=document.getElementById('userChip');if(c&&USER){c.style.display='flex';c.querySelector('.uname').textContent=(USER.name||'').split(' ')[0]}}
+function unlock(){document.body.classList.remove('locked');overlay.classList.add('hide')}
+if(USER){unlock();showChip();track('page_open',{title:document.title})}else{document.body.classList.add('locked')}
+document.getElementById('regForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const n=document.getElementById('regName').value.trim();
+  const m=document.getElementById('regMail').value.trim();
+  const c=document.getElementById('regConsent').checked;
+  const err=document.getElementById('regErr');
+  if(n.length<2){err.textContent='Escribe tu nombre.';return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){err.textContent='Escribe un email válido.';return}
+  if(!c){err.textContent='Marca el consentimiento para continuar.';return}
+  USER={name:n,email:m,nick:n,at:nowISO()};localStorage.setItem('coach_user',JSON.stringify(USER));
+  track('register',{name:n,email:m});track('page_open',{title:document.title});
+  unlock();showChip();
+});
+
+/* ===== Barra de progreso + scrollspy del rail ===== */
+const navProgress=document.getElementById('navProgress');
+window.addEventListener('scroll',()=>{navProgress.style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'});
+const sections=document.querySelectorAll('section[id]'),railLinks=document.querySelectorAll('.rail-item[data-sec]');
+window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-220)cur=s.id});railLinks.forEach(l=>{l.classList.toggle('active',l.getAttribute('data-sec')===cur)})});
+
+/* ===== Reveal on scroll ===== */
+const observer=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*40);observer.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=this.getAttribute('href');if(t.length>1){e.preventDefault();document.querySelector(t)?.scrollIntoView({behavior:'smooth'})}})});
+
+/* ===== Rail (menú lateral, móvil) ===== */
+(function(){var b=document.getElementById('railBurger'),ov=document.getElementById('railOv'),r=document.getElementById('rail');
+ function op(){r.classList.add('open');ov.classList.add('open')}function cl(){r.classList.remove('open');ov.classList.remove('open')}
+ if(b)b.onclick=op;if(ov)ov.onclick=cl;r&&r.querySelectorAll('a').forEach(function(a){a.addEventListener('click',cl)});})();
+
+/* ===== Modal de vídeo ===== */
+const vm=document.getElementById('vmodal');let vOpen=null;
+function openVideo(id,title){
+  vm.querySelector('.vmodal-frame').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0&autoplay=1&modestbranding=1" title="'+(title||'')+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  vm.querySelector('h4').textContent=title||'Charla';
+  vm.classList.add('open');vOpen={id:id,title:title,start:Date.now()};track('video_open',{id:id,title:title});
+}
+function closeVideo(){if(vOpen){track('video_watch',{id:vOpen.id,title:vOpen.title,seconds:Math.round((Date.now()-vOpen.start)/1000)});vOpen=null}vm.classList.remove('open');vm.querySelector('.vmodal-frame').innerHTML=''}
+vm.querySelector('.close').addEventListener('click',closeVideo);
+vm.addEventListener('click',e=>{if(e.target===vm)closeVideo()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&vm.classList.contains('open'))closeVideo()});
+document.addEventListener('click',function(e){
+  const b=e.target.closest('[data-yt]');
+  if(b){e.preventDefault();openVideo(b.getAttribute('data-yt'),b.getAttribute('data-title'));return}
+  const lk=e.target.closest('a.rsrc, a.bthumb, a.src');
+  if(lk){track('link_click',{label:(lk.textContent||'').trim().slice(0,60),href:lk.getAttribute('href')})}
+});
+
+/* ===== Portadas de libros (Google Books) ===== */
+(function(){var covObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(!en.isIntersecting)return;var el=en.target;covObs.unobserve(el);var q=el.getAttribute('data-book');if(!q)return;
+  fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){
+    var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);
+    if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")';
+  }).catch(function(){})})},{rootMargin:'300px'});
+  document.querySelectorAll('.bcover[data-book]').forEach(function(el){covObs.observe(el)});
+})();
+
+/* ===== Estantería de libros ===== */
+(function(){var shelf=document.getElementById('bookshelf');if(!shelf)return;
+ var BOOKS=[
+  ["Never Split the Difference","Chris Voss"],
+  ["Objections","Jeb Blount"],
+  ["The Challenger Sale","Matthew Dixon"],
+  ["You Can't Teach a Kid to Ride a Bike at a Seminar","David Sandler"],
+  ["Getting to Yes","Roger Fisher"],
+  ["MEDDICC","Andy Whyte"],
+  ["SPIN Selling","Neil Rackham"],
+  ["How to Win Friends and Influence People","Dale Carnegie"]
+ ];
+ BOOKS.forEach(function(bk){var q=bk[0]+" "+bk[1];var a=document.createElement('a');a.className='card';a.href='https://www.amazon.es/s?k='+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.style.textDecoration='none';a.style.display='block';
+  a.innerHTML='<span class="bcover" data-book="'+q+'" style="display:block;width:100%;height:150px;border-radius:8px;background:#EDE7EB center/cover no-repeat;margin-bottom:10px"></span><h4 style="color:var(--text-dark);margin-bottom:2px;font-size:14px">'+bk[0]+'</h4><p style="font-size:12px;color:var(--text-muted);margin:0">'+bk[1]+'</p><p style="font-size:11.5px;color:var(--odoo-gold);margin-top:6px;font-weight:600">Amazon ↗</p>';
+  a.addEventListener('click',function(){track('book_click',{title:q})});shelf.appendChild(a);
+  var cov=a.querySelector('.bcover');covObsShelf(cov);});
+ function covObsShelf(el){var q=el.getAttribute('data-book');if(!q)return;
+  fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){
+   var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);
+   if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")';}).catch(function(){});}
+})();
+
+/* ===== Vistas de sección + tiempo ===== */
+const seenSec=new Set();
+const secObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){const id=en.target.id;if(id&&!seenSec.has(id)){seenSec.add(id);track('section_view',{id:id})}}})},{threshold:0.4});
+document.querySelectorAll('section[id]').forEach(s=>secObs.observe(s));
+let secs=0;setInterval(function(){if(!document.hidden&&USER){secs+=15}},15000);
+window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{seconds:secs})});
+
+/* ===== Ojos animados Brandooers ===== */
+(function(){
+  var svgs=[].slice.call(document.querySelectorAll('.beyes'));if(!svgs.length)return;
+  function brow(o,flip){var b=10+o;var lift=Math.min(o,0)*0.5;return flip?('M 6 '+(b+1)+' Q 20 '+(b-8+lift)+' 34 '+(b+2)):('M 6 '+(b+2)+' Q 20 '+(b-8+lift)+' 34 '+(b+1));}
+  var exprs=[{bl:-6,br:1,lx:2.5,ly:-1,e:'curious'},{bl:-3,br:-3,lx:0,ly:0,e:'happy'},{bl:2,br:-8,lx:-2,ly:0,e:'skeptical'},{bl:-8,br:-8,lx:0,ly:-1,e:'surprised'},{bl:0,br:0,lx:0,ly:0,e:'neutral'},{bl:-4,br:-1,lx:3,ly:0.5,e:'curious'}];
+  var st={bl:0,br:0,lx:0,ly:0,blink:false,e:'neutral'};
+  function setC(el,x,y,r){if(!el)return;el.setAttribute('cx',x);el.setAttribute('cy',y);if(r!=null)el.setAttribute('r',r);}
+  function apply(){svgs.forEach(function(svg){
+    var bL=svg.querySelector('.browL'),bR=svg.querySelector('.browR');if(bL)bL.setAttribute('d',brow(st.bl,false));if(bR)bR.setAttribute('d',brow(st.br,true));
+    var ry=st.blink?2:(st.e==='happy'?14:18);var sL=svg.querySelector('.socketL'),sR=svg.querySelector('.socketR');if(sL)sL.setAttribute('ry',ry);if(sR)sR.setAttribute('ry',ry);
+    var op=st.blink?'0':'1';['.irisL','.irisR','.pupilL','.pupilR'].forEach(function(c){var el=svg.querySelector(c);if(el)el.style.opacity=op;});
+    svg.querySelectorAll('.glint').forEach(function(g){g.style.opacity=st.blink?'0':(g.getAttribute('data-op')||'1');});
+    var ir=st.e==='surprised'?9:7.5,pr=st.e==='surprised'?4:3.5;
+    setC(svg.querySelector('.irisL'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilL'),20+st.lx*1.3,36+st.ly*1.3,pr);
+    setC(svg.querySelector('.irisR'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilR'),20+st.lx*1.3,36+st.ly*1.3,pr);
+  });}
+  apply();
+  setInterval(function(){var x=exprs[Math.floor(Math.random()*exprs.length)];st.bl=x.bl;st.br=x.br;st.lx=x.lx;st.ly=x.ly;st.e=x.e;apply();},2500);
+  (function blink(){setTimeout(function(){st.blink=true;apply();setTimeout(function(){st.blink=false;apply();blink();},130);},3000+Math.random()*2500);})();
+})();
+</script>
+
+<script src="personalization.js"></script>
+<script src="profile.js"></script>
+<script src="feedback.js" data-course="Objeciones difíciles · Partner Manager"></script>
+<script src="resources.js"></script>
+</body>
+</html>
