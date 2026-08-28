@@ -4,6 +4,18 @@
 (function () {
   "use strict";
   if (window.__bdAccount) return; window.__bdAccount = 1;
+  function urlB64(b) { var p = '='.repeat((4 - b.length % 4) % 4); var s = (b + p).replace(/-/g, '+').replace(/_/g, '/'); var r = atob(s); var a = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) a[i] = r.charCodeAt(i); return a; }
+  async function enablePush() {
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) { alert('Este navegador no soporta notificaciones.'); return; }
+      var perm = await Notification.requestPermission(); if (perm !== 'granted') { alert('Permiso de notificaciones denegado.'); return; }
+      var reg = await navigator.serviceWorker.ready;
+      var key = (await (await fetch('/api/push/key')).json()).key; if (!key) { alert('Notificaciones no configuradas en el servidor.'); return; }
+      var sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64(key) });
+      await fetch('/api/push/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(sub) });
+      alert('Notificaciones activadas. Te avisaremos de peticiones, feedback y leads nuevos.');
+    } catch (e) { alert('No se pudo activar: ' + (e.message || e)); }
+  }
   fetch('/auth/me', { credentials: 'same-origin' }).then(function (r) {
     if (r.status === 401) { if (!/\/login\.html$/.test(location.pathname)) location.href = '/login.html'; return null; }
     return r.json();
@@ -68,13 +80,14 @@
       '<div class="bd-menu" id="bdMenu">' +
       '<div class="who"><b>' + me.user + '</b><span>' + (isAdmin ? 'Administrador' : 'Miembro') + '</span></div>' +
       '<a href="/perfil.html">Mi perfil</a>' +
-      (isAdmin ? '<a href="/panel.html">Panel de control</a><a href="/insights.html">Insights &amp; ranking</a><a href="/revisiones.html">Revisiones</a><a href="/produccion.html">Producción</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
+      (isAdmin ? '<a href="/panel.html">Panel de control</a><a href="#" class="bd-push">🔔 Activar notificaciones</a><a href="/insights.html">Insights &amp; ranking</a><a href="/revisiones.html">Revisiones</a><a href="/produccion.html">Producción</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
       '<a class="out" href="/auth/logout">Cerrar sesión</a>' +
       '</div>';
     document.body.appendChild(wrap);
     var menu = document.getElementById('bdMenu');
     document.getElementById('bdChip').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('open'); });
     document.addEventListener('click', function () { menu.classList.remove('open'); });
+    var pb = wrap.querySelector('.bd-push'); if (pb) pb.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); menu.classList.remove('open'); enablePush(); });
     // indicador de cursos en preparación (barra lateral) para el alumno
     var STG = { solicitado: ['Solicitado', 10], cola: ['En cola', 20], research: ['Investigando', 40], verify: ['Verificando', 55], build: ['Construyendo', 70], validate: ['Validando', 88], publish: ['Publicado', 100] };
     fetch('/api/mis-cursos', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (mc) {

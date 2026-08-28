@@ -27,6 +27,8 @@
     '.fb-toggle.on{background:#0891B2}',
     '.fb-toggle .fb-badge{background:#fff;color:#8B5CF6;border-radius:100px;font-size:11px;font-weight:800;padding:1px 7px}',
     'body.fb-mode{cursor:crosshair}',
+    'body.fb-mode, body.fb-mode *{-webkit-user-select:text!important;-moz-user-select:text!important;user-select:text!important}',
+    '@media(max-width:820px),(pointer:coarse){.fb-toggle,.fb-panel,.fb-bar{display:none!important}}',
     'body.fb-mode section, body.fb-mode .module, body.fb-mode .frontsec{position:relative}',
     '.fb-bar{position:absolute;z-index:1650;display:flex;gap:2px;background:#2D2D2D;border-radius:10px;padding:4px;box-shadow:0 8px 26px rgba(0,0,0,.28);transform:translate(-50%,-100%)}',
     '.fb-bar button{background:none;border:0;color:#fff;font:600 12px Inter,sans-serif;padding:6px 9px;border-radius:7px;cursor:pointer;white-space:nowrap}',
@@ -56,7 +58,8 @@
   // ---- botón + panel ----
   var toggle = document.createElement('button');
   toggle.className = 'fb-toggle';
-  toggle.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg> Revisar <span class="fb-badge">0</span>';
+  toggle.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg> <span class="fb-txt">Sugerir mejora</span> <span class="fb-badge">0</span>';
+  toggle.title = 'Selecciona texto del curso y márcalo Útil / Mejorar / Obsoleto para ayudarnos a mejorarlo';
   document.body.appendChild(toggle);
   var badge = toggle.querySelector('.fb-badge');
 
@@ -152,12 +155,14 @@
     });
   }
 
+  var fbTxt = toggle.querySelector('.fb-txt');
   toggle.addEventListener('click', function(){
     var on = document.body.classList.toggle('fb-mode');
     toggle.classList.toggle('on', on);
+    fbTxt.textContent = on ? 'Salir de revisión' : 'Sugerir mejora';
     if(on){ panel.classList.add('open'); } else { panel.classList.remove('open'); killBar(); }
   });
-  panel.querySelector('.fb-x').addEventListener('click', function(){ panel.classList.remove('open'); document.body.classList.remove('fb-mode'); toggle.classList.remove('on'); killBar(); });
+  panel.querySelector('.fb-x').addEventListener('click', function(){ panel.classList.remove('open'); document.body.classList.remove('fb-mode'); toggle.classList.remove('on'); fbTxt.textContent='Sugerir mejora'; killBar(); });
   panel.querySelector('.fb-copy').addEventListener('click', function(){
     var data = JSON.stringify(forCourse(), null, 2);
     (navigator.clipboard ? navigator.clipboard.writeText(data) : Promise.reject()).then(function(){ alert('Notas copiadas al portapapeles ('+forCourse().length+').'); }, function(){ window.prompt('Copia tus notas:', data); });

@@ -11,3 +11,6 @@ affiliate/resets.json
 affiliate/auth-secret
 affiliate/.tst/
 brandooers-original-ref.html
+affiliate/node_modules/
+affiliate/package.json
+affiliate/package-lock.json

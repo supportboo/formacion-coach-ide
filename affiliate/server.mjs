@@ -129,6 +129,19 @@ function moderate(text) {
 const SETTINGS_DEFAULT = { autoValidate: false, maxPerDay: 3, moderation: true };
 function getSettings() { return { ...SETTINGS_DEFAULT, ...jload(W('settings.json'), {}) }; }
 
+// ---- notificaciones push (móvil) ----
+let webpush = null; const VAPID = jload(W('vapid.json'), null);
+try { webpush = (await import('web-push')).default; if (VAPID) webpush.setVapidDetails('mailto:support@boomatik.com', VAPID.publicKey, VAPID.privateKey); } catch (e) { console.log('web-push off:', e.message); }
+const pushSubs = () => jload(W('push-subs.json'), {});
+function notifyAdmins(title, body, url) {
+  if (!webpush || !VAPID) return;
+  const subs = pushSubs(), u = users(), payload = JSON.stringify({ title, body: String(body || '').slice(0, 140), url: url || '/hub.html' });
+  for (const [key, rec] of Object.entries(subs)) {
+    if (!(u[rec.user] && u[rec.user].role === 'admin')) continue;
+    webpush.sendNotification(rec.sub, payload).catch(e => { if (e.statusCode === 404 || e.statusCode === 410) { const s = pushSubs(); delete s[key]; jsave(W('push-subs.json'), s); } });
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   const https = (req.headers['x-forwarded-proto'] || '') === 'https';
   const url = new URL(req.url, 'http://x');
@@ -166,6 +179,7 @@ const server = http.createServer(async (req, res) => {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json(res, 400, { error: 'Email no válido' });
     const rec = { name: String(b.name || '').slice(0, 80).trim(), email, company: String(b.company || '').slice(0, 120).trim(), ts: new Date().toISOString() };
     try { appendFileSync(W('leads.jsonl'), JSON.stringify(rec) + '\n'); } catch {}
+    notifyAdmins('Nuevo lead 🎯', (rec.name || '') + ' · ' + rec.email + (rec.company ? ' · ' + rec.company : ''), '/panel.html');
     return json(res, 200, { ok: true });
   }
   if (path === '/auth/password' && req.method === 'POST') {
@@ -239,13 +253,17 @@ const server = http.createServer(async (req, res) => {
   /* ----- BANDEJA (captura pública + revisión admin) ----- */
   if (path === '/api/feedback' && req.method === 'POST') {
     const b = await body(req); if (!b || !b.type) return json(res, 400, { error: 'no' });
-    inboxAppend('feedback', b); return json(res, 200, { ok: true });
+    inboxAppend('feedback', b);
+    if (b.type === 'improve' || b.type === 'stale') notifyAdmins('Nuevo feedback', (b.course ? b.course + ': ' : '') + (b.comment || b.quote || ''), '/revisiones.html');
+    return json(res, 200, { ok: true });
   }
   if (path === '/api/track' && req.method === 'POST') {
     const b = await body(req);
     if (b && b.ev === 'course_request' && b.topic) {
       const id = inboxAppend('request', b);
-      if (getSettings().moderation) { const mod = moderate(b.topic); if (!mod.ok) inboxSetMeta(id, { status: 'rechazado', moderation: mod.reason }); }
+      const mod = getSettings().moderation ? moderate(b.topic) : { ok: true };
+      if (!mod.ok) inboxSetMeta(id, { status: 'rechazado', moderation: mod.reason });
+      else notifyAdmins('Nueva petición de curso', b.topic, '/revisiones.html');
     }
     return json(res, 200, { ok: true });
   }
@@ -273,6 +291,18 @@ const server = http.createServer(async (req, res) => {
       .map(x => ({ id: x.id, topic: (x.data || {}).topic || '', status: x.status, stage: x.stage || (x.status === 'aceptado' ? 'cola' : (x.status === 'nuevo' ? 'solicitado' : x.status)), eta: x.eta || '', courseUrl: x.courseUrl || '', ts: x.ts }))
       .reverse();
     return json(res, 200, { cursos: rows });
+  }
+  if (path === '/api/push/key') return json(res, 200, { key: VAPID ? VAPID.publicKey : '' });
+  if (path === '/api/push/subscribe' && req.method === 'POST') {
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
+    const b = await body(req); if (!b || !b.endpoint) return json(res, 400, { error: 'sin subscripción' });
+    const subs = pushSubs(); subs[b.endpoint] = { user: s.u, sub: b, ts: new Date().toISOString() }; jsave(W('push-subs.json'), subs);
+    return json(res, 200, { ok: true });
+  }
+  if (path === '/api/push/test') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    notifyAdmins('Brandooers', 'Notificación de prueba · funciona', '/panel.html');
+    return json(res, 200, { ok: true });
   }
   if (path === '/api/admin/inbox') {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
