@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospección y social selling con IA · Partner Manager de Odoo | De cero a llenar el pipeline de partners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --odoo-primary:#8B5CF6; --odoo-secondary:#0891B2; --odoo-grey:#8F8F8F;
+  --odoo-learning:#E46E78; --odoo-ready:#21B799; --odoo-silver:#5B899E; --odoo-gold:#E4A900;
+  --bg:#FAFAFA; --bg-white:#FFFFFF; --bg-warm:#F5F0EE;
+  --text-dark:#2D2D2D; --text-body:#4A4A4A; --text-muted:#8F8F8F;
+  --border:#E8E0E5; --border-light:#F0EAEE;
+  --shadow-sm:0 1px 3px rgba(139,92,246,0.06); --shadow-md:0 4px 16px rgba(139,92,246,0.08);
+  --radius:16px; --radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+.hand{font-family:'Caveat',cursive}
+
+section{max-width:1100px;margin:0 auto;padding:100px 40px 60px}
+.section-tag{font-family:'Caveat',cursive;font-size:52px;font-weight:700;color:var(--odoo-secondary);margin-bottom:4px;line-height:1.1}
+.section-title{font-size:clamp(28px,3.5vw,40px);font-weight:800;color:var(--text-dark);letter-spacing:-0.03em;line-height:1.15;margin-bottom:12px}
+.section-desc{font-size:16px;color:var(--text-body);max-width:640px;line-height:1.7;margin-bottom:48px}
+
+.card{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:28px;transition:all .25s;box-shadow:var(--shadow-sm)}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mb{margin-bottom:16px}
+
+.source,.src{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);font-style:italic;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-light);width:100%}
+
+.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:100vh;padding-top:80px}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:900;color:var(--text-dark);letter-spacing:-0.04em;line-height:1.1;margin-bottom:20px}
+.hero h1 .hand-accent{font-family:'Caveat',cursive;color:var(--odoo-secondary);font-size:1.15em}
+.hero .subtitle{font-size:18px;color:var(--text-body);max-width:600px;line-height:1.7;margin-bottom:48px}
+.hero-meta{display:flex;gap:48px}
+.hero-meta-item{text-align:center}
+.hero-meta-item .val{font-size:26px;font-weight:800;letter-spacing:-0.02em}
+.hero-meta-item .lab{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px}
+
+.tag-pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:12px}
+
+.pillar-items{list-style:none;margin-top:12px}
+.pillar-items li{padding:5px 0;font-size:14px;display:flex;align-items:flex-start;gap:8px}
+.pillar-items li::before{content:'→';color:var(--odoo-secondary);font-weight:600;flex-shrink:0}
+
+.callout{border-left:3px solid;padding:16px 20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:14.5px;line-height:1.65}
+.callout h4{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:6px}
+.callout-warm{border-color:var(--odoo-gold);background:rgba(228,169,0,0.06)}
+.callout-info{border-color:var(--odoo-secondary);background:rgba(8,145,178,0.05)}
+.callout-alert{border-color:var(--odoo-learning);background:rgba(228,110,120,0.06)}
+.callout-primary{border-color:var(--odoo-primary);background:rgba(139,92,246,0.05)}
+
+.note-card{background:var(--bg-warm);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:24px}
+.note-card .note-title{font-family:'Caveat',cursive;font-size:26px;font-weight:600;color:var(--odoo-primary);margin-bottom:8px;line-height:1.1}
+
+.data-table{width:100%;border-collapse:collapse;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.data-table th,.data-table td{padding:12px 16px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--border-light);vertical-align:top}
+.data-table thead th{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-warm)}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table .highlight{color:var(--odoo-secondary);font-weight:700}
+.data-table tbody th{font-weight:700;color:var(--odoo-primary);white-space:nowrap;font-size:13.5px}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.compare .col{border-radius:var(--radius);padding:24px;border:1px solid var(--border-light)}
+.compare .yes{background:rgba(33,183,153,0.05);border-color:rgba(33,183,153,0.25)}
+.compare .no{background:rgba(228,110,120,0.05);border-color:rgba(228,110,120,0.25)}
+.compare h4{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.compare .yes h4{color:var(--odoo-ready)}
+.compare .no h4{color:var(--odoo-learning)}
+.compare ul{list-style:none}
+.compare li{position:relative;padding-left:22px;margin-bottom:10px;font-size:14px;line-height:1.5}
+.compare .yes li::before{content:'✓';position:absolute;left:0;color:var(--odoo-ready);font-weight:800}
+.compare .no li::before{content:'✕';position:absolute;left:0;color:var(--odoo-learning);font-weight:800}
+
+ol.steps{counter-reset:s;list-style:none;margin-top:8px}
+ol.steps li{position:relative;padding-left:50px;margin-bottom:16px;min-height:34px;font-size:14.5px}
+ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;width:34px;height:34px;border-radius:10px;background:var(--odoo-primary);color:#fff;font-family:'Caveat',cursive;font-size:20px;font-weight:700;display:grid;place-items:center}
+ol.steps li strong{display:block;color:var(--text-dark);margin-bottom:1px}
+
+.qbank{columns:2;column-gap:28px}
+.qgroup{break-inside:avoid;margin-bottom:20px}
+.qgroup h4{font-family:'Caveat',cursive;font-size:22px;font-weight:600;color:var(--odoo-primary);margin-bottom:6px}
+.qgroup ol{margin:0;padding-left:20px}
+.qgroup li{margin-bottom:6px;font-size:14.5px;line-height:1.45}
+
+.timeline{position:relative;padding-left:36px;margin-top:8px}
+.timeline::before{content:'';position:absolute;left:13px;top:6px;bottom:6px;width:2px;background:linear-gradient(to bottom,var(--odoo-silver),var(--odoo-secondary),var(--odoo-learning),var(--odoo-gold),var(--odoo-ready),var(--odoo-primary))}
+.tl-item{position:relative;margin-bottom:20px;background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);padding:20px 22px}
+.tl-item::before{content:'';position:absolute;left:-30px;top:22px;width:14px;height:14px;border-radius:50%;border:3px solid var(--odoo-secondary);background:var(--bg)}
+.tl-item.hot{border-color:rgba(228,110,120,0.35);background:rgba(228,110,120,0.05)}
+.tl-when{font-family:'Caveat',cursive;font-size:20px;font-weight:600;line-height:1;margin-bottom:4px}
+.tl-item h4{font-size:16px;font-weight:700;color:var(--text-dark);margin-bottom:8px}
+.tl-item .row{font-size:13.5px;margin-bottom:5px;line-height:1.5}
+.tl-item .row b{color:var(--text-dark)}
+
+.cheat{background:var(--odoo-primary);color:#fff;border-radius:20px;padding:44px}
+.cheat .section-tag{color:#Ebc9dd}
+.cheat .section-title{color:#fff}
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 34px;margin-top:8px}
+.cheat .ci{border-top:1px solid rgba(255,255,255,0.2);padding-top:12px}
+.cheat .ci b{display:block;font-family:'Caveat',cursive;font-size:22px;font-weight:600;margin-bottom:1px;color:#fff}
+.cheat .ci span{font-size:14px;color:rgba(255,255,255,0.85)}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .5s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+footer{text-align:left;max-width:1100px;margin:0 auto;padding:40px;font-size:13px;color:var(--text-muted);border-top:1px solid var(--border-light)}
+footer h3{font-size:20px;color:var(--text-dark);margin-bottom:6px}
+footer .bib{columns:2;column-gap:32px;margin-top:16px}
+footer .bib p{break-inside:avoid;margin-bottom:10px;font-size:13px;line-height:1.5}
+
+a.src{text-decoration:none;transition:color .2s,border-color .2s}
+a.src:hover{color:var(--odoo-primary);border-top-color:var(--odoo-primary)}
+
+/* ==== PLATAFORMA (registro) ==== */
+body.locked{overflow:hidden}
+.reg-overlay{position:fixed;inset:0;z-index:2000;background:rgba(45,45,45,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+.reg-overlay.hide{display:none}
+.reg-box{background:var(--bg-white);border-radius:20px;max-width:440px;width:100%;padding:36px 32px;box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
+.reg-box .ide{font-family:'Caveat',cursive;font-weight:600;color:var(--odoo-secondary);font-size:16px;display:block;margin-top:-8px;margin-bottom:16px}
+.reg-box h2{font-size:24px;color:var(--text-dark);margin-bottom:6px}
+.reg-box .rsub{font-size:14px;color:var(--text-body);margin-bottom:20px}
+.reg-box input[type=text],.reg-box input[type=email]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:15px;margin-bottom:12px;outline:none}
+.reg-box input:focus{border-color:var(--odoo-primary)}
+.reg-consent{display:flex;gap:9px;align-items:flex-start;text-align:left;font-size:11.5px;color:var(--text-muted);margin-bottom:18px;line-height:1.5}
+.reg-consent input{width:auto;margin:2px 0 0;flex-shrink:0}
+.reg-box button{width:100%;background:var(--odoo-primary);color:#fff;border:none;border-radius:10px;padding:13px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .2s}
+.reg-box button:hover{background:#5d3e56}
+.reg-box .err{color:var(--odoo-learning);font-size:12px;margin-bottom:10px;min-height:15px;font-weight:600}
+.userchip{position:fixed;bottom:24px;left:24px;z-index:60;background:var(--bg-white);border:1px solid var(--border-light);border-radius:999px;padding:8px 15px;font-size:12.5px;color:var(--text-body);box-shadow:var(--shadow-sm);display:none;align-items:center;gap:8px}
+.userchip .dot{width:8px;height:8px;border-radius:50%;background:var(--odoo-ready)}
+
+/* ==== recursos (previews vídeo/libro) ==== */
+.rsrc{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12px;font-weight:600;border-radius:8px;padding:6px 11px;cursor:pointer;border:1px solid var(--border);background:var(--bg-white);color:var(--text-body);text-decoration:none;transition:all .2s}
+.rsrc:hover{border-color:var(--odoo-primary);color:var(--odoo-primary)}
+.rsrc-media{display:flex;gap:12px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-light);align-items:flex-start}
+.vthumb{position:relative;flex:1;min-width:0;border:none;padding:0;background:#000;cursor:pointer;border-radius:9px;overflow:hidden;aspect-ratio:16/9;box-shadow:var(--shadow-sm)}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.94;transition:opacity .2s,transform .3s}
+.vthumb:hover img{opacity:1;transform:scale(1.04)}
+.vthumb .vplay-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.5);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.vthumb::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-38%,-50%);border-style:solid;border-width:8px 0 8px 14px;border-color:transparent transparent transparent #fff;pointer-events:none}
+.bthumb{flex-shrink:0;width:62px;display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none}
+.bcover{width:60px;height:88px;border-radius:5px;background:var(--bg-warm) center/cover no-repeat;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);display:block}
+.blabel{font-size:10px;font-weight:700;color:var(--odoo-gold);text-align:center;line-height:1.15}
+@media(max-width:500px){.rsrc-media{flex-direction:column}.bthumb{flex-direction:row;width:auto;gap:8px}.bcover{width:44px;height:64px}}
+.vmodal{position:fixed;inset:0;z-index:1500;background:rgba(45,45,45,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.vmodal.open{display:flex}
+.vmodal-box{background:#000;border-radius:16px;width:min(900px,100%);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden}
+.vmodal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;background:var(--bg-white)}
+.vmodal-head h4{font-size:15px;color:var(--text-dark)}
+.vmodal-head .close{background:none;border:none;font-size:26px;color:var(--text-muted);cursor:pointer;line-height:1;padding:0 4px}
+.vmodal-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.vmodal-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* Logo Brandooers */
+.brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;color:var(--text-dark);user-select:none}
+.brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
+body{-webkit-user-select:none;-moz-user-select:none;user-select:none}
+input,textarea,.cbub{-webkit-user-select:text;user-select:text}
+img,svg,video{-webkit-user-drag:none}
+@media print{body{visibility:hidden!important}html::after{content:"Contenido protegido · Formación Brandooers para Odoo";position:fixed;top:40px;left:40px;font:600 16px Inter,sans-serif;color:#000;visibility:visible}}
+
+/* Barra de progreso + rail */
+.nav-progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#8B5CF6,#EC4899);z-index:60;transition:width .15s}
+.rail{position:fixed;top:0;left:0;bottom:0;z-index:70;width:66px;background:var(--bg-white);border-right:1px solid var(--border-light);display:flex;flex-direction:column;padding:6px 0 10px;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:1px 0 14px rgba(0,0,0,.04)}
+.rail:hover,.rail.open{width:242px}
+.rail-top{display:flex;align-items:center;min-height:46px;padding:8px 16px 8px 19px;overflow:hidden}
+.rail-top .brandooers-logo{opacity:0;transition:opacity .2s;white-space:nowrap}
+.rail:hover .rail-top .brandooers-logo,.rail.open .rail-top .brandooers-logo{opacity:1}
+.rail-items{display:flex;flex-direction:column;gap:2px;padding:6px 10px;flex:1;overflow-y:auto;overflow-x:hidden}
+.rail-item{display:flex;align-items:center;gap:15px;padding:10px 12px;border-radius:11px;color:var(--text-body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.rail-item:hover{background:var(--bg-warm)}
+.rail-item.active{background:rgba(139,92,246,.08);color:var(--odoo-primary)}
+.rail-item .ri-ic{flex-shrink:0;width:22px;height:22px;display:grid;place-items:center}
+.rail-item .ri-ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail-item .ri-lb{font-size:14px;font-weight:500;opacity:0;transition:opacity .18s}
+.rail:hover .rail-item .ri-lb,.rail.open .rail-item .ri-lb{opacity:1}
+.rail-item.gold{color:var(--odoo-gold)}
+.rail-sep{height:1px;background:var(--border-light);margin:8px 10px}
+.rail-burger{position:fixed;top:14px;left:12px;z-index:75;width:44px;height:44px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:none;place-items:center}
+.rail-burger svg{width:22px;height:22px;stroke:var(--text-dark)}
+.rail-ov{position:fixed;inset:0;background:rgba(45,45,45,.3);z-index:69;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
+.rail-ov.open{opacity:1;pointer-events:auto}
+body{padding-left:66px}
+@media(max-width:900px){body{padding-left:0}.rail{width:242px;display:none}.rail.open{display:flex}.rail-burger{display:grid}}
+
+/* Nivel pill (Rookie / Intermedio / PRO) */
+.lvl-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:14px}
+.lvl-rookie{background:rgba(91,137,158,.14);color:var(--odoo-silver)}
+.lvl-inter{background:rgba(8,145,178,.12);color:var(--odoo-secondary)}
+.lvl-pro{background:rgba(228,169,0,.16);color:#B98600}
+/* Guion / diálogo / plantilla */
+.script{background:var(--bg-white);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow-sm);margin-bottom:14px}
+.script h4{font-size:15px;color:var(--text-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.script .line{display:flex;gap:10px;margin-bottom:9px;font-size:14px;line-height:1.55}
+.script .line .who{flex-shrink:0;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;width:82px;padding-top:2px}
+.script .line.them .who{color:var(--odoo-learning)}
+.script .line.you .who{color:var(--odoo-secondary)}
+.script .line .txt{flex:1;color:var(--text-body)}
+.script .line.you .txt{color:var(--text-dark)}
+.script .tech{margin-top:10px;font-size:12px;color:var(--text-muted);font-style:italic;border-top:1px dashed var(--border-light);padding-top:9px}
+.script .tech b{color:var(--odoo-primary);font-style:normal}
+/* Plantilla de mensaje (monoespaciada visual) */
+.tmpl{background:var(--bg-warm);border:1px solid var(--border-light);border-left:3px solid var(--odoo-secondary);border-radius:var(--radius-sm);padding:18px 20px;font-size:13.5px;line-height:1.6;color:var(--text-dark);margin-bottom:14px}
+.tmpl .tmpl-h{font-family:'Caveat',cursive;font-size:20px;color:var(--odoo-secondary);margin-bottom:8px}
+.tmpl p{margin-bottom:8px}
+.tmpl .var{background:rgba(139,92,246,.12);color:var(--odoo-primary);padding:1px 5px;border-radius:5px;font-weight:600;font-size:12.5px}
+/* Ejercicio */
+.exercise{border:1px solid rgba(228,169,0,.35);background:rgba(228,169,0,.05);border-radius:var(--radius);padding:22px 24px}
+.exercise .ex-tag{font-family:'Caveat',cursive;font-size:24px;color:var(--odoo-gold);line-height:1;margin-bottom:6px}
+.exercise h4{font-size:16px;color:var(--text-dark);margin-bottom:8px}
+.exercise ol{padding-left:20px;font-size:14px;line-height:1.6}
+.exercise li{margin-bottom:5px}
+
+@media(max-width:800px){
+  section{padding:80px 20px 40px}
+  .grid-3,.grid-4,.grid-2,.compare,.cheat-grid{grid-template-columns:1fr}
+  .qbank{columns:1}
+  .hero-meta{flex-direction:column;gap:16px}
+  .section-tag{font-size:36px}
+  footer .bib{columns:1}
+  .script .line{flex-direction:column;gap:2px}
+  .script .line .who{width:auto}
+}
+@media print{
+  .printbtn{display:none}
+  body{background:#fff}
+  section{padding:24px 40px;break-inside:avoid;min-height:auto}
+  .hero{min-height:auto;padding:20px 40px}
+  .reveal{opacity:1;transform:none}
+  .card,.tl-item,.data-table,.script{box-shadow:none}
+  .cheat{background:#fff;color:var(--text-dark);border:2px solid var(--odoo-primary)}
+  .cheat .section-title,.cheat .ci b{color:var(--text-dark)}
+  .cheat .ci span{color:var(--text-muted)}
+  a{color:var(--text-dark)}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- REGISTRO -->
+<div class="reg-overlay" id="regOverlay">
+  <div class="reg-box">
+    <span class="brandooers-logo" style="font-size:24px;justify-content:center;margin-bottom:2px">Brand<svg class="beyes" width="46" height="27" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+    <span class="ide">Investigación y desarrollo de expertos · para Odooers</span>
+    <h2>Prospección y social selling con IA</h2>
+    <p class="rsub">El manual de prospección moderna y venta social para un Partner Manager de Odoo: llenar el pipeline de partners sin parecer spam. Pon tu nombre y tu email de trabajo para llevar tu progreso.</p>
+    <form id="regForm">
+      <div class="err" id="regErr"></div>
+      <input id="regName" type="text" placeholder="Tu nombre" autocomplete="name">
+      <input id="regMail" type="email" placeholder="Tu email de trabajo" autocomplete="email">
+      <label class="reg-consent"><input type="checkbox" id="regConsent"><span>Acepto que se registren mi nombre, email y actividad formativa (vídeos y secciones vistas) con fines internos de seguimiento del equipo. No se comparte con terceros.</span></label>
+      <button type="submit">Entrar a la formación</button>
+    </form>
+  </div>
+</div>
+
+<!-- SVG defs (gradientes del logo) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bo-brow1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#8B5CF6"/></linearGradient>
+<linearGradient id="bo-brow2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+<radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+</defs></svg>
+
+<div class="nav-progress" id="navProgress"></div>
+<button class="rail-burger" id="railBurger" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
+<div class="rail-ov" id="railOv"></div>
+<aside class="rail" id="rail">
+  <div class="rail-top">
+    <span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+  </div>
+  <div class="rail-items">
+    <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
+    <a class="rail-item" href="#ruta" data-sec="ruta" title="Cómo se estudia este curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10 10 8.5 15.5 14 14 15.5 8.5"/></svg></span><span class="ri-lb">La ruta</span></a>
+    <a class="rail-item" href="#r-que-es" data-sec="r-que-es" title="Rookie · qué es prospectar hoy"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span><span class="ri-lb">Rookie · Qué es</span></a>
+    <a class="rail-item" href="#r-icp" data-sec="r-icp" title="Rookie · ICP y lista"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span><span class="ri-lb">Rookie · ICP y lista</span></a>
+    <a class="rail-item" href="#r-mentalidad" data-sec="r-mentalidad" title="Rookie · mentalidad y disciplina"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M9.5 3.5A5 5 0 0 0 5 11a3.5 3.5 0 0 0 1 5v2.5h6V13a5 5 0 0 0 1-6.5"/><path d="M12 3.5a5 5 0 0 1 4.5 12.5V19"/></svg></span><span class="ri-lb">Rookie · Mentalidad</span></a>
+    <a class="rail-item" href="#r-perfil" data-sec="r-perfil" title="Rookie · higiene del perfil de LinkedIn"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span><span class="ri-lb">Rookie · Perfil</span></a>
+    <a class="rail-item" href="#i-mensajes" data-sec="i-mensajes" title="Intermedio · mensajes que no parecen spam"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4z"/></svg></span><span class="ri-lb">Inter · Mensajes</span></a>
+    <a class="rail-item" href="#i-secuencias" data-sec="i-secuencias" title="Intermedio · secuencias multicanal"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="12" r="2.4"/><circle cx="6" cy="18" r="2.4"/><path d="M8 7l8 4M8 17l8-4"/></svg></span><span class="ri-lb">Inter · Secuencias</span></a>
+    <a class="rail-item" href="#i-social-selling" data-sec="i-social-selling" title="Intermedio · social selling y autoridad"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 21C7 17.5 4 14 4 9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 14 17 17.5 12 21z"/></svg></span><span class="ri-lb">Inter · Social selling</span></a>
+    <a class="rail-item" href="#i-contenido" data-sec="i-contenido" title="Intermedio · contenido en LinkedIn"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 12h8M8 16h5"/></svg></span><span class="ri-lb">Inter · Contenido</span></a>
+    <a class="rail-item" href="#p-ia" data-sec="p-ia" title="PRO · prospección asistida por IA"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 9h.01M15 9h.01M9 14c1 1 5 1 6 0"/><path d="M12 2v3M2 12h3M19 12h3"/></svg></span><span class="ri-lb">PRO · IA de verdad</span></a>
+    <a class="rail-item" href="#p-senales" data-sec="p-senales" title="PRO · señales de intención"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 14l5 5M2 12a10 10 0 0 1 10-10M6 12a6 6 0 0 1 6-6"/><circle cx="12" cy="12" r="1.5"/></svg></span><span class="ri-lb">PRO · Señales</span></a>
+    <a class="rail-item" href="#p-escala" data-sec="p-escala" title="PRO · personalización a escala"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="15" width="7" height="5" rx="1"/><rect x="14" y="15" width="7" height="5" rx="1"/></svg></span><span class="ri-lb">PRO · A escala</span></a>
+    <a class="rail-item" href="#p-casos" data-sec="p-casos" title="PRO · casos de captación de partners Odoo"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3 7.8-8 9-5-1.2-8-4.5-8-9V7z"/></svg></span><span class="ri-lb">PRO · Casos Odoo</span></a>
+    <a class="rail-item" href="#practica" data-sec="practica" title="Ejercicios prácticos"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3l-6 6 3 3 6-6a4 4 0 0 0 5.3-5.3l-2.5 2.5-3-3z"/></svg></span><span class="ri-lb">Práctica</span></a>
+    <a class="rail-item" href="#recursos" data-sec="recursos" title="Libros, charlas, herramientas y perfiles"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 5v14"/></svg></span><span class="ri-lb">Recursos</span></a>
+    <a class="rail-item" href="#chuleta" data-sec="chuleta" title="La chuleta de una página"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ri-lb">Chuleta</span></a>
+    <div class="rail-sep"></div>
+    <a class="rail-item gold" href="hub.html" title="Brandooers · todos los cursos y rutas"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Brandooers</span></a>
+    <a class="rail-item" href="outbound-sales.html" title="Outbound Sales · captar clientes y partners"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg></span><span class="ri-lb">Outbound Sales</span></a>
+    <a class="rail-item" href="objeciones-partner-manager.html" title="Objeciones difíciles · Partner Manager"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4z"/></svg></span><span class="ri-lb">Objeciones</span></a>
+    <a class="rail-item" href="negociacion-partner-manager.html" title="Negociación y cierre · Partner Manager"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 6l9-3 9 3M12 3v18M6 8v7M18 8v7"/></svg></span><span class="ri-lb">Negociación</span></a>
+    <a class="rail-item" href="reclutamiento-partners.html" title="Reclutamiento de Partners · 12 módulos"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5M12 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5"/></svg></span><span class="ri-lb">Partners · 12</span></a>
+    <a class="rail-item" href="index.html" title="Ir a la formación del Coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Coach</span></a>
+  </div>
+</aside>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div style="margin-bottom:36px;display:flex;flex-direction:column;align-items:center;gap:12px">
+    <span class="brandooers-logo" style="font-size:clamp(40px,7vw,56px)">Brand<svg class="beyes" width="132" height="76" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
+    <span style="font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)">Investigación y desarrollo de expertos · para Odooers</span>
+  </div>
+  <h1>Prospección<br>y <span class="hand-accent">social selling</span> con IA</h1>
+  <p class="subtitle">De cero a llenar el pipeline para el <strong>Partner Manager de Odoo</strong>. Prospección en frío moderna, venta social en LinkedIn y uso real de herramientas de IA, aplicado a <strong>captar y activar partners</strong> del ecosistema Odoo. El método de los mejores del mundo, los guiones concretos y la tecnología que hace el trabajo pesado, sin convertirte en spam.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-silver)">3 niveles</div><div class="lab">Rookie · Intermedio · PRO</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-secondary)">Métodos reales</div><div class="lab">Blount · Ross · Roberge · Disney</div></div>
+    <div class="hero-meta-item"><div class="val" style="color:var(--odoo-gold)">Guiones y plantillas</div><div class="lab">Listos para captar partners</div></div>
+  </div>
+  <p style="margin-top:44px;font-family:'Caveat',cursive;font-size:18px;color:var(--odoo-primary);opacity:0.75">Cada método citado a su autor. Ninguna cifra inventada. Práctico desde el primer mensaje.</p>
+</section>
+
+<!-- RUTA -->
+<section id="ruta">
+  <div class="reveal">
+    <div class="section-tag">Cómo se estudia</div>
+    <h2 class="section-title">De cero a llenar el pipeline de partners</h2>
+    <p class="section-desc">Este curso está ordenado por nivel, y el orden importa: sin la mentalidad y la lista bien hechas de Rookie, las tácticas de IA de PRO solo aceleran el ruido. Cada método lleva el nombre de su autor y su libro para que puedas ir a la fuente primaria. Todo está pensado para un Partner Manager que capta consultoras y agencias para el ecosistema Odoo, pero el método es prospección y venta social B2B pura y sirve para cualquier ciclo de captación de valor.</p>
+  </div>
+  <div class="grid-3 reveal">
+    <div class="card" style="border-top:3px solid var(--odoo-silver)"><span class="lvl-pill lvl-rookie">Rookie</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Los fundamentos</h3><p style="font-size:13.5px">Qué es prospectar hoy, cómo definir tu perfil de partner ideal (ICP) y construir la lista, la mentalidad y la disciplina de la actividad, y la higiene de tu perfil de LinkedIn antes de escribir a nadie.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><span class="lvl-pill lvl-inter">Intermedio</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">Mensajes y venta social</h3><p style="font-size:13.5px">Mensajes que no parecen spam, secuencias multicanal ordenadas, social selling para aportar valor y construir autoridad, y cómo publicar contenido en LinkedIn que atrae a los partners a ti.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><span class="lvl-pill lvl-pro">PRO</span><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:4px">IA y escala</h3><p style="font-size:13.5px">Prospección asistida por IA de verdad, señales de intención, personalización a escala sin perder el toque humano, y los casos reales de captación de partners de Odoo.</p></div>
+  </div>
+  <div class="callout callout-info reveal" style="margin-top:20px"><h4>Una advertencia de calidad, por delante</h4><p>Aquí no vas a encontrar frases tipo "la personalización sube las respuestas un 300%" ni tasas de conversión de dudosa procedencia. Ese tipo de estadística circula sin fuente fiable y no la vamos a repetir. Lo que sí encontrarás son <strong>métodos verificables</strong> atribuidos a sus autores (Jeb Blount, Aaron Ross, Mark Roberge, Daniel Disney, Tim Hughes, Josh Braun, Morgan J. Ingram, Sam McKenna) y <strong>herramientas reales</strong> que existen y puedes probar. Cuando nombramos una herramienta describimos para qué sirve en general, sin inventar sus funciones ni sus precios: para el detalle exacto, ve a su web oficial, que enlazamos.</p></div>
+</section>
+
+<!-- ========================= ROOKIE ========================= -->
+
+<!-- R · QUÉ ES PROSPECTAR HOY -->
+<section id="r-que-es">
+  <div class="reveal">
+    <span class="lvl-pill lvl-rookie">Rookie · Fundamentos</span>
+    <div class="section-tag">Empecemos por lo básico</div>
+    <h2 class="section-title">Qué es prospectar hoy (y qué ha cambiado)</h2>
+    <p class="section-desc">Prospectar es el trabajo de generar, de forma proactiva, conversaciones con partners potenciales que hoy todavía no te conocen ni te han pedido nada. No es esperar a que lleguen (eso es inbound), ni cerrar a quien ya está interesado (eso es negociar). Es abrir la puerta desde cero, una y otra vez. Y es la actividad que más se evita y peor se hace, precisamente porque incomoda.</p>
+  </div>
+  <div class="grid-3 reveal" style="margin-bottom:20px">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">No es esperar a que lleguen</h3><p style="font-size:14px">El inbound (que un partner te encuentre y te escriba) es maravilloso, pero no lo controlas ni llega a la velocidad que necesitas para llenar un canal. La prospección es la palanca que sí controlas: tú decides a cuántas consultoras del ecosistema abres conversación esta semana.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">No es enviar plantillas en masa</h3><p style="font-size:14px">El error moderno más caro: disparar el mismo mensaje genérico a mil perfiles. Con partners profesionales, ese mensaje se reconoce en un segundo, no responde, y quema tu nombre y el de Odoo en un sector pequeño donde todos se conocen. Volumen sin relevancia es ruido.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-silver)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Sí es abrir conversaciones útiles</h3><p style="font-size:14px">Prospectar bien es llegar a la persona adecuada, en el momento adecuado, con un motivo que a ella le importe. No vendes en el primer mensaje: abres una conversación relevante. El objetivo del primer contacto no es cerrar; es ganarte la siguiente respuesta.</p></div>
+  </div>
+  <div class="callout callout-primary reveal"><h4>La prospección es una actividad, no un momento de inspiración</h4><p>Jeb Blount, en <em>Fanatical Prospecting</em>, defiende una idea incómoda y liberadora: los mejores comerciales no prospectan cuando les apetece ni cuando el pipeline está vacío, sino de forma constante y disciplinada, todos los días, aunque tengan trabajo. Su regla del "universo del 30 días" viene a decir que lo que llenes de actividad hoy es lo que cosecharás dentro de unas semanas; el pipeline vacío de mañana se fabrica con la pereza de hoy. Para un Partner Manager esto es literal: los partners que actives el próximo trimestre son los que empieces a tocar ahora.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="R8zDSgiW6I4" data-title="Jeb Blount · Fanatical Prospecting: The Brutal Truth About Sales Success" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/R8zDSgiW6I4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=Fanatical+Prospecting+Jeb+Blount" target="_blank" rel="noopener"><span class="bcover" data-book="Fanatical Prospecting Jeb Blount"></span><span class="blabel">Libro ↗</span></a></div></div>
+  <div class="callout callout-info reveal" style="margin-top:16px"><h4>Por qué esto es crítico para un Partner Manager</h4><p>Tu trabajo no es cerrar una venta y desaparecer: es llenar y sostener un canal de partners que tarda en madurar. Una consultora que hoy dice "ahora no" puede ser tu mejor partner dentro de un año. Eso convierte la prospección en un juego de constancia y relación, no de golpes de suerte. Quien prospecta poco y a lo loco vive de picos y valles; quien prospecta de forma sistemática y relevante construye un flujo predecible de conversaciones con partners. Este curso te da las dos cosas: el sistema y el guion.</p></div>
+</section>
+
+<!-- R · ICP Y LISTA -->
+<section id="r-icp">
+  <div class="reveal">
+    <span class="lvl-pill lvl-rookie">Rookie · Fundamentos</span>
+    <div class="section-tag">A quién, antes que qué decir</div>
+    <h2 class="section-title">Tu partner ideal (ICP) y la lista</h2>
+    <p class="section-desc">El mensaje perfecto enviado a la persona equivocada no sirve para nada. Antes de escribir una sola palabra, la pregunta es a quién. Definir tu perfil de partner ideal (ICP, por sus siglas en inglés) y construir una buena lista es, con diferencia, lo que más rendimiento da por hora invertida. Es aburrido, no se ve, y es donde se gana la prospección.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="note-card"><div class="note-title">ICP · el partner que sí encaja</div><p style="font-size:13.5px">No todas las consultoras son buen partner de Odoo. Tu ICP es el retrato del que encaja de verdad: por sector que atiende, tamaño, base de clientes pyme, apetito de crecer, capacidad técnica, ausencia de un ERP competidor ya casado. Escribir este retrato hace que dejes de perseguir a todo el mundo y empieces a perseguir al adecuado.</p></div>
+    <div class="note-card"><div class="note-title">Lista · nombres y personas concretas</div><p style="font-size:13.5px">La lista es tu ICP convertido en filas: empresas concretas y, dentro de cada una, la persona con la que hay que hablar (socio, director, responsable de nuevas líneas de negocio). Sin lista, la actividad no se puede medir ni sostener. Con lista, la prospección se convierte en un proceso, no en una inspiración.</p></div>
+  </div>
+  <div class="callout callout-primary reveal"><h4>Prospección predecible: el sistema por encima del héroe</h4><p>Aaron Ross, en <em>Predictable Revenue</em>, popularizó la idea de que el crecimiento comercial deja de depender de "cracks" individuales cuando se convierte en un proceso repetible: definir un mercado objetivo claro, separar la función de abrir conversaciones de la de cerrarlas, y trabajar la lista de forma sistemática. Para un Partner Manager, la lección es directa: no dependas de tu memoria ni de tu carisma; ten un ICP escrito, una lista viva y una rutina. Un canal se construye con sistema, no con arranques heroicos.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="57pYR9Ydigo" data-title="Aaron Ross · Predictable Revenue on Outbound" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/57pYR9Ydigo/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=Predictable+Revenue+Aaron+Ross" target="_blank" rel="noopener"><span class="bcover" data-book="Predictable Revenue Aaron Ross"></span><span class="blabel">Libro ↗</span></a></div></div>
+  <div class="card reveal" style="border-top:3px solid var(--odoo-primary);margin-top:16px">
+    <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:10px">Cómo construir tu ICP de partner Odoo (checklist)</h3>
+    <ol class="steps">
+      <li><strong>Qué sectores atiende</strong> Consultoras y agencias que ya trabajan con pymes de sectores donde Odoo encaja bien. Un partner que ya conoce el dolor de sus clientes vende mejor.</li>
+      <li><strong>Qué tamaño y estructura</strong> Con capacidad técnica para implantar, pero con hambre de crecer. Ni tan grandes que Odoo sea marginal para ellos, ni tan pequeños que no puedan sostener un proyecto.</li>
+      <li><strong>Qué señales de encaje</strong> Que ya hagan servicios digitales, integraciones o consultoría de procesos; que no estén ya profundamente casados con un ERP competidor; que muestren interés por ampliar oferta.</li>
+      <li><strong>Quién es la persona</strong> Dentro de cada empresa, quién decide sobre nuevas líneas de negocio o alianzas: normalmente un socio, un director general o un responsable de desarrollo de negocio.</li>
+      <li><strong>Qué NO es tu ICP</strong> Igual de importante: escribe a quién descartas (freelance sin equipo, empresa sin base de clientes pyme, partner ya comprometido con un competidor directo). Descartar rápido te ahorra semanas.</li>
+    </ol>
+  </div>
+  <div class="callout callout-warm reveal" style="margin-top:16px"><h4>De dónde salen los nombres (sin inventar datos)</h4><p>Para construir la lista, las fuentes legítimas son: directorios profesionales, LinkedIn y su buscador avanzado, asociaciones sectoriales, tu propia red y las referencias de partners actuales. Herramientas como <strong>LinkedIn Sales Navigator</strong> o bases de datos B2B como <strong>Apollo.io</strong> te ayudan a filtrar por sector, tamaño y cargo. Una regla de oro: verifica siempre antes de escribir. No des por buenos datos que no has comprobado, y trabaja solo con datos de contacto profesionales. Más sobre la parte legal de esto al final, en la sección de recursos.</p></div>
+</section>
+
+<!-- R · MENTALIDAD -->
+<section id="r-mentalidad">
+  <div class="reveal">
+    <span class="lvl-pill lvl-rookie">Rookie · Fundamentos</span>
+    <div class="section-tag">La cabeza antes que la táctica</div>
+    <h2 class="section-title">Mentalidad y disciplina de la actividad</h2>
+    <p class="section-desc">La mayoría de la gente no prospecta poco por falta de técnica, sino por miedo al rechazo y por falta de rutina. Prospectar duele un poco cada día: por eso se pospone. La buena noticia es que la incomodidad se domestica con dos cosas: una mentalidad que no se lo toma como algo personal, y un ritmo protegido en la agenda. Sin esto, ningún guion funciona.</p>
+  </div>
+  <div class="compare reveal" style="margin-bottom:16px">
+    <div class="col yes"><h4>Mentalidad que llena el pipeline</h4><ul>
+      <li>Bloqueo tiempo de prospección en la agenda y lo respeto como una reunión.</li>
+      <li>Mido mi actividad (contactos abiertos), no solo mis resultados.</li>
+      <li>Un "no" es información, no un juicio sobre mí. Sigo con el siguiente.</li>
+      <li>Prospecto también cuando estoy ocupado; el pipeline no espera.</li>
+      <li>Mi objetivo del primer mensaje es la respuesta, no el cierre.</li>
+    </ul></div>
+    <div class="col no"><h4>Mentalidad que vacía el pipeline</h4><ul>
+      <li>Prospecto solo cuando el pipeline ya está vacío (tarde).</li>
+      <li>Espero a tener "el mensaje perfecto" para empezar.</li>
+      <li>Cada silencio o "no" me desanima y freno.</li>
+      <li>Cuando tengo trabajo, dejo de abrir conversaciones nuevas.</li>
+      <li>Quiero cerrar en el primer mensaje y sueno a vendedor desesperado.</li>
+    </ul></div>
+  </div>
+  <div class="grid-2 reveal">
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Prospectar con la mente desapegada</h3><p style="font-size:14px">Josh Braun habla del "detached mindset": ir a la conversación sin necesitar el sí, con curiosidad genuina por si hay o no hay encaje. Paradójicamente, quien no necesita cerrar cae mejor y cierra más, porque no presiona. Para un Partner Manager es liberador: no persigues, exploras si esta consultora y Odoo se hacen bien el uno al otro. Si no hay encaje, mejor saberlo pronto.</p>
+    <div class="rsrc-media"><button class="vthumb" data-yt="9cKZVyAQ3mY" data-title="Josh Braun · cómo superar la resistencia del prospecto (4T framework)" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/9cKZVyAQ3mY/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button></div></div>
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Mide lo que sí controlas</h3><p style="font-size:14px">No controlas quién responde hoy, pero sí controlas cuántas conversaciones abres. Mark Roberge, en <em>The Sales Acceleration Formula</em>, defiende gestionar la venta con datos y proceso, no con corazonadas. Aplicado a ti: define un número semanal de nuevos partners contactados y mídelo. La actividad es la causa; los partners activados, el efecto. Cuida la causa y el efecto llega.</p></div>
+  </div>
+  <div class="exercise reveal" style="margin-top:16px"><div class="ex-tag">Ejercicio Rookie</div><h4>El bloque sagrado de prospección</h4><ol>
+    <li>Reserva en tu agenda un bloque diario fijo (por ejemplo, la primera hora de la mañana) solo para abrir conversaciones nuevas con partners.</li>
+    <li>Durante dos semanas, protégelo como si fuera una reunión con tu jefe: no lo mueves por correos ni por urgencias.</li>
+    <li>Apunta cada día cuántas conversaciones nuevas abriste. No mires aún los resultados; mira solo la constancia.</li>
+    <li>Al final de las dos semanas verás dos cosas: que la actividad constante es un hábito, no un talento, y que el pipeline empieza a moverse solo por haberlo alimentado a diario.</li>
+  </ol></div>
+</section>
+
+<!-- R · PERFIL LINKEDIN -->
+<section id="r-perfil">
+  <div class="reveal">
+    <span class="lvl-pill lvl-rookie">Rookie · Fundamentos</span>
+    <div class="section-tag">Tu escaparate antes del primer mensaje</div>
+    <h2 class="section-title">Higiene del perfil de LinkedIn</h2>
+    <p class="section-desc">Cuando escribes a un partner, lo primero que hace es mirar tu perfil. Si tu perfil parece un currículum de alguien que busca trabajo, o está vacío, o grita "vendedor", pierdes la conversación antes de empezarla. En venta social, tu perfil no es tu CV: es tu página de aterrizaje. Arreglarlo es lo más barato y rentable que puedes hacer esta semana.</p>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>Un perfil orientado al partner, no a ti</h4><p>Daniel Disney, en <em>The Ultimate LinkedIn Sales Guide</em>, insiste en que un perfil de venta social debe estar escrito para el cliente, no para el reclutador: en vez de listar tus cargos y logros, debe dejar claro a quién ayudas y con qué. La misma idea aparece en Tim Hughes (<em>Social Selling</em>), que habla de un perfil "buyer-centric": la foto, el titular y el "acerca de" deben responder, en tres segundos, a la pregunta silenciosa del partner: "¿por qué debería hablar contigo?". Si tu perfil solo habla de ti, la respuesta es "no lo sé", y no responde.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="6suDd1encvk" data-title="Daniel Disney · The Ultimate LinkedIn Sales Guide (Salesman Podcast)" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/6suDd1encvk/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=The+Ultimate+LinkedIn+Sales+Guide+Daniel+Disney" target="_blank" rel="noopener"><span class="bcover" data-book="The Ultimate LinkedIn Sales Guide Daniel Disney"></span><span class="blabel">Libro ↗</span></a></div></div>
+  <div class="grid-2 reveal" style="margin-bottom:16px">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Lo que sí debe verse arriba</h3>
+      <ul class="pillar-items" style="font-size:13.5px;margin-top:4px">
+        <li>Foto profesional, cercana y actual. La cara, no un logo.</li>
+        <li>Titular que diga a quién ayudas: no "Partner Manager en...", sino qué haces por las consultoras del ecosistema.</li>
+        <li>Foto de portada que refuerce el mensaje (ecosistema, partners, crecimiento).</li>
+        <li>"Acerca de" en primera persona, orientado al partner y a su interés.</li>
+      </ul></div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Lo que aleja al partner</h3>
+      <ul class="pillar-items" style="font-size:13.5px;margin-top:4px">
+        <li>Perfil vacío o a medias: transmite descuido y desconfianza.</li>
+        <li>Titular tipo currículum, centrado en ti y no en él.</li>
+        <li>Cero actividad: nunca has publicado ni comentado nada.</li>
+        <li>Mensaje de conexión automático que grita "voy a venderte algo".</li>
+      </ul></div>
+  </div>
+  <div class="callout callout-info reveal"><h4>El perfil es el paso cero de la venta social</h4><p>No tiene sentido invertir horas en escribir mensajes brillantes si el perfil al que van a mirar los desmiente. Arregla el escaparate primero. Y ojo: un perfil cuidado no es maquillaje, es coherencia. Si dices que ayudas a las consultoras a crecer con Odoo, tu actividad (lo que publicas y comentas, que veremos en el nivel Intermedio) debe demostrarlo. El perfil abre la puerta; el contenido y los mensajes la cruzan.</p></div>
+</section>
+
+<!-- ========================= INTERMEDIO ========================= -->
+
+<!-- I · MENSAJES -->
+<section id="i-mensajes">
+  <div class="reveal">
+    <span class="lvl-pill lvl-inter">Intermedio · Método</span>
+    <div class="section-tag">Escribir para que respondan</div>
+    <h2 class="section-title">Mensajes que no parecen spam</h2>
+    <p class="section-desc">El primer mensaje se juega en los primeros segundos de lectura. Si huele a plantilla, a "estimado" genérico o a que no sabes con quién hablas, no responde. Un buen primer mensaje es corto, relevante para esa persona en concreto, y no pide cerrar nada: pide una conversación. Aquí es donde la técnica separa el ruido de la respuesta.</p>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>"Show Me You Know Me": demuestra que has hecho los deberes</h4><p>Sam McKenna resume el antídoto contra el spam en una frase, "Show Me You Know Me" (demuéstrame que me conoces): antes de pedir nada, muestra que sabes quién es esa persona y su empresa. No es adular; es abrir con una observación concreta y verdadera sobre su negocio, su publicación reciente o su sector, que ningún envío masivo podría contener. Ese detalle real es la diferencia entre "otro más" y "este se lo ha currado". La personalización genuina y basada en investigación gana casi siempre a la plantilla enviada en volumen.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="IfxqQWdMDYI" data-title="Sam McKenna · Show Me You Know Me: personalización en la prospección" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/IfxqQWdMDYI/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button></div></div>
+  <div class="grid-2 reveal" style="margin-bottom:16px">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">La anatomía de un buen primer mensaje</h3>
+      <ul class="pillar-items" style="font-size:13.5px;margin-top:4px">
+        <li><strong>Gancho relevante</strong>: algo concreto y verdadero sobre su empresa o su sector.</li>
+        <li><strong>Puente</strong>: por qué eso te lleva a escribirle a él en particular.</li>
+        <li><strong>Valor o motivo</strong>: qué hay para él, no para ti.</li>
+        <li><strong>Micro-petición</strong>: una pregunta fácil de responder, no "¿tienes 30 minutos?".</li>
+      </ul></div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Señales de que tu mensaje es spam</h3>
+      <ul class="pillar-items" style="font-size:13.5px;margin-top:4px">
+        <li>Habla de ti y de tu producto desde la primera línea.</li>
+        <li>Podría enviarse igual a cualquiera (cero personalización real).</li>
+        <li>Pide una reunión larga antes de haber aportado nada.</li>
+        <li>Usa jerga vacía ("sinergias", "soluciones a medida") y párrafos largos.</li>
+      </ul></div>
+  </div>
+  <div class="tmpl reveal">
+    <div class="tmpl-h">Plantilla · primer mensaje a un partner potencial (LinkedIn)</div>
+    <p>Hola <span class="var">[nombre]</span>, he visto que en <span class="var">[empresa]</span> lleváis años haciendo <span class="var">[servicio concreto que ya prestan]</span> para pymes de <span class="var">[sector]</span>. Justo por ese perfil de cliente te escribo.</p>
+    <p>Trabajo con consultoras como la vuestra que quieren añadir una línea de ERP sin partir de cero, y me ha parecido que podríais encajar bien en el ecosistema Odoo por el tipo de proyectos que ya hacéis.</p>
+    <p>No busco venderte nada por mensaje: solo saber si es algo que os habéis planteado. ¿Es un tema que os interese explorar o lo tenéis descartado por ahora?</p>
+    <div class="source" style="border-top:1px dashed var(--border-light)">Notas: rellena los corchetes con datos reales verificados de esa consultora. Si no puedes personalizar el gancho de verdad, no envíes: busca otro contacto donde sí puedas. La micro-petición final es fácil de contestar incluso con un "no".</div>
+  </div>
+  <div class="callout callout-warm reveal"><h4>Baja la resistencia, no la subas</h4><p>Josh Braun enseña a abrir sin disparar las defensas: en vez de afirmar que tienes la solución a un problema que el otro no ha reconocido, planteas una posibilidad y le dejas la salida abierta ("puede que esto no aplique a vuestro caso, pero..."). Ese permiso para decir que no, paradójicamente, hace que más gente diga que sí a seguir hablando. Con partners profesionales, que odian que les vendan, esta pinza (relevancia real + cero presión) es especialmente potente. El primer mensaje no cierra: gana el derecho al segundo.</p></div>
+</section>
+
+<!-- I · SECUENCIAS MULTICANAL -->
+<section id="i-secuencias">
+  <div class="reveal">
+    <span class="lvl-pill lvl-inter">Intermedio · Método</span>
+    <div class="section-tag">Un toque no basta</div>
+    <h2 class="section-title">Secuencias multicanal</h2>
+    <p class="section-desc">Casi nadie responde al primer mensaje, y eso no significa que no haya interés: significa que estaban ocupados. La prospección seria es una secuencia planificada de varios contactos, por varios canales, a lo largo del tiempo. No es acosar: es estar presente de forma útil y espaciada hasta que sea buen momento para el otro. La clave es la cadencia y la variedad, no la insistencia bruta.</p>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>Varios canales, un solo hilo</h4><p>Jeb Blount habla de un enfoque de prospección equilibrado que combina varios canales (teléfono, email, redes sociales, referencias) en lugar de fiarlo todo a uno. La idea no es repetir el mismo mensaje en cinco sitios, sino tejer un mismo hilo de conversación por distintos medios: un mensaje en LinkedIn, un email con más contexto, un comentario genuino en una publicación suya, quizá una llamada si procede. Cada toque añade algo; ninguno es un simple "¿lo has visto?". Para un canal de partners, donde la decisión madura despacio, la secuencia multicanal es lo que te mantiene presente sin quemarte.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="Fm0IjDlIOsw" data-title="Jeb Blount · Gets Real About Fanatical Prospecting" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/Fm0IjDlIOsw/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button></div></div>
+  <div class="reveal">
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-when hand" style="color:var(--odoo-secondary)">Día 1</div><h4>Conexión + primer mensaje en LinkedIn</h4><div class="row">Solicitud de conexión con una nota breve y personalizada (el gancho relevante). Si acepta, envías el primer mensaje de la plantilla. Objetivo: abrir el hilo.</div></div>
+    <div class="tl-item"><div class="tl-when hand" style="color:var(--odoo-secondary)">Día 3-4</div><h4>Valor sin pedir nada</h4><div class="row">Un comentario genuino en una publicación suya, o compartir un recurso útil para su negocio (una guía, un caso). No mencionas Odoo. Solo demuestras que aportas.</div></div>
+    <div class="tl-item"><div class="tl-when hand" style="color:var(--odoo-secondary)">Día 6-7</div><h4>Email con más contexto</h4><div class="row">Si tienes su email profesional, un correo corto que retoma el hilo con un motivo concreto: un ejemplo de una consultora parecida que ha crecido con Odoo, o un dato del sector. Sigues sin pedir cerrar.</div></div>
+    <div class="tl-item"><div class="tl-when hand" style="color:var(--odoo-secondary)">Día 10-12</div><h4>Segundo toque útil</h4><div class="row">Un nuevo ángulo, no un recordatorio. "Se me ocurrió otra cosa por la que podríais encajar bien..." La variedad mantiene el interés; la repetición lo mata.</div></div>
+    <div class="tl-item hot"><div class="tl-when hand" style="color:var(--odoo-learning)">Día 14-16</div><h4>Cierre elegante de la secuencia</h4><div class="row">Si no hay respuesta, un mensaje de "cierre por ahora": das por hecho que no es el momento, dejas la puerta abierta y paras. Sin reproches. En un canal pequeño, cómo cierras importa tanto como cómo abres.</div></div>
+  </div>
+  </div>
+  <div class="callout callout-info reveal"><h4>Cadencia: constancia sin acoso</h4><p>Una secuencia es un plan, no una obligación de disparar pase lo que pase. Si el partner responde en cualquier momento, sales de la secuencia y pasas a conversación real. Si te pide parar, paras y lo respetas (además de ser buena educación, es lo correcto en prospección B2B: ver la nota legal en Recursos). Y si simplemente calla, cierras con elegancia y lo guardas para un futuro contacto. El arte está en el equilibrio: suficientes toques para no rendirte a la primera, suficiente espacio para no convertirte en el que satura la bandeja.</p></div>
+</section>
+
+<!-- I · SOCIAL SELLING -->
+<section id="i-social-selling">
+  <div class="reveal">
+    <span class="lvl-pill lvl-inter">Intermedio · Venta social</span>
+    <div class="section-tag">Que vengan a ti</div>
+    <h2 class="section-title">Social selling: aportar valor y construir autoridad</h2>
+    <p class="section-desc">La prospección en frío abre puertas de una en una. El social selling hace algo distinto y complementario: construye una reputación que hace que las puertas se abran solas. No es publicar por publicar; es estar presente de forma útil en el sitio donde están tus partners, aportando valor hasta que, cuando llegas a ellos, ya te conocen. Es el trabajo largo que hace que el frío sea menos frío.</p>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>Social selling no es vender en redes: es construir confianza en redes</h4><p>Tim Hughes, uno de los pioneros del social selling y coautor de <em>Social Selling: Techniques to Influence Buyers and Changemakers</em>, lo define como usar las redes profesionales para construir relaciones y autoridad, no como un canal más para lanzar anuncios. Su receta para atraer es un trío: un perfil orientado al comprador, una red bien construida en tu sector, y contenido que aporte valor. La venta social no reemplaza a la prospección; la potencia. Cuando publicas cosas útiles para las consultoras de tu ecosistema, tu siguiente mensaje en frío ya no llega de un desconocido, sino de alguien a quien han visto aportar.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="FWDLl53DQoQ" data-title="Tim Hughes · A Guide to Social Selling" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/FWDLl53DQoQ/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=Social+Selling+Tim+Hughes+Matt+Reynolds" target="_blank" rel="noopener"><span class="bcover" data-book="Social Selling Tim Hughes Matt Reynolds"></span><span class="blabel">Libro ↗</span></a></div></div>
+  <div class="grid-3 reveal" style="margin-bottom:16px">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Aporta antes de pedir</h3><p style="font-size:14px">Comenta con criterio las publicaciones de las consultoras de tu ICP, comparte recursos que les sirvan, responde sus dudas en abierto. Cada interacción útil es un depósito en la cuenta de confianza. Cuando pidas algo, el saldo estará a tu favor.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-primary)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Construye tu red a propósito</h3><p style="font-size:14px">No conectes con cualquiera: teje una red densa en tu sector (partners actuales y potenciales, gente del ecosistema Odoo, referentes de consultoría pyme). Una red relevante hace que tu contenido llegue a quien importa y que las presentaciones cálidas sean posibles.</p></div>
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:6px">Sé una cara, no un logo</h3><p style="font-size:14px">La gente confía en personas, no en cuentas corporativas. Publica desde tu perfil personal, con tu criterio y tu tono. Un Partner Manager con voz propia y reconocible atrae más partners que cualquier cuenta de marca. Tu nombre es tu activo.</p></div>
+  </div>
+  <div class="callout callout-info reveal"><h4>El equilibrio que lo hace sostenible</h4><p>El social selling es un juego de largo plazo: no da resultados la primera semana y por eso mucha gente lo abandona. La forma de sostenerlo es hacerlo pequeño y constante, no grande y esporádico. Unos minutos al día comentando e interactuando con criterio valen más que una ráfaga de actividad una vez al mes. Y siempre desde la utilidad: si cada interacción tuya aporta algo a la consultora, construyes autoridad; si cada interacción es un intento de venta camuflado, construyes rechazo. La autoridad se gana aportando, no pidiendo.</p></div>
+</section>
+
+<!-- I · CONTENIDO -->
+<section id="i-contenido">
+  <div class="reveal">
+    <span class="lvl-pill lvl-inter">Intermedio · Contenido</span>
+    <div class="section-tag">Publicar para atraer partners</div>
+    <h2 class="section-title">Contenido en LinkedIn</h2>
+    <p class="section-desc">El contenido es la parte del social selling que trabaja mientras duermes. Una buena publicación te presenta ante cientos de personas de tu sector sin que tengas que escribir a cada una. No se trata de volverte un influencer ni de publicar todos los días: se trata de aparecer con regularidad diciendo cosas útiles para las consultoras que quieres captar, hasta que tu nombre les suene y tu criterio les importe.</p>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>El contenido genera conversaciones, no aplausos</h4><p>Daniel Disney insiste en que el objetivo del contenido en venta social no son los "me gusta", sino las conversaciones que abre: un comentario que se convierte en mensaje privado, una consultora que te escribe porque tu publicación le resonó. Publicar sobre los problemas reales de tu ICP (los retos de crecer una consultora, de añadir una línea de producto, de captar clientes pyme) hace que la gente adecuada se identifique y te escriba. El contenido bueno no busca gustar a todos; busca que la persona correcta piense "esto me pasa a mí" y dé el paso.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="oIcMVQnuGxM" data-title="Daniel Disney · LinkedIn Content for Salespeople (Sales Gravy Podcast)" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/oIcMVQnuGxM/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=The+Ultimate+LinkedIn+Sales+Guide+Daniel+Disney" target="_blank" rel="noopener"><span class="bcover" data-book="The Ultimate LinkedIn Sales Guide Daniel Disney"></span><span class="blabel">Libro ↗</span></a></div></div>
+  <div class="card reveal" style="border-top:3px solid var(--odoo-primary);margin-bottom:16px">
+    <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:10px">Qué publicar cuando captas partners de Odoo (sin quedarte en blanco)</h3>
+    <ol class="steps">
+      <li><strong>Historias de encaje</strong> Sin datos inventados: relatos reales (con permiso) de cómo una consultora amplió su oferta, contados por el valor y el aprendizaje, no por cifras que no puedas probar.</li>
+      <li><strong>Educación sobre el modelo de canal</strong> Explica cómo funciona ser partner, qué implica, qué dudas suele tener quien se lo plantea. Educar posiciona como autoridad y filtra a los interesados.</li>
+      <li><strong>El punto de vista del ecosistema</strong> Comparte tu lectura del mercado pyme, de la digitalización, de por qué una consultora debería ampliar su cartera. Opinión con criterio, no folleto.</li>
+      <li><strong>Detrás de la cortina</strong> Muestra cómo trabajas, qué has aprendido acompañando a partners, errores que has visto. La cercanía y la honestidad construyen confianza mejor que la perfección.</li>
+      <li><strong>Preguntas al ecosistema</strong> Publicaciones que invitan a responder ("¿qué frena a una consultora a añadir un ERP a su oferta?"). Las conversaciones en comentarios son oro de prospección.</li>
+    </ol>
+  </div>
+  <div class="callout callout-warm reveal"><h4>Regularidad por encima de perfección</h4><p>Más vale publicar algo útil una o dos veces por semana de forma sostenida que hacer una obra maestra una vez cada tres meses. La constancia es lo que construye reconocimiento. Escribe en tu voz, en primera persona, sin jerga corporativa; la gente conecta con personas que suenan a personas. Y una regla de oro que atraviesa todo este curso: si vas a contar un caso o un dato, que sea real y verificable. Un número inventado en una publicación puede darte un pico de atención y costarte la credibilidad para siempre en un sector donde todos se conocen.</p></div>
+</section>
+
+<!-- ========================= PRO ========================= -->
+
+<!-- P · IA DE VERDAD -->
+<section id="p-ia">
+  <div class="reveal">
+    <span class="lvl-pill lvl-pro">PRO · Prospección con IA</span>
+    <div class="section-tag">La tecnología que hace el trabajo pesado</div>
+    <h2 class="section-title">Prospección asistida por IA de verdad</h2>
+    <p class="section-desc">La IA no sustituye al Partner Manager: sustituye las horas muertas. Bien usada, se ocupa de lo repetitivo (buscar, ordenar, redactar borradores, priorizar) y te deja a ti lo que solo tú puedes hacer: el criterio, la relación y la conversación. Mal usada, es una fábrica de spam personalizado a máquina que quema tu reputación más rápido que nunca. La diferencia está en usarla como copiloto, no como piloto automático.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="card" style="border-top:3px solid var(--odoo-ready)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Lo que la IA sí debe hacer</h3>
+      <ul class="pillar-items" style="font-size:13.5px;margin-top:4px">
+        <li>Encontrar y filtrar empresas que encajan con tu ICP.</li>
+        <li>Resumir el negocio de una consultora antes de escribirle.</li>
+        <li>Proponer borradores de mensaje que tú revisas y personalizas.</li>
+        <li>Priorizar tu lista por señales de encaje e intención.</li>
+        <li>Darte feedback sobre el tono de tu mensaje antes de enviarlo.</li>
+      </ul></div>
+    <div class="card" style="border-top:3px solid var(--odoo-learning)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Lo que la IA no debe hacer sola</h3>
+      <ul class="pillar-items" style="font-size:13.5px;margin-top:4px">
+        <li>Enviar mensajes sin que un humano los lea antes.</li>
+        <li>Inventar datos de la consultora para "personalizar".</li>
+        <li>Disparar volumen masivo automatizado (spam a escala).</li>
+        <li>Sustituir tu criterio sobre si hay encaje o no.</li>
+        <li>Tener la conversación por ti cuando el partner responde.</li>
+      </ul></div>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>El principio que ordena todo el uso de IA</h4><p>Mark Roberge defiende una venta guiada por datos y proceso: la tecnología está para hacer la venta más consistente y medible, no para reemplazar el juicio. Aplicado a la IA en prospección, el principio es este: la máquina amplifica lo que tú ya haces bien y amplifica también lo que haces mal. Si tu proceso es relevante y honesto, la IA lo hace más rápido y más escalable. Si tu proceso es spam genérico, la IA lo convierte en spam genérico a mayor velocidad. Por eso los niveles Rookie e Intermedio van antes: la IA es un multiplicador, y multiplicar por cero da cero.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="RG_eyn0fRXs" data-title="Mark Roberge · The Sales Acceleration Formula (Talks at Google)" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/RG_eyn0fRXs/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button><a class="bthumb" href="https://www.amazon.es/s?k=The+Sales+Acceleration+Formula+Mark+Roberge" target="_blank" rel="noopener"><span class="bcover" data-book="The Sales Acceleration Formula Mark Roberge"></span><span class="blabel">Libro ↗</span></a></div></div>
+  <div class="card reveal" style="border-top:3px solid var(--odoo-primary)">
+    <span class="tag-pill" style="background:rgba(139,92,246,.12);color:var(--odoo-primary)">Herramientas reales</span>
+    <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:4px">El stack de prospección y venta social (todas existen)</h3>
+    <p style="font-size:13.5px;margin-bottom:12px">Estas herramientas existen y se usan en equipos comerciales reales. Aquí describimos, de forma general, para qué sirve cada categoría; no inventamos sus funciones concretas ni sus precios, que cambian. Para el detalle exacto y las condiciones, ve a la web oficial de cada una (enlaces en Recursos). Úsalas siempre respetando la ley y las buenas prácticas de la nota legal.</p>
+    <div class="grid-2" style="gap:12px">
+      <div class="note-card"><p style="font-size:13px"><strong>Buscar y construir la lista</strong><br><strong>LinkedIn Sales Navigator</strong> (buscador avanzado dentro de LinkedIn) y <strong>Apollo.io</strong> (base de datos B2B) ayudan a filtrar empresas y personas por sector, tamaño y cargo, y a construir tu lista de partners potenciales.</p></div>
+      <div class="note-card"><p style="font-size:13px"><strong>Enriquecer y automatizar datos</strong><br><strong>Clay</strong> es una plataforma para reunir y enriquecer datos de tus listas desde varias fuentes y orquestar flujos de investigación. Potente para preparar la información antes de personalizar.</p></div>
+      <div class="note-card"><p style="font-size:13px"><strong>Mejorar el mensaje</strong><br><strong>Lavender</strong> es un asistente de escritura de correos de ventas que da feedback sobre tus emails. <strong>Taplio</strong> es una herramienta orientada a crear y programar contenido en LinkedIn.</p></div>
+      <div class="note-card"><p style="font-size:13px"><strong>Enviar secuencias de email</strong><br><strong>Instantly</strong> y <strong>Smartlead</strong> son plataformas de envío de secuencias de correo en frío. Úsalas con cabeza: la capacidad de enviar mucho no autoriza a hacer spam ni te exime de la ley.</p></div>
+    </div>
+    <div class="source"><a class="rsrc" href="https://business.linkedin.com/sales-solutions/sales-navigator" target="_blank" rel="noopener">Sales Navigator</a><a class="rsrc" href="https://www.apollo.io/" target="_blank" rel="noopener">Apollo.io</a><a class="rsrc" href="https://www.clay.com/" target="_blank" rel="noopener">Clay</a><a class="rsrc" href="https://www.lavender.ai/" target="_blank" rel="noopener">Lavender</a><a class="rsrc" href="https://www.taplio.com/" target="_blank" rel="noopener">Taplio</a><a class="rsrc" href="https://instantly.ai/" target="_blank" rel="noopener">Instantly</a><a class="rsrc" href="https://www.smartlead.ai/" target="_blank" rel="noopener">Smartlead</a></div>
+  </div>
+</section>
+
+<!-- P · SEÑALES DE INTENCIÓN -->
+<section id="p-senales">
+  <div class="reveal">
+    <span class="lvl-pill lvl-pro">PRO · Timing</span>
+    <div class="section-tag">A quién escribir primero</div>
+    <h2 class="section-title">Señales de intención</h2>
+    <p class="section-desc">No todos los partners de tu lista están igual de listos para hablar hoy. Una señal de intención es cualquier indicio público de que una consultora está en un momento en el que tu mensaje encaja: crecen, contratan, cambian de rumbo, buscan ampliar servicios. Escribir cuando hay señal, en vez de al azar, multiplica la relevancia. Es la diferencia entre llegar en buen momento y llegar por casualidad.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="card" style="border-top:3px solid var(--odoo-secondary)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Señales que suelen indicar buen momento</h3>
+      <ul class="pillar-items" style="font-size:13.5px;margin-top:4px">
+        <li>La consultora contrata perfiles técnicos o comerciales (crece).</li>
+        <li>Publican que amplían servicios o entran en un sector nuevo.</li>
+        <li>Un socio comenta o publica sobre digitalización, ERP o eficiencia.</li>
+        <li>Han ganado clientes pyme que encajan con lo que Odoo resuelve.</li>
+        <li>Interactúan con tu contenido o con el del ecosistema Odoo.</li>
+      </ul></div>
+    <div class="card" style="border-top:3px solid var(--odoo-gold)"><h3 style="font-size:17px;color:var(--text-dark);margin-bottom:6px">Cómo usar la señal en el mensaje</h3><p style="font-size:14px">La señal no es solo para elegir a quién escribir; es también el gancho del mensaje. "He visto que estáis contratando desarrolladores, imagino que con más volumen de proyectos" o "Vi tu publicación sobre digitalizar pymes" convierten un mensaje frío en uno que llega justo a propósito. La señal da relevancia y explica, sin que tengas que forzarlo, por qué escribes ahora y no hace seis meses.</p></div>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>El vídeo y el toque humano cuando la señal es fuerte</h4><p>Morgan J. Ingram es conocido por defender el uso de vídeos cortos y personalizados en la prospección: cuando una señal es clara y el partner merece un esfuerzo extra, un mensaje en vídeo (tu cara, treinta segundos, hablándole a él por su nombre y por su situación concreta) destaca en una bandeja llena de texto. No es para todos los contactos, sería insostenible; es para los de mayor encaje, donde el toque humano justifica el tiempo. La lección PRO: gradúa el esfuerzo según la señal. A más intención detectada, más personal y humano el toque.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="vrBXUFsn46Y" data-title="Morgan J. Ingram · usar vídeo para prospectar y conectar" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/vrBXUFsn46Y/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button></div></div>
+  <div class="callout callout-info reveal"><h4>Señal no es permiso: sigue siendo prospección</h4><p>Que una consultora esté creciendo no significa que te haya pedido nada. La señal mejora el timing y la relevancia, pero el mensaje sigue siendo un primer contacto en frío, con las mismas reglas: personalización real, cero presión, micro-petición, y respeto absoluto si te piden parar. Usa la señal para ser oportuno y útil, nunca como excusa para ser intrusivo. El buen momento del otro es una oportunidad para servir, no una ventana para atacar.</p></div>
+</section>
+
+<!-- P · A ESCALA -->
+<section id="p-escala">
+  <div class="reveal">
+    <span class="lvl-pill lvl-pro">PRO · Escala</span>
+    <div class="section-tag">Personalizar sin clonar</div>
+    <h2 class="section-title">Personalización a escala</h2>
+    <p class="section-desc">Aquí está la gran tensión de la prospección moderna: la personalización funciona pero no escala, y el volumen escala pero no funciona. La personalización a escala es el arte de resolver esa tensión sin caer en el spam personalizado a máquina. La respuesta no es elegir uno de los dos extremos; es diseñar un sistema donde la máquina prepara y el humano decide, de forma que puedas ser relevante con muchos sin ser genérico con nadie.</p>
+  </div>
+  <div class="callout callout-primary reveal" style="margin-bottom:16px"><h4>Personalización de verdad, a la velocidad de la máquina</h4><p>Sam McKenna es clara en que la personalización que funciona es la basada en investigación real ("Show Me You Know Me"), no en insertar el nombre de la empresa en una plantilla. El reto PRO es mantener esa calidad cuando trabajas muchas cuentas. La solución no es renunciar a la personalización, sino industrializar la <em>preparación</em>: que la IA reúna el contexto real de cada consultora (a qué se dedica, qué han publicado, qué señales tienen) y te lo sirva, para que tú añadas el criterio humano y el mensaje suene a persona. La máquina hace los deberes; tú escribes la nota. Así se personaliza a escala sin mentir ni clonar.</p>
+  <div class="rsrc-media"><button class="vthumb" data-yt="pzY4QlG-X5A" data-title="Sam McKenna · usar datos para personalizar tu prospección" aria-label="Ver la charla"><img loading="lazy" src="https://img.youtube.com/vi/pzY4QlG-X5A/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button></div></div>
+  <div class="card reveal" style="border-top:3px solid var(--odoo-primary);margin-bottom:16px">
+    <h3 style="font-size:18px;color:var(--text-dark);margin-bottom:10px">El flujo de personalización a escala (humano al mando)</h3>
+    <ol class="steps">
+      <li><strong>Segmenta la lista por parecido</strong> Agrupa a los partners potenciales que comparten sector, tamaño o dolor. Un ángulo bien pensado sirve para todo un segmento, no para uno solo.</li>
+      <li><strong>Deja que la IA investigue cada cuenta</strong> Que reúna el contexto real y público de cada consultora del segmento: actividad, servicios, señales. Preparación, no invención.</li>
+      <li><strong>Escribe un ángulo por segmento, no por persona</strong> Un marco de mensaje relevante para ese grupo, con huecos claros para el detalle individual verdadero.</li>
+      <li><strong>Añade el toque humano cuenta a cuenta</strong> Rellenas el gancho con el dato real de cada una y revisas que suena a persona. Este paso no se automatiza: es tu criterio.</li>
+      <li><strong>Revisa siempre antes de enviar</strong> Ningún mensaje sale sin que un humano lo haya leído. Si al leerlo piensas "esto podría ir a cualquiera", no está listo.</li>
+    </ol>
+  </div>
+  <div class="compare reveal">
+    <div class="col yes"><h4>Personalización a escala bien hecha</h4><ul>
+      <li>La IA prepara el contexto real; tú escribes el mensaje.</li>
+      <li>Cada mensaje contiene un detalle verdadero e irrepetible.</li>
+      <li>Un humano revisa todo antes de que salga.</li>
+      <li>Volumen moderado y relevante, sostenible en el tiempo.</li>
+      <li>Suena a persona porque hay una persona detrás.</li>
+    </ul></div>
+    <div class="col no"><h4>Spam personalizado a máquina</h4><ul>
+      <li>La IA escribe y envía sola, sin revisión humana.</li>
+      <li>La "personalización" es el nombre de la empresa en una plantilla.</li>
+      <li>Se inventan datos para rellenar los huecos.</li>
+      <li>Volumen masivo que satura y quema tu nombre.</li>
+      <li>Suena a robot porque lo es.</li>
+    </ul></div>
+  </div>
+  <div class="callout callout-warm reveal" style="margin-top:16px"><h4>La regla de oro: si no puedes personalizar de verdad, baja el volumen</h4><p>Cuando la personalización real y el volumen entran en conflicto, gana la personalización. Es mejor escribir a treinta consultoras bien que a trescientas mal: las treinta bien te dan conversaciones y respeto; las trescientas mal te dan bloqueos y mala fama en un sector donde tu reputación es tu activo. La IA te permite subir el listón de cuántas puedes hacer bien, no bajar el listón de qué cuenta como bien. Escala la calidad, no el ruido.</p></div>
+</section>
+
+<!-- P · CASOS ODOO -->
+<section id="p-casos">
+  <div class="reveal">
+    <span class="lvl-pill lvl-pro">PRO · Casos Odoo partners</span>
+    <div class="section-tag">El contexto real</div>
+    <h2 class="section-title">Casos de captación de partners de Odoo</h2>
+    <p class="section-desc">Estas son las situaciones de prospección que un Partner Manager de Odoo vive de verdad. Todas se resuelven con lo aprendido (ICP claro, mensaje relevante, secuencia, social selling, señales, IA como copiloto), pero con el argumento correcto del ecosistema. Y con una regla de honestidad que atraviesa todo el curso: no inventes cifras del programa ni datos de la consultora. Lo que no sabes con certeza, lo compruebas o no lo dices.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="callout callout-info"><h4>Caso · la consultora digital que aún no vende ERP</h4><p>Una agencia que hace webs, marketing o integraciones para pymes, con buena cartera pero sin línea de ERP. Encaje alto. La señal: sus clientes ya le piden más que una web. El mensaje abre por ahí ("veo que trabajáis con pymes que crecen; muchas acaban necesitando ordenar su gestión") y ofrece explorar, no cerrar. La IA te prepara el retrato de su cartera; tú escribes la nota que demuestra que la conoces.</p></div>
+    <div class="callout callout-warm"><h4>Caso · el freelance técnico con hambre de crecer</h4><p>Un consultor solo, muy bueno, que quiere dejar de vender horas y montar algo mayor. La señal: publica sobre querer escalar. El social selling manda aquí: interactúa con su contenido antes de escribirle, para que cuando llegues ya te conozca. El mensaje conecta con su ambición ("añadir una línea de producto recurrente a tu servicio"), sin prometer cifras que no puedes garantizar.</p></div>
+  </div>
+  <div class="grid-2 reveal" style="margin-bottom:18px">
+    <div class="callout callout-alert"><h4>Caso · el partner de un competidor que no está contento</h4><p>Una consultora ya casada con otro ERP pero con quejas visibles (comenta problemas, busca alternativas). Encaje posible, delicado. Aquí manda la mentalidad desapegada de Josh Braun: no ataques al competidor, abre con curiosidad ("vi tu comentario sobre X; ¿es algo que estáis replanteando?") y deja que sea el otro quien cuente su dolor. Cero presión, cero desprestigio del rival. Exploras si hay encaje, no vendes una guerra.</p></div>
+    <div class="callout callout-primary"><h4>Caso · el partner que ya te conoce por tu contenido</h4><p>El premio del social selling: una consultora que te escribe o acepta al instante porque lleva meses viéndote aportar en LinkedIn. Ya no es frío: es tibio. El mensaje aquí es más directo y humano, porque la confianza ya está construida. Este es el objetivo último de todo el curso: convertir la prospección en frío en prospección tibia gracias a la reputación que has ido sembrando.</p></div>
+  </div>
+  <div class="callout callout-primary reveal"><h4>La honestidad como técnica avanzada (y por qué las cifras van a la fuente)</h4><p>Con partners profesionales, el humo se detecta y, en un sector pequeño, se comenta. La técnica PRO definitiva es la honestidad: personaliza con datos reales, promete solo lo que puedes cumplir y, muy importante, <strong>nunca cites de memoria cifras del programa de partners de Odoo</strong> (comisiones, niveles, requisitos de certificación, condiciones). Esas condiciones las revisa Odoo periódicamente; comprometer un número inventado destruye tu credibilidad y puede meterte en un problema. En prospección esto es tentador (un dato llamativo abre puertas), pero un dato falso las cierra todas. Remite siempre a la página oficial y confirma antes de poner nada por escrito.</p>
+  <div class="source"><a class="rsrc" href="https://www.odoo.com/es_ES/page/become-a-partner" target="_blank" rel="noopener">odoo.com · become a partner</a> — fuente oficial del programa de partners. Verifica ahí las condiciones vigentes antes de usarlas en un mensaje. Estimación de referencia, no vinculante; Odoo revisa el programa periódicamente.</div></div>
+  <a class="card reveal" href="negociacion-partner-manager.html" style="margin-top:16px;text-decoration:none;display:flex;gap:18px;align-items:center;border:1px solid rgba(228,169,0,.35);background:rgba(228,169,0,.05)"><div style="flex-shrink:0;width:52px;height:52px;border-radius:14px;background:var(--odoo-gold);display:grid;place-items:center;color:#fff"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l9-3 9 3M12 3v18M6 8v7M18 8v7"/></svg></div><div><div class="tag-pill" style="background:rgba(228,169,0,.14);color:var(--odoo-gold)">Curso relacionado</div><h3 style="font-size:17px;color:var(--text-dark);margin:2px 0 3px">Prospectar abre la puerta; luego hay que cerrar bien</h3><p style="font-size:13.5px;margin:0">Cuando la prospección da fruto y hay interés real, empieza otro juego: sentar las condiciones sin regalar margen. Ve al curso <strong>Negociación y cierre avanzado · Partner Manager</strong>. <span style="color:var(--odoo-gold);font-weight:700">Abrir el curso →</span></p></div></a>
+</section>
+
+<!-- PRÁCTICA -->
+<section id="practica">
+  <div class="reveal">
+    <div class="section-tag">Ahora tú</div>
+    <h2 class="section-title">Ejercicios para llenar el pipeline de verdad</h2>
+    <p class="section-desc">La prospección se aprende prospectando, no leyendo sobre prospección. Estos ejercicios están pensados para hacerlos esta semana, con tu lista real de partners, no como teoría. El objetivo es que salgas de aquí con actividad hecha, no con apuntes bonitos.</p>
+  </div>
+  <div class="grid-2 reveal">
+    <div class="exercise"><div class="ex-tag">Ejercicio 1 · Tu ICP en una página</div><h4>Escribe tu perfil de partner ideal</h4><ol>
+      <li>Rellena la checklist del ICP: sectores, tamaño, señales de encaje, persona a la que hablar, y a quién descartas.</li>
+      <li>Coge tus tres últimos partners buenos y comprueba si encajan en tu retrato. Ajusta el retrato con lo que aprendas.</li>
+      <li>Escribe también tres perfiles que parecían encajar pero fallaron: sus rasgos comunes son tu lista de descarte.</li>
+      <li>Ese documento de una página es el filtro que a partir de ahora decide a quién dedicas tu tiempo de prospección.</li>
+    </ol></div>
+    <div class="exercise"><div class="ex-tag">Ejercicio 2 · Perfil de LinkedIn al espejo</div><h4>Reescribe tu perfil para el partner</h4><ol>
+      <li>Lee tu titular actual y pregúntate: ¿le dice a un socio de una consultora por qué debería hablar conmigo?</li>
+      <li>Reescríbelo orientado a a quién ayudas y con qué, no a tu cargo.</li>
+      <li>Reescribe tu "acerca de" en primera persona y desde el interés del partner.</li>
+      <li>Pide a un compañero que lo lea en tres segundos y te diga qué ha entendido. Si no entiende a quién ayudas, sigue sin estar bien.</li>
+    </ol></div>
+    <div class="exercise"><div class="ex-tag">Ejercicio 3 · Diez mensajes que no son spam</div><h4>Personalización de verdad</h4><ol>
+      <li>Coge diez consultoras reales de tu lista. Investiga cada una (a mano o con ayuda de IA para preparar el contexto).</li>
+      <li>Escribe un primer mensaje para cada una con la plantilla, rellenando el gancho con un dato real y verificado.</li>
+      <li>Prueba de spam: tapa el nombre de la empresa. Si el mensaje sigue teniendo sentido para cualquiera, no está personalizado; reescríbelo.</li>
+      <li>Envía solo los que pasen la prueba. Los que no puedas personalizar de verdad, cámbialos de contacto o descártalos.</li>
+    </ol></div>
+    <div class="exercise"><div class="ex-tag">Ejercicio 4 · Tu primera secuencia y tu primer contenido</div><h4>Sistema, no arranque</h4><ol>
+      <li>Diseña una secuencia de cuatro o cinco toques multicanal para uno de tus segmentos, con cadencia y variedad (no repetir el mismo mensaje).</li>
+      <li>Escribe una publicación para LinkedIn dirigida al dolor de tu ICP (por ejemplo, qué frena a una consultora a ampliar su oferta).</li>
+      <li>Publícala y dedica diez minutos al día durante una semana a comentar con criterio publicaciones de tu ICP.</li>
+      <li>Al final de la semana, mira cuántas conversaciones (no "me gusta") ha abierto. Esa es tu métrica de venta social.</li>
+    </ol></div>
+  </div>
+  <div class="callout callout-info reveal" style="margin-top:16px"><h4>Cómo medir tu mejora (sin datos inventados)</h4><p>No persigas una tasa de respuesta mágica que hayas leído por ahí; esos números circulan sin fuente y no valen. Mide tus propias métricas de proceso y compáralas contigo mismo semana a semana: cuántas conversaciones nuevas abriste, cuántas se convirtieron en una respuesta, cuántas publicaciones hiciste y cuántos mensajes privados generaron, cuántos partners pasaron de frío a tibio. La mejora real es la que ves en tu propio registro, no la que promete un titular sin fuente. Cuida la actividad y los resultados vendrán detrás.</p></div>
+</section>
+
+<!-- RECURSOS -->
+<section id="recursos">
+  <div class="reveal">
+    <div class="section-tag">Para ir más allá</div>
+    <h2 class="section-title">Biblioteca de recursos</h2>
+    <p class="section-desc">Las fuentes originales de todo lo que has visto en el curso, verificadas una a una, más las herramientas de IA reales que puedes probar. Toca una charla para verla aquí mismo; el libro abre en Amazon; la herramienta, en su web oficial. Ve siempre a la fuente primaria para el detalle: aquí no hemos repetido ninguna cifra que no puedas comprobar en el autor o en la propia herramienta.</p>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin-bottom:10px">Charlas imprescindibles</h3>
+  <div class="grid-4 reveal" id="talks">
+    <button class="vthumb" data-yt="R8zDSgiW6I4" data-title="Jeb Blount · Fanatical Prospecting: The Brutal Truth About Sales Success" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/R8zDSgiW6I4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="Fm0IjDlIOsw" data-title="Jeb Blount · Gets Real About Fanatical Prospecting" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/Fm0IjDlIOsw/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="57pYR9Ydigo" data-title="Aaron Ross · Predictable Revenue on Outbound" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/57pYR9Ydigo/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="j9ymnfLAEy8" data-title="Aaron Ross · Building an Outbound Sales Team" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/j9ymnfLAEy8/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="RG_eyn0fRXs" data-title="Mark Roberge · The Sales Acceleration Formula (Talks at Google)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/RG_eyn0fRXs/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="6suDd1encvk" data-title="Daniel Disney · The Ultimate LinkedIn Sales Guide (Salesman Podcast)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/6suDd1encvk/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="oIcMVQnuGxM" data-title="Daniel Disney · LinkedIn Content for Salespeople (Sales Gravy Podcast)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/oIcMVQnuGxM/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="FWDLl53DQoQ" data-title="Tim Hughes · A Guide to Social Selling" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/FWDLl53DQoQ/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="xzlY4NYoAnY" data-title="Tim Hughes · Revolutionizing Sales with Social Selling" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/xzlY4NYoAnY/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="9cKZVyAQ3mY" data-title="Josh Braun · superar la resistencia del prospecto (4T framework)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/9cKZVyAQ3mY/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="fwyxBrj4m-8" data-title="Josh Braun · guion exacto de llamada en frío (+ objeciones)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/fwyxBrj4m-8/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="ECKtOlCu3D8" data-title="Morgan J. Ingram · Keeping Prospecting Fun (Selling Forward 2020)" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/ECKtOlCu3D8/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="vrBXUFsn46Y" data-title="Morgan J. Ingram · usar vídeo para prospectar y conectar" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/vrBXUFsn46Y/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="IfxqQWdMDYI" data-title="Sam McKenna · Show Me You Know Me: personalización en la prospección" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/IfxqQWdMDYI/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="pzY4QlG-X5A" data-title="Sam McKenna · usar datos para personalizar tu prospección" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/pzY4QlG-X5A/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+    <button class="vthumb" data-yt="F55BnylNUq4" data-title="Sam McKenna · Show Me You Know Me: Modern Selling" aria-label="Ver charla"><img loading="lazy" src="https://img.youtube.com/vi/F55BnylNUq4/mqdefault.jpg" alt=""><span class="vplay-bg"></span></button>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin:28px 0 10px">Los libros que hay que leer</h3>
+  <div class="grid-4 reveal" id="bookshelf"></div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin:28px 0 10px">Herramientas de IA para prospección y venta social</h3>
+  <div class="callout callout-info reveal" style="margin-bottom:14px"><p>Todas existen y se usan en equipos comerciales reales. Los enlaces van a la web oficial de cada una. Describimos la categoría, no funciones ni precios concretos (cambian): para el detalle exacto y las condiciones, consulta cada web. Y úsalas siempre respetando la ley y las buenas prácticas de la nota legal de abajo.</p></div>
+  <div class="grid-3 reveal" style="align-items:start">
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Buscar y construir la lista</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://business.linkedin.com/sales-solutions/sales-navigator" target="_blank" rel="noopener">LinkedIn Sales Navigator</a> · buscador avanzado dentro de LinkedIn</li>
+      <li><a class="rsrc" href="https://www.apollo.io/" target="_blank" rel="noopener">Apollo.io</a> · base de datos B2B y prospección</li>
+      <li><a class="rsrc" href="https://www.clay.com/" target="_blank" rel="noopener">Clay</a> · reunir y enriquecer datos de tus listas</li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Escribir mejor y contenido</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://www.lavender.ai/" target="_blank" rel="noopener">Lavender</a> · asistente de escritura de emails de ventas</li>
+      <li><a class="rsrc" href="https://www.taplio.com/" target="_blank" rel="noopener">Taplio</a> · crear y programar contenido en LinkedIn</li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Enviar secuencias de email</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://instantly.ai/" target="_blank" rel="noopener">Instantly</a> · secuencias de correo en frío</li>
+      <li><a class="rsrc" href="https://www.smartlead.ai/" target="_blank" rel="noopener">Smartlead</a> · secuencias de correo en frío</li>
+    </ul></div>
+  </div>
+
+  <div class="grid-3 reveal" style="margin-top:28px;align-items:start">
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Sitios de referencia</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://www.predictablerevenue.com/" target="_blank" rel="noopener">Predictable Revenue</a> · Aaron Ross · outbound</li>
+      <li><a class="rsrc" href="https://salesgravy.com/" target="_blank" rel="noopener">Sales Gravy (Jeb Blount)</a> · prospección y venta</li>
+      <li><a class="rsrc" href="https://joshbraun.com/" target="_blank" rel="noopener">Josh Braun</a> · abrir sin disparar defensas</li>
+      <li><a class="rsrc" href="https://www.samsalesconsulting.com/showmeyouknowme/" target="_blank" rel="noopener">#samsales · Show Me You Know Me</a></li>
+      <li><a class="rsrc" href="https://dlaignite.com/" target="_blank" rel="noopener">DLA Ignite (Tim Hughes)</a> · social selling</li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Canales de YouTube</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://www.youtube.com/user/salesgravy" target="_blank" rel="noopener">Sales Gravy (Jeb Blount)</a></li>
+      <li><a class="rsrc" href="https://www.youtube.com/@JoshBraun" target="_blank" rel="noopener">Josh Braun</a></li>
+      <li><a class="rsrc" href="https://www.youtube.com/@MorganJIngram" target="_blank" rel="noopener">Morgan J. Ingram</a></li>
+    </ul></div>
+    <div class="card"><h3 style="font-size:16px;color:var(--text-dark);margin-bottom:10px">Prospección y ley (RGPD)</h3><ul class="pillar-items" style="font-size:13.5px">
+      <li><a class="rsrc" href="https://www.aepd.es/" target="_blank" rel="noopener">AEPD</a> · autoridad española de protección de datos</li>
+      <li><a class="rsrc" href="https://commission.europa.eu/law/law-topic/data-protection_en" target="_blank" rel="noopener">Comisión Europea · protección de datos</a></li>
+      <li><a class="rsrc" href="https://gdpr.eu/" target="_blank" rel="noopener">GDPR.eu</a> · guía del RGPD</li>
+    </ul></div>
+  </div>
+
+  <h3 class="reveal" style="font-size:17px;color:var(--text-dark);margin:28px 0 10px">Perfiles de los autores en LinkedIn</h3>
+  <div class="grid-4 reveal" style="gap:10px">
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/jebblount/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Jeb Blount</b><br><span style="font-size:12px;color:var(--text-muted)">Fanatical Prospecting · Sales Gravy</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/aaronross/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Aaron Ross</b><br><span style="font-size:12px;color:var(--text-muted)">Predictable Revenue</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/markroberge/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Mark Roberge</b><br><span style="font-size:12px;color:var(--text-muted)">Sales Acceleration Formula · HubSpot</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/danieldisney/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Daniel Disney</b><br><span style="font-size:12px;color:var(--text-muted)">The Ultimate LinkedIn Sales Guide</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/timothyhughessocialselling/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Tim Hughes</b><br><span style="font-size:12px;color:var(--text-muted)">Social Selling · DLA Ignite</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/josh-braun/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Josh Braun</b><br><span style="font-size:12px;color:var(--text-muted)">Sales DNA · resistencia del prospecto</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/morganjingram/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Morgan J. Ingram</b><br><span style="font-size:12px;color:var(--text-muted)">Vídeo y prospección creativa</span></a>
+    <a class="card" style="padding:14px 16px;text-decoration:none" href="https://www.linkedin.com/in/samsalesli/" target="_blank" rel="noopener"><b style="color:var(--text-dark);font-size:14px">Samantha McKenna</b><br><span style="font-size:12px;color:var(--text-muted)">#samsales · Show Me You Know Me</span></a>
+  </div>
+</section>
+
+<!-- CHULETA -->
+<section id="chuleta">
+  <div class="reveal">
+    <div class="section-tag">Para tener siempre a mano</div>
+    <h2 class="section-title">La chuleta de una página</h2>
+    <p class="section-desc">Si solo te llevas una cosa antes de tu próxima sesión de prospección, que sea esta.</p>
+  </div>
+  <div class="cheat reveal">
+    <div class="section-tag">Chuleta</div>
+    <h2 class="section-title" style="font-size:26px;margin-bottom:20px">Prospectar y vender socialmente sin ser spam, en una cara</h2>
+    <div class="cheat-grid">
+      <div class="ci"><b>Prospecta a diario</b><span>No cuando el pipeline está vacío. Bloque fijo protegido. Lo que abres hoy, cierras dentro de semanas (Blount).</span></div>
+      <div class="ci"><b>Primero el ICP y la lista</b><span>A quién, antes que qué decir. Retrato del partner ideal + a quién descartas. Sistema, no héroe (Ross).</span></div>
+      <div class="ci"><b>Mide la actividad, no solo el resultado</b><span>Controlas cuántas conversaciones abres, no quién responde hoy. Datos y proceso (Roberge).</span></div>
+      <div class="ci"><b>Perfil orientado al partner</b><span>Tu perfil es tu página de aterrizaje, no tu CV. A quién ayudas y con qué (Disney, Hughes).</span></div>
+      <div class="ci"><b>Show Me You Know Me</b><span>Demuestra que conoces a la persona antes de pedir nada. Un detalle real e irrepetible (McKenna).</span></div>
+      <div class="ci"><b>Baja la resistencia</b><span>Relevancia real + cero presión + micro-petición. Da permiso para decir que no (Braun).</span></div>
+      <div class="ci"><b>Secuencia, no un toque</b><span>Varios contactos multicanal, con variedad y cadencia. Presente y útil, no pesado (Blount).</span></div>
+      <div class="ci"><b>Social selling: aporta antes de pedir</b><span>Perfil + red + contenido. Construye autoridad y que vengan a ti (Hughes, Disney).</span></div>
+      <div class="ci"><b>IA como copiloto</b><span>La máquina prepara e investiga; el humano decide y escribe. Multiplica calidad, no ruido.</span></div>
+      <div class="ci"><b>Con Odoo, honestidad</b><span>Personaliza con datos reales y jamás cites cifras del programa de memoria: a la web oficial.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CIERRE -->
+<section id="cierre">
+  <div class="card reveal" style="text-align:center;padding:48px 28px;background:linear-gradient(135deg,#4C1D95,#7C3AED);border:none">
+    <p class="hand" style="font-size:34px;color:#fff;margin-bottom:8px">El pipeline se llena prospectando</p>
+    <p style="max-width:560px;margin:0 auto 20px;font-size:15px;color:rgba(255,255,255,.92)">Ya tienes el método, los guiones, las herramientas y la mentalidad. Lo que separa saberlo de hacerlo es una sola cosa: abrir conversaciones nuevas, hoy, con tu lista real. Empieza por escribir tu ICP y enviar tus primeros diez mensajes que no son spam esta semana.</p>
+    <a href="#ruta" style="display:inline-block;background:#fff;color:#4C1D95;text-decoration:none;padding:14px 30px;border-radius:100px;font-weight:700;font-size:16px;box-shadow:0 8px 26px rgba(0,0,0,.22)">Volver a la ruta del curso →</a>
+  </div>
+</section>
+
+<footer>
+  <div style="max-width:1100px;margin:0 auto;padding:0 40px 24px;text-align:center;color:var(--text-muted);font-size:13px">
+    <p style="font-family:'Caveat',cursive;font-size:22px;color:var(--odoo-primary);margin-bottom:6px">Brandooers · Odoo I+D+E Spain</p>
+    <p>Prospección y social selling con IA para Partner Manager de Odoo. Todos los métodos atribuidos a sus autores; ninguna cifra sin fuente verificable; todas las herramientas nombradas existen y se enlazan a su web oficial.</p>
+    <p style="margin-top:8px"><a href="outbound-sales.html" class="rsrc" style="color:var(--odoo-secondary)">← Outbound Sales</a> · <a href="objeciones-partner-manager.html" class="rsrc" style="color:var(--odoo-secondary)">Objeciones difíciles →</a></p>
+  </div>
+  <h3 style="text-align:left;max-width:1100px;margin:0 auto;padding:24px 40px 0">Fuentes y bibliografía</h3>
+  <div class="bib" style="max-width:1100px;margin:0 auto;padding:0 40px 20px">
+    <p><strong>Jeb Blount</strong> · <em>Fanatical Prospecting: The Ultimate Guide to Opening Sales Conversations and Filling the Pipeline</em> (2015). Constancia de la actividad, prospección multicanal equilibrada, el pipeline como consecuencia del trabajo diario. <a class="src" href="https://www.amazon.es/s?k=Fanatical+Prospecting+Jeb+Blount" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Aaron Ross & Marylou Tyler</strong> · <em>Predictable Revenue: Turn Your Business Into a Sales Machine</em> (2011). Proceso repetible de outbound, especialización de roles, mercado objetivo claro. <a class="src" href="https://www.amazon.es/s?k=Predictable+Revenue+Aaron+Ross" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Mark Roberge</strong> · <em>The Sales Acceleration Formula: Using Data, Technology, and Inbound Selling to Go from $0 to $100 Million</em> (2015). Venta guiada por datos y proceso; la tecnología para consistencia, no para sustituir el juicio. <a class="src" href="https://www.amazon.es/s?k=The+Sales+Acceleration+Formula+Mark+Roberge" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Daniel Disney</strong> · <em>The Ultimate LinkedIn Sales Guide</em> (2021). Perfil orientado al comprador, contenido que abre conversaciones, venta social en LinkedIn. <a class="src" href="https://www.amazon.es/s?k=The+Ultimate+LinkedIn+Sales+Guide+Daniel+Disney" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Timothy Hughes & Matt Reynolds</strong> · <em>Social Selling: Techniques to Influence Buyers and Changemakers</em> (Kogan Page). Perfil buyer-centric, red y contenido; social selling como construcción de confianza. <a class="src" href="https://www.amazon.es/s?k=Social+Selling+Tim+Hughes+Matt+Reynolds" target="_blank" rel="noopener">Amazon ↗</a></p>
+    <p><strong>Josh Braun</strong> · marco de prospección "detached mindset" y reducción de la resistencia del prospecto (Sales DNA); recursos y charlas del autor. <a class="src" href="https://joshbraun.com/" target="_blank" rel="noopener">joshbraun.com ↗</a></p>
+    <p><strong>Morgan J. Ingram</strong> · prospección creativa y uso de vídeo personalizado en el desarrollo de negocio; charlas y canal del autor. <a class="src" href="https://www.youtube.com/@MorganJIngram" target="_blank" rel="noopener">YouTube ↗</a></p>
+    <p><strong>Samantha (Sam) McKenna</strong> · metodología "Show Me You Know Me" (#samsales Consulting): personalización basada en investigación real. <a class="src" href="https://www.samsalesconsulting.com/showmeyouknowme/" target="_blank" rel="noopener">samsalesconsulting.com ↗</a></p>
+    <p><strong>Jeb Blount</strong> · charla "Fanatical Prospecting: The Brutal Truth About Sales Success". <a class="src" href="https://www.youtube.com/watch?v=R8zDSgiW6I4" target="_blank" rel="noopener">YouTube ↗</a></p>
+    <p><strong>Mark Roberge</strong> · "The Sales Acceleration Formula" (Talks at Google). <a class="src" href="https://www.youtube.com/watch?v=RG_eyn0fRXs" target="_blank" rel="noopener">YouTube ↗</a></p>
+    <p><strong>Tim Hughes</strong> · "A Guide to Social Selling". <a class="src" href="https://www.youtube.com/watch?v=FWDLl53DQoQ" target="_blank" rel="noopener">YouTube ↗</a></p>
+    <p><strong>Sam McKenna</strong> · "Show Me You Know Me: Mastering Personalization in Sales Outreach". <a class="src" href="https://www.youtube.com/watch?v=IfxqQWdMDYI" target="_blank" rel="noopener">YouTube ↗</a></p>
+    <p><strong>Herramientas de IA citadas</strong> (webs oficiales): <a class="src" href="https://business.linkedin.com/sales-solutions/sales-navigator" target="_blank" rel="noopener">Sales Navigator ↗</a> <a class="src" href="https://www.apollo.io/" target="_blank" rel="noopener">Apollo.io ↗</a> <a class="src" href="https://www.clay.com/" target="_blank" rel="noopener">Clay ↗</a> <a class="src" href="https://www.lavender.ai/" target="_blank" rel="noopener">Lavender ↗</a> <a class="src" href="https://www.taplio.com/" target="_blank" rel="noopener">Taplio ↗</a> <a class="src" href="https://instantly.ai/" target="_blank" rel="noopener">Instantly ↗</a> <a class="src" href="https://www.smartlead.ai/" target="_blank" rel="noopener">Smartlead ↗</a></p>
+    <p><strong>Odoo</strong> · programa oficial de partners (become a partner). Fuente para condiciones vigentes del canal. <a class="src" href="https://www.odoo.com/es_ES/page/become-a-partner" target="_blank" rel="noopener">odoo.com ↗</a></p>
+    <p><strong>Protección de datos y prospección B2B</strong> · Agencia Española de Protección de Datos y marco europeo (RGPD). <a class="src" href="https://www.aepd.es/" target="_blank" rel="noopener">aepd.es ↗</a> <a class="src" href="https://commission.europa.eu/law/law-topic/data-protection_en" target="_blank" rel="noopener">Comisión Europea ↗</a></p>
+  </div>
+  <p style="max-width:1100px;margin:0 auto;padding:0 40px 8px;font-size:11.5px;color:var(--text-muted)">Aviso: los guiones, plantillas y métodos son material formativo, no garantizan resultados. Las herramientas de IA nombradas (Sales Navigator, Apollo.io, Clay, Lavender, Taplio, Instantly, Smartlead) son de terceros: sus funciones, condiciones y precios los fija cada proveedor y pueden cambiar; consulta siempre su web oficial y no des por ciertas funciones que no figuren en ella. Las condiciones del programa de partners de Odoo (comisiones, niveles, requisitos de certificación) son estimaciones de referencia no vinculantes y las revisa Odoo periódicamente; confirma siempre en la fuente oficial antes de usarlas en un mensaje o material comercial. Sobre RGPD y prospección B2B (referencia no vinculante, no asesoramiento legal): la normativa europea de protección de datos (RGPD) y su desarrollo en España (LOPDGDD) aplican al tratar datos de contacto profesionales. Como buenas prácticas habituales, trata solo datos de contacto profesionales, apóyate en una base legal adecuada (el interés legítimo suele invocarse en prospección B2B, valorando su proporcionalidad caso por caso), informa de forma transparente de quién eres y de dónde has obtenido los datos, y ofrece siempre una vía sencilla de oposición u opt-out que debes respetar de inmediato. Antes de montar un proceso de prospección a escala, valida tu caso concreto con un profesional de protección de datos; esto no es asesoramiento legal.</p>
+</footer>
+
+<!-- MODAL DE VÍDEO -->
+<div class="vmodal" id="vmodal">
+  <div class="vmodal-box">
+    <div class="vmodal-head"><h4>Charla</h4><button class="close" aria-label="Cerrar">×</button></div>
+    <div class="vmodal-frame"></div>
+  </div>
+</div>
+<div class="userchip" id="userChip"><span class="dot"></span>Formación · <span class="uname"></span></div>
+
+<script>
+/* ===== Config plataforma ===== */
+const TRACK_URL = "";
+const APP_ID = "prospeccion-social-selling";
+
+/* ===== Tracking ===== */
+function nowISO(){return new Date().toISOString()}
+function sid(){let s=sessionStorage.getItem('ob_sid');if(!s){s='s_'+Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ob_sid',s)}return s}
+let USER=null;try{USER=JSON.parse(localStorage.getItem('coach_user')||'null')}catch(e){}
+function track(ev,data){
+  const rec={app:APP_ID,sid:sid(),email:USER?USER.email:null,name:USER?USER.name:null,ev:ev,data:data||{},ts:nowISO(),path:location.pathname};
+  try{const arr=JSON.parse(localStorage.getItem('coach_events')||'[]');arr.push(rec);localStorage.setItem('coach_events',JSON.stringify(arr.slice(-3000)))}catch(e){}
+  if(TRACK_URL){try{navigator.sendBeacon(TRACK_URL,new Blob([JSON.stringify(rec)],{type:'text/plain'}))}catch(e){}}
+}
+
+/* ===== Registro (compartido con la formación: misma clave coach_user) ===== */
+const overlay=document.getElementById('regOverlay');
+function showChip(){const c=document.getElementById('userChip');if(c&&USER){c.style.display='flex';c.querySelector('.uname').textContent=(USER.name||'').split(' ')[0]}}
+function unlock(){document.body.classList.remove('locked');overlay.classList.add('hide')}
+if(USER){unlock();showChip();track('page_open',{title:document.title})}else{document.body.classList.add('locked')}
+document.getElementById('regForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const n=document.getElementById('regName').value.trim();
+  const m=document.getElementById('regMail').value.trim();
+  const c=document.getElementById('regConsent').checked;
+  const err=document.getElementById('regErr');
+  if(n.length<2){err.textContent='Escribe tu nombre.';return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){err.textContent='Escribe un email válido.';return}
+  if(!c){err.textContent='Marca el consentimiento para continuar.';return}
+  USER={name:n,email:m,nick:n,at:nowISO()};localStorage.setItem('coach_user',JSON.stringify(USER));
+  track('register',{name:n,email:m});track('page_open',{title:document.title});
+  unlock();showChip();
+});
+
+/* ===== Barra de progreso + scrollspy del rail ===== */
+const navProgress=document.getElementById('navProgress');
+window.addEventListener('scroll',()=>{navProgress.style.width=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100+'%'});
+const sections=document.querySelectorAll('section[id]'),railLinks=document.querySelectorAll('.rail-item[data-sec]');
+window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-220)cur=s.id});railLinks.forEach(l=>{l.classList.toggle('active',l.getAttribute('data-sec')===cur)})});
+
+/* ===== Reveal on scroll ===== */
+const observer=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*40);observer.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const t=this.getAttribute('href');if(t.length>1){e.preventDefault();document.querySelector(t)?.scrollIntoView({behavior:'smooth'})}})});
+
+/* ===== Rail (menú lateral, móvil) ===== */
+(function(){var b=document.getElementById('railBurger'),ov=document.getElementById('railOv'),r=document.getElementById('rail');
+ function op(){r.classList.add('open');ov.classList.add('open')}function cl(){r.classList.remove('open');ov.classList.remove('open')}
+ if(b)b.onclick=op;if(ov)ov.onclick=cl;r&&r.querySelectorAll('a').forEach(function(a){a.addEventListener('click',cl)});})();
+
+/* ===== Modal de vídeo ===== */
+const vm=document.getElementById('vmodal');let vOpen=null;
+function openVideo(id,title){
+  vm.querySelector('.vmodal-frame').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?rel=0&autoplay=1&modestbranding=1" title="'+(title||'')+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  vm.querySelector('h4').textContent=title||'Charla';
+  vm.classList.add('open');vOpen={id:id,title:title,start:Date.now()};track('video_open',{id:id,title:title});
+}
+function closeVideo(){if(vOpen){track('video_watch',{id:vOpen.id,title:vOpen.title,seconds:Math.round((Date.now()-vOpen.start)/1000)});vOpen=null}vm.classList.remove('open');vm.querySelector('.vmodal-frame').innerHTML=''}
+vm.querySelector('.close').addEventListener('click',closeVideo);
+vm.addEventListener('click',e=>{if(e.target===vm)closeVideo()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&vm.classList.contains('open'))closeVideo()});
+document.addEventListener('click',function(e){
+  const b=e.target.closest('[data-yt]');
+  if(b){e.preventDefault();openVideo(b.getAttribute('data-yt'),b.getAttribute('data-title'));return}
+  const lk=e.target.closest('a.rsrc, a.bthumb, a.src');
+  if(lk){track('link_click',{label:(lk.textContent||'').trim().slice(0,60),href:lk.getAttribute('href')})}
+});
+
+/* ===== Portadas de libros (Google Books) ===== */
+(function(){var covObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(!en.isIntersecting)return;var el=en.target;covObs.unobserve(el);var q=el.getAttribute('data-book');if(!q)return;
+  fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){
+    var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);
+    if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")';
+  }).catch(function(){})})},{rootMargin:'300px'});
+  document.querySelectorAll('.bcover[data-book]').forEach(function(el){covObs.observe(el)});
+})();
+
+/* ===== Estantería de libros ===== */
+(function(){var shelf=document.getElementById('bookshelf');if(!shelf)return;
+ var BOOKS=[
+  ["Fanatical Prospecting","Jeb Blount"],
+  ["Predictable Revenue","Aaron Ross"],
+  ["The Sales Acceleration Formula","Mark Roberge"],
+  ["The Ultimate LinkedIn Sales Guide","Daniel Disney"],
+  ["Social Selling","Tim Hughes"],
+  ["Sales EQ","Jeb Blount"],
+  ["From Impossible to Inevitable","Aaron Ross"],
+  ["INKED","Jeb Blount"]
+ ];
+ BOOKS.forEach(function(bk){var q=bk[0]+" "+bk[1];var a=document.createElement('a');a.className='card';a.href='https://www.amazon.es/s?k='+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.style.textDecoration='none';a.style.display='block';
+  a.innerHTML='<span class="bcover" data-book="'+q+'" style="display:block;width:100%;height:150px;border-radius:8px;background:#EDE7EB center/cover no-repeat;margin-bottom:10px"></span><h4 style="color:var(--text-dark);margin-bottom:2px;font-size:14px">'+bk[0]+'</h4><p style="font-size:12px;color:var(--text-muted);margin:0">'+bk[1]+'</p><p style="font-size:11.5px;color:var(--odoo-gold);margin-top:6px;font-weight:600">Amazon ↗</p>';
+  a.addEventListener('click',function(){track('book_click',{title:q})});shelf.appendChild(a);
+  var cov=a.querySelector('.bcover');covObsShelf(cov);});
+ function covObsShelf(el){var q=el.getAttribute('data-book');if(!q)return;
+  fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=1').then(function(r){return r.json()}).then(function(d){
+   var vi=d.items&&d.items[0]&&d.items[0].volumeInfo;var img=vi&&vi.imageLinks&&(vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail);
+   if(img)el.style.backgroundImage='url("'+img.replace(/^http:/,'https:')+'")';}).catch(function(){});}
+})();
+
+/* ===== Vistas de sección + tiempo ===== */
+const seenSec=new Set();
+const secObs=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){const id=en.target.id;if(id&&!seenSec.has(id)){seenSec.add(id);track('section_view',{id:id})}}})},{threshold:0.4});
+document.querySelectorAll('section[id]').forEach(s=>secObs.observe(s));
+let secs=0;setInterval(function(){if(!document.hidden&&USER){secs+=15}},15000);
+window.addEventListener('beforeunload',function(){if(USER)track('page_leave',{seconds:secs})});
+
+/* ===== Ojos animados Brandooers ===== */
+(function(){
+  var svgs=[].slice.call(document.querySelectorAll('.beyes'));if(!svgs.length)return;
+  function brow(o,flip){var b=10+o;var lift=Math.min(o,0)*0.5;return flip?('M 6 '+(b+1)+' Q 20 '+(b-8+lift)+' 34 '+(b+2)):('M 6 '+(b+2)+' Q 20 '+(b-8+lift)+' 34 '+(b+1));}
+  var exprs=[{bl:-6,br:1,lx:2.5,ly:-1,e:'curious'},{bl:-3,br:-3,lx:0,ly:0,e:'happy'},{bl:2,br:-8,lx:-2,ly:0,e:'skeptical'},{bl:-8,br:-8,lx:0,ly:-1,e:'surprised'},{bl:0,br:0,lx:0,ly:0,e:'neutral'},{bl:-4,br:-1,lx:3,ly:0.5,e:'curious'}];
+  var st={bl:0,br:0,lx:0,ly:0,blink:false,e:'neutral'};
+  function setC(el,x,y,r){if(!el)return;el.setAttribute('cx',x);el.setAttribute('cy',y);if(r!=null)el.setAttribute('r',r);}
+  function apply(){svgs.forEach(function(svg){
+    var bL=svg.querySelector('.browL'),bR=svg.querySelector('.browR');if(bL)bL.setAttribute('d',brow(st.bl,false));if(bR)bR.setAttribute('d',brow(st.br,true));
+    var ry=st.blink?2:(st.e==='happy'?14:18);var sL=svg.querySelector('.socketL'),sR=svg.querySelector('.socketR');if(sL)sL.setAttribute('ry',ry);if(sR)sR.setAttribute('ry',ry);
+    var op=st.blink?'0':'1';['.irisL','.irisR','.pupilL','.pupilR'].forEach(function(c){var el=svg.querySelector(c);if(el)el.style.opacity=op;});
+    svg.querySelectorAll('.glint').forEach(function(g){g.style.opacity=st.blink?'0':(g.getAttribute('data-op')||'1');});
+    var ir=st.e==='surprised'?9:7.5,pr=st.e==='surprised'?4:3.5;
+    setC(svg.querySelector('.irisL'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilL'),20+st.lx*1.3,36+st.ly*1.3,pr);
+    setC(svg.querySelector('.irisR'),20+st.lx,36+st.ly,ir);setC(svg.querySelector('.pupilR'),20+st.lx*1.3,36+st.ly*1.3,pr);
+  });}
+  apply();
+  setInterval(function(){var x=exprs[Math.floor(Math.random()*exprs.length)];st.bl=x.bl;st.br=x.br;st.lx=x.lx;st.ly=x.ly;st.e=x.e;apply();},2500);
+  (function blink(){setTimeout(function(){st.blink=true;apply();setTimeout(function(){st.blink=false;apply();blink();},130);},3000+Math.random()*2500);})();
+})();
+</script>
+
+<script src="personalization.js"></script>
+<script src="profile.js"></script>
+<script src="feedback.js" data-course="Prospección y social selling · Partner Manager"></script>
+<script src="resources.js"></script>
+</body>
+</html>
