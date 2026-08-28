@@ -16,6 +16,26 @@
       alert('Notificaciones activadas. Te avisaremos de peticiones, feedback y leads nuevos.');
     } catch (e) { alert('No se pudo activar: ' + (e.message || e)); }
   }
+  function applyPrompt(course) {
+    if (document.getElementById('bd-apply')) return;
+    var s = document.createElement('style');
+    s.textContent = '#bd-apply{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:3200;background:#fff;border:1px solid #E8E0E5;border-radius:16px;box-shadow:0 12px 40px rgba(139,92,246,.22);padding:16px 18px;width:min(440px,92vw);font-family:Inter,sans-serif}'
+      + '#bd-apply h4{font-size:15px;color:#2D2D2D;margin:0 0 4px}#bd-apply p{font-size:12.5px;color:#8F8F8F;margin:0 0 10px;line-height:1.5}'
+      + '#bd-apply .r{display:flex;gap:8px}#bd-apply input{flex:1;font-family:inherit;font-size:14px;padding:10px 12px;border:1px solid #E8E0E5;border-radius:10px}'
+      + '#bd-apply button.go{font-family:inherit;font-size:13px;font-weight:700;border:0;border-radius:10px;padding:10px 14px;background:#8B5CF6;color:#fff;cursor:pointer;white-space:nowrap}'
+      + '#bd-apply .x{position:absolute;top:8px;right:12px;background:none;border:0;color:#8F8F8F;font-size:20px;cursor:pointer;padding:0}';
+    document.head.appendChild(s);
+    var w = document.createElement('div'); w.id = 'bd-apply';
+    w.innerHTML = '<button class="x" aria-label="Cerrar">×</button><h4>🎯 ¡Curso completado! Ahora aplícalo.</h4><p>¿Qué vas a poner en práctica esta semana? Compromételo: suma puntos y tu coach lo verá.</p><div class="r"><input id="bd-apply-in" placeholder="Ej.: usar el guion de objeciones con 3 clientes"><button class="go" id="bd-apply-go">Comprometerme</button></div>';
+    document.body.appendChild(w);
+    w.querySelector('.x').onclick = function () { w.remove(); };
+    w.querySelector('#bd-apply-go').onclick = function () {
+      var v = w.querySelector('#bd-apply-in').value.trim(); if (!v) { w.querySelector('#bd-apply-in').focus(); return; }
+      fetch('/api/apply', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ course: course, commit: v }) });
+      w.innerHTML = '<h4>¡Hecho! 💪</h4><p style="margin:0">Compromiso guardado. Cuéntanos el resultado cuando lo apliques.</p>';
+      setTimeout(function () { w.remove(); }, 3500);
+    };
+  }
   fetch('/auth/me', { credentials: 'same-origin' }).then(function (r) {
     if (r.status === 401) { if (!/\/login\.html$/.test(location.pathname)) location.href = '/login.html'; return null; }
     return r.json();
@@ -42,6 +62,7 @@
           if ((h.scrollTop + window.innerHeight) / (h.scrollHeight || 1) > 0.9) {
             doneSent = true;
             fetch('/api/progress', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ course: course, done: true, user: me.user }) });
+            applyPrompt(course);
           }
         };
         window.addEventListener('scroll', chk, { passive: true }); setTimeout(chk, 2000);
@@ -88,6 +109,11 @@
     document.getElementById('bdChip').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('open'); });
     document.addEventListener('click', function () { menu.classList.remove('open'); });
     var pb = wrap.querySelector('.bd-push'); if (pb) pb.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); menu.classList.remove('open'); enablePush(); });
+    fetch('/api/coach/me', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (c) {
+      if (!c) return;
+      var who = menu.querySelector('.who span'); if (who && c.rank) who.textContent = (isAdmin ? 'Administrador · ' : '') + c.rank + ' · ' + c.points + ' pts';
+      if (c.isCoach) { var link = document.createElement('a'); link.href = '/equipo.html'; link.textContent = '👥 Mi equipo (' + c.coachees + ')'; var out = menu.querySelector('a.out'); if (out) menu.insertBefore(link, out); }
+    }).catch(function () {});
     // indicador de cursos en preparación (barra lateral) para el alumno
     var STG = { solicitado: ['Solicitado', 10], cola: ['En cola', 20], research: ['Investigando', 40], verify: ['Verificando', 55], build: ['Construyendo', 70], validate: ['Validando', 88], publish: ['Publicado', 100] };
     fetch('/api/mis-cursos', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (mc) {

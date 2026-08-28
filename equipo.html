@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brandooers · Mi equipo</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:#8B5CF6;--t:#0891B2;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE;--grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);--gold:#E4A900}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;padding:34px 30px 70px}
+.hand{font-family:'Caveat',cursive;color:var(--t);font-size:24px}
+h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.hint{font-size:13px;color:var(--mut);margin-bottom:22px;max-width:760px;line-height:1.6}
+.kpis{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 22px;min-width:120px}
+.kpi .v{font-size:26px;font-weight:900;color:var(--ink)}.kpi .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px 6px;max-width:900px}
+.row{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid #F0EAEE}
+.row:last-child{border-bottom:0}
+.pos{width:30px;height:30px;border-radius:50%;background:var(--warm);color:var(--p);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.row.g1 .pos{background:#FFF3BF;color:#a07a00}.row.g2 .pos{background:#E9ECEF;color:#555}.row.g3 .pos{background:#FFE8CC;color:#b5651d}
+.who{flex:1;min-width:0}
+.who b{color:var(--ink);font-size:15px}
+.who .sub{font-size:12px;color:var(--mut);margin-top:2px}
+.rank{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:3px 10px;border-radius:100px}
+.r-Rookie{background:#eee;color:#777}.r-Practicante{background:#d0ebff;color:#1971c2}.r-Pro{background:#e5dbff;color:#6741d9}.r-Experto{background:#c5f6fa;color:#0c8599}.r-Maestro{background:#FFF3BF;color:#a07a00}
+.pts{font-weight:900;color:var(--p);font-size:16px;white-space:nowrap}.pts small{font-weight:600;color:var(--mut);font-size:11px}
+.empty{color:var(--mut);font-size:14px;padding:30px;text-align:center}
+.back{display:inline-block;margin-top:20px;color:var(--p);font-weight:600;text-decoration:none;font-size:14px}
+</style>
+</head>
+<body>
+<p class="hand">Coach</p>
+<h1>Mi equipo</h1>
+<p class="hint">Tus coachees, ordenados por puntos. Sube quien completa cursos, aprueba exámenes y <b>aplica lo aprendido en el trabajo</b>. Detecta quién avanza y quién necesita un empujón.</p>
+<div class="kpis" id="kpis"></div>
+<div class="card" id="list"></div>
+<a class="back" href="/hub.html">← Volver a Brandooers</a>
+<script>
+function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+async function load(){
+  var d=await (await fetch('/api/coach/team')).json();
+  var team=(d.team||[]).slice().sort(function(a,b){return b.points-a.points;});
+  if(!team.length){ document.getElementById('list').innerHTML='<div class="empty">Aún no tienes coachees asignados.<br>El administrador te asigna tu equipo desde <b>Usuarios</b>.</div>'; return; }
+  var totP=team.reduce(function(a,x){return a+x.points;},0), totA=team.reduce(function(a,x){return a+(x.aplicaciones||0);},0), totB=team.reduce(function(a,x){return a+(x.badges||0);},0);
+  document.getElementById('kpis').innerHTML=
+    '<div class="kpi"><div class="v">'+team.length+'</div><div class="l">Coachees</div></div>'
+    +'<div class="kpi"><div class="v">'+totB+'</div><div class="l">Badges</div></div>'
+    +'<div class="kpi"><div class="v">'+totA+'</div><div class="l">Aplicaciones</div></div>'
+    +'<div class="kpi"><div class="v">'+totP+'</div><div class="l">Puntos del equipo</div></div>';
+  document.getElementById('list').innerHTML=team.map(function(u,i){
+    return '<div class="row g'+(i+1)+'"><div class="pos">'+(i+1)+'</div>'
+      +'<div class="who"><b>'+esc(u.user)+'</b> <span class="rank r-'+esc(u.rank)+'">'+esc(u.rank)+'</span>'
+      +'<div class="sub">'+u.badges+' cursos · '+(u.aplicaciones||0)+' aplicaciones'+(u.lastSeen?' · visto '+u.lastSeen.slice(0,10):'')+'</div></div>'
+      +'<div class="pts">'+u.points+'<small> pts</small></div></div>';
+  }).join('');
+}
+load();
+</script>
+</body>
+</html>

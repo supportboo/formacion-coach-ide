@@ -129,6 +129,26 @@ function moderate(text) {
 const SETTINGS_DEFAULT = { autoValidate: false, maxPerDay: 3, moderation: true };
 function getSettings() { return { ...SETTINGS_DEFAULT, ...jload(W('settings.json'), {}) }; }
 
+// rangos (por puntos) y equipos de coach
+function rankOf(p) { return p >= 1000 ? 'Maestro' : p >= 600 ? 'Experto' : p >= 300 ? 'Pro' : p >= 100 ? 'Practicante' : 'Rookie'; }
+const teams = () => jload(W('teams.json'), {}); // { coacheeUser: coachUser }
+function userRows() {
+  const prog = readJsonl('progress.jsonl'), views = readJsonl('views.jsonl'), exams = readJsonl('exams.jsonl'), applied = readJsonl('applied.jsonl');
+  const comp = {}; for (const r of prog) { if (r.done && r.user && r.course) (comp[r.user] = comp[r.user] || new Set()).add(r.course); }
+  const passed = {}; for (const e of exams) { if (e.passed && e.user && e.course) (passed[e.user] = passed[e.user] || new Set()).add(e.course); }
+  const apl = {}; for (const a of applied) { if (a.user) apl[a.user] = (apl[a.user] || 0) + 1; }
+  const lastSeen = {}, viewCount = {}; for (const v of views) { if (v.user) { if (!lastSeen[v.user] || v.ts > lastSeen[v.user]) lastSeen[v.user] = v.ts; viewCount[v.user] = (viewCount[v.user] || 0) + 1; } }
+  const fb = inboxAll().filter(x => x.kind === 'feedback'); const fbG = {}, fbA = {};
+  for (const f of fb) { const u = (f.data || {}).user || (f.data || {}).name; if (!u) continue; fbG[u] = (fbG[u] || 0) + 1; if (f.status === 'aceptado' || f.status === 'aplicado') fbA[u] = (fbA[u] || 0) + 1; }
+  const known = Object.keys(users());
+  const allU = new Set([...known, ...Object.keys(comp), ...Object.keys(lastSeen), ...Object.keys(fbG), ...Object.keys(apl)]);
+  return [...allU].map(u => {
+    const completions = [...(comp[u] || [])], aprobados = [...(passed[u] || [])], acc = fbA[u] || 0, aplicaciones = apl[u] || 0;
+    const points = completions.length * 100 + aprobados.length * 50 + acc * 20 + aplicaciones * 40;
+    return { user: u, cuenta: known.includes(u), completions, badges: completions.length, examenes: aprobados.length, aplicaciones, feedbackDado: fbG[u] || 0, feedbackAceptado: acc, vistas: viewCount[u] || 0, lastSeen: lastSeen[u] || '', points, rank: rankOf(points) };
+  }).sort((a, b) => b.points - a.points);
+}
+
 // ---- notificaciones push (móvil) ----
 let webpush = null; const VAPID = jload(W('vapid.json'), null);
 try { webpush = (await import('web-push')).default; if (VAPID) webpush.setVapidDetails('mailto:support@boomatik.com', VAPID.publicKey, VAPID.privateKey); } catch (e) { console.log('web-push off:', e.message); }
@@ -219,9 +239,9 @@ const server = http.createServer(async (req, res) => {
   if (path.startsWith('/auth/users')) {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     if (path === '/auth/users' && req.method === 'GET') {
-      const db = users(); const rs = jload(W('resets.json'), {});
+      const db = users(); const rs = jload(W('resets.json'), {}); const t = teams();
       return json(res, 200, {
-        users: Object.entries(db).map(([u, r]) => ({ u, role: r.role || 'member', created: r.created || '' })).sort((a, b) => a.u.localeCompare(b.u)),
+        users: Object.entries(db).map(([u, r]) => ({ u, role: r.role || 'member', created: r.created || '', coach: t[u] || '' })).sort((a, b) => a.u.localeCompare(b.u)),
         resets: Object.entries(rs).filter(([, r]) => r.exp > Date.now()).map(([token, r]) => ({ u: r.u, link: '/reset.html?token=' + token })),
       });
     }
@@ -353,24 +373,38 @@ const server = http.createServer(async (req, res) => {
   }
   if (path === '/api/admin/insights') {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
-    const prog = readJsonl('progress.jsonl'), views = readJsonl('views.jsonl'), exams = readJsonl('exams.jsonl');
-    const comp = {}; for (const r of prog) { if (r.done && r.user && r.course) (comp[r.user] = comp[r.user] || new Set()).add(r.course); }
-    const passed = {}; for (const e of exams) { if (e.passed && e.user && e.course) (passed[e.user] = passed[e.user] || new Set()).add(e.course); }
-    const lastSeen = {}, viewCount = {}; for (const v of views) { if (v.user) { if (!lastSeen[v.user] || v.ts > lastSeen[v.user]) lastSeen[v.user] = v.ts; viewCount[v.user] = (viewCount[v.user] || 0) + 1; } }
-    const fb = inboxAll().filter(x => x.kind === 'feedback');
-    const fbGiven = {}, fbAcc = {}; for (const f of fb) { const u = (f.data || {}).user || (f.data || {}).name; if (!u) continue; fbGiven[u] = (fbGiven[u] || 0) + 1; if (f.status === 'aceptado' || f.status === 'aplicado') fbAcc[u] = (fbAcc[u] || 0) + 1; }
-    const known = Object.keys(users());
-    const allU = new Set([...known, ...Object.keys(comp), ...Object.keys(lastSeen), ...Object.keys(fbGiven)]);
-    const rows = [...allU].map(u => {
-      const completions = [...(comp[u] || [])], aprobados = [...(passed[u] || [])], acc = fbAcc[u] || 0;
-      const points = completions.length * 100 + aprobados.length * 50 + acc * 20;
-      return { user: u, cuenta: known.includes(u), completions, badges: completions.length, examenes: aprobados.length, feedbackDado: fbGiven[u] || 0, feedbackAceptado: acc, vistas: viewCount[u] || 0, lastSeen: lastSeen[u] || '', points };
-    }).sort((a, b) => b.points - a.points);
+    const rows = userRows();
     return json(res, 200, {
       rows, ranking: rows.filter(r => r.points > 0).slice(0, 20),
-      aggregates: { usuarios: known.length, activos: Object.keys(lastSeen).length, completaciones: rows.reduce((a, r) => a + r.completions.length, 0), examenes: exams.filter(e => e.passed).length },
-      puntos: { curso: 100, examen: 50, feedbackAceptado: 20 },
+      aggregates: { usuarios: Object.keys(users()).length, activos: rows.filter(r => r.lastSeen).length, completaciones: rows.reduce((a, r) => a + r.completions.length, 0), examenes: readJsonl('exams.jsonl').filter(e => e.passed).length, aplicaciones: rows.reduce((a, r) => a + r.aplicaciones, 0) },
+      puntos: { curso: 100, examen: 50, aplicacion: 40, feedbackAceptado: 20 },
     });
+  }
+  if (path === '/api/apply' && req.method === 'POST') {
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
+    const b = await body(req);
+    try { appendFileSync(W('applied.jsonl'), JSON.stringify({ user: s.u, course: String(b.course || '').slice(0, 80), commit: String(b.commit || '').slice(0, 300), result: String(b.result || '').slice(0, 300), ts: new Date().toISOString() }) + '\n'); } catch {}
+    notifyAdmins('Aplicación en el trabajo', s.u + ': ' + String(b.commit || b.result || '').slice(0, 80), '/insights.html');
+    return json(res, 200, { ok: true });
+  }
+  if (path === '/api/coach/me') {
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
+    const t = teams(); const coachees = Object.keys(t).filter(u => t[u] === s.u);
+    const me = userRows().find(r => r.user === s.u) || { points: 0, rank: 'Rookie' };
+    return json(res, 200, { user: s.u, rank: me.rank, points: me.points, isCoach: coachees.length > 0, coachees: coachees.length });
+  }
+  if (path === '/api/coach/team') {
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
+    const t = teams(); const mine = new Set(Object.keys(t).filter(u => t[u] === s.u));
+    const rows = userRows().filter(r => mine.has(r.user)).map(r => ({ user: r.user, rank: r.rank, points: r.points, badges: r.badges, aplicaciones: r.aplicaciones, completions: r.completions, lastSeen: r.lastSeen }));
+    return json(res, 200, { coach: s.u, team: rows });
+  }
+  if (path === '/api/admin/team' && req.method === 'POST') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const b = await body(req); if (!b.user) return json(res, 400, { error: 'falta user' });
+    const t = teams(); if (b.coach) t[b.user] = String(b.coach).slice(0, 60); else delete t[b.user];
+    jsave(W('teams.json'), t);
+    return json(res, 200, { ok: true });
   }
   if (path === '/api/admin/settings') {
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });

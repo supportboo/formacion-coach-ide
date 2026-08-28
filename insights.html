@@ -66,7 +66,7 @@ async function load(){
   ].map(function(k){return '<div class="kpi"><div class="v">'+k[1]+'</div><div class="l">'+k[0]+'</div></div>';}).join('');
 
   document.getElementById('rank').innerHTML = d.ranking.length? d.ranking.map(function(u,i){
-    return '<div class="rank g'+(i+1)+'"><div class="pos">'+(i+1)+'</div><div class="u">'+esc(u.user)+'</div><div class="pts">'+u.points+'<small> pts</small></div></div>';
+    return '<div class="rank g'+(i+1)+'"><div class="pos">'+(i+1)+'</div><div class="u">'+esc(u.user)+' <span style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--p);background:var(--warm);border-radius:100px;padding:1px 8px;margin-left:4px">'+esc(u.rank||'')+'</span></div><div class="pts">'+u.points+'<small> pts</small></div></div>';
   }).join('') : '<div class="empty">Aún nadie ha sumado puntos. En cuanto un alumno complete un curso o su feedback se acepte, aparece aquí.</div>';
 
   document.getElementById('legend').innerHTML='Puntos: completar curso <b>+'+d.puntos.curso+'</b> · aprobar examen <b>+'+d.puntos.examen+'</b> · feedback aceptado <b>+'+d.puntos.feedbackAceptado+'</b>';

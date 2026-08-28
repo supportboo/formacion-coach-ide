@@ -50,7 +50,7 @@ button.danger{background:#ffe3e3;color:#c92a2a}
 
 <div class="card">
   <h2>Equipo</h2>
-  <table><thead><tr><th>Usuario</th><th>Rol</th><th>Alta</th><th>Acciones</th></tr></thead><tbody id="rows"></tbody></table>
+  <table><thead><tr><th>Usuario</th><th>Rol</th><th>Coach (mentor)</th><th>Alta</th><th>Acciones</th></tr></thead><tbody id="rows"></tbody></table>
 </div>
 
 <div class="card" id="resetsCard" style="display:none">
@@ -72,6 +72,7 @@ async function load(){
     var opts=['member','admin'].map(function(r){return '<option value="'+r+'"'+(r===u.role?' selected':'')+'>'+(r==='admin'?'Admin':'Miembro')+'</option>';}).join('');
     return '<tr data-u="'+esc(u.u)+'"><td class="u">'+esc(u.u)+'</td>'+
       '<td><select class="rr">'+opts+'</select></td>'+
+      '<td><select class="cc"><option value="">— sin coach —</option>'+d.users.filter(function(x){return x.u!==u.u;}).map(function(x){return '<option value="'+esc(x.u)+'"'+(x.u===u.coach?' selected':'')+'>'+esc(x.u)+'</option>';}).join('')+'</select></td>'+
       '<td style="color:var(--mut);font-size:12px">'+(u.created?u.created.slice(0,10):'—')+'</td>'+
       '<td><button class="ghost rst">Recuperar</button> <button class="danger del">Borrar</button><div class="link"></div></td></tr>';
   }).join('');
@@ -88,6 +89,7 @@ document.getElementById('add').addEventListener('submit',async function(ev){
 });
 document.addEventListener('change',function(e){
   if(e.target.classList.contains('rr')){ var u=e.target.closest('tr').dataset.u; api.post('save',{u:u,role:e.target.value}).then(load); }
+  if(e.target.classList.contains('cc')){ var cu=e.target.closest('tr').dataset.u; fetch('/api/admin/team',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({user:cu,coach:e.target.value})}); }
 });
 document.addEventListener('click',async function(e){
   var tr=e.target.closest('tr'); if(!tr)return; var u=tr.dataset.u;
