@@ -112,9 +112,22 @@ function inboxAll() {
   const items = [];
   try { for (const l of readFileSync(W('inbox.jsonl'), 'utf8').split('\n')) { if (!l) continue; try { items.push(JSON.parse(l)); } catch {} } } catch {}
   const m = inboxMeta();
-  return items.map(it => { const x = m[it.id] || {}; return { ...it, status: x.status || 'nuevo', instruction: x.instruction || '', reply: x.reply || '', stage: x.stage || '', eta: x.eta || '', courseUrl: x.courseUrl || '' }; });
+  return items.map(it => { const x = m[it.id] || {}; return { ...it, status: x.status || 'nuevo', instruction: x.instruction || '', reply: x.reply || '', stage: x.stage || '', eta: x.eta || '', courseUrl: x.courseUrl || '', moderation: x.moderation || '' }; });
 }
 function readJsonl(f) { const rows = []; try { for (const l of readFileSync(W(f), 'utf8').split('\n')) { if (!l) continue; try { rows.push(JSON.parse(l)); } catch {} } } catch {} return rows; }
+
+// moderación de peticiones de curso: bloquea porno, insultos, violencia/ilegal, spam y fuera de contexto
+const MOD_BLOCK = /(\bporn|xxx|sexual|desnud|nude|escort|follar|corrida|tetas|\bculo\b|masturb|onlyfans|\bsexo\b|erotic|gilipollas|imb[eé]cil|idiota|subnormal|cabr[oó]n|\bputa\b|maric[oó]n|hijo de puta|nazi|matar a|hacer una bomba|drogas? para vender|coca[ií]na|hero[ií]na|hackear (cuenta|whatsapp|instagram|correo)|suicid)/i;
+function moderate(text) {
+  const t = String(text || '').trim();
+  if (t.length < 5) return { ok: false, reason: 'vacío o demasiado corto' };
+  if (t.length > 200) return { ok: false, reason: 'demasiado largo' };
+  if (MOD_BLOCK.test(t)) return { ok: false, reason: 'contenido inapropiado o fuera de contexto' };
+  if (!/[a-zA-Záéíóúñ]{3,}/.test(t)) return { ok: false, reason: 'sin texto reconocible' };
+  return { ok: true };
+}
+const SETTINGS_DEFAULT = { autoValidate: false, maxPerDay: 3, moderation: true };
+function getSettings() { return { ...SETTINGS_DEFAULT, ...jload(W('settings.json'), {}) }; }
 
 const server = http.createServer(async (req, res) => {
   const https = (req.headers['x-forwarded-proto'] || '') === 'https';
@@ -230,7 +243,10 @@ const server = http.createServer(async (req, res) => {
   }
   if (path === '/api/track' && req.method === 'POST') {
     const b = await body(req);
-    if (b && b.ev === 'course_request' && b.topic) inboxAppend('request', b);
+    if (b && b.ev === 'course_request' && b.topic) {
+      const id = inboxAppend('request', b);
+      if (getSettings().moderation) { const mod = moderate(b.topic); if (!mod.ok) inboxSetMeta(id, { status: 'rechazado', moderation: mod.reason }); }
+    }
     return json(res, 200, { ok: true });
   }
   if (path === '/api/onboarding' && req.method === 'POST') {
@@ -325,6 +341,18 @@ const server = http.createServer(async (req, res) => {
       aggregates: { usuarios: known.length, activos: Object.keys(lastSeen).length, completaciones: rows.reduce((a, r) => a + r.completions.length, 0), examenes: exams.filter(e => e.passed).length },
       puntos: { curso: 100, examen: 50, feedbackAceptado: 20 },
     });
+  }
+  if (path === '/api/admin/settings') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    if (req.method === 'POST') {
+      const b = await body(req); const cur = getSettings();
+      if (b.autoValidate != null) cur.autoValidate = !!b.autoValidate;
+      if (b.moderation != null) cur.moderation = !!b.moderation;
+      if (b.maxPerDay != null) cur.maxPerDay = Math.max(0, Math.min(50, parseInt(b.maxPerDay, 10) || 0));
+      jsave(W('settings.json'), cur);
+      return json(res, 200, { ok: true, settings: cur });
+    }
+    return json(res, 200, { settings: getSettings() });
   }
 
   /* ----- AFILIACIÓN ----- */

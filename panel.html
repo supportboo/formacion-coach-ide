@@ -53,6 +53,9 @@ h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px}
     <p class="note">Cada feedback/petición que aceptas y conviertes en instrucción entra aquí. El Claude Code interno lee esta cola (<code>GET /api/admin/queue</code> o el fichero <code>inbox-meta.json</code>), ejecuta la mejora con verificación de fuentes, publica y se marca como <b>aplicado</b>. Tú puedes editar cada instrucción antes.</p>
   </div>
   <div class="card" style="grid-column:1/-1"><h2>Economía</h2><div id="eco"></div></div>
+  <div class="card" style="grid-column:1/-1"><h2>Configuración del motor</h2><div id="cfg"></div>
+    <p class="note"><b>Modo A (recomendado):</b> el motor genera y deja el curso en «Validando» para tu OK antes de publicarlo al alumno. Pásalo a auto solo cuando confíes en la calidad. La <b>moderación</b> bloquea peticiones inapropiadas o fuera de contexto (porno, insultos, temas ajenos) antes de generar nada.</p>
+  </div>
 </div>
 <script>
 function n(v){return (v==null?0:v).toLocaleString('es-ES');}
@@ -95,7 +98,16 @@ async function load(){
     +'<div class="row"><span>Coste de generación de cursos</span><span class="pill">en Claude Code interno · 0€ API en la app</span></div>'
     +'<p class="note">Doctrina: no mostramos ROI ni % inventados. Cuando conectemos la pasarela de pago y el alta de afiliación, estas filas pasarán a cifras reales.</p>';
 }
-load();
+async function loadCfg(){
+  var d=await (await fetch('/api/admin/settings')).json(); var s=d.settings||{};
+  document.getElementById('cfg').innerHTML =
+    '<div class="row"><span>Moderación de peticiones (bloquea porno, insultos, temas fuera de contexto)</span><input type="checkbox" id="cfgMod" style="width:20px;height:20px"'+(s.moderation?' checked':'')+'></div>'
+    +'<div class="row"><span>Auto-validar y publicar cuando pase el control de calidad <b style="color:#c92a2a">· riesgo, revísalo tú al principio</b></span><input type="checkbox" id="cfgAuto" style="width:20px;height:20px"'+(s.autoValidate?' checked':'')+'></div>'
+    +'<div class="row"><span>Máximo de cursos automáticos al día (control de coste)</span><input type="number" id="cfgMax" min="0" max="50" value="'+(s.maxPerDay||0)+'" style="width:64px;font-family:inherit;border:1px solid var(--line);border-radius:8px;padding:5px 8px"></div>';
+  function save(){ fetch('/api/admin/settings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({moderation:document.getElementById('cfgMod').checked,autoValidate:document.getElementById('cfgAuto').checked,maxPerDay:document.getElementById('cfgMax').value})}); }
+  ['cfgMod','cfgAuto','cfgMax'].forEach(function(id){document.getElementById(id).addEventListener('change',save);});
+}
+load(); loadCfg();
 </script>
 </body>
 </html>

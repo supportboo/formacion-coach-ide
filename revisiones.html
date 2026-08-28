@@ -78,7 +78,8 @@ function feedbackCard(it){
 function requestCard(it){
   var d=it.data||{};
   return '<div class="item"><div class="top"><span class="topic">📚 '+esc(d.topic||'')+'</span>'+badge(it.status)+'</div>'+
-    '<div class="meta">'+esc(d.email||'anónimo')+' · '+esc((it.ts||'').slice(0,16).replace('T',' '))+'</div>'+
+    '<div class="meta">'+esc(d.user||d.email||'anónimo')+' · '+esc((it.ts||'').slice(0,16).replace('T',' '))+'</div>'+
+    (it.moderation?'<div style="background:#ffe3e3;color:#c92a2a;font-size:12.5px;font-weight:700;border-radius:8px;padding:8px 11px;margin-top:8px">⚠ Bloqueado por moderación: '+esc(it.moderation)+'</div>':'')+
     acts(it.id,it.status)+instrBlock(it,d)+'</div>';
 }
 function onbCard(it){
