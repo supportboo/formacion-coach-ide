@@ -265,10 +265,37 @@ export const validation = pgTable("validation", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("val_org_idx").on(t.organizationId) }));
 
+/* ============================================================
+ * PROPAGACIÓN Y CARRERA (Fase 4): coaching, puntos de temporada, ascenso.
+ * Se premia lo que se quiere multiplicar: enseñar a otro hasta que aplica.
+ * ============================================================ */
+export const coaching = pgTable("coaching", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  coachId: text("coach_id").notNull(),
+  learnerId: text("learner_id").notNull(),
+  competencyId: text("competency_id").notNull(),
+  status: text("status").notNull().default("activo"), // activo | logrado | fallido
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("coach_org_idx").on(t.organizationId) }));
+
+// Puntos de contribución por temporada (separados de los niveles; no desbloquean nada).
+export const pointsLedger = pgTable("points_ledger", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  season: text("season").notNull(),
+  points: integer("points").notNull(),
+  reason: text("reason").notNull(),
+  refId: text("ref_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("pts_org_idx").on(t.organizationId) }));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
   ragDocument, ragChunk, agentThread, agentMessage, auditLog,
   onboardingProfile, enrollment, levelByCompetency, testAttempt,
   rubric, appliedCase, validation,
+  coaching, pointsLedger,
 };
