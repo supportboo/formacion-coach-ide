@@ -12,6 +12,7 @@ const schema = z.object({
   BETTER_AUTH_SECRET: z.string().default("dev-secret-change-me"),
   BETTER_AUTH_URL: z.string().default("http://localhost:8080"),
   PORT: z.coerce.number().default(8080),
+  HOST: z.string().default("127.0.0.1"), // solo localhost por defecto; nginx hace de proxy
   DEV_AUTH: z
     .string()
     .default("true")
