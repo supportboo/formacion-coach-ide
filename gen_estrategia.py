@@ -48,35 +48,35 @@ GS='#2f9e44'; YS='#e8a90a'; RS='#e03131'; BS='#1971c2'
 
 # ---- Título + leyenda ----
 text(140, 34, 1600, 40, "Brandooers · Estrategia de producto y negocio — de la adopción al ROI", size=26, align='left')
-text(140, 74, 1600, 22, "El conocimiento se queda, se propaga y se mide. Copiloto del directivo y del empleado.", size=14, align='left', color='#666')
-rect(140,108,20,20,GREEN); text(166,110,120,20,"ya existe", size=12, align='left', color=GS)
-rect(300,108,20,20,YELLOW); text(326,110,200,20,"parcial / especificado", size=12, align='left', color=YS)
-rect(540,108,20,20,RED); text(566,110,220,20,"falta por construir", size=12, align='left', color=RS)
+text(140, 74, 1600, 22, "Estado real 2026-09-01. Verde = construido con test pasando (Fases 0-7, platform/). El conocimiento se queda, se propaga y se mide.", size=14, align='left', color='#666')
+rect(140,108,20,20,GREEN); text(166,110,180,20,"construido + test", size=12, align='left', color=GS)
+rect(360,108,20,20,YELLOW); text(386,110,160,20,"parcial", size=12, align='left', color=YS)
+rect(540,108,20,20,RED); text(566,110,260,20,"pendiente / diferido", size=12, align='left', color=RS)
 
 # ---- Rejilla de bloques por lane ----
 lanes = ["1 · ADOPCIÓN","2 · APRENDIZAJE","3 · VALIDACIÓN","4 · PROPAGACIÓN\n& CARRERA","5 · CONFIG. EMPRESA","6 · PANEL ROI","7 · NEGOCIO & FUNDAE"]
 blocks = {
- 0:[("HOME + CAPTACIÓN\nbrandooers.com · lead\nacceso temprano",GREEN,GS),
-    ("ONBOARDING ENTREVISTA\npor qué · para qué\nsector · puesto",GREEN,GS),
-    ("PILOTO 90 DÍAS\n+ línea base\n(garantía)",RED,RS)],
- 1:[("RUTA PERSONALIZADA\npor sector y puesto\n(IA)",GREEN,GS),
-    ("GENERA CONTENIDO\ncasos reales del puesto\n(crear-curso)",GREEN,GS),
-    ("TEST -> BADGE N1\nautocorregido\n(/api/exam)",GREEN,GS)],
- 2:[("CASO PRÁCTICO APLICADO\ncon rúbrica visible\nsu trabajo real",RED,RS),
-    ("VALIDACIÓN HUMANA\nresponsable/nivel revisa\n(coach parcial)",YELLOW,YS),
-    ("GATE COSTE + PROGRESO\nno validas -> practicas\ntope de gasto IA",YELLOW,YS)],
- 3:[("NIVELES POR COMPETENCIA\nEn formación · Aplica\nReferente",YELLOW,YS),
-    ("COACH -> COACH DE COACHES\nINSPIRADOR · equipos\nde empuje (cascada)",RED,RS),
-    ("PUNTOS DE TEMPORADA\npremia enseñar\n+ antifraude",YELLOW,YS)],
- 4:[("MOTOR DE REGLAS\ndisparador -> recompensa\n(competencia/cobertura)",RED,RS),
-    ("TÍTULOS + CERTIFICADOS\npropios · verificables\ndentro y fuera",RED,RS),
-    ("COMPENSACIÓN CONFIG.\nauto / por logros /\na demanda",RED,RS)],
- 5:[("COBERTURA\nquién sabe aplicar qué\n(no asistencia)",YELLOW,YS),
-    ("RIESGO DE DEPENDENCIA\nalerta: crítica = 1 persona\n(bus factor)",RED,RS),
-    ("COSTE FORMAR ↓ · TIEMPO\nA AUTONOMÍA\n(salpicadero dirección)",RED,RS)],
- 6:[("COBRO POR PLAN\ngobernado por validación\n(a la empresa)",RED,RS),
-    ("GARANTÍA DEL PILOTO\nsi no ves la medición,\nno pagas",RED,RS),
-    ("FUNDAE\nvalidación = tutorización\nBoomatik e. organizadora",RED,RS)],
+ 0:[("HOME + CAPTACIÓN\nbrandooers.com desplegada\npiloto 90 días",GREEN,GS),
+    ("ONBOARDING\npor qué · para qué\nsector · puesto (test)",GREEN,GS),
+    ("LÍNEA BASE DEL PILOTO\ncaptura del punto\nde partida (pdte)",YELLOW,YS)],
+ 1:[("RUTA PERSONALIZADA\npor sector y puesto\n(gen parcial)",YELLOW,YS),
+    ("CONTENIDO + RAG\nasocia por significado\ningesta/recuperación (test)",GREEN,GS),
+    ("TEST -> NIVEL 1\nautocorregido\n(test)",GREEN,GS)],
+ 2:[("CASO PRÁCTICO + RÚBRICA\nsu trabajo real\n(test)",GREEN,GS),
+    ("VALIDACIÓN HUMANA\nresponsable/nivel valida\n(test)",GREEN,GS),
+    ("GATE PROGRESO\nno validas -> practicas\ncoste IA: parcial",YELLOW,YS)],
+ 3:[("NIVELES POR COMPETENCIA\nEn formación·Aplica·Referente\n(test)",GREEN,GS),
+    ("CASCADA COACH ->\nCOACH DE COACHES ->\nINSPIRADOR (test)",GREEN,GS),
+    ("PUNTOS + ANTIFRAUDE\npaga al aprobar el alumno\n(test)",GREEN,GS)],
+ 4:[("MOTOR DE REGLAS\ndisparador -> recompensa\n(test)",GREEN,GS),
+    ("TÍTULOS + CERTIFICADOS\npropios · verificables\n(test)",GREEN,GS),
+    ("COMPENSACIÓN CONFIG.\nno salarial por defecto\n(test)",GREEN,GS)],
+ 5:[("COBERTURA\nquién aplica qué\n(test)",GREEN,GS),
+    ("RIESGO DE DEPENDENCIA\ncrítica = 1 persona\n(test)",GREEN,GS),
+    ("COSTE FORMAR / TIEMPO\ntransferencia interna (test)\ntiempo autonomía pdte",YELLOW,YS)],
+ 6:[("COBRO POR PLAN\ndiferido hasta\nproducto vendible",RED,RS),
+    ("GARANTÍA DEL PILOTO\nmensaje en la web\ntracking pdte",YELLOW,YS),
+    ("FUNDAE\nacción + control 75%\nexport (test)",GREEN,GS)],
 }
 W,H = 300,94
 x0,y0 = 140,205
@@ -96,34 +96,41 @@ for c in range(6):
 # ---- Paneles inferiores ----
 py = 205+3*dy+24
 pw = 740; gap = 30
-# verde: ya existe
-rect(140, py, pw, 300, '#ebfbee', stroke=GS)
-text(156, py+14, pw-32, 26, "YA EXISTE (construido en el repo)", size=17, align='left', color=GS)
-text(156, py+50, pw-32, 240,
- "• Onboarding + personalización IA (/api/onboard, /api/personalize)\n"
- "• Generación de contenido (crear-curso)\n"
- "• Test de conocimiento + badges (/api/exam)\n"
- "• Coach dashboard + ranking de equipo (/api/coach)\n"
- "• Progreso, mis cursos, tracking (/api/progress, /api/track)\n"
- "• Panel admin: dashboard, insights, cola, equipo, settings\n"
- "• Auth/usuarios, feedback, push, captación de leads\n"
- "• Tope de coste diario de IA (engine settings)", size=13, align='left')
-# rojo: falta
-rect(140+pw+gap, py, pw, 300, '#fff5f5', stroke=RS)
-text(156+pw+gap, py+14, pw-32, 26, "FALTA POR CONSTRUIR (mejoras de desarrollo)", size=17, align='left', color=RS)
-text(156+pw+gap, py+50, pw-32, 240,
- "• Validación de caso práctico con rúbrica + doble revisión (nivel 3)\n"
- "• Cascada de roles: coach de coaches, Inspirador, equipos de empuje\n"
- "• Motor de reglas de recompensa por empresa (disparador -> resultado)\n"
- "• Config. de empresa: títulos, certificados verificables, compensación\n"
- "• Panel ROI real: cobertura, riesgo, coste de formar, tiempo a autonomía\n"
- "• Gate de progreso/coste ligado a validación (ampliar el tope actual)\n"
- "• Antifraude de la cascada: topes, multiplicadores, auditoría por muestreo\n"
- "• Línea base del piloto + garantía comercial\n"
- "• FUNDAE: tutorización + control de tiempo/evaluación justificable\n"
- "• Cobro por plan + Boomatik como entidad organizadora", size=13, align='left')
+# verde: construido y verificado
+rect(140, py, pw, 360, '#ebfbee', stroke=GS)
+text(156, py+14, pw-32, 26, "CONSTRUIDO Y VERIFICADO · platform/ (Fases 0-7)", size=16, align='left', color=GS)
+text(156, py+48, pw-32, 300,
+ "• Multi-tenant: Postgres + Drizzle (26 tablas), aislamiento por empresa\n"
+ "• Auth + organización (better-auth): 1 usuario a multinacional\n"
+ "• RAG: embeddings + ingesta + recuperación por significado\n"
+ "• Agentes conversacionales por rol (LLM Anthropic; mock sin clave)\n"
+ "• Aprendizaje: onboarding, matrícula, test -> Nivel 1\n"
+ "• Validación humana con rúbrica -> Nivel 2 (no autoservicio)\n"
+ "• Propagación: coaching, puntos al aprobar, ascenso a Referente, antifraude\n"
+ "• Config + motor de reglas + certificados verificables (no salarial)\n"
+ "• Panel ROI: cobertura, riesgo de dependencia, transferencia interna\n"
+ "• FUNDAE: acción bonificable, control 75%, export justificativo\n"
+ "\n"
+ "Verificado: typecheck 0 · 8 tests unit · 8 tests integración vs Postgres", size=12.5, align='left')
+# rojo/ámbar: pendiente o diferido
+rect(140+pw+gap, py, pw, 360, '#fff5f5', stroke=RS)
+text(156+pw+gap, py+14, pw-32, 26, "PENDIENTE / DIFERIDO", size=16, align='left', color=RS)
+text(156+pw+gap, py+48, pw-32, 300,
+ "Config (no código):\n"
+ "• Clave Anthropic para respuestas reales de los agentes (ahora mock)\n"
+ "• Postgres en el VPS para desplegar (ahora corre en Postgres local)\n"
+ "\n"
+ "Amarillo (parcial):\n"
+ "• Generación IA de la ruta/lecciones enganchada al onboarding\n"
+ "• Línea base del piloto + gate de coste de IA por alumno\n"
+ "• Tiempo hasta autonomía + tracking de la garantía\n"
+ "\n"
+ "Diferido:\n"
+ "• Cobro por plan / pagos (Fase 8, hasta que el producto se venda)\n"
+ "• Doble revisión N3 + auditoría por muestreo de la cascada\n"
+ "• Conectar los HTML actuales de SkillUp a la nueva API", size=12.5, align='left')
 # azul: estrategia adopción -> ROI
-rect(140+2*(pw+gap), py, pw, 300, '#e7f5ff', stroke=BS)
+rect(140+2*(pw+gap), py, pw, 360, '#e7f5ff', stroke=BS)
 text(156+2*(pw+gap), py+14, pw-32, 26, "ESTRATEGIA DE ADOPCIÓN → ROI", size=17, align='left', color=BS)
 text(156+2*(pw+gap), py+50, pw-32, 240,
  "1. Entra por un equipo, no por toda la plantilla.\n"

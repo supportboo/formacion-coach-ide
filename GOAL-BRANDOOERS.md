@@ -4,6 +4,18 @@
 > **Puerta de salida (validación final):** regenerar `gen_estrategia.py` con TODOS los bloques en verde solo cuando cada uno esté construido, con test pasando y criterio de aceptación cumplido. No se pinta verde nada que no esté probado.
 > **Honesto:** esto es el plan, no está ejecutado. La estimación es orientativa.
 
+## Estado de ejecución (2026-09-01)
+Construido y verificado en `platform/` (typecheck 0 · 8 tests unit · 8 tests integración contra Postgres):
+- **Fase 0** — arquitectura + cimientos (Postgres/Drizzle, better-auth org, RAG, agentes por rol). ✅
+- **Fase 2** — aprendizaje (onboarding, matrícula, test → Nivel 1) + doctrina certeza. ✅
+- **Fase 3** — validación con rúbrica (Nivel 2 exige validación humana, gate). ✅
+- **Fase 4** — propagación y carrera (coaching, puntos al aprobar, ascenso a Referente, antifraude). ✅
+- **Fase 5** — config de empresa + motor de reglas + certificados verificables (no salarial). ✅
+- **Fase 6** — panel ROI (cobertura, riesgo de dependencia, transferencia interna). ✅
+- **Fase 7** — FUNDAE (acción bonificable, control 75%, export justificativo). ✅
+
+Pendiente/diferido: clave Anthropic (agentes reales) y Postgres en VPS (config, no código); generación IA de ruta enganchada, línea base + gate de coste por alumno, tiempo a autonomía, tracking garantía (parciales); **Fase 8 cobro/pagos diferida hasta producto vendible**; doble revisión N3 + auditoría muestreo; conectar los HTML de SkillUp a la API. Diagrama real: `estrategia-brandooers.excalidraw`.
+
 ## Estado actual (punto de partida real)
 - Público: `brandooers.html` (estático, en prod vía VPS nginx). ✅
 - App SkillUp: HTML estáticos (`hub`, `skillup`, `crear-curso`, `dashboard`, `onboarding`, `panel`, `insights`, `usuarios`, `equipo`, `revisiones`) + `account.js`, `feedback.js`, `personalization.js`, `profile.js`.
