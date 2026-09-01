@@ -157,11 +157,29 @@ footer .partner a{color:var(--t);font-weight:700}
 footer .solo a{color:#8b84a0;font-weight:600}
 footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid rgba(255,255,255,.08);padding-top:22px}
 
+/* Pilares de valor */
+.pillars{background:var(--white);padding:80px 0}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.pill{padding:46px 40px;border-right:1px solid var(--line)}
+.pill:last-child{border-right:0}
+.pill h3{font-size:clamp(25px,2.6vw,34px);font-weight:900;letter-spacing:-.03em;line-height:1;margin-bottom:14px}
+.pill p{font-size:15.5px;color:var(--body);line-height:1.62}
+
+/* Banda de garantía */
+.gband{background:linear-gradient(135deg,#0E0B14,#241a33);color:#fff;text-align:center;position:relative;overflow:hidden}
+.gband:before{content:"";position:absolute;width:640px;height:640px;border-radius:50%;filter:blur(130px);opacity:.35;background:radial-gradient(circle,#EC4899,transparent 66%);top:-280px;right:-140px}
+.gband .wrap{position:relative;z-index:1}
+.gband .big{font-size:clamp(32px,5vw,60px);font-weight:900;letter-spacing:-.04em;line-height:1.02;max-width:15ch;margin:0 auto 22px}
+.gband p{font-size:clamp(16px,1.5vw,19px);color:var(--ink-mut);max-width:660px;margin:0 auto;line-height:1.65}
+
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
 .reveal.in{opacity:1;transform:none}
 
 @media(max-width:900px){
-  .rgrid,.frow{grid-template-columns:1fr;gap:34px}
+  .rgrid,.frow,.pgrid{grid-template-columns:1fr;gap:34px}
+  .pgrid{gap:0}
+  .pill{border-right:0;border-bottom:1px solid var(--line)}
+  .pill:last-child{border-bottom:0}
   .frow{margin-top:64px}
   .frow.rev .fimg{order:0}
   .nav-links a:not(.btn){display:none}
@@ -202,6 +220,17 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
     <div><span class="hero-note"><span class="live"></span>Producto en desarrollo&nbsp;· plazas de acceso temprano abiertas</span></div>
   </div>
 </header>
+
+<!-- PILARES DE VALOR -->
+<section class="pillars">
+  <div class="wrap reveal">
+    <div class="pgrid">
+      <div class="pill"><h3 class="grad">Se queda dentro.</h3><p>El conocimiento deja de irse con quien se marcha. Se queda en tu equipo, para siempre.</p></div>
+      <div class="pill"><h3 class="grad">Se propaga solo.</h3><p>Quien aprende forma al siguiente. Cada persona nueva te cuesta menos formar que la anterior.</p></div>
+      <div class="pill"><h3 class="grad">Se mide de verdad.</h3><p>Capacidad, cobertura y riesgo en un panel — no una encuesta de asistencia.</p></div>
+    </div>
+  </div>
+</section>
 
 <!-- PROBLEMA -->
 <section class="problem" id="problema">
@@ -294,14 +323,22 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
   </div>
 </section>
 
+<!-- BANDA DE GARANTÍA -->
+<section class="gband">
+  <div class="wrap reveal">
+    <p class="big">Si no ves la medición, <span class="grad">no pagas.</span></p>
+    <p>El piloto de 90 días empieza midiendo tu punto de partida. Si al final no puedes ver, con datos, quién de tu equipo sabe aplicar cada cosa y cuánto has bajado el riesgo, no pagas. Vendemos capacidad medida, no horas de formación.</p>
+  </div>
+</section>
+
 <!-- CTA FINAL -->
 <section class="finalcta" id="acceso">
   <div class="wrap reveal">
     <span class="eyebrow">En camino</span>
-    <h2>Lo estamos construyendo con los primeros equipos.</h2>
-    <p>Brandooers está en desarrollo. Todavía no está a la venta: lo afinamos con un grupo reducido de empresas antes de abrirlo del todo. Si formas a un equipo y quieres entrar entre los primeros, este es el momento.</p>
-    <a href="mailto:hola@brandooers.com?subject=Acceso%20temprano%20Brandooers" class="btn btn-grad">Solicita acceso temprano →</a>
-    <p class="cta-note">Sin compromiso. Te avisamos cuando tu sector esté listo.</p>
+    <h2>Entra en los primeros pilotos.</h2>
+    <p>Brandooers está en desarrollo y abrimos los primeros pilotos de 90 días con un grupo reducido de empresas. Si formas a un equipo y quieres empezar a medir capacidad de verdad, este es el momento — con la garantía por delante.</p>
+    <a href="mailto:hola@brandooers.com?subject=Piloto%2090%20d%C3%ADas%20Brandooers" class="btn btn-grad">Solicita tu piloto de 90 días →</a>
+    <p class="cta-note">Plazas limitadas. Sin compromiso. Te avisamos cuando tu sector esté listo.</p>
   </div>
 </section>
 
