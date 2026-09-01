@@ -44,12 +44,12 @@ nav .brandooers-logo{font-size:20px;color:#fff}
 .nav-links{display:flex;align-items:center;gap:8px}
 .nav-links a{color:var(--ink-mut);font-size:14px;font-weight:500;padding:8px 14px;border-radius:9px;transition:color .2s}
 .nav-links a:hover{color:#fff}
-.btn{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:13px;border-radius:100px;padding:13px 26px;cursor:pointer;border:0;transition:transform .18s,box-shadow .18s;text-transform:uppercase;letter-spacing:.045em}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:13px;border-radius:100px;padding:13px 26px;cursor:pointer;border:1px solid transparent;color:#fff!important;transition:transform .18s,box-shadow .18s,border-color .18s;text-transform:uppercase;letter-spacing:.045em}
 .btn-sm{padding:11px 22px;font-size:12.5px}
-.btn-grad{background:var(--grad);color:#fff;box-shadow:0 8px 26px rgba(139,92,246,.4)}
-.btn-grad:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(139,92,246,.55)}
-.btn-ghost{background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.18)}
-.btn-ghost:hover{background:rgba(255,255,255,.14)}
+.btn-grad{background:var(--grad);box-shadow:0 8px 26px rgba(139,92,246,.4)}
+.btn-ghost{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18)}
+.btn:hover{transform:translateY(-2px);border-color:#67E8F9;box-shadow:0 0 0 1.5px #67E8F9,0 0 16px rgba(103,232,249,.7),0 0 36px rgba(236,72,153,.4),0 10px 30px rgba(139,92,246,.45)}
+.btn-ghost:hover{background:rgba(255,255,255,.12)}
 
 /* Tipografía de impacto */
 .eyebrow{font-family:'Caveat',cursive;font-size:clamp(26px,3vw,34px);font-weight:700;color:var(--t);margin-bottom:8px;display:block}
