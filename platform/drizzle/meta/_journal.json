@@ -36,6 +36,13 @@
       "when": 1788298522931,
       "tag": "0004_hot_black_bolt",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788298629137,
+      "tag": "0005_clear_the_initiative",
+      "breakpoints": true
     }
   ]
 }

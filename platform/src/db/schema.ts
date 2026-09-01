@@ -335,6 +335,35 @@ export const rewardGrant = pgTable("reward_grant", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("grant_org_idx").on(t.organizationId) }));
 
+/* ============================================================
+ * FUNDAE (Fase 7): acción formativa bonificable + control de aprendizaje (teleformación).
+ * Verificado en BOE/FUNDAE: ≥2h, relacionada con el puesto, no cert. profesionalidad,
+ * finaliza con ≥75% de los controles (no por horas de conexión). Boomatik = proveedor docente.
+ * ============================================================ */
+export const fundaeAction = pgTable("fundae_action", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  title: text("title").notNull(),
+  competencyId: text("competency_id"),
+  modalidad: text("modalidad").notNull().default("teleformacion"),
+  horas: integer("horas").notNull(),
+  relatedPuesto: text("related_puesto"),
+  tutorId: text("tutor_id").notNull(),
+  esCertProfesionalidad: boolean("es_cert_profesionalidad").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("fundae_org_idx").on(t.organizationId) }));
+
+export const fundaeParticipation = pgTable("fundae_participation", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  actionId: text("action_id").notNull().references(() => fundaeAction.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull(),
+  controlsTotal: integer("controls_total").notNull(),
+  controlsDone: integer("controls_done").notNull().default(0),
+  finalizado: boolean("finalizado").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("fundaep_org_idx").on(t.organizationId) }));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
@@ -343,4 +372,5 @@ export const schema = {
   rubric, appliedCase, validation,
   coaching, pointsLedger,
   companyConfig, rewardRule, certificate, rewardGrant,
+  fundaeAction, fundaeParticipation,
 };
