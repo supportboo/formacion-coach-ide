@@ -183,8 +183,56 @@ export const auditLog = pgTable("audit_log", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("audit_org_idx").on(t.organizationId) }));
 
+/* ============================================================
+ * APRENDIZAJE (Fase 2): onboarding, matrícula, test, nivel por competencia.
+ * ============================================================ */
+export const onboardingProfile = pgTable("onboarding_profile", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  sector: text("sector"),
+  puesto: text("puesto"),
+  motivo: text("motivo"), // por qué / para qué se forma
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("onb_org_idx").on(t.organizationId) }));
+
+export const enrollment = pgTable("enrollment", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  pathId: text("path_id").notNull(),
+  competencyId: text("competency_id"),
+  status: text("status").notNull().default("en_curso"), // en_curso | test_ok | en_validacion | completado
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("enr_org_idx").on(t.organizationId) }));
+
+// Nivel por competencia (no global): 0 ninguno · 1 En formación · 2 Aplica · 3 Referente · 4 Custodio
+export const levelByCompetency = pgTable("level_by_competency", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  competencyId: text("competency_id").notNull(),
+  level: integer("level").notNull().default(0),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({
+  byOrg: index("lvl_org_idx").on(t.organizationId),
+  uniq: uniqueIndex("lvl_uniq").on(t.organizationId, t.userId, t.competencyId),
+}));
+
+export const testAttempt = pgTable("test_attempt", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  pathId: text("path_id").notNull(),
+  competencyId: text("competency_id"),
+  score: integer("score").notNull(),
+  passed: boolean("passed").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("att_org_idx").on(t.organizationId) }));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
   ragDocument, ragChunk, agentThread, agentMessage, auditLog,
+  onboardingProfile, enrollment, levelByCompetency, testAttempt,
 };
