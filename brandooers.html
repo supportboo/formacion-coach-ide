@@ -15,18 +15,20 @@
 <style>
 :root{
   --dark:#0E0B14; --dark2:#171121; --ink:#ECE9F3; --ink-mut:#A79FB8;
-  --bg:#FAFAFA; --white:#FFFFFF; --text:#2D2D2D; --body:#4A4A4A; --mut:#8F8F8F; --line:#E8E0E5; --warm:#F5F0EE;
+  --bg:#FAFAFA; --white:#FFFFFF; --text:#191320; --body:#4A4457; --mut:#8F8896; --line:#EBE4EF; --warm:#F5F0F6;
   --p:#8B5CF6; --t:#0891B2; --violet:#8B5CF6;
   --grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);
-  --radius:18px;
+  --grad-135:linear-gradient(135deg,#00D4FF,#8B5CF6,#EC4899);
+  --radius:20px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--body);line-height:1.65;-webkit-font-smoothing:antialiased}
 a{text-decoration:none;color:inherit}
-.hand{font-family:'Caveat',cursive}
+img{display:block;max-width:100%}
 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 32px}
+.wrap-narrow{max-width:900px;margin:0 auto;padding:0 32px}
 
 /* Logo */
 .brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;user-select:none}
@@ -37,100 +39,135 @@ a{text-decoration:none;color:inherit}
 /* Nav */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent}
 nav.solid{background:rgba(14,11,20,.82);backdrop-filter:blur(16px);border-bottom-color:rgba(255,255,255,.08)}
-nav .row{display:flex;align-items:center;justify-content:space-between;height:66px}
+nav .row{display:flex;align-items:center;justify-content:space-between;height:68px}
 nav .brandooers-logo{font-size:20px;color:#fff}
 .nav-links{display:flex;align-items:center;gap:8px}
 .nav-links a{color:var(--ink-mut);font-size:14px;font-weight:500;padding:8px 14px;border-radius:9px;transition:color .2s}
 .nav-links a:hover{color:#fff}
-.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;border-radius:100px;padding:11px 22px;cursor:pointer;border:0;transition:transform .18s,box-shadow .18s,opacity .18s;letter-spacing:.01em}
-.btn-grad{background:var(--grad);color:#fff;box-shadow:0 6px 22px rgba(139,92,246,.35)}
-.btn-grad:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(139,92,246,.5)}
-.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.16)}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:13px;border-radius:100px;padding:13px 26px;cursor:pointer;border:0;transition:transform .18s,box-shadow .18s;text-transform:uppercase;letter-spacing:.045em}
+.btn-sm{padding:11px 22px;font-size:12.5px}
+.btn-grad{background:var(--grad);color:#fff;box-shadow:0 8px 26px rgba(139,92,246,.4)}
+.btn-grad:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(139,92,246,.55)}
+.btn-ghost{background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.18)}
 .btn-ghost:hover{background:rgba(255,255,255,.14)}
-.btn-dark{background:var(--text);color:#fff}
-.btn-dark:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(45,45,45,.25)}
+
+/* Tipografía de impacto */
+.eyebrow{font-family:'Caveat',cursive;font-size:clamp(26px,3vw,34px);font-weight:700;color:var(--t);margin-bottom:8px;display:block}
+.h2{font-size:clamp(31px,4.6vw,54px);font-weight:900;color:var(--text);letter-spacing:-.035em;line-height:1.06;margin-bottom:18px}
+.lead2{font-size:clamp(16.5px,1.5vw,19px);color:var(--body);max-width:640px;line-height:1.75}
+.lead2 + .lead2{margin-top:16px}
+.center{text-align:center}
+.center .lead2{margin-left:auto;margin-right:auto}
+section{padding:110px 0}
 
 /* Hero */
-.hero{position:relative;background:#0E0B14 url('assets/char/char-hero.jpg') center right/cover no-repeat;color:var(--ink);overflow:hidden;padding:150px 0 120px;min-height:90vh;display:flex;align-items:center}
-.hero .ovl{position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(14,11,20,.97) 0%,rgba(14,11,20,.88) 32%,rgba(14,11,20,.5) 60%,rgba(14,11,20,.22) 100%)}
-.hero .wrap{position:relative;z-index:1;text-align:left}
-.kicker{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mut);border:1px solid rgba(255,255,255,.14);border-radius:100px;padding:8px 18px;margin-bottom:30px}
-.kicker .d{width:6px;height:6px;border-radius:50%;background:var(--grad)}
-.hero h1{font-size:clamp(38px,6vw,72px);font-weight:900;letter-spacing:-.035em;line-height:1.04;color:#fff;max-width:17ch;margin:0 0 26px}
-.hero p.lead{font-size:clamp(17px,2vw,20px);color:var(--ink-mut);max-width:600px;margin:0 0 40px;line-height:1.65}
-.hero-cta{display:flex;gap:14px;justify-content:flex-start;flex-wrap:wrap}
-.hero-note{margin-top:34px;font-size:13.5px;color:var(--ink-mut);display:inline-flex;align-items:center;gap:9px}
+.hero{position:relative;background:#0E0B14 url('assets/char/char-hero.jpg') center right/cover no-repeat;color:var(--ink);overflow:hidden;padding:170px 0 130px;min-height:96vh;display:flex;align-items:center}
+.hero .ovl{position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(14,11,20,.98) 0%,rgba(14,11,20,.9) 34%,rgba(14,11,20,.5) 62%,rgba(14,11,20,.2) 100%)}
+.hero .wrap{position:relative;z-index:1}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#cdc5dd;border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:9px 18px;margin-bottom:32px}
+.kicker .d{width:7px;height:7px;border-radius:50%;background:var(--grad)}
+.hero h1{font-size:clamp(44px,7vw,88px);font-weight:900;letter-spacing:-.04em;line-height:1;color:#fff;max-width:16ch;margin:0 0 28px}
+.hero h1 .grad{display:inline-block}
+.hero p.lead{font-size:clamp(17px,1.7vw,21px);color:#c8c0d6;max-width:600px;margin:0 0 42px;line-height:1.62}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-note{margin-top:36px;font-size:13.5px;color:var(--ink-mut);display:inline-flex;align-items:center;gap:9px}
 .hero-note .live{width:8px;height:8px;border-radius:50%;background:#21B799;box-shadow:0 0 0 0 rgba(33,183,153,.6);animation:pulse 2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(33,183,153,.5)}70%{box-shadow:0 0 0 9px rgba(33,183,153,0)}100%{box-shadow:0 0 0 0 rgba(33,183,153,0)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(33,183,153,.5)}70%{box-shadow:0 0 0 10px rgba(33,183,153,0)}100%{box-shadow:0 0 0 0 rgba(33,183,153,0)}}
 
-/* Sección genérica */
-section{padding:96px 0}
-.tag{font-family:'Caveat',cursive;font-size:30px;font-weight:700;color:var(--t);margin-bottom:6px}
-.h2{font-size:clamp(28px,3.6vw,42px);font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1.12;margin-bottom:16px;max-width:22ch}
-.lead2{font-size:17px;color:var(--body);max-width:680px;line-height:1.75}
-.lead2 + .lead2{margin-top:16px}
-.center{text-align:center;margin:0 auto}
-.center .h2,.center .lead2{margin-left:auto;margin-right:auto}
+/* Problema — impacto */
+.problem{background:var(--dark2);color:var(--ink);position:relative;overflow:hidden}
+.problem .eyebrow{color:#67E8F9}
+.problem .h2{color:#fff;max-width:16ch}
+.problem .lead2{color:var(--ink-mut);max-width:720px}
+.impact{font-size:clamp(28px,4.6vw,56px);font-weight:900;letter-spacing:-.035em;line-height:1.08;color:#fff;max-width:20ch;margin:44px 0 0}
+.impact .q{color:#EC4899}
+.impact small{display:block;font-size:clamp(15px,1.4vw,18px);font-weight:500;color:var(--ink-mut);letter-spacing:0;margin-top:18px;line-height:1.6;max-width:36ch}
 
-/* Cards claras (cómo funciona) */
-.ide{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
-.ide-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:32px 28px;transition:transform .22s,box-shadow .22s}
-.ide-card:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(139,92,246,.1)}
-.ide-card .num{font-size:13px;font-weight:800;letter-spacing:.1em}
-.ide-card h3{font-size:22px;font-weight:800;color:var(--text);margin:14px 0 8px;letter-spacing:-.02em}
-.ide-card p{font-size:14.5px;color:var(--body)}
+/* Recorrido de valor (timeline) */
+.flowsec{position:relative;background:var(--dark);color:var(--ink);overflow:hidden}
+.flowsec:before{content:"";position:absolute;inset:0;background:url('assets/banner-6.png') center/cover no-repeat;opacity:.14;filter:grayscale(.2)}
+.flowsec .wrap{position:relative;z-index:1}
+.flowsec .eyebrow{color:#b39bff}
+.flowsec .h2{color:#fff;max-width:20ch}
+.flowsec .lead2{color:var(--ink-mut)}
+.flow{max-width:760px;margin:64px auto 0}
+.fstep{position:relative;display:grid;grid-template-columns:66px 1fr;gap:26px;padding-bottom:46px}
+.fstep::before{content:"";position:absolute;left:32px;top:64px;bottom:2px;width:2px;background:linear-gradient(180deg,rgba(139,92,246,.7),rgba(139,92,246,.12))}
+.fstep:last-child::before{display:none}
+.fnode{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;color:#fff;background:rgba(255,255,255,.04);border:1.5px solid rgba(139,92,246,.5);position:relative;z-index:1}
+.fnode.on{background:var(--grad-135);border-color:transparent;box-shadow:0 10px 30px rgba(139,92,246,.5)}
+.fbody{padding-top:6px}
+.fbody h3{font-size:clamp(20px,2.1vw,26px);font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:7px}
+.fbody p{font-size:15.5px;color:var(--ink-mut);line-height:1.65;max-width:52ch}
+.fcta{background:linear-gradient(135deg,rgba(139,92,246,.16),rgba(236,72,153,.1));border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:24px 26px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:4px}
+.fcta div h3{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
+.fcta div p{font-size:14.5px;color:var(--ink-mut)}
 
-/* Sección oscura (panel responsable) */
-.vsec{background:var(--dark);color:var(--ink)}
-.vsec .tag{color:#8B5CF6}
-.vsec .h2{color:#fff}
-.vsec .lead2{color:var(--ink-mut)}
-.verts{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:52px}
-.vert{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:30px 30px 28px;overflow:hidden;transition:transform .22s,border-color .22s}
-.vert:hover{transform:translateY(-3px);border-color:rgba(139,92,246,.5)}
-.vert .bar{position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
-.vert h3{font-size:21px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:10px}
-.vert p{font-size:14.5px;color:var(--ink-mut);line-height:1.65}
+/* Filas imagen + texto */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;margin-top:96px}
+.frow:first-of-type{margin-top:0}
+.frow .txt{max-width:520px}
+.frow .txt h3{font-size:clamp(24px,3vw,36px);font-weight:900;color:var(--text);letter-spacing:-.03em;line-height:1.12;margin-bottom:16px}
+.frow .txt p{font-size:16.5px;color:var(--body);line-height:1.72}
+.frow .num{font-family:'Caveat',cursive;font-size:26px;font-weight:700;color:var(--p);margin-bottom:4px;display:block}
+.fimg{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:4/3;box-shadow:0 30px 70px rgba(24,10,40,.16);border:1px solid var(--line)}
+.fimg img{width:100%;height:100%;object-fit:cover}
+.fimg:after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,transparent 55%,rgba(139,92,246,.12))}
+.frow.rev .fimg{order:-1}
+
+/* Panel — resultados */
+.panel{background:var(--dark);color:var(--ink)}
+.panel .eyebrow{color:#8B5CF6}
+.panel .h2{color:#fff;max-width:18ch}
+.panel .lead2{color:var(--ink-mut);max-width:680px}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:56px}
+.rcard{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:30px 30px 30px;overflow:hidden;transition:transform .22s,border-color .22s}
+.rcard:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.55)}
+.ricon{width:48px;height:48px;border-radius:13px;background:var(--grad-135);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.ricon svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rcard h3{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:8px}
+.rcard p{font-size:14.5px;color:var(--ink-mut);line-height:1.65}
 
 /* Garantía */
-.pledge{margin-top:34px;background:var(--warm);border:1px solid var(--line);border-radius:16px;padding:22px 26px;display:flex;gap:16px;align-items:flex-start;max-width:760px}
-.pledge .ic{flex:0 0 auto;width:40px;height:40px;border-radius:11px;background:var(--grad);display:flex;align-items:center;justify-content:center}
-.pledge .ic svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2}
-.pledge p{font-size:14.5px;color:var(--text)}
-.pledge b{color:var(--p)}
+.guarantee .eyebrow{color:var(--t)}
+.pledge{margin-top:32px;background:var(--warm);border:1px solid var(--line);border-radius:18px;padding:26px 30px;display:flex;gap:18px;align-items:center;max-width:820px}
+.pledge .ic{flex:0 0 auto;width:52px;height:52px;border-radius:14px;background:var(--grad-135);display:flex;align-items:center;justify-content:center}
+.pledge .ic svg{width:27px;height:27px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pledge p{font-size:16px;color:var(--text);font-weight:500}
+.pledge b{color:var(--p);font-weight:800}
 
-/* Cierre / acceso temprano */
-.vision{position:relative;background:var(--dark2);color:var(--ink);overflow:hidden;text-align:center}
-.vision:before{content:"";position:absolute;width:700px;height:700px;border-radius:50%;filter:blur(120px);opacity:.35;background:radial-gradient(circle,#00D4FF,transparent 70%);top:-260px;right:-160px}
-.vision .wrap{position:relative;z-index:1}
-.vision .tag{color:#67E8F9}
-.vision .h2{color:#fff;margin-left:auto;margin-right:auto}
-.vision .lead2{color:var(--ink-mut);margin:0 auto 34px}
-.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.cta-note{margin-top:20px;font-size:13.5px;color:var(--ink-mut)}
+/* CTA final */
+.finalcta{position:relative;background:var(--dark2);color:var(--ink);overflow:hidden;text-align:center;padding:130px 0}
+.finalcta:before{content:"";position:absolute;width:820px;height:820px;border-radius:50%;filter:blur(130px);opacity:.4;background:radial-gradient(circle,#8B5CF6,transparent 68%);top:-320px;left:50%;transform:translateX(-50%)}
+.finalcta .wrap{position:relative;z-index:1}
+.finalcta .eyebrow{color:#67E8F9}
+.finalcta h2{font-size:clamp(34px,5.2vw,66px);font-weight:900;letter-spacing:-.04em;line-height:1.02;color:#fff;max-width:16ch;margin:0 auto 22px}
+.finalcta p{font-size:clamp(16.5px,1.6vw,19px);color:var(--ink-mut);max-width:600px;margin:0 auto 38px;line-height:1.65}
+.cta-note{margin-top:22px;font-size:13.5px;color:var(--ink-mut)}
 
 /* Footer */
-footer{background:var(--dark);color:var(--ink-mut);padding:46px 0 40px}
+footer{background:var(--dark);color:var(--ink-mut);padding:52px 0 44px}
 footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
 footer .brandooers-logo{font-size:17px;color:#fff}
 footer a{color:var(--ink-mut);font-size:13.5px;transition:color .2s}
 footer a:hover{color:#fff}
 footer .fl{display:flex;gap:22px;flex-wrap:wrap}
-footer .partner{font-size:13.5px;color:#8b84a0;margin-top:22px;line-height:1.7}
+footer .partner{font-size:13.5px;color:#8b84a0;margin-top:24px;line-height:1.7}
 footer .partner a{color:var(--t);font-weight:700}
-footer .solo{color:#6b6480}
 footer .solo a{color:#8b84a0;font-weight:600}
 footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid rgba(255,255,255,.08);padding-top:22px}
 
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
 .reveal.in{opacity:1;transform:none}
 
-@media(max-width:860px){
-  .ide,.verts{grid-template-columns:1fr}
+@media(max-width:900px){
+  .rgrid,.frow{grid-template-columns:1fr;gap:34px}
+  .frow{margin-top:64px}
+  .frow.rev .fimg{order:0}
   .nav-links a:not(.btn){display:none}
-  section{padding:70px 0}
-  .hero{background-position:center top;min-height:82vh}
-  .hero .ovl{background:linear-gradient(180deg,rgba(14,11,20,.62),rgba(14,11,20,.9) 55%,rgba(14,11,20,.96))}
+  section{padding:78px 0}
+  .hero{background-position:center top;min-height:88vh;padding:140px 0 90px}
+  .hero .ovl{background:linear-gradient(180deg,rgba(14,11,20,.66),rgba(14,11,20,.92) 55%,rgba(14,11,20,.97))}
 }
 </style>
 </head>
@@ -146,9 +183,9 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
   <a href="#top" class="brandooers-logo">Brand<svg class="beyes" width="40" height="23" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g><g transform="translate(53,0)"><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g></svg>ers</a>
   <div class="nav-links">
     <a href="#problema">El problema</a>
-    <a href="#como">Cómo funciona</a>
+    <a href="#recorrido">El recorrido</a>
     <a href="#panel">Para tu equipo</a>
-    <a href="#acceso" class="btn btn-grad">Acceso temprano</a>
+    <a href="#acceso" class="btn btn-grad btn-sm">Acceso temprano</a>
   </div>
 </div></div></nav>
 
@@ -157,83 +194,113 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
   <div class="wrap">
     <span class="kicker"><span class="d"></span>Formación para equipos · En desarrollo</span>
     <h1>La formación que compras se va. <span class="grad">Esta se queda dentro.</span></h1>
-    <p class="lead">Cada persona aprende con los casos de su sector y de su puesto, demuestra en un ejercicio real que sabe aplicarlo, y a partir de ahí forma al siguiente. Al final del trimestre no tienes cursos completados: tienes gente que ya puede enseñárselo a otro.</p>
+    <p class="lead">Cada persona aprende con los casos de su sector y de su puesto, demuestra en un ejercicio real que sabe aplicarlo y, a partir de ahí, forma al siguiente. Al final del trimestre no tienes cursos completados: tienes gente que ya sabe hacerlo — y que puede enseñárselo a otro.</p>
     <div class="hero-cta">
       <a href="#acceso" class="btn btn-grad">Solicita acceso temprano →</a>
-      <a href="#como" class="btn btn-ghost">Cómo funciona</a>
+      <a href="#recorrido" class="btn btn-ghost">Ver el recorrido</a>
     </div>
     <div><span class="hero-note"><span class="live"></span>Producto en desarrollo&nbsp;· plazas de acceso temprano abiertas</span></div>
   </div>
 </header>
 
-<section id="problema">
-  <div class="wrap center reveal">
-    <p class="tag">El problema</p>
-    <h2 class="h2">Ya sabes cómo acaba un catálogo de cursos.</h2>
-    <p class="lead2">Se contrata para toda la plantilla, lo termina una parte pequeña, y de esa parte casi nadie usa nada al día siguiente. Los ejemplos son de una empresa que no se parece a la tuya, y el material se compró hace tres años mientras la normativa de tu sector ya ha cambiado dos veces.</p>
-    <p class="lead2">Y cuando el que sabía se va, el conocimiento se va con él. El informe que te llega dice el 78&nbsp;% de finalización. No dice si ha servido para algo.</p>
-  </div>
-</section>
-
-<section id="como" class="vsec">
-  <div class="wrap center reveal">
-    <p class="tag">Cómo funciona</p>
-    <h2 class="h2">Aprende, demuestra, y se lo enseña al siguiente.</h2>
-    <p class="lead2">Mismos conceptos para todos, distintos ejemplos para cada uno. Y lo que se mide no es quién terminó, sino quién sabe aplicarlo y quién ya puede enseñarlo.</p>
-  </div>
-  <div class="wrap"><div class="ide">
-    <div class="ide-card reveal"><div class="num grad">01 · APRENDE CON LO SUYO</div><h3>Su sector, su puesto</h3><p>El comercial trabaja sus objeciones reales y el de operaciones sus incidencias reales. Mismos conceptos, ejemplos distintos para cada persona.</p></div>
-    <div class="ide-card reveal"><div class="num grad">02 · DEMUESTRA QUE APLICA</div><h3>Un caso real, no un test</h3><p>Nada de aprobar de memoria. Cada persona resuelve un caso de su puesto y alguien de tu equipo con nivel acreditado lo revisa.</p></div>
-    <div class="ide-card reveal"><div class="num grad">03 · ENSEÑA AL SIGUIENTE</div><h3>El conocimiento se queda</h3><p>Quien demuestra que lo domina pasa a formar a sus compañeros. Cada vez te cuesta menos formar a la siguiente persona.</p></div>
-  </div></div>
-</section>
-
-<section id="panel">
-  <div class="wrap center reveal">
-    <p class="tag">Lo que ves tú</p>
-    <h2 class="h2">Deja de medir asistencia. Empieza a medir capacidad.</h2>
-    <p class="lead2">El panel del responsable no cuenta cursos completados. Cuenta quién sabe hacer qué, y dónde tienes un problema antes de que estalle.</p>
-  </div>
-  <div class="wrap"><div class="verts">
-    <div class="vert reveal"><div class="bar"></div>
-      <h3>Cobertura real</h3>
-      <p>Qué porcentaje de cada equipo sabe aplicar cada competencia crítica. No cuántos entraron en el curso.</p>
-    </div>
-    <div class="vert reveal"><div class="bar"></div>
-      <h3>Dónde estás expuesto</h3>
-      <p>Te avisamos cuando una competencia crítica depende de una sola persona. Si esa persona se va mañana, tú ya lo sabías.</p>
-    </div>
-    <div class="vert reveal"><div class="bar"></div>
-      <h3>Coste de formar al siguiente</h3>
-      <p>La cifra baja cada trimestre, a medida que tu propio equipo absorbe la formación y forma a los que llegan.</p>
-    </div>
-    <div class="vert reveal"><div class="bar"></div>
-      <h3>Tiempo hasta ser autónomo</h3>
-      <p>Cuánto tarda alguien nuevo desde el alta hasta resolver su primer caso real por su cuenta.</p>
-    </div>
-  </div></div>
-</section>
-
-<section id="garantia">
+<!-- PROBLEMA -->
+<section class="problem" id="problema">
   <div class="wrap reveal">
-    <p class="tag">La garantía</p>
+    <span class="eyebrow">El problema</span>
+    <h2 class="h2">Ya sabes cómo acaba un catálogo de cursos.</h2>
+    <p class="lead2">Se contrata para toda la plantilla. Lo termina una parte pequeña. Y de esa parte, casi nadie usa nada al día siguiente. Los ejemplos son de una empresa que no se parece a la tuya, y el material se compró hace tres años — mientras la normativa de tu sector ya ha cambiado dos veces.</p>
+    <p class="impact"><span class="q">«El 78 % de finalización.»</span> Lo que no dice el informe es si ha servido para algo.<small>Y cuando el que sabía se marcha, el conocimiento se marcha con él.</small></p>
+  </div>
+</section>
+
+<!-- RECORRIDO DE VALOR -->
+<section class="flowsec" id="recorrido">
+  <div class="wrap">
+    <div class="reveal" style="max-width:720px">
+      <span class="eyebrow">El recorrido</span>
+      <h2 class="h2">Del conocimiento que se pierde al que se queda y se multiplica.</h2>
+      <p class="lead2">Cada paso deja más capacidad dentro de tu equipo que el anterior. Este es el camino completo, de principio a fin — y termina donde empieza tu retorno.</p>
+    </div>
+    <div class="flow">
+      <div class="fstep reveal"><div class="fnode">01</div><div class="fbody"><h3>Tu equipo hoy</h3><p>El saber vive en unas pocas cabezas. Si una se va, se va con ella — y vuelves a formar desde cero.</p></div></div>
+      <div class="fstep reveal"><div class="fnode">02</div><div class="fbody"><h3>Aprende con lo suyo</h3><p>Cada persona, con los casos reales de su sector y su puesto. No teoría genérica: lo que reconoce como su día a día.</p></div></div>
+      <div class="fstep reveal"><div class="fnode">03</div><div class="fbody"><h3>Demuestra que lo aplica</h3><p>Resuelve un caso de su trabajo real y lo revisa alguien de tu equipo con nivel acreditado. No un test de memoria.</p></div></div>
+      <div class="fstep reveal"><div class="fnode">04</div><div class="fbody"><h3>Se lo enseña al siguiente</h3><p>Quien lo domina, forma. El conocimiento deja de depender de una sola persona y empieza a multiplicarse solo.</p></div></div>
+      <div class="fstep reveal"><div class="fnode on">05</div><div class="fbody"><h3>Tu empresa lo ve</h3><p>Cobertura por competencia, riesgo y coste de formar — en un panel, no en una encuesta de satisfacción.</p></div></div>
+      <div class="fstep reveal" style="padding-bottom:0"><div class="fnode on">→</div><div class="fbody" style="padding-top:0"><div class="fcta"><div><h3>Y aquí empieza tu retorno.</h3><p>Menos dependencia, menos coste de formar, cero puntos ciegos. Entra entre los primeros.</p></div><a href="#acceso" class="btn btn-grad btn-sm">Acceso temprano →</a></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FILAS IMAGEN + TEXTO -->
+<section id="detalle">
+  <div class="wrap">
+    <div class="frow reveal">
+      <div class="txt">
+        <span class="num">Aprende</span>
+        <h3>Su sector. Su puesto. Sus casos.</h3>
+        <p>El comercial trabaja sus objeciones reales. El de operaciones, sus incidencias reales. Mismos conceptos para todos, ejemplos distintos para cada uno — porque nadie aplica lo que no reconoce como suyo. Ahí es donde una formación deja de ser un vídeo que se ve y pasa a ser algo que se usa.</p>
+      </div>
+      <div class="fimg"><img src="assets/char/char-search.jpg" alt="Aprender con casos del propio sector y puesto" loading="lazy" width="800" height="600"></div>
+    </div>
+
+    <div class="frow rev reveal">
+      <div class="txt">
+        <span class="num">Demuestra</span>
+        <h3>Se aprueba haciendo, no memorizando.</h3>
+        <p>Nada de tipo test que se olvida en una semana. Cada persona resuelve un caso de su puesto y alguien de tu equipo con nivel acreditado lo revisa. Lo que se mide no es quién asistió al curso: es quién sabe aplicarlo cuando toca. Esa diferencia es todo.</p>
+      </div>
+      <div class="fimg"><img src="assets/char/char-code.jpg" alt="Demostrar la competencia resolviendo un caso real" loading="lazy" width="800" height="600"></div>
+    </div>
+
+    <div class="frow reveal">
+      <div class="txt">
+        <span class="num">Multiplica</span>
+        <h3>El conocimiento se queda — y se propaga solo.</h3>
+        <p>Cuando alguien demuestra que domina algo, pasa a formar a sus compañeros. Cada persona nueva te cuesta menos formar que la anterior, porque la formación ya vive dentro de tu equipo. Eso es exactamente lo que un catálogo de cursos nunca te va a dar.</p>
+      </div>
+      <div class="fimg"><img src="assets/char/char-collab.jpg" alt="El equipo se forma entre sí y el conocimiento se multiplica" loading="lazy" width="800" height="600"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PANEL / RESULTADOS -->
+<section class="panel" id="panel">
+  <div class="wrap">
+    <div class="reveal" style="max-width:720px">
+      <span class="eyebrow">Lo que ves tú</span>
+      <h2 class="h2">Deja de medir asistencia. Empieza a medir capacidad.</h2>
+      <p class="lead2">El panel del responsable no cuenta cursos completados. Cuenta quién sabe hacer qué — y te avisa antes de que un punto ciego se convierta en un agujero.</p>
+    </div>
+    <div class="rgrid">
+      <div class="rcard reveal"><div class="ricon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></div><h3>Cobertura real</h3><p>Qué porcentaje de cada equipo sabe aplicar cada competencia crítica. No cuántos entraron en el curso.</p></div>
+      <div class="rcard reveal"><div class="ricon"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V7z"/><path d="M12 9v4"/><path d="M12 16h.01"/></svg></div><h3>Dónde estás expuesto</h3><p>Aviso cuando una competencia crítica depende de una sola persona. Si se va mañana, tú ya lo sabías.</p></div>
+      <div class="rcard reveal"><div class="ricon"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h10"/><path d="M4 17h6"/><path d="M20 13l-4 5-2.4-2.4"/></svg></div><h3>Coste de formar al siguiente</h3><p>Baja cada trimestre, a medida que tu propio equipo absorbe la formación y forma a los que llegan.</p></div>
+      <div class="rcard reveal"><div class="ricon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Tiempo hasta ser autónomo</h3><p>Cuánto tarda alguien nuevo desde el alta hasta resolver su primer caso real por su cuenta.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GARANTÍA -->
+<section class="guarantee" id="garantia">
+  <div class="wrap-narrow reveal">
+    <span class="eyebrow">La garantía</span>
     <h2 class="h2">Puedes comprobar de dónde sale cada dato.</h2>
-    <p class="lead2">Cada afirmación lleva su fuente enlazada y cada lección lleva su fecha de última revisión, a la vista. Cuando cambia la normativa de tu sector, el contenido afectado se revisa.</p>
+    <p class="lead2">Cada afirmación lleva su fuente enlazada. Cada lección, su fecha de última revisión, a la vista. Cuando cambia la normativa de tu sector, el contenido afectado se revisa — antes de que forme a nadie con algo caducado.</p>
     <div class="pledge">
       <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-      <p><b>Nuestra promesa:</b> ninguna cifra sin origen, ningún enlace roto, nada que no puedas verificar tú mismo en dos clics.</p>
+      <p><b>Nuestra promesa:</b> ninguna cifra sin origen, ningún enlace roto, nada que no puedas verificar tú mismo en dos clics. La confianza es el producto.</p>
     </div>
   </div>
 </section>
 
-<section class="vision" id="acceso">
+<!-- CTA FINAL -->
+<section class="finalcta" id="acceso">
   <div class="wrap reveal">
-    <p class="tag">En camino</p>
-    <h2 class="h2">Lo estamos construyendo con los primeros equipos.</h2>
-    <p class="lead2">Brandooers está en desarrollo. Empezamos por la formación por sector y puesto que se queda dentro de tu equipo. Todavía no está a la venta: lo estamos afinando con un grupo reducido de empresas antes de abrirlo del todo.</p>
-    <div class="cta-row">
-      <a href="mailto:hola@brandooers.com?subject=Acceso%20temprano%20Brandooers" class="btn btn-grad">Solicita acceso temprano →</a>
-    </div>
+    <span class="eyebrow">En camino</span>
+    <h2>Lo estamos construyendo con los primeros equipos.</h2>
+    <p>Brandooers está en desarrollo. Todavía no está a la venta: lo afinamos con un grupo reducido de empresas antes de abrirlo del todo. Si formas a un equipo y quieres entrar entre los primeros, este es el momento.</p>
+    <a href="mailto:hola@brandooers.com?subject=Acceso%20temprano%20Brandooers" class="btn btn-grad">Solicita acceso temprano →</a>
     <p class="cta-note">Sin compromiso. Te avisamos cuando tu sector esté listo.</p>
   </div>
 </section>
@@ -244,7 +311,7 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
       <a href="#top" class="brandooers-logo">Brand<svg class="beyes" width="36" height="21" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>ers</a>
       <div class="fl">
         <a href="#problema">El problema</a>
-        <a href="#como">Cómo funciona</a>
+        <a href="#recorrido">El recorrido</a>
         <a href="#panel">Para tu equipo</a>
         <a href="mailto:hola@brandooers.com">Contacto</a>
       </div>
@@ -260,7 +327,7 @@ var nav=document.getElementById('nav');
 function onScroll(){ nav.classList.toggle('solid', window.scrollY>20); }
 onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
 try{
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
   document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
 }catch(e){ document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');}); }
 </script>
