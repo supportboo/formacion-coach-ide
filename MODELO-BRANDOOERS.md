@@ -89,5 +89,16 @@ Mitos que la industria repite y que NO usamos:
 - "94 % se quedaría si la empresa invierte en su desarrollo" → real pero es LinkedIn **2018**, autoinformado (intención, no conducta): citar con año.
 - Cifras de proveedor (Unilever +41 %, IBM 1$→30$) → marketing, no prueba independiente.
 
-## 8. Regla de voz (web)
+## 8. Cómo se atan los cabos (motor de reglas, oferta y financiación)
+
+Todos los dolores son el mismo: **nadie puede probar el vínculo conocimiento → resultado, así que nadie se compromete** (el CEO no quiere cursos generales, no invierte sin garantías, no sabe dar seguimiento, no sabe premiar de forma justa). La plataforma existe para hacer ese vínculo visible y medible, por empresa.
+
+- **Motor de reglas de recompensa por empresa (Configuración de empresa).** No imponemos modelo de compensación: damos una capa de reglas configurable. Disparadores (competencia validada, cobertura X alcanzada, coachear a N personas que llegan a nivel 2, riesgo cubierto) → resultados (certificado, título, punto de temporada, perk, o señal a RR. HH. de "candidato a subida"). Cubre casuísticas opuestas: subir a todos automáticamente (tipo Odoo primeros años), subir por logros, o "solo cuando el empleado insiste". La empresa mapea su realidad; la plataforma ejecuta las reglas y las mide.
+- **Formar a los que forman.** Los Team Leaders a menudo no saben diseñar formación: la plataforma les da el andamiaje (rutas, rúbricas, casos) para que solo validen y coacheen, más un track de "formación de formadores". No necesitan ser diseñadores instruccionales.
+- **Seguimiento (incluido el nuestro).** El panel ES el sistema de seguimiento de estrategia. Boomatik lo usa primero en sí misma (dogfooding) → caso 0 y prueba viva, y resuelve nuestro propio problema de no dar seguimiento interno pese a vender estrategia.
+- **Oferta irresistible = garantía sobre la medición, no sobre una cifra.** Piloto de 90 días por un equipo: línea base → resultado. Si al final la empresa no puede enseñarle a su CEO el mapa real de quién sabe hacer qué y la bajada de riesgo/tiempo a autonomía, no paga. Vendemos capacidad medida, no horas de formación. Nadie más mide (solo 16 % mide ROI) → por eso es irresistible y honesta.
+- **FUNDAE (España) como palanca de financiación.** La formación bonificable baja el coste neto para la empresa → venta más fácil; Boomatik puede actuar como / asociarse con una entidad organizadora que gestiona la bonificación. Encaje elegante: **la validación humana que ya exigimos = la tutorización que FUNDAE requiere**, hecha con los coaches internos de la empresa; el control de tiempo/participación/evaluación lo automatiza la plataforma. No requiere presencial (teleformación admitida). **Aviso: FUNDAE fiscaliza; bonificar mal = devolver + sanción. Confirmar requisitos vigentes (duración mínima, tutor-formador, requisitos de teleformación) con un gestor/entidad organizadora antes de prometerlo en la oferta.** No se puede automatizar el tutor al 100 % si se quiere bonificar.
+- **Sin quemar horas de expertos ni de usuarios.** La IA genera y autocorrige el conocimiento (cero horas de experto externo); el humano solo valida casos aplicados (mínimo, e interno); el usuario practica con su propio trabajo real → el aprendizaje se solapa con su día a día (respeta el "~1 % de la semana", Bersin 2015).
+
+## 9. Regla de voz (web)
 Hacia fuera solo se cuenta el resultado. Ni agentes, ni pipeline, ni puntos, ni niveles, ni ranking, ni avatares. La mecánica de este documento es interna.
