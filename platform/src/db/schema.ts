@@ -291,6 +291,50 @@ export const pointsLedger = pgTable("points_ledger", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("pts_org_idx").on(t.organizationId) }));
 
+/* ============================================================
+ * CONFIG DE EMPRESA + MOTOR DE REGLAS (Fase 5).
+ * Cada empresa define sus títulos, certificados y qué recompensa dispara qué.
+ * Guardarraíl: recompensas NO salariales por defecto (el primer año).
+ * ============================================================ */
+export const companyConfig = pgTable("company_config", {
+  organizationId: text("organization_id").primaryKey(),
+  levelLabels: jsonb("level_labels").$type<Record<string, string>>(), // {"2":"Facturador","3":"Referente"}
+  salaryLinked: boolean("salary_linked").notNull().default(false),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const rewardRule = pgTable("reward_rule", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  event: text("event").notNull(), // n2 | referente | cobertura
+  params: jsonb("params").$type<Record<string, unknown>>(),
+  reward: text("reward").notNull(), // certificado | titulo | punto | perk | senal_rrhh
+  rewardParams: jsonb("reward_params").$type<Record<string, unknown>>(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("rule_org_idx").on(t.organizationId) }));
+
+export const certificate = pgTable("certificate", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  competencyId: text("competency_id"),
+  title: text("title").notNull(),
+  code: text("code").notNull().unique(), // verificable
+  evidence: jsonb("evidence").$type<Record<string, unknown>>(),
+  issuedAt: timestamp("issued_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("cert_org_idx").on(t.organizationId) }));
+
+export const rewardGrant = pgTable("reward_grant", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  ruleId: text("rule_id"),
+  reward: text("reward").notNull(),
+  refId: text("ref_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("grant_org_idx").on(t.organizationId) }));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
@@ -298,4 +342,5 @@ export const schema = {
   onboardingProfile, enrollment, levelByCompetency, testAttempt,
   rubric, appliedCase, validation,
   coaching, pointsLedger,
+  companyConfig, rewardRule, certificate, rewardGrant,
 };
