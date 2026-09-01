@@ -1,5 +1,7 @@
 import { and, eq, gte, sql } from "drizzle-orm";
-import { coaching, competency, levelByCompetency, member } from "../db/schema.js";
+import {
+  appliedCase, baselineSnapshot, coaching, competency, enrollment, levelByCompetency, member, validation,
+} from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
 export interface Coverage {
@@ -78,11 +80,65 @@ export interface PanelSummary {
   internalTransfer: number; // 0..1
 }
 
+/**
+ * Tiempo medio (días) desde la matrícula hasta la primera validación aprobada.
+ * "Cuánto tarda alguien nuevo en ser autónomo". 0 si aún no hay aprobados.
+ */
+export async function timeToAutonomyDays(deps: SvcDeps, orgId: string): Promise<number> {
+  const enrolls = await deps.db.select({
+    userId: enrollment.userId, competencyId: enrollment.competencyId, at: enrollment.createdAt,
+  }).from(enrollment).where(eq(enrollment.organizationId, orgId));
+  const approvals = await deps.db.select({
+    userId: appliedCase.userId, competencyId: appliedCase.competencyId, at: validation.createdAt,
+  }).from(validation).innerJoin(appliedCase, eq(validation.caseId, appliedCase.id))
+    .where(and(eq(validation.organizationId, orgId), eq(validation.decision, "aprobado")));
+
+  const earliest = (rows: { userId: string; competencyId: string | null; at: Date }[]) => {
+    const m = new Map<string, number>();
+    for (const r of rows) {
+      const k = `${r.userId}|${r.competencyId ?? ""}`;
+      const t = r.at.getTime();
+      if (!m.has(k) || t < m.get(k)!) m.set(k, t);
+    }
+    return m;
+  };
+  const eMap = earliest(enrolls);
+  const aMap = earliest(approvals);
+  const diffs: number[] = [];
+  for (const [k, approvedAt] of aMap) {
+    const enrolledAt = eMap.get(k);
+    if (enrolledAt !== undefined && approvedAt >= enrolledAt) diffs.push((approvedAt - enrolledAt) / 86_400_000);
+  }
+  if (diffs.length === 0) return 0;
+  return Math.round((diffs.reduce((a, b) => a + b, 0) / diffs.length) * 10) / 10;
+}
+
+/** Captura la línea base del piloto (foto del punto de partida) para medir el antes/después. */
+export async function captureBaseline(deps: SvcDeps, orgId: string): Promise<string> {
+  const data = {
+    coverage: await coverage(deps, orgId),
+    risks: await dependencyRisks(deps, orgId),
+    internalTransfer: await internalTransferRate(deps, orgId),
+    timeToAutonomyDays: await timeToAutonomyDays(deps, orgId),
+  };
+  const id = deps.newId();
+  await deps.db.insert(baselineSnapshot).values({ id, organizationId: orgId, data });
+  return id;
+}
+
+export async function latestBaseline(deps: SvcDeps, orgId: string) {
+  const [row] = await deps.db.select().from(baselineSnapshot)
+    .where(eq(baselineSnapshot.organizationId, orgId))
+    .orderBy(sql`${baselineSnapshot.capturedAt} desc`).limit(1);
+  return row ?? null;
+}
+
 /** El salpicadero del responsable. Todo son datos medidos, nunca inventados. */
-export async function panelSummary(deps: SvcDeps, orgId: string): Promise<PanelSummary> {
+export async function panelSummary(deps: SvcDeps, orgId: string): Promise<PanelSummary & { timeToAutonomyDays: number }> {
   return {
     coverage: await coverage(deps, orgId),
     risks: await dependencyRisks(deps, orgId),
     internalTransfer: await internalTransferRate(deps, orgId),
+    timeToAutonomyDays: await timeToAutonomyDays(deps, orgId),
   };
 }

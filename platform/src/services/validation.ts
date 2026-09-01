@@ -60,6 +60,18 @@ export async function hasPendingCase(
   return !!c;
 }
 
+/**
+ * Gate de progreso/coste: si hay un caso entregado sin validar, no se avanza ni se
+ * genera contenido nuevo (evita quemar IA en quien no está aplicando lo anterior).
+ */
+export async function assertCanProgress(
+  deps: SvcDeps, orgId: string, userId: string, competencyId: string,
+): Promise<void> {
+  if (await hasPendingCase(deps, orgId, userId, competencyId)) {
+    throw new Error("tienes un caso pendiente de validar: practica y espera la validación antes de seguir");
+  }
+}
+
 export interface ValidateInput {
   orgId: string; caseId: string; validatorId: string; validatorRole: string;
   decision: "aprobado" | "rechazado"; feedback?: string;

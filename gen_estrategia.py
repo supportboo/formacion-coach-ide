@@ -58,13 +58,13 @@ lanes = ["1 · ADOPCIÓN","2 · APRENDIZAJE","3 · VALIDACIÓN","4 · PROPAGACI�
 blocks = {
  0:[("HOME + CAPTACIÓN\nbrandooers.com desplegada\npiloto 90 días",GREEN,GS),
     ("ONBOARDING\npor qué · para qué\nsector · puesto (test)",GREEN,GS),
-    ("LÍNEA BASE DEL PILOTO\ncaptura del punto\nde partida (pdte)",YELLOW,YS)],
+    ("LÍNEA BASE DEL PILOTO\ncaptura del punto\nde partida (test)",GREEN,GS)],
  1:[("RUTA PERSONALIZADA\npor sector y puesto\n(gen parcial)",YELLOW,YS),
     ("CONTENIDO + RAG\nasocia por significado\ningesta/recuperación (test)",GREEN,GS),
     ("TEST -> NIVEL 1\nautocorregido\n(test)",GREEN,GS)],
  2:[("CASO PRÁCTICO + RÚBRICA\nsu trabajo real\n(test)",GREEN,GS),
     ("VALIDACIÓN HUMANA\nresponsable/nivel valida\n(test)",GREEN,GS),
-    ("GATE PROGRESO\nno validas -> practicas\ncoste IA: parcial",YELLOW,YS)],
+    ("GATE PROGRESO\nno validas -> practicas\n(test)",GREEN,GS)],
  3:[("NIVELES POR COMPETENCIA\nEn formación·Aplica·Referente\n(test)",GREEN,GS),
     ("CASCADA COACH ->\nCOACH DE COACHES ->\nINSPIRADOR (test)",GREEN,GS),
     ("PUNTOS + ANTIFRAUDE\npaga al aprobar el alumno\n(test)",GREEN,GS)],
@@ -73,7 +73,7 @@ blocks = {
     ("COMPENSACIÓN CONFIG.\nno salarial por defecto\n(test)",GREEN,GS)],
  5:[("COBERTURA\nquién aplica qué\n(test)",GREEN,GS),
     ("RIESGO DE DEPENDENCIA\ncrítica = 1 persona\n(test)",GREEN,GS),
-    ("COSTE FORMAR / TIEMPO\ntransferencia interna (test)\ntiempo autonomía pdte",YELLOW,YS)],
+    ("COSTE FORMAR / TIEMPO\ntransferencia + tiempo\nautonomía (test)",GREEN,GS)],
  6:[("COBRO POR PLAN\ndiferido hasta\nproducto vendible",RED,RS),
     ("GARANTÍA DEL PILOTO\nmensaje en la web\ntracking pdte",YELLOW,YS),
     ("FUNDAE\nacción + control 75%\nexport (test)",GREEN,GS)],
@@ -108,10 +108,10 @@ text(156, py+48, pw-32, 300,
  "• Validación humana con rúbrica -> Nivel 2 (no autoservicio)\n"
  "• Propagación: coaching, puntos al aprobar, ascenso a Referente, antifraude\n"
  "• Config + motor de reglas + certificados verificables (no salarial)\n"
- "• Panel ROI: cobertura, riesgo de dependencia, transferencia interna\n"
- "• FUNDAE: acción bonificable, control 75%, export justificativo\n"
+ "• Panel ROI: cobertura, riesgo, transferencia, tiempo a autonomía, línea base\n"
+ "• Gate de progreso (sin validar no se avanza) + FUNDAE (export bonificable)\n"
  "\n"
- "Verificado: typecheck 0 · 8 tests unit · 8 tests integración vs Postgres", size=12.5, align='left')
+ "Verificado: typecheck 0 · 8 tests unit · 9 tests integración vs Postgres", size=12.5, align='left')
 # rojo/ámbar: pendiente o diferido
 rect(140+pw+gap, py, pw, 360, '#fff5f5', stroke=RS)
 text(156+pw+gap, py+14, pw-32, 26, "PENDIENTE / DIFERIDO", size=16, align='left', color=RS)
@@ -122,8 +122,8 @@ text(156+pw+gap, py+48, pw-32, 300,
  "\n"
  "Amarillo (parcial):\n"
  "• Generación IA de la ruta/lecciones enganchada al onboarding\n"
- "• Línea base del piloto + gate de coste de IA por alumno\n"
- "• Tiempo hasta autonomía + tracking de la garantía\n"
+ "• Gate de coste de IA ligado al presupuesto por alumno\n"
+ "• Tracking de la garantía del piloto\n"
  "\n"
  "Diferido:\n"
  "• Cobro por plan / pagos (Fase 8, hasta que el producto se venda)\n"

@@ -364,6 +364,14 @@ export const fundaeParticipation = pgTable("fundae_participation", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("fundaep_org_idx").on(t.organizationId) }));
 
+// Línea base del piloto: foto del punto de partida para medir el antes/después.
+export const baselineSnapshot = pgTable("baseline_snapshot", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  data: jsonb("data").$type<Record<string, unknown>>().notNull(),
+  capturedAt: timestamp("captured_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("baseline_org_idx").on(t.organizationId) }));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
@@ -373,4 +381,5 @@ export const schema = {
   coaching, pointsLedger,
   companyConfig, rewardRule, certificate, rewardGrant,
   fundaeAction, fundaeParticipation,
+  baselineSnapshot,
 };
