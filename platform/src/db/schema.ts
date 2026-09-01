@@ -230,9 +230,45 @@ export const testAttempt = pgTable("test_attempt", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("att_org_idx").on(t.organizationId) }));
 
+/* ============================================================
+ * VALIDACIÓN (Fase 3): caso práctico aplicado + rúbrica visible + validación humana.
+ * Subir a Nivel 2 (Aplica) exige que un nivel 3+/responsable valide el caso. No autoservicio.
+ * ============================================================ */
+export const rubric = pgTable("rubric", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  competencyId: text("competency_id").notNull(),
+  criteria: jsonb("criteria").$type<{ label: string; weight?: number }[]>().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("rubric_org_idx").on(t.organizationId) }));
+
+export const appliedCase = pgTable("applied_case", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  competencyId: text("competency_id").notNull(),
+  pathId: text("path_id"),
+  prompt: text("prompt").notNull(),
+  submission: text("submission"),
+  status: text("status").notNull().default("borrador"), // borrador | entregado | aprobado | rechazado
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  submittedAt: timestamp("submitted_at"),
+}, (t) => ({ byOrg: index("case_org_idx").on(t.organizationId) }));
+
+export const validation = pgTable("validation", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  caseId: text("case_id").notNull().references(() => appliedCase.id, { onDelete: "cascade" }),
+  validatorId: text("validator_id").notNull(),
+  decision: text("decision").notNull(), // aprobado | rechazado
+  feedback: text("feedback"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("val_org_idx").on(t.organizationId) }));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
   ragDocument, ragChunk, agentThread, agentMessage, auditLog,
   onboardingProfile, enrollment, levelByCompetency, testAttempt,
+  rubric, appliedCase, validation,
 };
