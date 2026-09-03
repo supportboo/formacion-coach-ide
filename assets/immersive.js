@@ -392,7 +392,7 @@
           if (x.ok) { msg.className = 'msg ok'; msg.textContent = okText; f.reset(); }
           else { msg.className = 'msg err'; msg.textContent = (x.d && x.d.error) || 'No se pudo enviar.'; }
         })
-        .catch(function () { msg.className = 'msg err'; msg.innerHTML = 'No se pudo enviar. Escríbenos a <a href="mailto:hola@brandooers.com">hola@brandooers.com</a>.'; })
+        .catch(function () { msg.className = 'msg err'; msg.innerHTML = 'No se pudo enviar. Escríbenos a <a href="mailto:info@brandooers.com">info@brandooers.com</a>.'; })
         .then(function () { btn.disabled = false; });
     });
   }

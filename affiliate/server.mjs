@@ -150,6 +150,41 @@ function userRows() {
 }
 
 // ---- notificaciones push (móvil) ----
+/* Aviso de leads por email.
+   Se envía DESDE info@brandooers.com (buzón IONOS del dominio) HACIA LEAD_TO
+   (boo@boomatik.com), con Reply-To del propio lead para poder contestarle
+   directo. Todo por variables de entorno: sin SMTP_PASS esto no hace nada y el
+   lead se sigue guardando en leads.jsonl + push. */
+const MAIL = {
+  host: process.env.SMTP_HOST || 'smtp.ionos.es',
+  port: Number(process.env.SMTP_PORT || 587),
+  user: process.env.SMTP_USER || 'info@brandooers.com',
+  pass: process.env.SMTP_PASS || '',
+  to: process.env.LEAD_TO || 'boo@boomatik.com',
+};
+let mailer = null;
+if (MAIL.pass) {
+  try {
+    const nm = (await import('nodemailer')).default;
+    mailer = nm.createTransport({ host: MAIL.host, port: MAIL.port, secure: MAIL.port === 465, auth: { user: MAIL.user, pass: MAIL.pass } });
+    console.log('mail: on →', MAIL.to);
+  } catch (e) { console.log('mail off (nodemailer):', e.message); }
+} else { console.log('mail off: falta SMTP_PASS'); }
+
+function notifyLeadByEmail(rec, origin) {
+  if (!mailer) return;
+  const line = (k, v) => v ? k + ': ' + v + '\n' : '';
+  mailer.sendMail({
+    from: '"Brandooers" <' + MAIL.user + '>',
+    to: MAIL.to,
+    replyTo: rec.email,
+    subject: 'Nueva solicitud · ' + (rec.name || rec.email) + (rec.company ? ' · ' + rec.company : ''),
+    text: 'Solicitud recibida en ' + (origin || 'brandooers.com') + '\n\n'
+      + line('Nombre', rec.name) + line('Email', rec.email) + line('Empresa / sector / equipo', rec.company)
+      + line('Fecha', rec.ts) + '\nResponde a este correo para contestarle directamente.\n',
+  }).catch(e => console.log('mail error:', e.message));
+}
+
 let webpush = null; const VAPID = jload(W('vapid.json'), null);
 try { webpush = (await import('web-push')).default; if (VAPID) webpush.setVapidDetails('mailto:support@boomatik.com', VAPID.publicKey, VAPID.privateKey); } catch (e) { console.log('web-push off:', e.message); }
 const pushSubs = () => jload(W('push-subs.json'), {});
@@ -200,6 +235,7 @@ const server = http.createServer(async (req, res) => {
     const rec = { name: String(b.name || '').slice(0, 80).trim(), email, company: String(b.company || '').slice(0, 120).trim(), ts: new Date().toISOString() };
     try { appendFileSync(W('leads.jsonl'), JSON.stringify(rec) + '\n'); } catch {}
     notifyAdmins('Nuevo lead 🎯', (rec.name || '') + ' · ' + rec.email + (rec.company ? ' · ' + rec.company : ''), '/panel.html');
+    notifyLeadByEmail(rec, String(req.headers.host || ''));
     return json(res, 200, { ok: true });
   }
   if (path === '/auth/password' && req.method === 'POST') {
