@@ -172,6 +172,68 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
 .gband .big{font-size:clamp(32px,5vw,60px);font-weight:900;letter-spacing:-.04em;line-height:1.02;max-width:15ch;margin:0 auto 22px}
 .gband p{font-size:clamp(16px,1.5vw,19px);color:var(--ink-mut);max-width:660px;margin:0 auto;line-height:1.65}
 
+/* ===== Capa inmersiva (assets/immersive.js) — solo transform/opacity, respeta prefers-reduced-motion ===== */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.net{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
+.hero{background:#0E0B14}
+.hero-mascot{position:absolute;z-index:1;right:-8%;top:50%;width:min(64vw,980px);aspect-ratio:16/9;transform:translate(var(--mx,0px),calc(-50% + var(--my,0px)));-webkit-mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);will-change:transform;pointer-events:none}
+.hero-mascot img{width:100%;height:100%;object-fit:cover}
+.hero .ovl{z-index:2;background:linear-gradient(90deg,rgba(14,11,20,.97) 0%,rgba(14,11,20,.88) 34%,rgba(14,11,20,.32) 60%,rgba(14,11,20,.04) 100%)}
+.hero .wrap{z-index:3;transform:translate(calc(var(--mx,0px)*-.3),calc(var(--my,0px)*-.3))}
+.hero h1.words .w{display:inline-block;opacity:0;transform:translateY(.45em);animation:wIn .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i,0)*55ms)}
+@keyframes wIn{to{opacity:1;transform:none}}
+.no-motion .hero h1.words .w{animation:none;opacity:1;transform:none}
+.wave{line-height:0;background:var(--dark);position:relative;z-index:2}
+.wave svg{display:block;width:100%;height:clamp(36px,7vw,90px)}
+.imm .frow .fimg{clip-path:inset(0 0 100% 0 round var(--radius));transition:clip-path 1.1s cubic-bezier(.77,0,.18,1)}
+.imm .frow.in .fimg{clip-path:inset(0 0 0 0 round var(--radius))}
+/* recorrido: capítulos fijados al scroll (la red se propaga a medida que avanzas) */
+.flowsec:before{display:none}
+.flow-sticky{position:relative}
+.flow-ui{position:relative;z-index:1}
+.fticks{display:none;gap:8px;margin-top:28px;max-width:540px}
+.ftick{height:3px;flex:1;border-radius:2px;background:rgba(255,255,255,.12);transition:background .4s}
+.ftick.on{background:var(--grad)}
+.fcta-wrap{margin-top:8px;max-width:760px}
+.imm .flowsec{height:520vh;padding:0;overflow:visible} /* overflow:hidden convertiría la sección en contenedor de scroll y rompería el sticky */
+.no-motion .flowsec .net{opacity:.45}
+.imm .flow-sticky{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
+.imm .flow-ui{display:grid;grid-template-columns:minmax(0,560px) 1fr;gap:40px;width:100%}
+.imm .flow-head{margin-bottom:26px}
+.imm .flow{margin:0;max-width:none;position:relative;min-height:230px}
+.imm .fstep{position:absolute;left:0;top:0;right:0;padding-bottom:0;opacity:0;transform:translateY(26px);transition:opacity .55s cubic-bezier(.2,.8,.2,1),transform .55s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.imm .fstep::before{display:none}
+.imm .fstep.on{opacity:1;transform:none;pointer-events:auto}
+.imm .fticks{display:flex}
+.imm .fcta-wrap{opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s;margin-top:22px}
+.imm .fcta-wrap.on{opacity:1;transform:none}
+/* formulario del piloto (sustituye al mailto) */
+.pilot{max-width:720px;margin:0 auto;text-align:left}
+.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pf-grid .full{grid-column:1/-1}
+.pilot label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mut);margin:0 0 6px}
+.pilot input,.pilot select{width:100%;font-family:inherit;font-size:15px;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;transition:border-color .18s,background .18s;-webkit-appearance:none;appearance:none}
+.pilot input::placeholder{color:#6b6480}
+.pilot select option{color:#191320}
+.pilot input:focus,.pilot select:focus{outline:none;border-color:#8B5CF6;background:rgba(139,92,246,.12)}
+.pilot .pf-actions{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:22px}
+.pilot .msg{font-size:14px;min-height:18px;text-align:center}
+.pilot .msg.ok{color:#67E8F9}.pilot .msg.err{color:#fda4af}
+.pilot .msg a{color:#67E8F9;text-decoration:underline}
+/* grano de película, solo escritorio */
+@media(min-width:900px) and (prefers-reduced-motion:no-preference){body:after{content:"";position:fixed;inset:0;z-index:1000;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}}
+@media(max-width:900px){
+  .hero-mascot{right:-28%;top:30%;width:140vw;opacity:.75}
+  .imm .flowsec{height:430vh}
+  .imm .flow-sticky:after{content:"";position:absolute;left:0;right:0;bottom:0;height:72%;background:linear-gradient(180deg,rgba(14,11,20,0),rgba(14,11,20,.88) 45%);pointer-events:none}
+  .imm .flow-ui{grid-template-columns:1fr;align-self:flex-end;padding-bottom:40px}
+  .imm .flow-head .lead2{display:none}
+  .imm .flow-head .h2{font-size:clamp(24px,6.2vw,32px)}
+  .imm .flow{min-height:170px}
+  .pf-grid{grid-template-columns:1fr}
+}
+
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
 .reveal.in{opacity:1;transform:none}
 
@@ -208,6 +270,8 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
 </div></div></nav>
 
 <header class="hero" id="top">
+  <canvas class="net" data-net="hero" aria-hidden="true"></canvas>
+  <div class="hero-mascot" aria-hidden="true"><img src="assets/char/char-hero.jpg" alt="" width="2048" height="1152" fetchpriority="high" decoding="async"></div>
   <div class="ovl"></div>
   <div class="wrap">
     <span class="kicker"><span class="d"></span>Formación para equipos · En desarrollo</span>
@@ -220,6 +284,7 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
     <div><span class="hero-note"><span class="live"></span>Producto en desarrollo&nbsp;· primeros pilotos de 90 días abiertos</span></div>
   </div>
 </header>
+<div class="wave" aria-hidden="true"><svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="#FFFFFF" d="M0,54 C240,96 480,6 720,44 C960,82 1200,18 1440,50 L1440,90 L0,90 Z"/></svg></div>
 
 <!-- PILARES DE VALOR -->
 <section class="pillars">
@@ -244,19 +309,25 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
 
 <!-- RECORRIDO DE VALOR -->
 <section class="flowsec" id="recorrido">
-  <div class="wrap">
-    <div class="reveal" style="max-width:720px">
-      <span class="eyebrow">El recorrido</span>
-      <h2 class="h2">Del conocimiento que se pierde al que se queda y se multiplica.</h2>
-      <p class="lead2">Cada paso deja más capacidad dentro de tu equipo que el anterior. Este es el camino completo, de principio a fin — y termina donde empieza tu retorno.</p>
-    </div>
-    <div class="flow">
-      <div class="fstep reveal"><div class="fnode">01</div><div class="fbody"><h3>Tu equipo hoy</h3><p>El saber vive en unas pocas cabezas. Si una se va, se va con ella — y vuelves a formar desde cero.</p></div></div>
-      <div class="fstep reveal"><div class="fnode">02</div><div class="fbody"><h3>Aprende con lo suyo</h3><p>Cada persona, con los casos reales de su sector y su puesto. No teoría genérica: lo que reconoce como su día a día.</p></div></div>
-      <div class="fstep reveal"><div class="fnode">03</div><div class="fbody"><h3>Demuestra que lo aplica</h3><p>Resuelve un caso de su trabajo real y lo revisa alguien de tu equipo con nivel acreditado. No un test de memoria.</p></div></div>
-      <div class="fstep reveal"><div class="fnode">04</div><div class="fbody"><h3>Se lo enseña al siguiente</h3><p>Quien lo domina, forma. El conocimiento deja de depender de una sola persona y empieza a multiplicarse solo.</p></div></div>
-      <div class="fstep reveal"><div class="fnode on">05</div><div class="fbody"><h3>Tu empresa lo ve</h3><p>Cobertura por competencia, riesgo y coste de formar — en un panel, no en una encuesta de satisfacción.</p></div></div>
-      <div class="fstep reveal" style="padding-bottom:0"><div class="fnode on">→</div><div class="fbody" style="padding-top:0"><div class="fcta"><div><h3>Y aquí empieza tu retorno.</h3><p>Menos dependencia, menos coste de formar, cero puntos ciegos. Entra entre los primeros.</p></div><a href="#acceso" class="btn btn-grad btn-sm">Acceso temprano →</a></div></div></div>
+  <div class="flow-sticky">
+    <canvas class="net" data-net="story" aria-hidden="true"></canvas>
+    <div class="wrap flow-ui">
+      <div>
+        <div class="flow-head reveal">
+          <span class="eyebrow">El recorrido</span>
+          <h2 class="h2">Del conocimiento que se pierde al que se queda y se multiplica.</h2>
+          <p class="lead2">Cada paso deja más capacidad dentro de tu equipo que el anterior. Este es el camino completo, de principio a fin — y termina donde empieza tu retorno.</p>
+        </div>
+        <div class="flow">
+          <div class="fstep on"><div class="fnode">01</div><div class="fbody"><h3>Tu equipo hoy</h3><p>El saber vive en unas pocas cabezas. Si una se va, se va con ella — y vuelves a formar desde cero.</p></div></div>
+          <div class="fstep"><div class="fnode">02</div><div class="fbody"><h3>Aprende con lo suyo</h3><p>Cada persona, con los casos reales de su sector y su puesto. No teoría genérica: lo que reconoce como su día a día.</p></div></div>
+          <div class="fstep"><div class="fnode">03</div><div class="fbody"><h3>Demuestra que lo aplica</h3><p>Resuelve un caso de su trabajo real y lo revisa alguien de tu equipo con nivel acreditado. No un test de memoria.</p></div></div>
+          <div class="fstep"><div class="fnode">04</div><div class="fbody"><h3>Se lo enseña al siguiente</h3><p>Quien lo domina, forma. El conocimiento deja de depender de una sola persona y empieza a multiplicarse solo.</p></div></div>
+          <div class="fstep"><div class="fnode on">05</div><div class="fbody"><h3>Tu empresa lo ve</h3><p>Cobertura por competencia, riesgo y coste de formar — en un panel, no en una encuesta de satisfacción.</p></div></div>
+        </div>
+        <div class="fticks" aria-hidden="true"><span class="ftick on"></span><span class="ftick"></span><span class="ftick"></span><span class="ftick"></span><span class="ftick"></span></div>
+        <div class="fcta-wrap"><div class="fcta"><div><h3>Y aquí empieza tu retorno.</h3><p>Menos dependencia, menos coste de formar, cero puntos ciegos. Entra entre los primeros.</p></div><a href="#acceso" class="btn btn-grad btn-sm">Acceso temprano →</a></div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -310,6 +381,8 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
   </div>
 </section>
 
+<div class="wave" aria-hidden="true"><svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="#FAFAFA" d="M0,50 C300,10 560,92 820,46 C1080,4 1300,70 1440,40 L1440,90 L0,90 Z"/></svg></div>
+
 <!-- GARANTÍA -->
 <section class="guarantee" id="garantia">
   <div class="wrap-narrow reveal">
@@ -337,8 +410,20 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
     <span class="eyebrow">En camino</span>
     <h2>Entra en los primeros pilotos.</h2>
     <p>Brandooers está en desarrollo y abrimos los primeros pilotos de 90 días con un grupo reducido de empresas. Si formas a un equipo y quieres empezar a medir capacidad de verdad, este es el momento — con la garantía por delante.</p>
-    <a href="mailto:hola@brandooers.com?subject=Piloto%2090%20d%C3%ADas%20Brandooers" class="btn btn-grad">Solicita tu piloto de 90 días →</a>
-    <p class="cta-note">Plazas limitadas. Sin compromiso. Te avisamos cuando tu sector esté listo.</p>
+    <form id="pilotForm" class="pilot">
+      <div class="pf-grid">
+        <div><label for="pName">Tu nombre</label><input id="pName" autocomplete="name" placeholder="Nombre y apellido" required></div>
+        <div><label for="pCompany">Empresa</label><input id="pCompany" autocomplete="organization" placeholder="Nombre de la empresa" required></div>
+        <div class="full"><label for="pEmail">Email de empresa</label><input id="pEmail" type="email" autocomplete="email" placeholder="tu@empresa.com" required></div>
+        <div><label for="pSector">Sector</label><input id="pSector" placeholder="Logística, distribución, sanidad…"></div>
+        <div><label for="pSize">Equipo a formar</label><select id="pSize"><option value="">Tamaño del equipo</option><option>5-20 personas</option><option>21-50 personas</option><option>51-200 personas</option><option>Más de 200 personas</option></select></div>
+      </div>
+      <div class="pf-actions">
+        <button class="btn btn-grad" type="submit">Solicita tu piloto de 90 días →</button>
+        <p class="msg" id="pilotMsg" aria-live="polite"></p>
+        <p class="cta-note" style="margin-top:0">Plazas limitadas. Sin compromiso. Te avisamos cuando tu sector esté listo.</p>
+      </div>
+    </form>
   </div>
 </section>
 
@@ -359,6 +444,8 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:18px;border-top:1px solid r
   </div>
 </footer>
 
+<script src="assets/lenis.min.js" defer></script>
+<script src="assets/immersive.js?v=20260903" defer></script>
 <script>
 var nav=document.getElementById('nav');
 function onScroll(){ nav.classList.toggle('solid', window.scrollY>20); }
