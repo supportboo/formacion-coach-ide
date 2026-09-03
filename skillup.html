@@ -113,15 +113,35 @@ section{padding:92px 0}
 .launch b{color:#67E8F9}
 
 .access{background:var(--warm)}
-.access .box{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.card-a{background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px 30px}
-.card-a h3{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
-.card-a p.s{font-size:14px;color:var(--mut);margin-bottom:18px}
-.card-a label{display:block;font-size:12px;font-weight:600;color:var(--text);margin:12px 0 5px}
-.card-a input{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px}
-.card-a input:focus{outline:none;border-color:var(--p)}
-.card-a button{width:100%;margin-top:18px}
-.card-a .msg{font-size:13px;margin-top:12px;min-height:16px}
+.access .acc{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1.55fr 1fr;gap:24px;align-items:start}
+/* registro = acción primaria: panel oscuro elevado con acento de marca */
+.acc-main{position:relative;background:var(--dark);color:var(--ink);border-radius:24px;padding:40px 38px;overflow:hidden;box-shadow:0 34px 74px rgba(14,11,20,.30)}
+.acc-main:before{content:"";position:absolute;inset:0;background:var(--grad);opacity:.10;pointer-events:none}
+.acc-main:after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad)}
+.acc-main>*{position:relative}
+.acc-main .k{font-family:'Caveat',cursive;font-size:24px;color:#67E8F9;margin-bottom:2px}
+.acc-main h3{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.16;margin-bottom:9px}
+.acc-main .s{font-size:14.5px;color:var(--ink-mut);margin-bottom:22px;max-width:44ch}
+.acc-main .fields{display:grid;grid-template-columns:1fr 1fr;gap:13px 14px}
+.acc-main .fields .full{grid-column:1 / -1}
+.acc-main label{display:block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-mut);margin:0 0 5px}
+.acc-main input{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;transition:border-color .18s,background .18s}
+.acc-main input::placeholder{color:#6b6480}
+.acc-main input:focus{outline:none;border-color:#8B5CF6;background:rgba(139,92,246,.12)}
+.acc-main button{width:100%;justify-content:center;margin-top:18px;font-size:15px;padding:14px 24px}
+.acc-main .assure{display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:16px}
+.acc-main .assure span{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-mut)}
+.acc-main .assure svg{width:14px;height:14px;stroke:#67E8F9;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.acc-main .msg{font-size:13px;margin-top:11px;min-height:16px}
+/* login = acción secundaria: tarjeta clara, discreta */
+.acc-side{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:28px 26px}
+.acc-side h4{font-size:16.5px;font-weight:800;color:var(--text);margin-bottom:3px}
+.acc-side .s{font-size:13px;color:var(--body);margin-bottom:16px}
+.acc-side label{display:block;font-size:11.5px;font-weight:600;color:var(--text);margin:11px 0 5px}
+.acc-side input{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px}
+.acc-side input:focus{outline:none;border-color:var(--p)}
+.acc-side button{width:100%;margin-top:16px}
+.acc-side .msg{font-size:12.5px;margin-top:10px;min-height:15px;color:#c92a2a}
 
 footer{background:var(--dark);color:var(--ink-mut);padding:44px 0 38px}
 footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
@@ -133,7 +153,7 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:24px;border-top:1px solid r
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
 @media(max-width:860px){
-  .bene,.steps,.why,.plans,.split,.access .box{grid-template-columns:1fr}
+  .bene,.steps,.why,.plans,.split,.access .acc,.acc-main .fields{grid-template-columns:1fr}
   .nav-r a.txt{display:none}
   section{padding:64px 0}
   .hero{background-position:center top;min-height:86vh}
@@ -271,33 +291,38 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:24px;border-top:1px solid r
     <p class="tag">Empieza hoy</p>
     <h2 class="h2">Da el paso. Tu equipo lo notará esta semana.</h2>
   </div>
-  <div class="wrap"><div class="box">
-    <div class="card-a reveal">
-      <h3>Ya tengo cuenta</h3>
-      <p class="s">Entra a tu formación.</p>
-      <form id="loginForm">
-        <label for="u">Usuario</label>
-        <input id="u" autocomplete="username" required>
-        <label for="p">Contraseña</label>
-        <input id="p" type="password" autocomplete="current-password" required>
-        <button class="btn btn-dark" type="submit">Entrar</button>
-        <div class="msg" id="loginMsg" style="color:#c92a2a"></div>
-      </form>
-    </div>
-    <div class="card-a reveal">
-      <h3>Quiero SkillUp para mi equipo</h3>
-      <p class="s">Déjanos tu email y te preparamos una propuesta a medida.</p>
+  <div class="wrap"><div class="acc">
+    <div class="acc-main reveal">
+      <p class="k">Para tu empresa</p>
+      <h3>Solicita acceso para tu equipo</h3>
+      <p class="s">Cuéntanos quiénes sois y te preparamos una propuesta a medida, sin compromiso.</p>
       <form id="leadForm">
-        <label for="lname">Tu nombre</label>
-        <input id="lname" autocomplete="name">
-        <label for="lemail">Email de empresa</label>
-        <input id="lemail" type="email" autocomplete="email" required>
-        <label for="lcompany">Empresa</label>
-        <input id="lcompany" autocomplete="organization">
+        <div class="fields">
+          <div><label for="lname">Tu nombre</label><input id="lname" autocomplete="name" placeholder="Nombre y apellido"></div>
+          <div><label for="lcompany">Empresa</label><input id="lcompany" autocomplete="organization" placeholder="Nombre de la empresa"></div>
+          <div class="full"><label for="lemail">Email de empresa</label><input id="lemail" type="email" autocomplete="email" required placeholder="tu@empresa.com"></div>
+        </div>
         <button class="btn btn-grad" type="submit">Solicitar acceso</button>
+        <div class="assure">
+          <span><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Sin compromiso</span>
+          <span><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Propuesta a medida</span>
+          <span><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Contenido verificado</span>
+        </div>
         <div class="msg" id="leadMsg"></div>
       </form>
     </div>
+    <aside class="acc-side reveal">
+      <h4>¿Ya tienes cuenta?</h4>
+      <p class="s">Entra a la formación de tu equipo.</p>
+      <form id="loginForm">
+        <label for="u">Usuario</label>
+        <input id="u" autocomplete="username" required placeholder="Tu usuario">
+        <label for="p">Contraseña</label>
+        <input id="p" type="password" autocomplete="current-password" required placeholder="••••••••">
+        <button class="btn btn-dark" type="submit">Entrar</button>
+        <div class="msg" id="loginMsg"></div>
+      </form>
+    </aside>
   </div></div>
 </section>
 
