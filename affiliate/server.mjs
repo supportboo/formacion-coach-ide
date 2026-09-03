@@ -365,6 +365,12 @@ const server = http.createServer(async (req, res) => {
       instrucciones,
     });
   }
+  if (path === '/api/admin/leads') {   // solicitudes de piloto/acceso (brandooers.com + skillup), más recientes primero
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const rows = [];
+    try { for (const l of readFileSync(W('leads.jsonl'), 'utf8').split('\n')) { if (!l) continue; try { rows.push(JSON.parse(l)); } catch {} } } catch {}
+    return json(res, 200, { leads: rows.reverse().slice(0, 200) });
+  }
   if (path === '/api/admin/queue') {   // cola de instrucciones para Claude Code interno (solo admin)
     const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     const q = inboxAll().filter(x => x.instruction && x.status !== 'aplicado' && x.status !== 'rechazado')

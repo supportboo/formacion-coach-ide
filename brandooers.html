@@ -234,6 +234,20 @@ html.lenis,html.lenis body{height:auto}
   .pf-grid{grid-template-columns:1fr}
 }
 
+/* Líneas de Brandooers (3 puertas) */
+.lines{background:var(--bg);padding:96px 0}
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+.lcard{display:flex;flex-direction:column;gap:10px;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:30px 28px;position:relative;overflow:hidden;transition:transform .22s,border-color .22s,box-shadow .22s}
+.lcard:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad);opacity:0;transition:opacity .22s}
+.lcard:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.45);box-shadow:0 22px 50px rgba(24,10,40,.12)}
+.lcard:hover:before{opacity:1}
+.lcard .lk{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--t)}
+.lcard.live .lk{color:#21B799}
+.lcard h3{font-size:24px;font-weight:900;color:var(--text);letter-spacing:-.02em}
+.lcard p{font-size:15px;color:var(--body);line-height:1.65;flex:1}
+.lcard .lgo{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--p)}
+@media(max-width:900px){.lgrid{grid-template-columns:1fr}.lines{padding:70px 0}}
+
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
 .reveal.in{opacity:1;transform:none}
 
@@ -264,7 +278,8 @@ html.lenis,html.lenis body{height:auto}
   <div class="nav-links">
     <a href="#problema">El problema</a>
     <a href="#recorrido">El recorrido</a>
-    <a href="#panel">Para tu equipo</a>
+    <a href="#lineas">Líneas</a>
+    <a href="https://skillup.brandooers.com">SkillUp</a>
     <a href="#acceso" class="btn btn-grad btn-sm">Pide tu piloto</a>
   </div>
 </div></div></nav>
@@ -293,6 +308,22 @@ html.lenis,html.lenis body{height:auto}
       <div class="pill"><h3 class="grad">Se queda dentro.</h3><p>El conocimiento deja de irse con quien se marcha. Se queda en tu equipo, para siempre.</p></div>
       <div class="pill"><h3 class="grad">Se propaga solo.</h3><p>Quien aprende forma al siguiente. Cada persona nueva te cuesta menos formar que la anterior.</p></div>
       <div class="pill"><h3 class="grad">Se mide de verdad.</h3><p>Capacidad, cobertura y riesgo en un panel — no una encuesta de asistencia.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- LÍNEAS DE BRANDOOERS -->
+<section class="lines" id="lineas">
+  <div class="wrap">
+    <div class="reveal" style="max-width:720px">
+      <span class="eyebrow">Educación · Comunidad · Innovación</span>
+      <h2 class="h2">Elige por dónde entrar.</h2>
+      <p class="lead2">Brandooers tiene tres puertas. Todas llevan a lo mismo: que lo que aprende tu gente se quede, se propague y se note en los resultados.</p>
+    </div>
+    <div class="lgrid">
+      <a class="lcard reveal" href="#acceso"><span class="lk">01 · Para empresas</span><h3>Formación para equipos</h3><p>Por sector y puesto, con validación práctica y panel de capacidad para el responsable. Empieza con un piloto de 90 días.</p><span class="lgo">Pide tu piloto →</span></a>
+      <a class="lcard live reveal" href="https://skillup.brandooers.com"><span class="lk">02 · Para profesionales · en marcha</span><h3>SkillUp</h3><p>Rutas a medida de tu sector y tu puesto, con casos reales. Te formas por tu cuenta y, cuando quieras, lo llevas a tu equipo.</p><span class="lgo">Entrar a SkillUp →</span></a>
+      <a class="lcard reveal" href="https://boomatik.com"><span class="lk">03 · Para ejecutar</span><h3>Con Boomatik</h3><p>Cuando toca poner en marcha lo aprendido —web, marketing, ventas, IA—, Boomatik lo ejecuta contigo.</p><span class="lgo">Ver Boomatik →</span></a>
     </div>
   </div>
 </section>

@@ -52,6 +52,7 @@ h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px}
   <div class="card" style="grid-column:1/-1"><h2>Instrucciones para el motor (Claude Code interno)</h2><div id="instr"></div>
     <p class="note">Cada feedback/petición que aceptas y conviertes en instrucción entra aquí. El Claude Code interno lee esta cola (<code>GET /api/admin/queue</code> o el fichero <code>inbox-meta.json</code>), ejecuta la mejora con verificación de fuentes, publica y se marca como <b>aplicado</b>. Tú puedes editar cada instrucción antes.</p>
   </div>
+  <div class="card" style="grid-column:1/-1"><h2>Solicitudes de piloto y acceso (leads)</h2><div id="leads"></div></div>
   <div class="card" style="grid-column:1/-1"><h2>Economía</h2><div id="eco"></div></div>
   <div class="card" style="grid-column:1/-1"><h2>Configuración del motor</h2><div id="cfg"></div>
     <p class="note"><b>Modo A (recomendado):</b> el motor genera y deja el curso en «Validando» para tu OK antes de publicarlo al alumno. Pásalo a auto solo cuando confíes en la calidad. La <b>moderación</b> bloquea peticiones inapropiadas o fuera de contexto (porno, insultos, temas ajenos) antes de generar nada.</p>
@@ -107,7 +108,13 @@ async function loadCfg(){
   function save(){ fetch('/api/admin/settings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({moderation:document.getElementById('cfgMod').checked,autoValidate:document.getElementById('cfgAuto').checked,maxPerDay:document.getElementById('cfgMax').value})}); }
   ['cfgMod','cfgAuto','cfgMax'].forEach(function(id){document.getElementById(id).addEventListener('change',save);});
 }
-load(); loadCfg();
+async function loadLeads(){
+  var r=await fetch('/api/admin/leads'); if(!r.ok) return; var d=await r.json(); var L=d.leads||[];
+  document.getElementById('leads').innerHTML = L.length ? L.map(function(l){
+    return '<div class="row"><span>'+esc(l.name||'—')+' · <a href="mailto:'+esc(l.email)+'">'+esc(l.email)+'</a>'+(l.company?' · '+esc(l.company):'')+'</span><span class="pill">'+esc((l.ts||'').slice(0,16).replace('T',' '))+'</span></div>';
+  }).join('') : '<div class="empty">Sin solicitudes todavía. Llegan desde brandooers.com (piloto 90 días) y skillup.brandooers.com (acceso para tu equipo).</div>';
+}
+load(); loadCfg(); loadLeads();
 </script>
 </body>
 </html>
