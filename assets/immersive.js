@@ -25,7 +25,7 @@
   /* ---------- Lenis smooth scroll ---------- */
   var lenis = null;
   if (!RM && window.Lenis) {
-    lenis = new Lenis({ wheelMultiplier: 0.85, lerp: 0.1 });
+    lenis = new Lenis({ wheelMultiplier: 0.85, lerp: 0.1, autoRaf: true }); // autoRaf: without it Lenis eats the wheel and never scrolls
     html.classList.add('lenis');
   }
   document.addEventListener('click', function (e) {
