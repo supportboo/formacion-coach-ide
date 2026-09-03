@@ -3,8 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillUp · La formación de tu equipo, hecha a medida</title>
-<meta name="description" content="SkillUp crea y personaliza la formación de cada persona según su sector y su día a día. Se aplica desde el primer día. Formación a medida para empresas.">
+<title>Formación a medida por sector y puesto | SkillUp de Brandooers</title>
+<meta name="description" content="SkillUp adapta la formación de cada persona a su sector, su puesto y sus casos reales. Se aplica desde el primer día, con fuentes verificables y sin relleno.">
+<link rel="canonical" href="https://skillup.brandooers.com/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SkillUp · Brandooers">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://skillup.brandooers.com/">
+<meta property="og:title" content="Formación a medida por sector y puesto | SkillUp de Brandooers">
+<meta property="og:description" content="Cada persona aprende con los casos de su sector y su puesto. Se aplica desde el primer día.">
+<meta property="og:image" content="https://skillup.brandooers.com/assets/char/char-hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#8B5CF6">
@@ -75,7 +85,7 @@ section{padding:92px 0}
 .pain-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;font-size:15.5px;color:var(--body)}
 .pain-list li .x{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:#ffe3e3;color:#c92a2a;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
 .pain-list li.ok .x{background:#d3f9d8;color:#2b8a3e}
-.shot{border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 50px rgba(139,92,246,.12);aspect-ratio:4/3;background:#0E0B14 url('assets/char/char-hero.jpg') center/cover}
+.shot{border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 50px rgba(139,92,246,.12);aspect-ratio:4/3;background:#0E0B14 url('assets/char/char-search.jpg') center/cover}
 
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:52px}
 .step{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px 22px}
@@ -125,6 +135,10 @@ section{padding:92px 0}
 .acc-main .fields{display:grid;grid-template-columns:1fr 1fr;gap:13px 14px}
 .acc-main .fields .full{grid-column:1 / -1}
 .acc-main label{display:block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-mut);margin:0 0 5px}
+.acc-main select{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;-webkit-appearance:none;appearance:none}
+.acc-main select option{color:#191320}
+.acc-main .msg.ok{color:#67E8F9}
+.acc-main .msg.err{color:#fda4af}
 .acc-main input{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;transition:border-color .18s,background .18s}
 .acc-main input::placeholder{color:#6b6480}
 .acc-main input:focus{outline:none;border-color:#8B5CF6;background:rgba(139,92,246,.12)}
@@ -150,15 +164,71 @@ footer a{color:var(--ink-mut);font-size:13.5px}footer a:hover{color:#fff}
 footer .fl{display:flex;gap:22px;flex-wrap:wrap}
 footer .cp{font-size:12.5px;color:#6b6480;margin-top:24px;border-top:1px solid rgba(255,255,255,.08);padding-top:20px}
 
+/* Recorrido fijado (scrollytelling) */
+.flowsec{position:relative;background:var(--dark);color:var(--ink);padding:0}
+.flow-sticky{position:relative}
+.flow-ui{position:relative;z-index:1}
+.flow{position:relative}
+.fstep{display:grid;grid-template-columns:60px 1fr;gap:22px;padding-bottom:34px}
+.fnode{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#fff;background:rgba(255,255,255,.04);border:1.5px solid rgba(139,92,246,.5)}
+.fnode.on{background:linear-gradient(135deg,#00D4FF,#8B5CF6,#EC4899);border-color:transparent;box-shadow:0 10px 30px rgba(139,92,246,.5)}
+.fbody h3{font-size:clamp(20px,2.1vw,26px);font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:7px}
+.fbody p{font-size:15.5px;color:var(--ink-mut);line-height:1.65;max-width:52ch}
+.fticks{display:none;gap:8px;margin-top:26px;max-width:520px}
+.ftick{height:3px;flex:1;border-radius:2px;background:rgba(255,255,255,.12);transition:background .4s}
+.ftick.on{background:var(--grad)}
+.fcta{background:linear-gradient(135deg,rgba(139,92,246,.16),rgba(236,72,153,.1));border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.fcta h3{font-size:19px;font-weight:800;color:#fff;margin-bottom:4px}
+.fcta p{font-size:14px;color:var(--ink-mut)}
+.fcta-wrap{margin-top:22px;max-width:760px}
+.imm .flowsec{height:440vh}
+.imm .flow-sticky{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
+.imm .flow-ui{display:grid;grid-template-columns:minmax(0,560px) 1fr;gap:40px;width:100%}
+.imm .flow-head{margin-bottom:24px}
+.imm .flow{min-height:210px}
+.imm .fstep{position:absolute;left:0;top:0;right:0;padding-bottom:0;opacity:0;transform:translateY(24px);transition:opacity .55s cubic-bezier(.2,.8,.2,1),transform .55s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.imm .fstep.on{opacity:1;transform:none;pointer-events:auto}
+.imm .fticks{display:flex}
+.imm .fcta-wrap{opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
+.imm .fcta-wrap.on{opacity:1;transform:none}
+.no-motion .flowsec{padding:70px 0}
+.no-motion .flowsec .net{opacity:.45}
+
+/* Qué incluye la propuesta */
+.incl{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:46px}
+.inc{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 24px}
+.inc h4{font-size:17px;font-weight:800;color:#fff;margin-bottom:7px;letter-spacing:-.01em}
+.inc p{font-size:14px;color:var(--ink-mut);line-height:1.6}
+
+/* Tarjetas con inclinación 3D + foco del cursor */
+.tilt{transform-style:preserve-3d;will-change:transform}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+  .tilt{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
+  .tilt:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-6px) scale(1.012)}
+  .tilt:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:calc(var(--lift,0)*.9);transition:opacity .25s;background:radial-gradient(320px circle at var(--sx,50%) var(--sy,50%),rgba(139,92,246,.14),transparent 60%)}
+}
+
+/* Preguntas frecuentes */
+.faq{background:var(--bg)}
+.faqs{margin-top:34px;border-top:1px solid var(--line);max-width:820px;margin-left:auto;margin-right:auto}
+.faqs details{border-bottom:1px solid var(--line)}
+.faqs summary{list-style:none;cursor:pointer;padding:22px 44px 22px 0;position:relative;font-size:clamp(16.5px,1.7vw,19px);font-weight:800;color:var(--text)}
+.faqs summary::-webkit-details-marker{display:none}
+.faqs summary:after{content:"";position:absolute;right:8px;top:50%;width:10px;height:10px;border-right:2.4px solid var(--p);border-bottom:2.4px solid var(--p);transform:translateY(-70%) rotate(45deg);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.faqs details[open] summary:after{transform:translateY(-30%) rotate(225deg)}
+.faqs summary:hover{color:var(--p)}
+.faqs details>div{padding:0 40px 24px 0}
+.faqs details>div p{font-size:16px;color:var(--body);line-height:1.75}
+
 /* ===== Capa inmersiva (assets/immersive.js) — solo transform/opacity, respeta prefers-reduced-motion ===== */
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .net{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
 .hero{background:#0E0B14}
-.hero-mascot{position:absolute;z-index:1;right:-8%;top:50%;width:min(64vw,980px);aspect-ratio:16/9;transform:translate(var(--mx,0px),calc(-50% + var(--my,0px)));-webkit-mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);will-change:transform;pointer-events:none}
+.hero-mascot{position:absolute;z-index:1;right:-8%;top:50%;width:min(64vw,980px);aspect-ratio:16/9;transform:translate3d(var(--mx,0px),calc(-50% + var(--my,0px) + var(--out,0)*40px),0) scale(calc(1 + var(--out,0)*.12));-webkit-mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);will-change:transform;pointer-events:none;opacity:calc(1 - var(--out,0)*.85)}
 .hero-mascot img{width:100%;height:100%;object-fit:cover}
 .hero .ovl{z-index:2;background:linear-gradient(90deg,rgba(14,11,20,.97) 0%,rgba(14,11,20,.88) 34%,rgba(14,11,20,.32) 60%,rgba(14,11,20,.04) 100%)}
-.hero .wrap{z-index:3;transform:translate(calc(var(--mx,0px)*-.3),calc(var(--my,0px)*-.3))}
+.hero .wrap{z-index:3;transform:translate3d(calc(var(--mx,0px)*-.3),calc(var(--my,0px)*-.3 + var(--out,0)*-70px),0) scale(calc(1 - var(--out,0)*.05));opacity:calc(1 - var(--out,0)*1.15)}
 .hero h1.words .w{display:inline-block;opacity:0;transform:translateY(.45em);animation:wIn .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i,0)*55ms)}
 @keyframes wIn{to{opacity:1;transform:none}}
 .no-motion .hero h1.words .w{animation:none;opacity:1;transform:none}
@@ -167,10 +237,16 @@ html.lenis,html.lenis body{height:auto}
 @media(min-width:900px) and (prefers-reduced-motion:no-preference){body:after{content:"";position:fixed;inset:0;z-index:1000;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}}
 @media(max-width:900px){.hero-mascot{right:-28%;top:30%;width:140vw;opacity:.75}}
 
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal{opacity:0;transform:perspective(1000px) translateY(24px) rotateX(4deg);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms)}
 .reveal.in{opacity:1;transform:none}
+.no-motion .reveal{opacity:1;transform:none}
 @media(max-width:860px){
-  .bene,.steps,.why,.plans,.split,.access .acc,.acc-main .fields{grid-template-columns:1fr}
+  .bene,.why,.incl,.split,.access .acc,.acc-main .fields{grid-template-columns:1fr}
+  .imm .flowsec{height:380vh}
+  .imm .flow-ui{grid-template-columns:1fr;align-self:flex-end;padding-bottom:36px}
+  .imm .flow-head .lead2{display:none}
+  .imm .flow{min-height:165px}
+  .imm .flow-sticky:after{content:"";position:absolute;left:0;right:0;bottom:0;height:72%;background:linear-gradient(180deg,rgba(14,11,20,0),rgba(14,11,20,.88) 45%);pointer-events:none}
   .nav-r a.txt{display:none}
   section{padding:64px 0}
   .hero{background-position:center top;min-height:86vh}
@@ -191,7 +267,8 @@ html.lenis,html.lenis body{height:auto}
   <a href="#top" style="display:flex;align-items:baseline"><span class="brandooers-logo">Brand<svg class="beyes" width="38" height="22" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g><g transform="translate(53,0)"><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g></svg>ers</span><span class="sk">SkillUp</span></a>
   <div class="nav-r">
     <a class="txt" href="#como">Cómo funciona</a>
-    <a class="txt" href="#precios">Precios</a>
+    <a class="txt" href="#faq">Preguntas</a>
+    <a class="txt" href="https://brandooers.com">Brandooers</a>
     <a class="btn btn-grad" href="#acceso">Empezar</a>
   </div>
 </div></div></nav>
@@ -238,18 +315,27 @@ html.lenis,html.lenis body{height:auto}
   </div></div>
 </section>
 
-<section id="como">
-  <div class="wrap center reveal">
-    <p class="tag">Cómo funciona</p>
-    <h2 class="h2">De cero a equipo formado, casi solo.</h2>
-    <p class="lead2">Tú cuentas quién es tu equipo. SkillUp hace el resto y lo adapta a cada uno.</p>
+<section class="flowsec" id="como" data-story>
+  <div class="flow-sticky">
+    <canvas class="net" data-net="story" data-morph="no" aria-hidden="true"></canvas>
+    <div class="wrap flow-ui">
+      <div>
+        <div class="flow-head reveal">
+          <p class="tag" style="color:#b39bff">Cómo funciona</p>
+          <h2 class="h2" style="color:#fff">De cero a equipo formado, casi solo.</h2>
+          <p class="lead2" style="color:var(--ink-mut)">Tú cuentas quién es tu equipo. SkillUp hace el resto y lo adapta a cada uno.</p>
+        </div>
+        <div class="flow">
+          <div class="fstep on"><div class="fnode">01</div><div class="fbody"><h3>Cuéntanos tu equipo</h3><p>Un onboarding tipo entrevista detecta el sector, el nivel y los objetivos de cada persona.</p></div></div>
+          <div class="fstep"><div class="fnode">02</div><div class="fbody"><h3>Cada uno, su ruta</h3><p>Se arma la ruta de aprendizaje de cada persona combinando solo lo que le sirve a su puesto.</p></div></div>
+          <div class="fstep"><div class="fnode">03</div><div class="fbody"><h3>Aprende con su mundo</h3><p>Titulares, ejemplos y prácticas del sector de esa persona. Todo verificado y con la fuente a la vista.</p></div></div>
+          <div class="fstep"><div class="fnode on">04</div><div class="fbody"><h3>Lo demuestra</h3><p>Resuelve un caso real de su puesto y lo revisa alguien acreditado. Lo que se ve es quién sabe aplicarlo.</p></div></div>
+        </div>
+        <div class="fticks" aria-hidden="true"><span class="ftick on"></span><span class="ftick"></span><span class="ftick"></span><span class="ftick"></span></div>
+        <div class="fcta-wrap"><div class="fcta"><div><h3>Y esto es lo que cambia.</h3><p>Menos horas de formación, más gente que sabe aplicarlo. Cuéntanos cómo es tu equipo.</p></div><a href="#acceso" class="btn btn-grad">Solicitar acceso →</a></div></div>
+      </div>
+    </div>
   </div>
-  <div class="wrap"><div class="steps">
-    <div class="step reveal"><div class="n">1</div><h4>Cuéntanos tu equipo</h4><p>Un onboarding tipo entrevista detecta sector, nivel y objetivos de cada persona.</p></div>
-    <div class="step reveal"><div class="n">2</div><h4>Rutas a medida</h4><p>SkillUp arma la ruta de aprendizaje de cada uno, combinando los cursos que le sirven.</p></div>
-    <div class="step reveal"><div class="n">3</div><h4>Aprende con tu mundo</h4><p>Titulares, ejemplos y prácticas reescritos para su sector. Todo verificado, con fuentes.</p></div>
-    <div class="step reveal"><div class="n">4</div><h4>Lo demuestra</h4><p>Resuelve un caso real de su puesto y lo revisa alguien acreditado. Lo que se ve es quién sabe aplicarlo.</p></div>
-  </div></div>
 </section>
 
 <section id="porque" class="band">
@@ -259,50 +345,41 @@ html.lenis,html.lenis body{height:auto}
     <p class="lead2" style="color:var(--ink-mut)">Lo que nos hace distintos es lo que hace que tu equipo de verdad aprenda.</p>
   </div>
   <div class="wrap"><div class="why">
-    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div><div><h4>Personalización real</h4><p>No cambia cuatro palabras: los ejemplos y las prácticas son del mundo de cada alumno.</p></div></div>
-    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div><h4>Contenido verificado</h4><p>Cero información inventada. Cada dato con su fuente, cada enlace comprobado. Formamos con rigor.</p></div></div>
-    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/></svg></div><div><h4>Se aprende acompañado</h4><p>Quien domina algo forma al siguiente. El conocimiento se queda en el equipo y se multiplica.</p></div></div>
-    <div class="w reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13"/><path d="M8 7h6M8 11h8"/></svg></div><div><h4>Recursos de los mejores</h4><p>Libros, charlas y herramientas de referentes reales, seleccionados para cada tema.</p></div></div>
+    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div><div><h4>Personalización real</h4><p>No cambia cuatro palabras: los ejemplos y las prácticas son del mundo de cada alumno.</p></div></div>
+    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div><h4>Contenido verificado</h4><p>Cero información inventada. Cada dato con su fuente, cada enlace comprobado. Formamos con rigor.</p></div></div>
+    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/></svg></div><div><h4>Se aprende acompañado</h4><p>Quien domina algo forma al siguiente. El conocimiento se queda en el equipo y se multiplica.</p></div></div>
+    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13"/><path d="M8 7h6M8 11h8"/></svg></div><div><h4>Recursos de los mejores</h4><p>Libros, charlas y herramientas de referentes reales, seleccionados para cada tema.</p></div></div>
   </div></div>
 </section>
 
-<section id="precios" class="pricing">
+<section id="propuesta" class="pricing">
   <div class="wrap center reveal">
-    <p class="tag">Precios</p>
-    <h2 class="h2">Formación a medida para tu equipo.</h2>
-    <p class="lead2">Cada empresa es distinta. Ajustamos el plan al tamaño de tu equipo y a los cursos que necesitáis. Cuéntanos y te preparamos una propuesta.</p>
+    <p class="tag">La propuesta</p>
+    <h2 class="h2">Se ajusta a tu equipo, no al revés.</h2>
+    <p class="lead2">No hay paquetes cerrados: el alcance depende de cuánta gente formas y de qué competencias te importan. Nos lo cuentas y te preparamos una propuesta por escrito, sin compromiso.</p>
   </div>
-  <div class="wrap"><div class="plans">
-    <div class="plan reveal">
-      <h3>Starter</h3>
-      <div class="price"><span class="now">A medida</span></div>
-      <p class="was">Según el tamaño de tu equipo</p>
-      <ul>
-        <li>3 cursos personalizados al mes</li>
-        <li>Rutas de aprendizaje a medida</li>
-        <li>Casos prácticos evaluados</li>
-        <li>Contenido verificado con fuentes</li>
-      </ul>
-      <a href="#acceso" class="btn btn-ghost">Solicitar acceso</a>
-    </div>
-    <div class="plan feat reveal">
-      <span class="pop">Recomendado</span>
-      <h3>Equipo</h3>
-      <div class="price"><span class="now">A medida</span></div>
-      <p class="was">Propuesta según tu equipo</p>
-      <ul>
-        <li>5 cursos personalizados al mes</li>
-        <li>Todo lo de Starter</li>
-        <li>Formación entre compañeros</li>
-        <li>Recursos premium seleccionados</li>
-        <li>Prioridad en cursos nuevos</li>
-      </ul>
-      <a href="#acceso" class="btn btn-grad">Solicitar acceso</a>
-      <p class="roi">Un solo curso aplicado ya se paga solo.</p>
-    </div>
+  <div class="wrap"><div class="incl">
+    <div class="inc tilt reveal"><h4>Rutas por puesto</h4><p>Una ruta distinta para cada perfil de tu equipo, con los casos de su día a día.</p></div>
+    <div class="inc tilt reveal"><h4>Validación práctica</h4><p>Casos reales corregidos por alguien acreditado, no un test que se aprueba de memoria.</p></div>
+    <div class="inc tilt reveal"><h4>Contenido con fuente</h4><p>Cada dato con su origen enlazado y su fecha de revisión visible.</p></div>
+    <div class="inc tilt reveal"><h4>Panel del responsable</h4><p>Quién sabe aplicar qué, dónde dependes de una sola persona y cuánto cuesta formar al siguiente.</p></div>
   </div>
-  <p class="launch">Cuéntanos cómo es tu equipo y te preparamos una propuesta a medida.</p>
+  <p class="launch">Cuéntanos cómo es tu equipo y te preparamos la propuesta. Sin permanencia durante el piloto.</p>
   </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap center reveal" style="margin-bottom:10px">
+    <p class="tag">Antes de que preguntes</p>
+    <h2 class="h2">Lo que nos preguntan todos.</h2>
+  </div>
+  <div class="wrap"><div class="faqs">
+    <details class="reveal"><summary>¿Qué diferencia a SkillUp de una plataforma de cursos?</summary><div><p>Una plataforma sirve el mismo contenido a todo el mundo y te informa de quién terminó. Aquí los ejemplos, las prácticas y el caso final son del sector y del puesto de cada persona, y lo que se mide es quién sabe aplicarlo.</p></div></details>
+    <details class="reveal"><summary>¿Cómo sabéis lo que necesita cada persona?</summary><div><p>Con un onboarding en forma de entrevista: sector, nivel de partida y qué necesita resolver en su puesto. De ahí sale su ruta, y solo entra lo que le sirve.</p></div></details>
+    <details class="reveal"><summary>¿De dónde sale el contenido y cómo sé que es fiable?</summary><div><p>Cada afirmación lleva su fuente enlazada y cada lección su fecha de última revisión, a la vista. Cuando cambia la normativa de un sector, lo afectado se revisa antes de volver a formar con ello.</p></div></details>
+    <details class="reveal"><summary>¿Puedo empezar yo solo y llevarlo después a mi equipo?</summary><div><p>Sí. SkillUp funciona para un profesional por su cuenta y para un equipo entero. Mucha gente lo prueba sola y después lo plantea en su empresa.</p></div></details>
+    <details class="reveal"><summary>¿Cuánto cuesta?</summary><div><p>Todavía no publicamos tarifa. El alcance depende del tamaño del equipo y de las competencias que quieras cubrir, y te lo damos por escrito antes de decidir nada.</p></div></details>
+  </div></div>
 </section>
 
 <section id="acceso" class="access">
@@ -320,6 +397,8 @@ html.lenis,html.lenis body{height:auto}
           <div><label for="lname">Tu nombre</label><input id="lname" autocomplete="name" placeholder="Nombre y apellido"></div>
           <div><label for="lcompany">Empresa</label><input id="lcompany" autocomplete="organization" placeholder="Nombre de la empresa"></div>
           <div class="full"><label for="lemail">Email de empresa</label><input id="lemail" type="email" autocomplete="email" required placeholder="tu@empresa.com"></div>
+          <div><label for="lsector">Sector</label><input id="lsector" placeholder="Logística, distribución, sanidad…"></div>
+          <div><label for="lsize">Equipo a formar</label><select id="lsize"><option value="">Tamaño del equipo</option><option>5-20 personas</option><option>21-50 personas</option><option>51-200 personas</option><option>Más de 200 personas</option></select></div>
         </div>
         <button class="btn btn-grad" type="submit">Solicitar acceso</button>
         <div class="assure">
@@ -345,13 +424,15 @@ html.lenis,html.lenis body{height:auto}
   </div></div>
 </section>
 
+
 <footer>
   <div class="wrap">
     <div class="row">
       <a href="#top" style="display:flex;align-items:baseline"><span class="brandooers-logo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>ers</span><span class="sk">SkillUp</span></a>
       <div class="fl">
         <a href="#como">Cómo funciona</a>
-        <a href="#precios">Precios</a>
+        <a href="#propuesta">La propuesta</a>
+        <a href="#faq">Preguntas</a>
         <a href="#acceso">Entrar</a>
         <a href="https://brandooers.com">Brandooers</a>
       </div>
@@ -360,17 +441,22 @@ html.lenis,html.lenis body{height:auto}
   </div>
 </footer>
 
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"https://brandooers.com/#org","name":"Brandooers","url":"https://brandooers.com/"},
+{"@type":"WebSite","@id":"https://skillup.brandooers.com/#web","url":"https://skillup.brandooers.com/","name":"SkillUp · Brandooers","inLanguage":"es-ES","publisher":{"@id":"https://brandooers.com/#org"}},
+{"@type":"Service","name":"SkillUp · formación a medida por sector y puesto","serviceType":"Formación","provider":{"@id":"https://brandooers.com/#org"},"areaServed":"ES","description":"Rutas de aprendizaje adaptadas al sector y al puesto de cada persona, con casos reales, validación práctica y contenido con fuente verificable."},
+{"@type":"FAQPage","@id":"https://skillup.brandooers.com/#faq","mainEntity":[
+{"@type":"Question","name":"¿Qué diferencia a SkillUp de una plataforma de cursos?","acceptedAnswer":{"@type":"Answer","text":"Una plataforma sirve el mismo contenido a todo el mundo y te informa de quién terminó. Aquí los ejemplos, las prácticas y el caso final son del sector y del puesto de cada persona, y lo que se mide es quién sabe aplicarlo."}},
+{"@type":"Question","name":"¿Cómo sabéis lo que necesita cada persona?","acceptedAnswer":{"@type":"Answer","text":"Con un onboarding en forma de entrevista: sector, nivel de partida y qué necesita resolver en su puesto. De ahí sale su ruta, y solo entra lo que le sirve."}},
+{"@type":"Question","name":"¿De dónde sale el contenido y cómo sé que es fiable?","acceptedAnswer":{"@type":"Answer","text":"Cada afirmación lleva su fuente enlazada y cada lección su fecha de última revisión, a la vista. Cuando cambia la normativa de un sector, lo afectado se revisa antes de volver a formar con ello."}},
+{"@type":"Question","name":"¿Puedo empezar yo solo y llevarlo después a mi equipo?","acceptedAnswer":{"@type":"Answer","text":"Sí. SkillUp funciona para un profesional por su cuenta y para un equipo entero."}},
+{"@type":"Question","name":"¿Cuánto cuesta?","acceptedAnswer":{"@type":"Answer","text":"Todavía no publicamos tarifa. El alcance depende del tamaño del equipo y de las competencias que quieras cubrir, y te lo damos por escrito antes de decidir nada."}}
+]}]}
+</script>
 <script src="assets/lenis.min.js" defer></script>
-<script src="assets/immersive.js?v=20260903b" defer></script>
+<script src="assets/immersive.js?v=20260903c" defer></script>
 <script>
-var nav=document.getElementById('nav');
-function onScroll(){ nav.classList.toggle('solid', window.scrollY>20); }
-onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
-try{
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
-  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-}catch(e){ document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');}); }
-
 var lf=document.getElementById('loginForm'),lm=document.getElementById('loginMsg');
 lf.addEventListener('submit',async function(ev){
   ev.preventDefault(); lm.textContent='';
@@ -380,16 +466,6 @@ lf.addEventListener('submit',async function(ev){
     if(r.ok&&d.ok){ location.href='/hub.html'; return; }
     lm.textContent=d.error||'No se pudo entrar';
   }catch(_){ lm.textContent='Error de conexión'; }
-});
-var lead=document.getElementById('leadForm'),ldm=document.getElementById('leadMsg');
-lead.addEventListener('submit',async function(ev){
-  ev.preventDefault(); ldm.textContent=''; ldm.style.color='#c92a2a';
-  try{
-    var r=await fetch('/auth/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:document.getElementById('lname').value.trim(),email:document.getElementById('lemail').value.trim(),company:document.getElementById('lcompany').value.trim()})});
-    var d=await r.json();
-    if(r.ok&&d.ok){ ldm.style.color='#2b8a3e'; ldm.textContent='¡Recibido! Te escribimos en breve con tu acceso.'; lead.reset(); return; }
-    ldm.textContent=d.error||'No se pudo enviar';
-  }catch(_){ ldm.textContent='Error de conexión'; }
 });
 </script>
 </body>
