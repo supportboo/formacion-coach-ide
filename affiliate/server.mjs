@@ -151,15 +151,20 @@ function userRows() {
 
 // ---- notificaciones push (móvil) ----
 /* Aviso de leads por email.
-   Se envía DESDE info@brandooers.com (buzón IONOS del dominio) HACIA LEAD_TO
-   (boo@boomatik.com), con Reply-To del propio lead para poder contestarle
-   directo. Todo por variables de entorno: sin SMTP_PASS esto no hace nada y el
-   lead se sigue guardando en leads.jsonl + push. */
+   Se envía DESDE MAIL_FROM (info@brandooers.com) HACIA LEAD_TO (boo@boomatik.com),
+   con Reply-To del propio lead para poder contestarle directo. Todo por variables
+   de entorno: sin credenciales esto no hace nada y el lead se sigue guardando en
+   leads.jsonl + push.
+   Con Resend basta RESEND_API_KEY: su SMTP es smtp.resend.com / usuario "resend"
+   / contraseña = la API key (docs oficiales, verificado 2026-09-03). El dominio
+   remitente tiene que estar verificado en Resend. Si no, se usa SMTP_* directo. */
+const RESEND = process.env.RESEND_API_KEY || '';
 const MAIL = {
-  host: process.env.SMTP_HOST || 'smtp.ionos.es',
+  host: process.env.SMTP_HOST || (RESEND ? 'smtp.resend.com' : 'smtp.ionos.es'),
   port: Number(process.env.SMTP_PORT || 587),
-  user: process.env.SMTP_USER || 'info@brandooers.com',
-  pass: process.env.SMTP_PASS || '',
+  user: process.env.SMTP_USER || (RESEND ? 'resend' : 'info@brandooers.com'),
+  pass: RESEND || process.env.SMTP_PASS || '',
+  from: process.env.MAIL_FROM || 'info@brandooers.com',
   to: process.env.LEAD_TO || 'boo@boomatik.com',
 };
 let mailer = null;
@@ -167,15 +172,15 @@ if (MAIL.pass) {
   try {
     const nm = (await import('nodemailer')).default;
     mailer = nm.createTransport({ host: MAIL.host, port: MAIL.port, secure: MAIL.port === 465, auth: { user: MAIL.user, pass: MAIL.pass } });
-    console.log('mail: on →', MAIL.to);
+    console.log('mail: on ·', MAIL.host, '· de', MAIL.from, '→', MAIL.to);
   } catch (e) { console.log('mail off (nodemailer):', e.message); }
-} else { console.log('mail off: falta SMTP_PASS'); }
+} else { console.log('mail off: falta RESEND_API_KEY o SMTP_PASS'); }
 
 function notifyLeadByEmail(rec, origin) {
   if (!mailer) return;
   const line = (k, v) => v ? k + ': ' + v + '\n' : '';
   mailer.sendMail({
-    from: '"Brandooers" <' + MAIL.user + '>',
+    from: '"Brandooers" <' + MAIL.from + '>',
     to: MAIL.to,
     replyTo: rec.email,
     subject: 'Nueva solicitud · ' + (rec.name || rec.email) + (rec.company ? ' · ' + rec.company : ''),
