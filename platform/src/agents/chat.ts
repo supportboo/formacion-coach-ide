@@ -57,7 +57,7 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
 
   // 3) historial reciente del hilo
   const history = await deps.db.select().from(agentMessage)
-    .where(eq(agentMessage.threadId, threadId))
+    .where(and(eq(agentMessage.threadId, threadId), eq(agentMessage.organizationId, input.orgId)))
     .orderBy(asc(agentMessage.createdAt));
   const msgs: LlmMessage[] = history.map((m) => ({
     role: m.sender === "user" ? "user" : "assistant", content: m.content,

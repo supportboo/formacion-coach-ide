@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Validar casos</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#8B5CF6;--ink:#0E0B14;--body:#4A4A4A;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body)}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line);background:#fff}
+.top a{font-size:13px;color:var(--mut);text-decoration:none}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+h1{font-size:18px;color:var(--ink);margin-bottom:16px}
+.who{font-size:12px;color:var(--mut);margin-bottom:6px}
+.prompt{font-size:14px;color:var(--ink);font-weight:600;margin-bottom:6px}
+.sub{font-size:14px;background:#FAFAFA;border-radius:10px;padding:10px;margin-bottom:10px;white-space:pre-wrap}
+textarea{width:100%;font:inherit;font-size:13.5px;padding:10px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:8px;min-height:60px}
+.btn{font:inherit;font-weight:700;font-size:13px;border:0;border-radius:100px;padding:9px 18px;cursor:pointer}
+.btn.ok{background:#16A34A;color:#fff}
+.btn.no{background:#DC2626;color:#fff;margin-left:8px}
+.empty{color:var(--mut);font-size:14px}
+</style>
+</head>
+<body>
+<div class="top"><strong>SkillUp</strong><a href="/app/dashboard.html">← Mi panel</a></div>
+<div class="wrap">
+  <div class="card"><h1>Casos pendientes de validar</h1><div id="list"></div></div>
+</div>
+<script src="/app/api.js"></script>
+<script>
+(async function () {
+  var s = await SkillUp.requireSession(); if (!s) return;
+  var list = document.getElementById('list');
+  var cases;
+  try { cases = await SkillUp.api('/api/validation/pending'); }
+  catch (ex) { list.innerHTML = '<p class="empty">' + SkillUp.escHtml(ex.message) + '</p>'; return; }
+  if (!cases.length) { list.innerHTML = '<p class="empty">No hay casos pendientes.</p>'; return; }
+  cases.forEach(function (c) {
+    var d = document.createElement('div');
+    d.style.cssText = 'border-top:1px solid #F3EEF1;padding-top:14px;margin-top:14px';
+    d.innerHTML =
+      '<div class="who">Competencia ' + SkillUp.escHtml(c.competencyId) + ' · alumno ' + SkillUp.escHtml(c.userId) + '</div>' +
+      '<div class="prompt">' + SkillUp.escHtml(c.prompt) + '</div>' +
+      '<div class="sub">' + SkillUp.escHtml(c.submission || '') + '</div>' +
+      '<textarea placeholder="Feedback (opcional)"></textarea>' +
+      '<button class="btn ok">Aprobar</button><button class="btn no">Rechazar</button>' +
+      '<span class="msg" style="margin-left:10px;font-size:13px;color:var(--mut)"></span>';
+    var ta = d.querySelector('textarea'), msg = d.querySelector('.msg');
+    async function decide(decision) {
+      try {
+        var r = await SkillUp.api('/api/validation/cases/' + c.id + '/decide', { method: 'POST', body: { decision: decision, feedback: ta.value.trim() || undefined } });
+        msg.textContent = 'Hecho — nivel actual del alumno: ' + r.level;
+        d.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+      } catch (ex) { msg.textContent = ex.message; }
+    }
+    d.querySelector('.ok').addEventListener('click', function () { decide('aprobado'); });
+    d.querySelector('.no').addEventListener('click', function () { decide('rechazado'); });
+    list.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>

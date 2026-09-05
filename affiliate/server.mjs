@@ -115,6 +115,23 @@ function inboxAll() {
   return items.map(it => { const x = m[it.id] || {}; return { ...it, status: x.status || 'nuevo', instruction: x.instruction || '', reply: x.reply || '', stage: x.stage || '', eta: x.eta || '', courseUrl: x.courseUrl || '', moderation: x.moderation || '' }; });
 }
 function readJsonl(f) { const rows = []; try { for (const l of readFileSync(W(f), 'utf8').split('\n')) { if (!l) continue; try { rows.push(JSON.parse(l)); } catch {} } } catch {} return rows; }
+function writeJsonl(f, rows) { writeFileSync(W(f), rows.map((r) => JSON.stringify(r)).join('\n') + (rows.length ? '\n' : ''), 'utf8'); }
+
+// RGPD: ficheros JSONL con datos personales de coaches/alumnos (nombre de usuario como identificador).
+const PERSONAL_JSONL_FILES = ['views.jsonl', 'progress.jsonl', 'exams.jsonl', 'applied.jsonl', 'clicks.jsonl'];
+function exportPersonalData(u) {
+  const out = { user: u, account: users()[u] ? { role: users()[u].role, created: users()[u].created || '' } : null };
+  for (const f of PERSONAL_JSONL_FILES) out[f] = readJsonl(f).filter((r) => r.user === u);
+  out['inbox.jsonl'] = inboxAll().filter((it) => (it.data || {}).user === u);
+  return out;
+}
+function erasePersonalData(u) {
+  for (const f of PERSONAL_JSONL_FILES) writeJsonl(f, readJsonl(f).filter((r) => r.user !== u));
+  const db = users(); delete db[u]; jsave(W('users.json'), db);
+  const t = teams(); let changed = false;
+  for (const k of Object.keys(t)) { if (k === u || t[k] === u) { delete t[k]; changed = true; } }
+  if (changed) jsave(W('teams.json'), t);
+}
 
 // moderación de peticiones de curso: bloquea porno, insultos, violencia/ilegal, spam y fuera de contexto
 const MOD_BLOCK = /(\bporn|xxx|sexual|desnud|nude|escort|follar|corrida|tetas|\bculo\b|masturb|onlyfans|\bsexo\b|erotic|gilipollas|imb[eé]cil|idiota|subnormal|cabr[oó]n|\bputa\b|maric[oó]n|hijo de puta|nazi|matar a|hacer una bomba|drogas? para vender|coca[ií]na|hero[ií]na|hackear (cuenta|whatsapp|instagram|correo)|suicid)/i;
@@ -332,18 +349,21 @@ const server = http.createServer(async (req, res) => {
     const b = await body(req); inboxAppend('onboarding', b); return json(res, 200, { ok: true });
   }
   if (path === '/api/view' && req.method === 'POST') {
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
     const b = await body(req);
-    try { appendFileSync(W('views.jsonl'), JSON.stringify({ page: String(b.page || '').slice(0, 80), user: String(b.user || '').slice(0, 60), ts: new Date().toISOString() }) + '\n'); } catch {}
+    try { appendFileSync(W('views.jsonl'), JSON.stringify({ page: String(b.page || '').slice(0, 80), user: s.u, ts: new Date().toISOString() }) + '\n'); } catch {}
     return json(res, 200, { ok: true });
   }
   if (path === '/api/progress' && req.method === 'POST') {
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
     const b = await body(req);
-    try { appendFileSync(W('progress.jsonl'), JSON.stringify({ user: String(b.user || '').slice(0, 60), course: String(b.course || '').slice(0, 80), done: !!b.done, pct: Number(b.pct) || null, ts: new Date().toISOString() }) + '\n'); } catch {}
+    try { appendFileSync(W('progress.jsonl'), JSON.stringify({ user: s.u, course: String(b.course || '').slice(0, 80), done: !!b.done, pct: Number(b.pct) || null, ts: new Date().toISOString() }) + '\n'); } catch {}
     return json(res, 200, { ok: true });
   }
   if (path === '/api/exam' && req.method === 'POST') {   // resultado de examen -> badge
+    const s = session(req); if (!s) return json(res, 401, { error: 'no auth' });
     const b = await body(req);
-    try { appendFileSync(W('exams.jsonl'), JSON.stringify({ user: String(b.user || '').slice(0, 60), course: String(b.course || '').slice(0, 80), score: Number(b.score) || 0, passed: !!b.passed, ts: new Date().toISOString() }) + '\n'); } catch {}
+    try { appendFileSync(W('exams.jsonl'), JSON.stringify({ user: s.u, course: String(b.course || '').slice(0, 80), score: Number(b.score) || 0, passed: !!b.passed, ts: new Date().toISOString() }) + '\n'); } catch {}
     return json(res, 200, { ok: true });
   }
   if (path === '/api/mis-cursos') {   // cursos que el alumno ha pedido y su estado de producción
@@ -381,7 +401,7 @@ const server = http.createServer(async (req, res) => {
     if (b.reply != null) patch.reply = String(b.reply).slice(0, 2000);
     if (b.stage != null) patch.stage = String(b.stage).slice(0, 20);
     if (b.eta != null) patch.eta = String(b.eta).slice(0, 40);
-    if (b.courseUrl != null) patch.courseUrl = String(b.courseUrl).slice(0, 160);
+    if (b.courseUrl != null) patch.courseUrl = /^https:\/\//.test(b.courseUrl) ? String(b.courseUrl).slice(0, 160) : '';
     if (!Object.keys(patch).length) return json(res, 400, { error: 'nada que cambiar' });
     inboxSetMeta(b.id, patch);
     return json(res, 200, { ok: true });
@@ -466,6 +486,29 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { settings: getSettings() });
   }
 
+  /* ----- RGPD: acceso/portabilidad (art. 15/20) y derecho al olvido (art. 17) ----- */
+  if (path === '/api/admin/privacy/export' && req.method === 'POST') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const b = await body(req); const u = String(b.user || '').slice(0, 60);
+    if (!u) return json(res, 400, { error: 'falta user' });
+    return json(res, 200, exportPersonalData(u));
+  }
+  if (path === '/api/admin/privacy/erase' && req.method === 'POST') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const b = await body(req); const u = String(b.user || '').slice(0, 60);
+    if (!u) return json(res, 400, { error: 'falta user' });
+    erasePersonalData(u);
+    return json(res, 200, { ok: true });
+  }
+  // leads (prospectos, no coaches del equipo): borrado por email a petición del interesado.
+  if (path === '/api/admin/privacy/erase-lead' && req.method === 'POST') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
+    const b = await body(req); const email = String(b.email || '').trim().toLowerCase();
+    if (!email) return json(res, 400, { error: 'falta email' });
+    writeJsonl('leads.jsonl', readJsonl('leads.jsonl').filter((r) => String(r.email || '').toLowerCase() !== email));
+    return json(res, 200, { ok: true });
+  }
+
   /* ----- AFILIACIÓN ----- */
   if (path.startsWith('/r/')) {
     const id = path.slice(3);
@@ -480,10 +523,12 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
   if (path === '/aff/' || path === '/aff' || path === '/aff/index.html') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     try { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(readFileSync(R('admin.html'))); }
     catch { res.writeHead(500); return res.end('sin admin.html'); }
   }
   if (path === '/aff/api/data') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     DB = reload();
     const clicks = clicksByDomain();
     const rows = Object.entries(DB.opps).map(([domain, o]) => ({
@@ -494,11 +539,13 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { rows, totals: { dominios: rows.length, disponibles: rows.filter(r => r.autoStatus === 'DISPONIBLE').length, clics: Object.values(clicks).reduce((a, b) => a + b, 0) } });
   }
   if (path === '/aff/api/status' && req.method === 'POST') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     const b = await body(req); if (!b.domain || !b.status) return json(res, 400, { error: 'faltan datos' });
     const o = jload(W('status-overrides.json'), {}); o[b.domain] = b.status; jsave(W('status-overrides.json'), o); DB = reload();
     return json(res, 200, { ok: true });
   }
   if (path === '/aff/api/tag' && req.method === 'POST') {
+    const s = session(req); if (!s || s.role !== 'admin') return json(res, 403, { error: 'solo admin' });
     const b = await body(req); if (!b.domain) return json(res, 400, { error: 'falta dominio' });
     const t = jload(W('affiliates.json'), {});
     if (b.value) t[b.domain] = { param: (b.param || 'ref').slice(0, 20), value: b.value.slice(0, 80) }; else delete t[b.domain];

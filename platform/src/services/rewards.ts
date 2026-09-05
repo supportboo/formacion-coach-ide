@@ -23,23 +23,41 @@ function certCode(newId: () => string): string {
   return "CERT-" + newId().replace(/-/g, "").slice(0, 12).toUpperCase();
 }
 
-/** Emite un certificado verificable con la evidencia detrás. */
+/**
+ * Emite un certificado verificable con la evidencia detrás.
+ * `validForDays`: si se da, el certificado caduca y exige recertificación; si no, no caduca.
+ */
 export async function issueCertificate(
-  deps: SvcDeps, args: { orgId: string; userId: string; competencyId?: string; title: string; evidence?: Record<string, unknown> },
+  deps: SvcDeps,
+  args: {
+    orgId: string; userId: string; competencyId?: string; title: string;
+    evidence?: Record<string, unknown>; validForDays?: number; recertifiesId?: string;
+  },
 ): Promise<{ id: string; code: string }> {
   const id = deps.newId();
   const code = certCode(deps.newId);
+  const expiresAt = args.validForDays ? new Date(Date.now() + args.validForDays * 86_400_000) : null;
   await deps.db.insert(certificate).values({
     id, organizationId: args.orgId, userId: args.userId, competencyId: args.competencyId ?? null,
     title: args.title, code, evidence: args.evidence ?? null,
+    expiresAt, recertifiesId: args.recertifiesId ?? null,
   });
   return { id, code };
 }
 
-/** Verificación pública de un certificado por su código. */
+/** Verificación pública de un certificado por su código. Distingue caducado de inválido. */
 export async function verifyCertificate(deps: SvcDeps, code: string) {
   const [row] = await deps.db.select().from(certificate).where(eq(certificate.code, code));
-  return row ?? null;
+  if (!row) return null;
+  const expired = !!(row.expiresAt && row.expiresAt.getTime() < Date.now());
+  return { ...row, expired };
+}
+
+/** Certificados de un usuario a punto de caducar (para recordar recertificación). */
+export async function expiringSoon(deps: SvcDeps, orgId: string, withinDays: number) {
+  const cutoff = new Date(Date.now() + withinDays * 86_400_000);
+  const rows = await deps.db.select().from(certificate).where(eq(certificate.organizationId, orgId));
+  return rows.filter((r) => r.expiresAt && r.expiresAt <= cutoff && r.expiresAt.getTime() > Date.now());
 }
 
 export interface Granted { reward: RewardKind; ruleId: string; refId?: string }

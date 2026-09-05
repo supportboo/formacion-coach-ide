@@ -48,6 +48,26 @@ export async function getLevel(
   return row?.level ?? 0;
 }
 
+/** Quién está a qué nivel en una competencia (para que un validador/team_leader vea a quién puede formar). */
+export function listLevelsForCompetency(deps: SvcDeps, orgId: string, competencyId: string) {
+  return deps.db.select({ userId: levelByCompetency.userId, level: levelByCompetency.level })
+    .from(levelByCompetency)
+    .where(and(eq(levelByCompetency.organizationId, orgId), eq(levelByCompetency.competencyId, competencyId)));
+}
+
+/** Mis inscripciones (para el dashboard del empleado). */
+export function listMyEnrollments(deps: SvcDeps, orgId: string, userId: string) {
+  return deps.db.select().from(enrollment)
+    .where(and(eq(enrollment.organizationId, orgId), eq(enrollment.userId, userId)));
+}
+
+export async function getOnboardingProfile(deps: SvcDeps, orgId: string, userId: string) {
+  const [row] = await deps.db.select().from(onboardingProfile)
+    .where(and(eq(onboardingProfile.organizationId, orgId), eq(onboardingProfile.userId, userId)))
+    .orderBy(sql`${onboardingProfile.createdAt} desc`).limit(1);
+  return row ?? null;
+}
+
 export interface KnowledgeTestInput {
   orgId: string; userId: string; pathId: string; competencyId: string;
   score: number; passThreshold?: number;

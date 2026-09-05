@@ -95,11 +95,13 @@
       '.bd-prep .barp{height:5px;background:#F0EAEE;border-radius:3px;margin-top:5px;overflow:hidden}' +
       '.bd-prep .barp i{display:block;height:100%;background:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);transition:width .4s}';
     document.head.appendChild(css);
+    var escHtml = function (x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var safeUser = escHtml(me.user);
     var wrap = document.createElement('div'); wrap.className = 'bd-acc';
     wrap.innerHTML =
-      '<div class="bd-chip" id="bdChip"><span class="bd-av">' + me.user.charAt(0).toUpperCase() + '</span><span class="bd-nm">' + me.user + '</span></div>' +
+      '<div class="bd-chip" id="bdChip"><span class="bd-av">' + escHtml(me.user.charAt(0).toUpperCase()) + '</span><span class="bd-nm">' + safeUser + '</span></div>' +
       '<div class="bd-menu" id="bdMenu">' +
-      '<div class="who"><b>' + me.user + '</b><span>' + (isAdmin ? 'Administrador' : 'Miembro') + '</span></div>' +
+      '<div class="who"><b>' + safeUser + '</b><span>' + (isAdmin ? 'Administrador' : 'Miembro') + '</span></div>' +
       '<a href="/perfil.html">Mi perfil</a>' +
       (isAdmin ? '<a href="/panel.html">Panel de control</a><a href="#" class="bd-push">🔔 Activar notificaciones</a><a href="/insights.html">Insights &amp; ranking</a><a href="/revisiones.html">Revisiones</a><a href="/produccion.html">Producción</a><a href="/usuarios.html">Usuarios del equipo</a><a href="/aff/">Panel de afiliación</a>' : '') +
       '<a class="out" href="/auth/logout">Cerrar sesión</a>' +
@@ -120,8 +122,8 @@
       if (!mc || !mc.cursos || !mc.cursos.length) return;
       var prep = mc.cursos.filter(function (c) { return !(c.stage === 'publish' && c.courseUrl); });
       var items = mc.cursos.map(function (c) {
-        var st = STG[c.stage] || STG.cola, pub = (c.stage === 'publish' && c.courseUrl), safe = (c.topic || '').replace(/[&<>"]/g, function (x) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]; });
-        return '<div class="it"><b>' + safe + '</b>' + (pub ? '<a class="ready" href="' + c.courseUrl + '">✓ Listo · abrir curso →</a>' : '<div class="s">' + st[0] + ' · ' + (c.eta || 'ETA 24 h') + '</div><div class="barp"><i style="width:' + st[1] + '%"></i></div>') + '</div>';
+        var st = STG[c.stage] || STG.cola, safeUrl = /^https:\/\//.test(c.courseUrl || '') ? c.courseUrl : '', pub = (c.stage === 'publish' && safeUrl), safe = (c.topic || '').replace(/[&<>"]/g, function (x) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]; });
+        return '<div class="it"><b>' + safe + '</b>' + (pub ? '<a class="ready" href="' + safeUrl + '">✓ Listo · abrir curso →</a>' : '<div class="s">' + st[0] + ' · ' + (c.eta || 'ETA 24 h') + '</div><div class="barp"><i style="width:' + st[1] + '%"></i></div>') + '</div>';
       }).join('');
       var w = document.createElement('div'); w.className = 'bd-prep';
       w.innerHTML = '<div class="pill" id="bdPrepPill">' + (prep.length ? '<span class="spin"></span> ' + prep.length + ' curso' + (prep.length > 1 ? 's' : '') + ' en preparación' : '✓ tus cursos listos') + '</div><div class="box">' + items + '</div>';

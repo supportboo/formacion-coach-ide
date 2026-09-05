@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Tu perfil</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#8B5CF6;--ink:#0E0B14;--body:#4A4A4A;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{width:100%;max-width:480px;padding:32px;background:#fff;border:1px solid var(--line);border-radius:16px}
+h1{font-size:22px;color:var(--ink);margin-bottom:6px}
+p.sub{font-size:14px;color:var(--mut);margin-bottom:20px}
+label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:12px 0 4px}
+input,textarea{width:100%;font:inherit;font-size:15px;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px}
+textarea{min-height:80px;resize:vertical}
+.btn{margin-top:18px;font:inherit;font-weight:700;font-size:14px;border:0;border-radius:100px;padding:13px 24px;cursor:pointer;background:var(--p);color:#fff}
+.err{color:#DC2626;font-size:13px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Cuéntanos de tu puesto</h1>
+  <p class="sub">Esto ajusta tu ruta de aprendizaje a tu sector y a lo que necesitas de verdad.</p>
+  <form id="f">
+    <label>Sector</label><input id="sector" placeholder="p. ej. logística, retail, SaaS">
+    <label>Puesto</label><input id="puesto" placeholder="p. ej. responsable de almacén">
+    <label>¿Por qué / para qué quieres formarte ahora?</label>
+    <textarea id="motivo" placeholder="Cuéntalo con tus palabras"></textarea>
+    <button class="btn" type="submit">Guardar y continuar</button>
+    <div class="err" id="err"></div>
+  </form>
+</div>
+<script src="/app/api.js"></script>
+<script>
+(async function () {
+  var s = await SkillUp.requireSession();
+  if (!s) return;
+  document.getElementById('f').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var err = document.getElementById('err'); err.textContent = '';
+    try {
+      await SkillUp.api('/api/learning/onboarding', { method: 'POST', body: {
+        sector: document.getElementById('sector').value.trim() || undefined,
+        puesto: document.getElementById('puesto').value.trim() || undefined,
+        motivo: document.getElementById('motivo').value.trim() || undefined,
+      } });
+      window.location.href = '/app/dashboard.html';
+    } catch (ex) { err.textContent = ex.message; }
+  });
+})();
+</script>
+</body>
+</html>

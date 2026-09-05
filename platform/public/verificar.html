@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificar certificado · Brandooers SkillUp</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#8B5CF6;--ink:#0E0B14;--body:#4A4A4A;--mut:#8F8F8F;--bg:#0E0B14;--line:#2A2432;--ok:#22C55E;--bad:#EF4444}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{width:100%;max-width:440px;padding:36px;text-align:center}
+h1{font-size:20px;margin-bottom:20px;color:#fff}
+input{width:100%;font:inherit;font-size:15px;padding:12px 16px;border:1.5px solid var(--line);border-radius:10px;background:#161119;color:#fff;text-align:center;letter-spacing:.05em}
+.btn{margin-top:14px;font:inherit;font-weight:700;font-size:14px;border:0;border-radius:100px;padding:12px 26px;cursor:pointer;background:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);color:#fff}
+.result{margin-top:26px;padding:20px;border-radius:14px;display:none}
+.result.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3)}
+.result.bad{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3)}
+.result .tag{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.result.ok .tag{color:var(--ok)}
+.result.bad .tag{color:var(--bad)}
+.result h2{font-size:18px;margin:8px 0 4px;color:#fff}
+.result p{font-size:13px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Verificar certificado Brandooers SkillUp</h1>
+  <input id="code" placeholder="CERT-XXXXXXXXXXXX">
+  <br><button class="btn" id="btn">Verificar</button>
+  <div class="result" id="result"></div>
+</div>
+<script>
+function check(code) {
+  fetch('/api/certificates/' + encodeURIComponent(code) + '/verify').then(function (r) { return r.json(); }).then(function (d) {
+    var box = document.getElementById('result');
+    box.style.display = 'block';
+    if (d.valid) {
+      box.className = 'result ok';
+      box.innerHTML = '<div class="tag">Certificado válido</div><h2>' + (d.title || '') + '</h2><p>Emitido: ' + new Date(d.issuedAt).toLocaleDateString('es-ES') + '</p>';
+    } else {
+      box.className = 'result bad';
+      box.innerHTML = '<div class="tag">No encontrado</div><p>Ese código no corresponde a un certificado válido.</p>';
+    }
+  });
+}
+document.getElementById('btn').addEventListener('click', function () {
+  var v = document.getElementById('code').value.trim();
+  if (v) check(v);
+});
+var q = new URLSearchParams(window.location.search).get('code');
+if (q) { document.getElementById('code').value = q; check(q); }
+</script>
+</body>
+</html>

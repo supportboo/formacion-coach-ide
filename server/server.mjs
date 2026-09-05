@@ -14,21 +14,32 @@ const ROOT = process.env.STATIC_DIR || join(process.cwd(), '..'); // por defecto
 const KEY = process.env.ANTHROPIC_API_KEY;
 const GEN_MODEL  = process.env.GEN_MODEL  || 'claude-sonnet-4-6';        // reescritura de contenido
 const FAST_MODEL = process.env.FAST_MODEL || 'claude-haiku-4-5-20251001'; // entrevista/extracción
+// Origen permitido para las llamadas LLM (evita que cualquier web ajena use esta API a nuestro cargo).
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://brandooers.com';
 
 const MIME = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.pdf':'application/pdf'};
+
+// rate limit por IP (20 peticiones LLM / 10 min) — mismas cifras de espíritu que affiliate/server.mjs.
+const hits = new Map();
+function rateOk(ip) {
+  const now = Date.now(), w = hits.get(ip) || { n: 0, t: now };
+  if (now - w.t > 6e5) { w.n = 0; w.t = now; }
+  w.n++; hits.set(ip, w); return w.n <= 20;
+}
 
 async function claude(model, system, messages, max = 1400) {
   if (!KEY) throw new Error('Falta ANTHROPIC_API_KEY');
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model, max_tokens: max, system, messages })
+    body: JSON.stringify({ model, max_tokens: max, system, messages }),
+    signal: AbortSignal.timeout(30_000),
   });
   const d = await r.json();
   if (d.error) throw new Error(d.error.message || 'error API');
   return (d.content || []).map(c => c.text || '').join('');
 }
-function json(res, code, obj) { const b = JSON.stringify(obj); res.writeHead(code, { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*' }); res.end(b); }
+function json(res, code, obj) { const b = JSON.stringify(obj); res.writeHead(code, { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': ALLOWED_ORIGIN }); res.end(b); }
 function firstJson(s) { const a = s.indexOf('{'), b = s.lastIndexOf('}'); return JSON.parse(s.slice(a, b + 1)); }
 function readBody(req) { return new Promise(r => { let d = ''; req.on('data', c => d += c); req.on('end', () => { try { r(JSON.parse(d || '{}')); } catch { r({}); } }); }); }
 
@@ -62,9 +73,12 @@ Devuelve SOLO JSON válido con la misma forma que la sección canónica que reci
 
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.method === 'OPTIONS') { res.writeHead(204, { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'content-type', 'access-control-allow-methods': 'POST,GET' }); return res.end(); }
+    if (req.method === 'OPTIONS') { res.writeHead(204, { 'access-control-allow-origin': ALLOWED_ORIGIN, 'access-control-allow-headers': 'content-type', 'access-control-allow-methods': 'POST,GET' }); return res.end(); }
+
+    const ip = String(req.headers['x-real-ip'] || req.socket.remoteAddress || '');
 
     if (req.method === 'POST' && req.url === '/api/onboard') {
+      if (!rateOk(ip)) return json(res, 429, { error: 'demasiadas peticiones, espera unos minutos' });
       const { history = [] } = await readBody(req);
       const msgs = history.length ? history : [{ role: 'user', content: 'Hola, quiero adaptar la formación a mi caso.' }];
       const out = await claude(FAST_MODEL, ONBOARD_SYS, msgs, 600);
@@ -72,6 +86,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && req.url === '/api/personalize') {
+      if (!rateOk(ip)) return json(res, 429, { error: 'demasiadas peticiones, espera unos minutos' });
       const { profile, section } = await readBody(req);
       if (!profile || !section) return json(res, 400, { error: 'faltan profile o section' });
       const user = `PERFIL:\n${typeof profile === 'string' ? profile : JSON.stringify(profile)}\n\nSECCIÓN CANÓNICA (JSON):\n${JSON.stringify(section)}`;
@@ -80,6 +95,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && req.url === '/api/exam') {
+      if (!rateOk(ip)) return json(res, 429, { error: 'demasiadas peticiones, espera unos minutos' });
       const b = await readBody(req);
       if (b.mode === 'generate') {
         const out = await claude(FAST_MODEL, examGenSys(b.n || 5), [{ role: 'user', content: `Curso: ${b.curso}. Tema: ${b.tema}. Nivel: ${b.nivel || 'intermedio'}.` }], 1300);

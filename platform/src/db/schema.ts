@@ -33,6 +33,9 @@ export const account = pgTable("account", {
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
+  // better-auth 1.7: identidad de cuenta acotada por issuer (antes solo providerId+accountId).
+  // https://better-auth.com/docs/guides/1-7-upgrade-guide#account-identity-is-scoped-by-issuer
+  issuer: text("issuer").notNull(),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
@@ -42,7 +45,7 @@ export const account = pgTable("account", {
   password: text("password"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (t) => ({ issuerAccountUniq: uniqueIndex("account_issuer_accountid_uidx").on(t.issuer, t.accountId) }));
 
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
@@ -60,6 +63,7 @@ export const organization = pgTable("organization", {
   logo: text("logo"),
   metadata: text("metadata"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at"),
 });
 
 // Roles del organigrama: empleado · coach · team_leader · inspirador · admin · direccion
@@ -78,6 +82,7 @@ export const invitation = pgTable("invitation", {
   role: text("role"),
   status: text("status").notNull().default("pending"),
   expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
   inviterId: text("inviter_id").notNull().references(() => user.id, { onDelete: "cascade" }),
 });
 
@@ -255,6 +260,23 @@ export const appliedCase = pgTable("applied_case", {
   submittedAt: timestamp("submitted_at"),
 }, (t) => ({ byOrg: index("case_org_idx").on(t.organizationId) }));
 
+/**
+ * Evidencia polimórfica de un caso práctico o validación: documento/vídeo/audio/enlace/KPI.
+ * Sin infraestructura de subida de ficheros propia todavía: `url` apunta a donde ya vive
+ * (Drive, YouTube, etc.); cuando haya storage propio, se añade sin romper esto.
+ */
+export const evidence = pgTable("evidence", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  ownerType: text("owner_type").notNull(), // applied_case | certificate
+  ownerId: text("owner_id").notNull(),
+  kind: text("kind").notNull(), // documento | video | audio | url | kpi
+  url: text("url"),
+  note: text("note"),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("evidence_org_idx").on(t.organizationId), byOwner: index("evidence_owner_idx").on(t.ownerType, t.ownerId) }));
+
 export const validation = pgTable("validation", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id").notNull(),
@@ -323,7 +345,22 @@ export const certificate = pgTable("certificate", {
   code: text("code").notNull().unique(), // verificable
   evidence: jsonb("evidence").$type<Record<string, unknown>>(),
   issuedAt: timestamp("issued_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at"), // null = no caduca
+  recertifiesId: text("recertifies_id"), // certificado anterior que este renueva
 }, (t) => ({ byOrg: index("cert_org_idx").on(t.organizationId) }));
+
+/* ============================================================
+ * PLAN DE CARRERA (Fase 4/13): rol → competencias requeridas → siguiente rol.
+ * No es un ranking global: cada empresa configura su propia escalera por puesto.
+ * ============================================================ */
+export const careerPath = pgTable("career_path", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  fromPuestoId: text("from_puesto_id"),
+  toPuestoId: text("to_puesto_id").notNull(),
+  requirements: jsonb("requirements").$type<{ competencyId: string; minLevel: number }[]>().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byOrg: index("career_org_idx").on(t.organizationId) }));
 
 export const rewardGrant = pgTable("reward_grant", {
   id: text("id").primaryKey(),
@@ -364,6 +401,30 @@ export const fundaeParticipation = pgTable("fundae_participation", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("fundaep_org_idx").on(t.organizationId) }));
 
+/* ============================================================
+ * FACTURACIÓN (Stripe) — niveles de precio globales (los fija Boomatik, no cada empresa)
+ * + suscripción por empresa. Precio dinámico vía Stripe Checkout `price_data` (no Products/
+ * Prices fijos en Stripe): así se puede ajustar el precio por asiento sin tocar Stripe.
+ * ============================================================ */
+export const pricingTier = pgTable("pricing_tier", {
+  tier: text("tier").primaryKey(), // texto | video_corto | inmersivo
+  label: text("label").notNull(),
+  pricePerSeatCents: integer("price_per_seat_cents").notNull(),
+  currency: text("currency").notNull().default("eur"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const subscription = pgTable("subscription", {
+  organizationId: text("organization_id").primaryKey(),
+  tier: text("tier").notNull().default("texto"),
+  seats: integer("seats").notNull().default(0),
+  status: text("status").notNull().default("sin_suscripcion"), // sin_suscripcion|trialing|active|past_due|canceled
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Línea base del piloto: foto del punto de partida para medir el antes/después.
 export const baselineSnapshot = pgTable("baseline_snapshot", {
   id: text("id").primaryKey(),
@@ -377,9 +438,10 @@ export const schema = {
   sector, puesto, competency, learningPath, lesson,
   ragDocument, ragChunk, agentThread, agentMessage, auditLog,
   onboardingProfile, enrollment, levelByCompetency, testAttempt,
-  rubric, appliedCase, validation,
+  rubric, appliedCase, validation, evidence,
   coaching, pointsLedger,
-  companyConfig, rewardRule, certificate, rewardGrant,
+  companyConfig, rewardRule, certificate, rewardGrant, careerPath,
   fundaeAction, fundaeParticipation,
+  pricingTier, subscription,
   baselineSnapshot,
 };

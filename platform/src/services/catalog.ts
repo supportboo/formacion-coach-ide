@@ -1,5 +1,27 @@
+import { and, eq } from "drizzle-orm";
 import { competency, learningPath, lesson, puesto, sector } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
+
+export const listSectors = (deps: SvcDeps, orgId: string) =>
+  deps.db.select().from(sector).where(eq(sector.organizationId, orgId));
+
+export const listPuestos = (deps: SvcDeps, orgId: string) =>
+  deps.db.select().from(puesto).where(eq(puesto.organizationId, orgId));
+
+export const listCompetencies = (deps: SvcDeps, orgId: string) =>
+  deps.db.select().from(competency).where(eq(competency.organizationId, orgId));
+
+export const listPaths = (deps: SvcDeps, orgId: string) =>
+  deps.db.select().from(learningPath).where(eq(learningPath.organizationId, orgId));
+
+export const listLessons = (deps: SvcDeps, orgId: string, pathId: string) =>
+  deps.db.select().from(lesson).where(and(eq(lesson.organizationId, orgId), eq(lesson.pathId, pathId)));
+
+export async function getCompetency(deps: SvcDeps, orgId: string, competencyId: string) {
+  const [row] = await deps.db.select().from(competency)
+    .where(and(eq(competency.id, competencyId), eq(competency.organizationId, orgId)));
+  return row ?? null;
+}
 
 export async function createSector(deps: SvcDeps, orgId: string, name: string): Promise<string> {
   const id = deps.newId();

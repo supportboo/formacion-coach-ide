@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Acceso</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#8B5CF6;--t:#0891B2;--ink:#0E0B14;--body:#4A4A4A;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{width:100%;max-width:380px;padding:32px;background:#fff;border:1px solid var(--line);border-radius:16px}
+.logo{display:flex;align-items:baseline;justify-content:center;font-weight:900;font-size:22px;color:var(--ink);margin-bottom:22px}
+.kx{font-family:'Caveat',cursive;font-size:15px;color:var(--t);text-align:center;margin:-14px 0 22px}
+h1{font-size:20px;text-align:center;margin-bottom:18px;color:var(--ink)}
+label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:12px 0 4px}
+input{width:100%;font:inherit;font-size:15px;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px}
+input:focus{outline:none;border-color:var(--p)}
+.btn{width:100%;margin-top:18px;font:inherit;font-weight:700;font-size:14px;border:0;border-radius:100px;padding:13px;cursor:pointer;background:var(--p);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.err{color:#DC2626;font-size:13px;margin-top:10px;min-height:16px}
+.swap{text-align:center;margin-top:16px;font-size:13px;color:var(--mut)}
+.swap a{color:var(--p);font-weight:600;text-decoration:none;cursor:pointer}
+.orgrow{display:flex;gap:8px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Brand<svg width="40" height="23" viewBox="0 0 100 58" style="margin:0 1px"><defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    </defs>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>ers</div>
+  <div class="kx">SkillUp</div>
+  <h1 id="title">Entra a tu equipo</h1>
+  <form id="f">
+    <div id="nameRow" style="display:none">
+      <label>Tu nombre</label><input id="name" autocomplete="name">
+    </div>
+    <label>Email</label><input id="email" type="email" required autocomplete="email">
+    <label>Contraseña</label><input id="password" type="password" required autocomplete="current-password" minlength="8">
+    <div id="orgRow" style="display:none">
+      <label>Nombre de tu empresa (si es la primera vez)</label><input id="orgName" autocomplete="organization">
+    </div>
+    <button class="btn" id="submit" type="submit">Entrar</button>
+    <div class="err" id="err"></div>
+  </form>
+  <div class="swap">
+    <span id="swapText">¿Primera vez de tu empresa?</span> <a id="swapLink">Crear cuenta y empresa</a>
+  </div>
+</div>
+<script src="/app/api.js"></script>
+<script>
+var mode = 'login';
+function setMode(m) {
+  mode = m;
+  document.getElementById('title').textContent = m === 'login' ? 'Entra a tu equipo' : 'Crea tu cuenta y tu empresa';
+  document.getElementById('nameRow').style.display = m === 'signup' ? 'block' : 'none';
+  document.getElementById('orgRow').style.display = m === 'signup' ? 'block' : 'none';
+  document.getElementById('submit').textContent = m === 'login' ? 'Entrar' : 'Crear cuenta';
+  document.getElementById('swapText').textContent = m === 'login' ? '¿Primera vez de tu empresa?' : '¿Ya tienes cuenta?';
+  document.getElementById('swapLink').textContent = m === 'login' ? 'Crear cuenta y empresa' : 'Entrar';
+  document.getElementById('err').textContent = '';
+}
+document.getElementById('swapLink').addEventListener('click', function () { setMode(mode === 'login' ? 'signup' : 'login'); });
+
+document.getElementById('f').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var err = document.getElementById('err'); err.textContent = '';
+  var email = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value;
+  var btn = document.getElementById('submit'); btn.disabled = true;
+  try {
+    if (mode === 'signup') {
+      var name = document.getElementById('name').value.trim();
+      var orgName = document.getElementById('orgName').value.trim();
+      if (!name || !orgName) throw new Error('Falta tu nombre o el nombre de la empresa');
+      await SkillUp.api('/api/auth/sign-up/email', { method: 'POST', body: { name: name, email: email, password: password } });
+      var org = await SkillUp.api('/api/auth/organization/create', { method: 'POST', body: { name: orgName, slug: orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now().toString(36).slice(-4) } });
+      await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: org.id } });
+      await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
+    } else {
+      await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } });
+    }
+    window.location.href = '/app/dashboard.html';
+  } catch (ex) {
+    err.textContent = ex.message || 'Ha ido mal, revisa los datos';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

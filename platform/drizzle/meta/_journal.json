@@ -50,6 +50,41 @@
       "when": 1788299041373,
       "tag": "0006_special_gressill",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788610762563,
+      "tag": "0007_neat_white_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788611057253,
+      "tag": "0008_sparkling_firelord",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788613474712,
+      "tag": "0009_wide_the_fury",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1788621298465,
+      "tag": "0010_confused_fixer",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1788621541175,
+      "tag": "0011_careful_banshee",
+      "breakpoints": true
     }
   ]
 }

@@ -6,7 +6,7 @@ import { member, organization } from "../db/schema.js";
 import { auth } from "../auth/auth.js";
 
 export interface AuthCtx {
-  orgId: string; orgName: string; userId: string; userName: string; role: string;
+  orgId: string; orgName: string; userId: string; userName: string; userEmail: string; role: string;
 }
 
 /**
@@ -24,6 +24,7 @@ export async function getAuthContext(c: Context): Promise<AuthCtx | null> {
       role: c.req.header("x-role") ?? "empleado",
       orgName: c.req.header("x-org-name") ?? "Empresa",
       userName: c.req.header("x-user-name") ?? "Usuario",
+      userEmail: c.req.header("x-user-email") ?? "dev@example.com",
     };
   }
 
@@ -40,5 +41,6 @@ export async function getAuthContext(c: Context): Promise<AuthCtx | null> {
     role: m?.role ?? "empleado",
     orgName: org?.name ?? "Empresa",
     userName: s.user.name ?? "Usuario",
+    userEmail: s.user.email,
   };
 }

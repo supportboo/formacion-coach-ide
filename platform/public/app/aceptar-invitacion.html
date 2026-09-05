@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Aceptar invitación</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--p:#8B5CF6;--ink:#0E0B14;--body:#4A4A4A;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--body);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{width:100%;max-width:400px;padding:32px;background:#fff;border:1px solid var(--line);border-radius:16px;text-align:center}
+h1{font-size:19px;color:var(--ink);margin-bottom:6px}
+p{font-size:14px;color:var(--mut);margin-bottom:18px}
+label{display:block;text-align:left;font-size:13px;font-weight:600;color:var(--ink);margin:10px 0 4px}
+input{width:100%;font:inherit;font-size:15px;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px}
+.btn{width:100%;margin-top:16px;font:inherit;font-weight:700;font-size:14px;border:0;border-radius:100px;padding:13px;cursor:pointer;background:var(--p);color:#fff}
+.err{color:#DC2626;font-size:13px;margin-top:10px;min-height:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1 id="title">Cargando invitación…</h1>
+  <p id="sub"></p>
+  <form id="f" style="display:none">
+    <label>Tu nombre</label><input id="name" required>
+    <label>Contraseña</label><input id="password" type="password" required minlength="8">
+    <button class="btn" id="submit" type="submit">Crear cuenta y unirme</button>
+  </form>
+  <button class="btn" id="acceptBtn" style="display:none">Aceptar y entrar</button>
+  <div class="err" id="err"></div>
+</div>
+<script src="/app/api.js"></script>
+<script>
+(async function () {
+  var invId = new URLSearchParams(window.location.search).get('invitation');
+  var title = document.getElementById('title'), sub = document.getElementById('sub'), err = document.getElementById('err');
+  if (!invId) { title.textContent = 'Enlace no válido'; return; }
+
+  var s = await SkillUp.session();
+  if (!s || !s.user) {
+    title.textContent = 'Te han invitado a SkillUp';
+    sub.textContent = 'Crea tu cuenta con el mismo email al que te llegó la invitación.';
+    document.getElementById('f').style.display = 'block';
+    var email = prompt('Confirma el email al que te invitaron:') || '';
+    document.getElementById('f').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      err.textContent = '';
+      try {
+        await SkillUp.api('/api/auth/sign-up/email', { method: 'POST', body: {
+          name: document.getElementById('name').value.trim(), email: email,
+          password: document.getElementById('password').value,
+        } });
+        window.location.reload();
+      } catch (ex) { err.textContent = ex.message; }
+    });
+    return;
+  }
+
+  var inv;
+  try { inv = await SkillUp.api('/api/auth/organization/get-invitation?id=' + encodeURIComponent(invId)); }
+  catch (ex) { title.textContent = 'Invitación no encontrada'; sub.textContent = ex.message; return; }
+
+  title.textContent = 'Únete a ' + SkillUp.escHtml(inv.organizationName || 'tu empresa');
+  sub.textContent = 'Invitado por ' + SkillUp.escHtml(inv.inviterEmail || '') + '.';
+  var btn = document.getElementById('acceptBtn'); btn.style.display = 'block';
+  btn.addEventListener('click', async function () {
+    err.textContent = '';
+    try {
+      await SkillUp.api('/api/auth/organization/accept-invitation', { method: 'POST', body: { invitationId: invId } });
+      await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: inv.organizationId } });
+      window.location.href = '/app/onboarding.html';
+    } catch (ex) { err.textContent = ex.message; }
+  });
+})();
+</script>
+</body>
+</html>

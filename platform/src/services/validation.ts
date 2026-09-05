@@ -1,5 +1,5 @@
-import { and, eq } from "drizzle-orm";
-import { appliedCase, auditLog, rubric, validation } from "../db/schema.js";
+import { and, eq, gte, inArray } from "drizzle-orm";
+import { appliedCase, auditLog, evidence, levelByCompetency, rubric, validation } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import { getLevel, setLevelAtLeast } from "./learning.js";
 
@@ -38,12 +38,57 @@ export async function submitCase(deps: SvcDeps, orgId: string, caseId: string, s
     .where(eq(appliedCase.id, caseId));
 }
 
+export type EvidenceKind = "documento" | "video" | "audio" | "url" | "kpi";
+
+/** Adjunta una prueba (documento/vídeo/enlace/KPI) a un caso, para que el validador la revise. */
+export async function addEvidence(
+  deps: SvcDeps,
+  args: { orgId: string; caseId: string; userId: string; kind: EvidenceKind; url?: string; note?: string },
+): Promise<string> {
+  const [c] = await deps.db.select({ id: appliedCase.id }).from(appliedCase)
+    .where(and(eq(appliedCase.id, args.caseId), eq(appliedCase.organizationId, args.orgId)));
+  if (!c) throw new Error("caso no encontrado en esta organización");
+  const id = deps.newId();
+  await deps.db.insert(evidence).values({
+    id, organizationId: args.orgId, ownerType: "applied_case", ownerId: args.caseId,
+    kind: args.kind, url: args.url ?? null, note: args.note ?? null, createdBy: args.userId,
+  });
+  return id;
+}
+
+export function listEvidence(deps: SvcDeps, orgId: string, caseId: string) {
+  return deps.db.select().from(evidence)
+    .where(and(eq(evidence.organizationId, orgId), eq(evidence.ownerType, "applied_case"), eq(evidence.ownerId, caseId)));
+}
+
 /** ¿Puede esta persona validar esta competencia? Nivel 3+ en ella, o admin/inspirador (bootstrap). */
 export async function canValidate(
   deps: SvcDeps, orgId: string, validatorId: string, validatorRole: string, competencyId: string,
 ): Promise<boolean> {
   if (validatorRole === "admin" || validatorRole === "inspirador") return true;
   return (await getLevel(deps, orgId, validatorId, competencyId)) >= 3;
+}
+
+/** Cola de casos entregados que este validador puede revisar (sus competencias de referente, o todas si admin/inspirador). */
+export async function listPendingCases(
+  deps: SvcDeps, orgId: string, validatorId: string, validatorRole: string,
+): Promise<Array<typeof appliedCase.$inferSelect>> {
+  if (validatorRole === "admin" || validatorRole === "inspirador") {
+    return deps.db.select().from(appliedCase)
+      .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.status, "entregado")));
+  }
+  const referente = await deps.db.select({ competencyId: levelByCompetency.competencyId })
+    .from(levelByCompetency)
+    .where(and(
+      eq(levelByCompetency.organizationId, orgId), eq(levelByCompetency.userId, validatorId),
+      gte(levelByCompetency.level, 3),
+    ));
+  const compIds = referente.filter((r) => r.competencyId).map((r) => r.competencyId!);
+  if (compIds.length === 0) return [];
+  return deps.db.select().from(appliedCase).where(and(
+    eq(appliedCase.organizationId, orgId), eq(appliedCase.status, "entregado"),
+    inArray(appliedCase.competencyId, compIds),
+  ));
 }
 
 /** ¿Hay un caso entregado pendiente de validar? Bloquea progreso/generación (gate). */

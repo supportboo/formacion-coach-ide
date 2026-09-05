@@ -10,7 +10,8 @@ export interface Llm {
 
 export class AnthropicLlm implements Llm {
   private client: Anthropic;
-  constructor(apiKey: string) { this.client = new Anthropic({ apiKey }); }
+  // timeout+maxRetries del propio SDK (soporte nativo) en vez de reimplementar retry a mano.
+  constructor(apiKey: string) { this.client = new Anthropic({ apiKey, timeout: 30_000, maxRetries: 1 }); }
   async generate(call: LlmCall): Promise<string> {
     const res = await this.client.messages.create({
       model: call.model ?? env.MODEL_SENIOR,

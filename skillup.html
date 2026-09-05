@@ -412,14 +412,7 @@ html.lenis,html.lenis body{height:auto}
     <aside class="acc-side reveal">
       <h4>¿Ya tienes cuenta?</h4>
       <p class="s">Entra a la formación de tu equipo.</p>
-      <form id="loginForm">
-        <label for="u">Usuario</label>
-        <input id="u" autocomplete="username" required placeholder="Tu usuario">
-        <label for="p">Contraseña</label>
-        <input id="p" type="password" autocomplete="current-password" required placeholder="••••••••">
-        <button class="btn btn-dark" type="submit">Entrar</button>
-        <div class="msg" id="loginMsg"></div>
-      </form>
+      <a class="btn btn-dark" href="/app/login.html" style="display:inline-block;text-align:center;text-decoration:none">Entrar a SkillUp →</a>
     </aside>
   </div></div>
 </section>
@@ -456,17 +449,5 @@ html.lenis,html.lenis body{height:auto}
 </script>
 <script src="assets/lenis.min.js" defer></script>
 <script src="assets/immersive.js?v=20260903c" defer></script>
-<script>
-var lf=document.getElementById('loginForm'),lm=document.getElementById('loginMsg');
-lf.addEventListener('submit',async function(ev){
-  ev.preventDefault(); lm.textContent='';
-  try{
-    var r=await fetch('/auth/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({u:document.getElementById('u').value.trim(),p:document.getElementById('p').value})});
-    var d=await r.json();
-    if(r.ok&&d.ok){ location.href='/hub.html'; return; }
-    lm.textContent=d.error||'No se pudo entrar';
-  }catch(_){ lm.textContent='Error de conexión'; }
-});
-</script>
 </body>
 </html>
