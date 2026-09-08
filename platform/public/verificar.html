@@ -5,20 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verificar certificado · Brandooers SkillUp</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--p:#8B5CF6;--ink:#0E0B14;--body:#4A4A4A;--mut:#8F8F8F;--bg:#0E0B14;--line:#2A2432;--ok:#22C55E;--bad:#EF4444}
+:root{--p:#8B5CF6;--ink:#0E0B14;--body:#4A4A4A;--mut:#8F8F8F;--bg:#0E0B14;--line:#2A2432;--ok:#22C55E;--bad:#EF4444;--warn:#E4A900}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center}
 .card{width:100%;max-width:440px;padding:36px;text-align:center}
-h1{font-size:20px;margin-bottom:20px;color:#fff}
+.logohead{display:flex;justify-content:center;margin-bottom:22px}
+.blogo{display:inline-flex;align-items:baseline;font-weight:900;letter-spacing:-.02em;font-size:22px;color:#fff}
+.beyes .socketL,.beyes .socketR,.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR{transform-box:fill-box;transform-origin:center;animation:bBlink 5.4s infinite}
+@keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
+h1{font-size:19px;margin-bottom:4px;color:#fff}
+p.sub{font-family:'Caveat',cursive;font-size:17px;color:#67E8F9;margin-bottom:24px}
 input{width:100%;font:inherit;font-size:15px;padding:12px 16px;border:1.5px solid var(--line);border-radius:10px;background:#161119;color:#fff;text-align:center;letter-spacing:.05em}
+input:focus{outline:none;border-color:var(--p)}
 .btn{margin-top:14px;font:inherit;font-weight:700;font-size:14px;border:0;border-radius:100px;padding:12px 26px;cursor:pointer;background:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);color:#fff}
 .result{margin-top:26px;padding:20px;border-radius:14px;display:none}
 .result.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3)}
+.result.warn{background:rgba(228,169,0,.1);border:1px solid rgba(228,169,0,.35)}
 .result.bad{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3)}
 .result .tag{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
 .result.ok .tag{color:var(--ok)}
+.result.warn .tag{color:var(--warn)}
 .result.bad .tag{color:var(--bad)}
 .result h2{font-size:18px;margin:8px 0 4px;color:#fff}
 .result p{font-size:13px;color:var(--mut)}
@@ -26,7 +34,19 @@ input{width:100%;font:inherit;font-size:15px;padding:12px 16px;border:1.5px soli
 </head>
 <body>
 <div class="card">
-  <h1>Verificar certificado Brandooers SkillUp</h1>
+  <div class="logohead">
+    <span class="blogo">Brand<svg class="beyes" width="40" height="23" viewBox="0 0 100 58" style="margin:0 1px"><defs>
+      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+      <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+      <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+      <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+      </defs>
+      <g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+      <g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    </svg>ers</span>
+  </div>
+  <h1>Verificar certificado</h1>
+  <p class="sub">SkillUp de Brandooers</p>
   <input id="code" placeholder="CERT-XXXXXXXXXXXX">
   <br><button class="btn" id="btn">Verificar</button>
   <div class="result" id="result"></div>
@@ -39,6 +59,9 @@ function check(code) {
     if (d.valid) {
       box.className = 'result ok';
       box.innerHTML = '<div class="tag">Certificado válido</div><h2>' + (d.title || '') + '</h2><p>Emitido: ' + new Date(d.issuedAt).toLocaleDateString('es-ES') + '</p>';
+    } else if (d.expired) {
+      box.className = 'result warn';
+      box.innerHTML = '<div class="tag">Certificado caducado</div><h2>' + (d.title || '') + '</h2><p>Caducó el ' + new Date(d.expiresAt).toLocaleDateString('es-ES') + ' — pide la recertificación.</p>';
     } else {
       box.className = 'result bad';
       box.innerHTML = '<div class="tag">No encontrado</div><p>Ese código no corresponde a un certificado válido.</p>';

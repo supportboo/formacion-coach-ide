@@ -509,7 +509,10 @@ app.post("/api/rewards/evaluate", async (c) => {
 app.get("/api/certificates/:code/verify", async (c) => {
   const cert = await rewardsSvc.verifyCertificate(svcDeps, c.req.param("code"));
   if (!cert) return c.json({ valid: false }, 404);
-  return c.json({ valid: true, title: cert.title, issuedAt: cert.issuedAt });
+  return c.json({
+    valid: !cert.expired, expired: cert.expired,
+    title: cert.title, issuedAt: cert.issuedAt, expiresAt: cert.expiresAt,
+  });
 });
 
 /* ============================================================

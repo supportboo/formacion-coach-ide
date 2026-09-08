@@ -1,0 +1,60 @@
+/* Tema compartido de la app SkillUp — mismos tokens reales que skillup.html (marca Brandooers). */
+:root{
+  --dark:#0E0B14;--dark2:#171121;--ink:#ECE9F3;--ink-mut:#A79FB8;
+  --bg:#FAFAFA;--white:#FFF;--text:#2D2D2D;--body:#4A4A4A;--mut:#8F8F8F;--line:#E8E0E5;--warm:#F5F0EE;
+  --p:#8B5CF6;--t:#0891B2;--gold:#E4A900;--green:#21B799;--red:#DC2626;
+  --grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);--radius:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+.hand{font-family:'Caveat',cursive}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Cabecera de la app — logo real animado + navegación */
+.topbar{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar nav{display:flex;align-items:center;gap:6px}
+.topbar nav a{font-size:13.5px;font-weight:600;color:var(--mut);padding:8px 12px;border-radius:100px;transition:color .15s,background .15s}
+.topbar nav a:hover{color:var(--text);background:var(--warm)}
+.blogo{display:inline-flex;align-items:baseline;font-weight:900;letter-spacing:-.02em;font-size:19px;color:var(--text);user-select:none}
+.blogo .beyes{display:inline-block;align-self:center;margin:0 1px}
+.beyes .socketL,.beyes .socketR,.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR{transform-box:fill-box;transform-origin:center;animation:bBlink 5.4s infinite}
+@keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
+.blogo .sk{font-family:'Caveat',cursive;font-size:15px;color:var(--t);margin-left:6px}
+
+.wrap{max-width:820px;margin:0 auto;padding:32px 24px}
+
+/* Tarjetas */
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:18px;box-shadow:0 1px 2px rgba(20,10,30,.03)}
+.card h2{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.01em;margin-bottom:14px}
+.card.dark{background:var(--dark);color:var(--ink);border-color:rgba(255,255,255,.08)}
+.card.dark h2{color:#fff}
+.card.notice{background:linear-gradient(90deg,rgba(228,169,0,.08),rgba(228,169,0,.03));border-color:rgba(228,169,0,.35)}
+
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1ECF3;font-size:14px}
+.row:last-child{border-bottom:0}
+.badge{font-size:11px;font-weight:700;padding:3px 11px;border-radius:100px;background:#F3EEFB;color:var(--p)}
+
+/* Formularios */
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--mut);margin:0 0 6px}
+input,textarea,select{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--text);margin-bottom:12px;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+textarea{min-height:88px;resize:vertical}
+.card.dark input,.card.dark select{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#fff}
+.card.dark input::placeholder{color:#6b6480}
+.card.dark label{color:var(--ink-mut)}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:13.5px;border-radius:100px;padding:12px 22px;cursor:pointer;border:0;transition:transform .15s,box-shadow .15s,opacity .15s;font-family:inherit}
+.btn-grad{background:var(--grad);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,.3)}
+.btn-grad:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(139,92,246,.45)}
+.btn-grad:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
+.btn-gh{background:none;color:var(--p);border:1.5px solid var(--p);padding:10.5px 20px}
+.btn-gh:hover{background:rgba(139,92,246,.06)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-ok{background:var(--green);color:#fff}
+.btn-block{width:100%}
+
+.msg{font-size:13px;color:var(--mut);margin-top:8px}
+.msg.err{color:var(--red)}
+.risk{color:var(--red);font-weight:700}
