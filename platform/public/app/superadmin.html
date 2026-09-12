@@ -13,6 +13,19 @@ table.orgs th{text-align:left;font-size:11px;text-transform:uppercase;letter-spa
 table.orgs td{padding:8px 10px;border-bottom:1px solid var(--line)}
 table.orgs tr:hover td{background:var(--warm)}
 .risk{color:var(--red);font-weight:700}
+
+.voice-bubble{position:fixed;right:24px;bottom:24px;width:64px;height:64px;border-radius:50%;
+  background:#0E0B14;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);border:2px solid transparent;transition:transform .15s,border-color .2s;
+  user-select:none;-webkit-user-select:none;z-index:999}
+.voice-bubble .beyes{width:30px;height:auto}
+.voice-bubble:hover{transform:scale(1.05)}
+.voice-bubble.listening{border-color:#EC4899;animation:vbPulse 1.1s infinite}
+.voice-bubble.thinking{border-color:#00D4FF}
+.voice-bubble.speaking{border-color:#8B5CF6}
+@keyframes vbPulse{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 0 0 rgba(236,72,153,.5)}50%{box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 0 10px rgba(236,72,153,0)}}
+.voice-status{position:fixed;right:24px;bottom:96px;max-width:280px;background:#171121;color:#ECE9F3;
+  font-size:12.5px;line-height:1.4;padding:10px 14px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:999}
 </style>
 </head>
 <body>
@@ -42,6 +55,20 @@ table.orgs tr:hover td{background:var(--warm)}
     </div>
   </div>
 </div>
+
+<div id="voiceBubble" class="voice-bubble" title="Mantén pulsado y habla con el orquestador">
+  <svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><defs>
+    <linearGradient id="vg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="vg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <radialGradient id="vi1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+    <radialGradient id="vi2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    </defs>
+    <g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#vg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#vi1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#vg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#vi2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>
+</div>
+<div id="voiceStatus" class="voice-status" hidden></div>
+
 <script src="/app/api.js"></script>
 <script>
 (async function () {
@@ -58,6 +85,75 @@ table.orgs tr:hover td{background:var(--warm)}
     }).join('') || '<tr><td colspan="6">Sin organizaciones todavía.</td></tr>';
   } catch (ex) {
     msg.textContent = ex.message || 'No tienes acceso de superadmin.';
+  }
+})();
+
+// Orquestador por voz: mantener pulsado sobre la burbuja, hablar, soltar -> responde en voz.
+// v1: solo informa con datos reales de la plataforma, no ejecuta acciones (lo dice el propio backend).
+(function () {
+  var bubble = document.getElementById('voiceBubble');
+  var status = document.getElementById('voiceStatus');
+  var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) { bubble.title = 'Este navegador no soporta reconocimiento de voz (usa Chrome)'; bubble.style.opacity = '0.4'; return; }
+
+  var recog = new Recognition();
+  recog.lang = 'es-ES';
+  recog.interimResults = false;
+  recog.maxAlternatives = 1;
+  var listening = false;
+
+  function setStatus(text) { status.hidden = !text; status.textContent = text || ''; }
+
+  function startListening() {
+    if (listening) return;
+    listening = true;
+    bubble.classList.add('listening');
+    setStatus('Escuchando… suelta para enviar');
+    try { recog.start(); } catch (e) { /* ya estaba escuchando */ }
+  }
+  function stopListening() {
+    if (!listening) return;
+    try { recog.stop(); } catch (e) {}
+  }
+  bubble.addEventListener('mousedown', function (e) { e.preventDefault(); startListening(); });
+  bubble.addEventListener('touchstart', function (e) { e.preventDefault(); startListening(); }, { passive: false });
+  document.addEventListener('mouseup', stopListening);
+  document.addEventListener('touchend', stopListening);
+
+  recog.addEventListener('end', function () { listening = false; bubble.classList.remove('listening'); });
+  recog.addEventListener('error', function (e) {
+    listening = false; bubble.classList.remove('listening');
+    setStatus(e.error === 'not-allowed' ? 'Permiso de micrófono denegado' : '');
+    setTimeout(function () { setStatus(''); }, 3000);
+  });
+
+  recog.addEventListener('result', async function (e) {
+    var text = e.results[0][0].transcript;
+    bubble.classList.add('thinking');
+    setStatus('Revisando datos de todas las empresas…');
+    try {
+      var r = await SkillUp.api('/api/platform/assistant', { method: 'POST', body: { message: text } });
+      bubble.classList.remove('thinking');
+      speak(r.reply);
+    } catch (ex) {
+      bubble.classList.remove('thinking');
+      setStatus(ex.message || 'Ha ido mal');
+      setTimeout(function () { setStatus(''); }, 4000);
+    }
+  });
+
+  function speak(text) {
+    setStatus(text);
+    bubble.classList.add('speaking');
+    if (!window.speechSynthesis) { setTimeout(function () { setStatus(''); }, 6000); return; }
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'es-ES';
+    var voices = window.speechSynthesis.getVoices();
+    var esVoice = voices.find(function (v) { return /es/i.test(v.lang); });
+    if (esVoice) u.voice = esVoice;
+    u.onend = function () { bubble.classList.remove('speaking'); setTimeout(function () { setStatus(''); }, 1200); };
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
   }
 })();
 </script>

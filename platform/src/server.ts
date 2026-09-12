@@ -564,6 +564,27 @@ app.get("/api/platform/summary", async (c) => {
   if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
   return c.json(await analyticsSvc.platformSummary(svcDeps));
 });
+
+const assistantBody = z.object({ message: z.string().min(1) });
+// Orquestador v1: informa con datos reales de TODA la plataforma. NO ejecuta acciones todavia
+// (a proposito -- se lo dice el propio prompt, para que nunca finja haber hecho algo que no hizo).
+app.post("/api/platform/assistant", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
+  if (rateLimited(`assistant:${admin.userId}`, 20, 60_000)) {
+    return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  }
+  const parsed = assistantBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const summary = await analyticsSvc.platformSummary(svcDeps);
+  const system = "Eres el orquestador de Brandooers SkillUp, hablando con el superadmin (dueno del negocio). "
+    + "Espanol de Espana, directo, sin inventar cifras. Estos son los datos reales de TODAS las empresas cliente "
+    + "ahora mismo (uno por organizacion): " + JSON.stringify(summary) + ". "
+    + "Responde solo con base en estos datos. Si te piden ejecutar una accion (invitar a alguien, cambiar una "
+    + "configuracion, borrar algo), dilo con claridad: todavia no tienes esa capacidad conectada, solo informas.";
+  const reply = await llm.generate({ system, messages: [{ role: "user", content: parsed.data.message }], maxTokens: 500 });
+  return c.json({ reply });
+});
 app.get("/api/analytics/panel", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
