@@ -18,8 +18,13 @@ a{text-decoration:none;color:inherit}
 .topbar nav a:hover{color:var(--text);background:var(--warm)}
 .blogo{display:inline-flex;align-items:baseline;font-weight:900;letter-spacing:-.02em;font-size:19px;color:var(--text);user-select:none}
 .blogo .beyes{display:inline-block;align-self:center;margin:0 1px}
-.beyes .socketL,.beyes .socketR,.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR{transform-box:fill-box;transform-origin:center;animation:bBlink 5.4s infinite}
+.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR{transform-box:fill-box;transform-origin:center;animation:bBlink 5.4s infinite}
+.beyes .socketL{transform-box:fill-box;transform-origin:center;animation:bBlinkL 5.4s infinite}
+.beyes .socketR{transform-box:fill-box;transform-origin:center;animation:bBlinkR 5.4s infinite}
 @keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
+/* socketL/socketR llevan su propio transform="translate(...)" en el SVG; un transform por CSS lo pisaría por completo (SVG2), así que el offset se hornea aquí dentro de la propia animación. */
+@keyframes bBlinkL{0%,91%,100%{transform:translate(5px,0) scaleY(1)}95%{transform:translate(5px,0) scaleY(.08)}98%{transform:translate(5px,0) scaleY(1)}}
+@keyframes bBlinkR{0%,91%,100%{transform:translate(53px,0) scaleY(1)}95%{transform:translate(53px,0) scaleY(.08)}98%{transform:translate(53px,0) scaleY(1)}}
 .blogo .sk{font-family:'Caveat',cursive;font-size:15px;color:var(--t);margin-left:6px}
 
 .wrap{max-width:820px;margin:0 auto;padding:32px 24px}
