@@ -10,7 +10,7 @@ window.SkillUp = (function () {
     });
     let data = null;
     try { data = await res.json(); } catch { /* respuesta vacía */ }
-    if (!res.ok) throw new Error((data && data.error) || ('error ' + res.status));
+    if (!res.ok) throw new Error((data && (data.error || data.message)) || ('error ' + res.status));
     return data;
   }
 
