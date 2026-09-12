@@ -1,5 +1,5 @@
-import { and, eq, sql } from "drizzle-orm";
-import { coaching, competency, pointsLedger } from "../db/schema.js";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { coaching, competency, pointsLedger, user } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import { getLevel, setLevelAtLeast } from "./learning.js";
 
@@ -66,6 +66,40 @@ export async function seasonPoints(deps: SvcDeps, orgId: string, userId: string,
     .from(pointsLedger)
     .where(and(eq(pointsLedger.organizationId, orgId), eq(pointsLedger.userId, userId), eq(pointsLedger.season, season)));
   return row?.total ?? 0;
+}
+
+export interface RankingRow { userId: string; name: string; points: number }
+
+/** Ranking de la temporada: quien mas ha ensenado/aportado (mismos puntos reales del motor de propagacion). */
+export async function seasonRanking(deps: SvcDeps, orgId: string, season: string, limit = 20): Promise<RankingRow[]> {
+  const rows = await deps.db.select({
+    userId: pointsLedger.userId, name: user.name,
+    points: sql<number>`sum(${pointsLedger.points})::int`,
+  }).from(pointsLedger)
+    .innerJoin(user, eq(pointsLedger.userId, user.id))
+    .where(and(eq(pointsLedger.organizationId, orgId), eq(pointsLedger.season, season)))
+    .groupBy(pointsLedger.userId, user.name)
+    .orderBy(desc(sql`sum(${pointsLedger.points})`))
+    .limit(limit);
+  return rows;
+}
+
+/**
+ * Nivel visual del avatar segun puntos reales de la temporada -- crece con lo que la persona
+ * ya ha aportado de verdad (ensenar a otros), no con actividad inventada.
+ */
+export const AVATAR_TIERS = [
+  { min: 0, key: "aprendiz", label: "Aprendiz", scale: 0.7 },
+  { min: 100, key: "practicante", label: "Practicante", scale: 0.85 },
+  { min: 300, key: "referente", label: "Referente", scale: 1 },
+  { min: 700, key: "inspirador", label: "Inspirador", scale: 1.2 },
+  { min: 1500, key: "leyenda", label: "Leyenda", scale: 1.4 },
+] as const;
+
+export function avatarTier(points: number): (typeof AVATAR_TIERS)[number] {
+  let tier: (typeof AVATAR_TIERS)[number] = AVATAR_TIERS[0];
+  for (const t of AVATAR_TIERS) if (points >= t.min) tier = t;
+  return tier;
 }
 
 /** Comprueba si un coach cumple para ascender a Referente (N3) en una competencia. */

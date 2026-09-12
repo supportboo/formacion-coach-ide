@@ -421,7 +421,17 @@ app.get("/api/propagation/points", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   const season = c.req.query("season") ?? propagationSvc.currentSeason();
   const points = await propagationSvc.seasonPoints(svcDeps, ctx.orgId, ctx.userId, season);
-  return c.json({ season, points });
+  return c.json({ season, points, avatar: propagationSvc.avatarTier(points) });
+});
+app.get("/api/propagation/ranking", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const season = c.req.query("season") ?? propagationSvc.currentSeason();
+  const ranking = await propagationSvc.seasonRanking(svcDeps, ctx.orgId, season);
+  return c.json({
+    season,
+    ranking: ranking.map((r) => ({ ...r, avatar: propagationSvc.avatarTier(r.points) })),
+  });
 });
 
 /* ============================================================

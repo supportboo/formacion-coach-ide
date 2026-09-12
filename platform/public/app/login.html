@@ -92,6 +92,10 @@ document.getElementById('f').addEventListener('submit', async function (e) {
       await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
     } else {
       await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } });
+      // El login (a diferencia del registro) no deja la organizacion activa en la sesion nueva ->
+      // sin esto, todas las llamadas de la app fallan en silencio (los .catch(()=>[]) las ocultan).
+      var mine = await SkillUp.api('/api/auth/organization/list').catch(function () { return []; });
+      if (mine.length) await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: mine[0].id } });
     }
     window.location.href = '/app/dashboard.html';
   } catch (ex) {
