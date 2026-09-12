@@ -71,7 +71,12 @@ export const member = pgTable("member", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id").notNull().references(() => organization.id, { onDelete: "cascade" }),
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  role: text("role").notNull().default("empleado"),
+  // "role" es del plugin organization de better-auth (owner/admin/member): gobierna invitar/gestionar
+  // miembros vía better-auth. NUNCA reutilizarlo para nuestro organigrama, o better-auth pierde
+  // permisos (p.ej. "owner" pisado por "admin" bloqueaba el botón de invitar). El rol de la app
+  // (empleado/coach/team_leader/inspirador/admin/direccion) vive aparte en "orgRole".
+  role: text("role").notNull().default("member"),
+  orgRole: text("org_role").notNull().default("empleado"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("member_org_idx").on(t.organizationId) }));
 

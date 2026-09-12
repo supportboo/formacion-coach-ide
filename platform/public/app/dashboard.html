@@ -46,8 +46,8 @@
 
   <div class="card">
     <h2>Test de conocimiento <span class="hand" style="color:var(--t);font-size:15px">generado por IA para tu puesto</span></h2>
-    <input id="pathId" placeholder="ID de la ruta">
-    <input id="competencyId" placeholder="ID de la competencia">
+    <input id="pathId" list="pathOptions" placeholder="Busca una ruta por nombre…" autocomplete="off">
+    <input id="competencyId" list="compOptions" placeholder="Busca una competencia por nombre…" autocomplete="off">
     <button class="btn btn-gh" id="btnGenTest">Generar test</button>
     <div id="examBox" style="margin-top:12px"></div>
     <button class="btn btn-grad" id="btnSubmitTest" style="display:none;margin-top:10px">Corregir</button>
@@ -56,7 +56,7 @@
 
   <div class="card">
     <h2>Caso práctico <span class="hand" style="color:var(--t);font-size:15px">redactado por IA con tu contexto real</span></h2>
-    <input id="caseCompetencyId" placeholder="ID de la competencia">
+    <input id="caseCompetencyId" list="compOptions" placeholder="Busca una competencia por nombre…" autocomplete="off">
     <button class="btn btn-gh" id="btnGenCase">Generar caso</button>
     <div id="caseCreated" style="display:none;margin-top:12px">
       <p id="caseText" style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;padding:12px 14px;background:var(--warm);border-radius:12px"></p>
@@ -65,6 +65,9 @@
     </div>
     <div class="msg" id="caseMsg"></div>
   </div>
+
+  <datalist id="pathOptions"></datalist>
+  <datalist id="compOptions"></datalist>
 
   <div class="card dark">
     <h2>Pregunta a tu asistente</h2>
@@ -99,12 +102,33 @@ var threadId = null;
     return '<div class="card notice" style="padding:14px 18px;font-size:13.5px;margin-bottom:12px">⏰ ' + SkillUp.escHtml(r.message) + '</div>';
   }).join('');
 
+  // Busca-y-filtra por nombre en vez de pegar IDs a mano: datalist nativo (sin librerias) +
+  // mapa nombre->id para resolver lo que la persona escribe/elige.
+  var pathIdByLabel = {}, compIdByLabel = {};
+  function fillDatalist(listEl, items, labelOf, map) {
+    listEl.innerHTML = items.map(function (it) {
+      var label = labelOf(it);
+      map[label] = it.id;
+      return '<option value="' + SkillUp.escHtml(label) + '">';
+    }).join('');
+  }
+  function resolveId(inputId, map) {
+    var typed = document.getElementById(inputId).value.trim();
+    return map[typed] || typed; // si no coincide ninguna opcion, se manda tal cual (compatible con pegar un id)
+  }
+  var paths = await SkillUp.api('/api/catalog/paths').catch(function () { return []; });
+  fillDatalist(document.getElementById('pathOptions'), paths, function (p) { return p.title; }, pathIdByLabel);
+  var competencies = await SkillUp.api('/api/catalog/competencies').catch(function () { return []; });
+  fillDatalist(document.getElementById('compOptions'), competencies, function (c) { return c.name; }, compIdByLabel);
+
   var enrollments = await SkillUp.api('/api/learning/mine').catch(function () { return []; });
   var box = document.getElementById('enrollments');
   if (!enrollments.length) { document.getElementById('enrollEmpty').style.display = 'block'; }
+  var pathTitleById = {};
+  paths.forEach(function (p) { pathTitleById[p.id] = p.title; });
   enrollments.forEach(function (en) {
     var d = document.createElement('div'); d.className = 'row';
-    d.innerHTML = '<span>' + SkillUp.escHtml(en.pathId) + '</span><span class="badge">' + SkillUp.escHtml(en.status) + '</span>';
+    d.innerHTML = '<span>' + SkillUp.escHtml(pathTitleById[en.pathId] || en.pathId) + '</span><span class="badge">' + SkillUp.escHtml(en.status) + '</span>';
     box.appendChild(d);
   });
 
@@ -114,7 +138,7 @@ var threadId = null;
     var box = document.getElementById('examBox'); box.innerHTML = 'Generando…';
     try {
       var r = await SkillUp.api('/api/learning/test/generate', { method: 'POST', body: {
-        competencyId: document.getElementById('competencyId').value.trim(),
+        competencyId: resolveId('competencyId', compIdByLabel),
       } });
       currentExamId = r.examId;
       box.innerHTML = r.questions.map(function (q, qi) {
@@ -135,8 +159,8 @@ var threadId = null;
     });
     try {
       var r = await SkillUp.api('/api/learning/test/submit', { method: 'POST', body: {
-        examId: currentExamId, pathId: document.getElementById('pathId').value.trim(),
-        competencyId: document.getElementById('competencyId').value.trim(), answers: answers,
+        examId: currentExamId, pathId: resolveId('pathId', pathIdByLabel),
+        competencyId: resolveId('competencyId', compIdByLabel), answers: answers,
       } });
       msg.textContent = 'Puntuación ' + r.score + '/100 — ' + (r.passed ? ('aprobado, nivel ' + r.level) : 'no superado, puedes reintentar');
     } catch (ex) { msg.textContent = ex.message; }
@@ -147,7 +171,7 @@ var threadId = null;
     var msg = document.getElementById('caseMsg');
     try {
       var r = await SkillUp.api('/api/validation/cases/generate', { method: 'POST', body: {
-        competencyId: document.getElementById('caseCompetencyId').value.trim(),
+        competencyId: resolveId('caseCompetencyId', compIdByLabel),
       } });
       openCaseId = r.id;
       document.getElementById('caseText').textContent = r.prompt;

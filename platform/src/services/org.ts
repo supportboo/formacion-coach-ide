@@ -23,29 +23,34 @@ export async function createUser(deps: SvcDeps, name: string, email: string): Pr
   return id;
 }
 
-/** Asocia un usuario a una empresa con un rol del organigrama. */
-export async function addMember(deps: SvcDeps, orgId: string, userId: string, role: Role): Promise<string> {
+/** Asocia un usuario a una empresa con un rol del organigrama (el rol de better-auth se queda en su default "member"). */
+export async function addMember(deps: SvcDeps, orgId: string, userId: string, orgRole: Role): Promise<string> {
   const id = deps.newId();
-  await deps.db.insert(member).values({ id, organizationId: orgId, userId, role });
+  await deps.db.insert(member).values({ id, organizationId: orgId, userId, orgRole });
   return id;
 }
 
 /** Equipo de la organización con nombre/email (join member+user), para paneles de responsable. */
 export async function listMembers(deps: SvcDeps, orgId: string) {
   return deps.db.select({
-    userId: member.userId, role: member.role, name: user.name, email: user.email,
+    userId: member.userId, role: member.orgRole, name: user.name, email: user.email,
   }).from(member).innerJoin(user, eq(member.userId, user.id)).where(eq(member.organizationId, orgId));
 }
 
-/** ¿Ya hay algún admin de nuestro organigrama en esta empresa? (better-auth pone "owner" al crear, no nuestro rol). */
+/** ¿Ya hay algún admin de nuestro organigrama en esta empresa? */
 export async function hasAdmin(deps: SvcDeps, orgId: string): Promise<boolean> {
   const [row] = await deps.db.select({ id: member.id }).from(member)
-    .where(and(eq(member.organizationId, orgId), eq(member.role, "admin")));
+    .where(and(eq(member.organizationId, orgId), eq(member.orgRole, "admin")));
   return !!row;
 }
 
-/** Fija el rol de nuestro organigrama para un miembro (independiente del rol interno de better-auth). */
-export async function setMemberRole(deps: SvcDeps, orgId: string, userId: string, role: Role): Promise<void> {
-  await deps.db.update(member).set({ role })
+/**
+ * Fija el rol de nuestro organigrama para un miembro (independiente del rol interno de better-auth,
+ * que sigue viviendo en member.role y solo lo toca better-auth). Si pasa a admin/dirección, también le
+ * devuelve "owner" en better-auth para que pueda invitar/gestionar el equipo desde ese mismo panel.
+ */
+export async function setMemberRole(deps: SvcDeps, orgId: string, userId: string, orgRole: Role): Promise<void> {
+  const authRole = orgRole === "admin" || orgRole === "direccion" ? "owner" : undefined;
+  await deps.db.update(member).set(authRole ? { orgRole, role: authRole } : { orgRole })
     .where(and(eq(member.organizationId, orgId), eq(member.userId, userId)));
 }

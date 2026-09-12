@@ -60,7 +60,7 @@ export async function getAuthContext(c: Context): Promise<AuthCtx | null> {
   const [org] = await db.select().from(organization).where(eq(organization.id, orgId));
   return {
     orgId, userId: s.user.id,
-    role: m?.role ?? "empleado",
+    role: m?.orgRole ?? "empleado",
     orgName: org?.name ?? "Empresa",
     userName: s.user.name ?? "Usuario",
     userEmail: s.user.email,
