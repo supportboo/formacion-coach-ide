@@ -1,6 +1,6 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 import {
-  appliedCase, baselineSnapshot, coaching, competency, enrollment, levelByCompetency, member, validation,
+  appliedCase, baselineSnapshot, coaching, competency, enrollment, levelByCompetency, member, organization, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
@@ -141,4 +141,29 @@ export async function panelSummary(deps: SvcDeps, orgId: string): Promise<PanelS
     internalTransfer: await internalTransferRate(deps, orgId),
     timeToAutonomyDays: await timeToAutonomyDays(deps, orgId),
   };
+}
+
+export interface PlatformOrgSummary {
+  orgId: string; orgName: string; memberCount: number;
+  competencyCount: number; criticalRisks: number; internalTransfer: number; timeToAutonomyDays: number;
+}
+
+/**
+ * Vista de superadmin: una fila por organización con su salpicadero, para comparar
+ * ROI/evolucion entre TODAS las empresas del ecosistema. Reutiliza panelSummary por org
+ * (mismo dato que ve cada empresa de si misma) en vez de duplicar las queries.
+ */
+export async function platformSummary(deps: SvcDeps): Promise<PlatformOrgSummary[]> {
+  const orgs = await deps.db.select().from(organization);
+  const out: PlatformOrgSummary[] = [];
+  for (const org of orgs) {
+    const n = await memberCount(deps, org.id);
+    const summary = await panelSummary(deps, org.id);
+    out.push({
+      orgId: org.id, orgName: org.name, memberCount: n,
+      competencyCount: summary.coverage.length, criticalRisks: summary.risks.length,
+      internalTransfer: summary.internalTransfer, timeToAutonomyDays: summary.timeToAutonomyDays,
+    });
+  }
+  return out;
 }

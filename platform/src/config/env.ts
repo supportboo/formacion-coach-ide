@@ -23,6 +23,8 @@ const schema = z.object({
   STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   APP_URL: z.string().default("http://localhost:8080"), // base para redirects de Stripe Checkout
+  // Emails con acceso de superadmin (todas las organizaciones, no solo la suya). Separados por coma.
+  PLATFORM_ADMIN_EMAILS: z.string().default("").transform((v) => v.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)),
 });
 
 export const env = schema.parse(process.env);

@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { auth } from "./auth/auth.js";
 import { env } from "./config/env.js";
-import { getAuthContext, type AuthCtx } from "./http/context.js";
+import { getAuthContext, getPlatformAdminSession, type AuthCtx } from "./http/context.js";
 import { chat } from "./agents/chat.js";
 import { ROLES } from "./agents/registry.js";
 import { ingestDocument } from "./rag/rag.js";
@@ -559,6 +559,11 @@ app.get("/api/fundae/actions/:id/justification", async (c) => {
 /* ============================================================
  * ANALYTICS — panel de ROI (cobertura, riesgo, transferencia, tiempo a autonomía).
  * ============================================================ */
+app.get("/api/platform/summary", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
+  return c.json(await analyticsSvc.platformSummary(svcDeps));
+});
 app.get("/api/analytics/panel", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);

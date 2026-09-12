@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Superadmin</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/theme.css">
+<style>
+table.orgs{width:100%;border-collapse:collapse;font-size:13.5px}
+table.orgs th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.02em;color:var(--mut);padding:8px 10px;border-bottom:1px solid var(--line)}
+table.orgs td{padding:8px 10px;border-bottom:1px solid var(--line)}
+table.orgs tr:hover td{background:var(--warm)}
+.risk{color:var(--red);font-weight:700}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    </defs>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>ers<span class="sk">Superadmin</span></span>
+  <nav><a href="/app/dashboard.html">← Mi panel</a></nav>
+</div>
+<div class="wrap">
+  <div class="card">
+    <h2>Todas las empresas <span class="hand" style="color:var(--t);font-size:15px">evolución, ROI y riesgo por cliente</span></h2>
+    <div class="msg" id="msg">Cargando…</div>
+    <div style="overflow-x:auto">
+      <table class="orgs" id="orgsTable" style="display:none">
+        <thead><tr>
+          <th>Empresa</th><th>Miembros</th><th>Competencias</th><th>Riesgos críticos</th><th>Formado de casa</th><th>Días a autonomía</th>
+        </tr></thead>
+        <tbody id="orgsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script src="/app/api.js"></script>
+<script>
+(async function () {
+  var s = await SkillUp.requireSession(); if (!s) return;
+  var msg = document.getElementById('msg');
+  try {
+    var orgs = await SkillUp.api('/api/platform/summary');
+    msg.style.display = 'none';
+    document.getElementById('orgsTable').style.display = 'table';
+    document.getElementById('orgsBody').innerHTML = orgs.map(function (o) {
+      return '<tr><td>' + SkillUp.escHtml(o.orgName) + '</td><td>' + o.memberCount + '</td><td>' + o.competencyCount + '</td>' +
+        '<td' + (o.criticalRisks > 0 ? ' class="risk"' : '') + '>' + o.criticalRisks + '</td>' +
+        '<td>' + Math.round(o.internalTransfer * 100) + '%</td><td>' + o.timeToAutonomyDays + '</td></tr>';
+    }).join('') || '<tr><td colspan="6">Sin organizaciones todavía.</td></tr>';
+  } catch (ex) {
+    msg.textContent = ex.message || 'No tienes acceso de superadmin.';
+  }
+})();
+</script>
+</body>
+</html>
