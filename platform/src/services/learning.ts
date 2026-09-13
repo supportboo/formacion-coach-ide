@@ -1,17 +1,32 @@
 import { and, eq, sql } from "drizzle-orm";
 import { enrollment, levelByCompetency, onboardingProfile, testAttempt } from "../db/schema.js";
+import { matchProfileToPaths, type MatchedPath } from "./catalog.js";
 import type { SvcDeps } from "./org.js";
 
 export interface OnboardingInput { orgId: string; userId: string; sector?: string; puesto?: string; motivo?: string }
+export interface OnboardingResult { id: string; matchedPaths: MatchedPath[] }
 
-/** Onboarding: por qué / para qué / sector / puesto. Alimenta la personalización de la ruta. */
-export async function startOnboarding(deps: SvcDeps, input: OnboardingInput): Promise<string> {
+/**
+ * Onboarding: por qué / para qué / sector / puesto. Alimenta la personalización de la ruta, y
+ * matricula al momento en cualquier ruta del catálogo real de la empresa que encaje con el sector
+ * o el puesto (texto, sin IA — ver `matchProfileToPaths`). Sin match real, `matchedPaths` viene
+ * vacío: no se inventa una ruta, el responsable la asigna a mano como hasta ahora.
+ */
+export async function startOnboarding(deps: SvcDeps, input: OnboardingInput): Promise<OnboardingResult> {
   const id = deps.newId();
   await deps.db.insert(onboardingProfile).values({
     id, organizationId: input.orgId, userId: input.userId,
     sector: input.sector ?? null, puesto: input.puesto ?? null, motivo: input.motivo ?? null,
   });
-  return id;
+
+  const matches = await matchProfileToPaths(deps, input.orgId, { sector: input.sector, puesto: input.puesto });
+  for (const m of matches) {
+    const already = await deps.db.select({ id: enrollment.id }).from(enrollment).where(and(
+      eq(enrollment.organizationId, input.orgId), eq(enrollment.userId, input.userId), eq(enrollment.pathId, m.pathId),
+    ));
+    if (already.length === 0) await enroll(deps, input.orgId, input.userId, m.pathId, m.competencyId);
+  }
+  return { id, matchedPaths: matches };
 }
 
 export async function enroll(
