@@ -52,6 +52,11 @@ table.orgs tr:hover td{background:var(--warm)}
   </div>
 
   <div class="card">
+    <h2>Evolución de la plataforma <span class="hand" style="color:var(--t);font-size:15px">agregado de todas las empresas</span></h2>
+    <div id="historyBox"><span class="msg">Cargando…</span></div>
+  </div>
+
+  <div class="card">
     <h2>Todas las empresas <span class="hand" style="color:var(--t);font-size:15px">evolución, ROI y riesgo por cliente</span></h2>
     <div class="msg" id="msg">Cargando…</div>
     <div style="overflow-x:auto">
@@ -93,6 +98,19 @@ table.orgs tr:hover td{background:var(--warm)}
       '</div>';
   } catch (ex) {
     document.getElementById('costBox').innerHTML = '<p class="msg">' + ex.message + '</p>';
+  }
+
+  try {
+    var hist = await SkillUp.api('/api/platform/history');
+    var hbox = document.getElementById('historyBox');
+    if (!hist.length) { hbox.innerHTML = '<p class="msg">Sin histórico todavía — se captura solo cada día.</p>'; }
+    else {
+      hbox.innerHTML =
+        '<p class="msg" style="margin-bottom:6px">Cobertura media (todas las empresas)</p>' + SkillUp.lineChart(hist, 'avgCoveragePct', { color: '#8B5CF6', format: function (v) { return v + '%'; } }) +
+        '<p class="msg" style="margin:16px 0 6px">Riesgos críticos totales</p>' + SkillUp.lineChart(hist, 'criticalRisks', { color: '#DC2626', format: function (v) { return String(Math.round(v)); } });
+    }
+  } catch (ex) {
+    document.getElementById('historyBox').innerHTML = '<p class="msg">' + ex.message + '</p>';
   }
 
   var msg = document.getElementById('msg');

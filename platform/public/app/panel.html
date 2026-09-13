@@ -48,6 +48,11 @@ details[open] summary:before{content:"▾ "}
   </div>
 
   <div class="card">
+    <h2>Evolución <span class="hand" style="color:var(--t);font-size:15px">foto diaria, no inventada</span></h2>
+    <div id="historyBox"><span class="msg">Cargando…</span></div>
+  </div>
+
+  <div class="card">
     <h2>ROI <span class="hand" style="color:var(--t);font-size:15px">línea base vs. hoy</span></h2>
     <div class="grid" id="stats"></div>
     <h2 style="margin-top:20px">Cobertura por competencia</h2>
@@ -156,6 +161,17 @@ details[open] summary:before{content:"▾ "}
     }).join('') || '<p class="msg">Sin riesgos de dependencia detectados.</p>';
   }
   loadPanel();
+
+  async function loadHistory() {
+    var box = document.getElementById('historyBox');
+    var rows = await SkillUp.api('/api/analytics/history').catch(function () { return []; });
+    if (!rows.length) { box.innerHTML = '<p class="msg">Sin histórico todavía — vuelve mañana, se captura solo cada día.</p>'; return; }
+    box.innerHTML =
+      '<p class="msg" style="margin-bottom:6px">Cobertura media</p>' + SkillUp.lineChart(rows, 'avgCoveragePct', { color: '#8B5CF6', format: function (v) { return v + '%'; } }) +
+      '<p class="msg" style="margin:16px 0 6px">Riesgos críticos</p>' + SkillUp.lineChart(rows, 'criticalRisks', { color: '#DC2626', format: function (v) { return String(Math.round(v)); } }) +
+      '<p class="msg" style="margin:16px 0 6px">Días a autonomía</p>' + SkillUp.lineChart(rows, 'timeToAutonomyDays', { color: '#0891B2', format: function (v) { return v.toFixed(1); } });
+  }
+  loadHistory();
 
   async function loadCompletion() {
     var rows = await SkillUp.api('/api/analytics/completion').catch(function () { return []; });

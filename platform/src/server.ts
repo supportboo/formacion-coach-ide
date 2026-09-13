@@ -638,6 +638,12 @@ app.get("/api/platform/summary", async (c) => {
   if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
   return c.json(await analyticsSvc.platformSummary(svcDeps));
 });
+app.get("/api/platform/history", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
+  const days = Number(c.req.query("days") ?? 90);
+  return c.json(await analyticsSvc.platformSnapshotHistory(svcDeps, days));
+});
 app.get("/api/platform/cost", async (c) => {
   const admin = await getPlatformAdminSession(c);
   if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
@@ -676,7 +682,15 @@ app.get("/api/analytics/panel", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  await analyticsSvc.captureSnapshotIfNeeded(svcDeps, ctx.orgId);
   return c.json(await analyticsSvc.panelSummary(svcDeps, ctx.orgId));
+});
+app.get("/api/analytics/history", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  const days = Number(c.req.query("days") ?? 90);
+  return c.json(await analyticsSvc.snapshotHistory(svcDeps, ctx.orgId, days));
 });
 app.get("/api/analytics/completion", async (c) => {
   const ctx = await getAuthContext(c);

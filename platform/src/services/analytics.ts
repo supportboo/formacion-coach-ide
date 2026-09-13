@@ -1,7 +1,7 @@
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import {
-  agentMessage, agentThread, appliedCase, baselineSnapshot, coaching, competency, enrollment,
-  learningPath, levelByCompetency, member, organization, user, validation,
+  agentMessage, agentThread, analyticsSnapshot, appliedCase, baselineSnapshot, coaching, competency,
+  enrollment, learningPath, levelByCompetency, member, organization, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
@@ -144,6 +144,75 @@ export async function panelSummary(deps: SvcDeps, orgId: string): Promise<PanelS
   };
 }
 
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC), suficiente para "una vez al dia"
+}
+
+/**
+ * Toma la foto del dia si no existia ya (idempotente, sin cron): se llama de paso cada vez que
+ * alguien pide el panel de su empresa o el superadmin pide el resumen de plataforma. Si nadie
+ * mira ese dia, no hay foto -- la serie queda con huecos honestos en vez de datos inventados.
+ */
+export async function captureSnapshotIfNeeded(deps: SvcDeps, orgId: string): Promise<void> {
+  const day = todayStr();
+  const [existing] = await deps.db.select({ id: analyticsSnapshot.id }).from(analyticsSnapshot)
+    .where(and(eq(analyticsSnapshot.organizationId, orgId), eq(analyticsSnapshot.day, day)));
+  if (existing) return;
+
+  const [cov, risks, transfer, autonomy, members] = await Promise.all([
+    coverage(deps, orgId),
+    dependencyRisks(deps, orgId),
+    internalTransferRate(deps, orgId),
+    timeToAutonomyDays(deps, orgId),
+    memberCount(deps, orgId),
+  ]);
+  const totalAll = cov.reduce((a, c) => a + c.total, 0);
+  const applyAll = cov.reduce((a, c) => a + c.atApply, 0);
+  const avgCoveragePct = totalAll > 0 ? Math.round((applyAll / totalAll) * 1000) / 10 : 0;
+
+  // Insert-si-no-existe vía índice único: si dos peticiones llegan a la vez, una gana y la otra
+  // choca contra snap_org_day_uidx -- se ignora, no hace falta un lock a mano.
+  await deps.db.insert(analyticsSnapshot).values({
+    id: deps.newId(), organizationId: orgId, day, memberCount: members,
+    avgCoveragePct, criticalRisks: risks.length, internalTransfer: transfer, timeToAutonomyDays: autonomy,
+  }).onConflictDoNothing();
+}
+
+export interface SnapshotPoint {
+  day: string; avgCoveragePct: number; criticalRisks: number; internalTransfer: number; timeToAutonomyDays: number; memberCount: number;
+}
+
+export async function snapshotHistory(deps: SvcDeps, orgId: string, days = 90): Promise<SnapshotPoint[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  return deps.db.select({
+    day: analyticsSnapshot.day, avgCoveragePct: analyticsSnapshot.avgCoveragePct,
+    criticalRisks: analyticsSnapshot.criticalRisks, internalTransfer: analyticsSnapshot.internalTransfer,
+    timeToAutonomyDays: analyticsSnapshot.timeToAutonomyDays, memberCount: analyticsSnapshot.memberCount,
+  }).from(analyticsSnapshot)
+    .where(and(eq(analyticsSnapshot.organizationId, orgId), gte(analyticsSnapshot.day, since)))
+    .orderBy(asc(analyticsSnapshot.day));
+}
+
+/** Serie agregada de TODAS las empresas por dia (suma de riesgos/miembros, media del resto). Para el superadmin. */
+export async function platformSnapshotHistory(deps: SvcDeps, days = 90): Promise<SnapshotPoint[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  const rows = await deps.db.select({
+    day: analyticsSnapshot.day,
+    avgCoveragePct: sql<number>`avg(${analyticsSnapshot.avgCoveragePct})`,
+    criticalRisks: sql<number>`sum(${analyticsSnapshot.criticalRisks})::int`,
+    internalTransfer: sql<number>`avg(${analyticsSnapshot.internalTransfer})`,
+    timeToAutonomyDays: sql<number>`avg(${analyticsSnapshot.timeToAutonomyDays})`,
+    memberCount: sql<number>`sum(${analyticsSnapshot.memberCount})::int`,
+  }).from(analyticsSnapshot)
+    .where(gte(analyticsSnapshot.day, since))
+    .groupBy(analyticsSnapshot.day)
+    .orderBy(asc(analyticsSnapshot.day));
+  return rows.map((r) => ({
+    ...r, avgCoveragePct: Math.round(r.avgCoveragePct * 10) / 10, internalTransfer: Math.round(r.internalTransfer * 100) / 100,
+    timeToAutonomyDays: Math.round(r.timeToAutonomyDays * 10) / 10,
+  }));
+}
+
 export interface PathCompletion { pathId: string; pathTitle: string; total: number; completado: number; pct: number }
 
 /** % de finalizacion real por ruta (enrollment.status), no inventado. Señal directa de que rutas enganchan y cuales no. */
@@ -191,6 +260,7 @@ export async function platformSummary(deps: SvcDeps): Promise<PlatformOrgSummary
   const orgs = await deps.db.select().from(organization);
   const out: PlatformOrgSummary[] = [];
   for (const org of orgs) {
+    await captureSnapshotIfNeeded(deps, org.id);
     const n = await memberCount(deps, org.id);
     const summary = await panelSummary(deps, org.id);
     out.push({

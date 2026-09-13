@@ -1,5 +1,5 @@
 import {
-  pgTable, text, timestamp, boolean, integer, jsonb, uniqueIndex, index,
+  pgTable, text, timestamp, boolean, integer, real, jsonb, uniqueIndex, index,
 } from "drizzle-orm/pg-core";
 
 /* ============================================================
@@ -472,6 +472,25 @@ export const roleplaySession = pgTable("roleplay_session", {
   closedAt: timestamp("closed_at"),
 }, (t) => ({ byOrg: index("roleplay_org_idx").on(t.organizationId) }));
 
+// Foto diaria de las metricas del panel (una por empresa y dia). A diferencia de baselineSnapshot
+// (el "antes" del piloto, capturado a mano una vez), esta se captura sola -- sin cron ni cola de
+// trabajos: se toma de paso la primera vez que alguien pide el panel (propio o superadmin) ese dia.
+// Es lo unico que hace falta para poder dibujar una evolucion en vez de un numero suelto.
+export const analyticsSnapshot = pgTable("analytics_snapshot", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  day: text("day").notNull(), // YYYY-MM-DD, para el uniqueIndex (una fila por empresa y dia)
+  memberCount: integer("member_count").notNull(),
+  avgCoveragePct: real("avg_coverage_pct").notNull(),
+  criticalRisks: integer("critical_risks").notNull(),
+  internalTransfer: real("internal_transfer").notNull(),
+  timeToAutonomyDays: real("time_to_autonomy_days").notNull(),
+  capturedAt: timestamp("captured_at").notNull().defaultNow(),
+}, (t) => ({
+  byOrg: index("snap_org_idx").on(t.organizationId),
+  oncePerDay: uniqueIndex("snap_org_day_uidx").on(t.organizationId, t.day),
+}));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
@@ -482,5 +501,5 @@ export const schema = {
   companyConfig, rewardRule, certificate, rewardGrant, careerPath,
   fundaeAction, fundaeParticipation,
   pricingTier, subscription,
-  baselineSnapshot, aiUsage, roleplaySession,
+  baselineSnapshot, aiUsage, roleplaySession, analyticsSnapshot,
 };
