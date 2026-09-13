@@ -39,6 +39,10 @@ p.sub{font-size:14px;color:var(--mut);margin-bottom:24px;text-align:center}
     <button class="btn btn-grad btn-block" type="submit">Guardar y continuar</button>
     <div class="err msg" id="err"></div>
   </form>
+  <div id="result" style="display:none">
+    <div id="resultBody"></div>
+    <button class="btn btn-grad btn-block" id="btnContinue" style="margin-top:16px">Ir a mi panel</button>
+  </div>
 </div>
 <script src="/app/api.js"></script>
 <script>
@@ -49,12 +53,27 @@ p.sub{font-size:14px;color:var(--mut);margin-bottom:24px;text-align:center}
     e.preventDefault();
     var err = document.getElementById('err'); err.textContent = '';
     try {
-      await SkillUp.api('/api/learning/onboarding', { method: 'POST', body: {
+      var res = await SkillUp.api('/api/learning/onboarding', { method: 'POST', body: {
         sector: document.getElementById('sector').value.trim() || undefined,
         puesto: document.getElementById('puesto').value.trim() || undefined,
         motivo: document.getElementById('motivo').value.trim() || undefined,
       } });
-      window.location.href = '/hub.html';
+      var paths = (res && res.matchedPaths) || [];
+      var body = document.getElementById('resultBody');
+      if (paths.length > 0) {
+        var names = paths.map(function (p) { return p.title; });
+        body.innerHTML = '<h1>Ya tienes tu ruta</h1><p class="sub">Según lo que nos has contado, te hemos matriculado en:</p>'
+          + '<ul style="text-align:left;margin:0 0 4px 18px;color:var(--text);font-size:14px">'
+          + names.map(function (n) { return '<li>' + n.replace(/</g, '&lt;') + '</li>'; }).join('')
+          + '</ul>';
+      } else {
+        body.innerHTML = '<h1>Perfil guardado</h1><p class="sub">Todavía no encontramos una ruta que encaje sola con tu sector o puesto — tu responsable te la asignará desde el panel de empresa.</p>';
+      }
+      document.getElementById('f').style.display = 'none';
+      document.getElementById('result').style.display = '';
+      document.getElementById('btnContinue').addEventListener('click', function () {
+        window.location.href = '/hub.html';
+      });
     } catch (ex) { err.textContent = ex.message; }
   });
 })();

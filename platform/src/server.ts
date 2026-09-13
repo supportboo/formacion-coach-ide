@@ -202,8 +202,8 @@ app.post("/api/learning/onboarding", async (c) => {
   const parsed = z.object({ sector: z.string().optional(), puesto: z.string().optional(), motivo: z.string().optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const id = await learningSvc.startOnboarding(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, ...parsed.data });
-  return c.json({ id });
+  const result = await learningSvc.startOnboarding(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, ...parsed.data });
+  return c.json(result);
 });
 
 // El dashboard consulta esto al entrar para saber si mandar al usuario a onboarding primero.

@@ -72,3 +72,56 @@ export async function addLesson(deps: SvcDeps, orgId: string, input: LessonInput
   });
   return id;
 }
+
+function normalizeText(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+}
+
+/** ¿Se refieren a lo mismo? Contención en cualquier dirección, sin acentos ni mayúsculas — nunca
+ *  una IA "adivinando": si no hay coincidencia de texto real, no hay match, y no se inventa uno. */
+function textMatches(a: string, b: string): boolean {
+  const na = normalizeText(a);
+  const nb = normalizeText(b);
+  if (!na || !nb) return false;
+  return na.includes(nb) || nb.includes(na);
+}
+
+export interface MatchedPath { pathId: string; title: string; competencyId: string; competencyName: string }
+
+/**
+ * Empareja el sector/puesto en texto libre del onboarding contra el catálogo real de la empresa
+ * (sector → puesto → competencia → ruta), determinista y sin coste de IA. Prioriza el puesto (más
+ * específico); si no hay match de puesto, cae al sector y coge todos sus puestos. Sin coincidencia
+ * real → lista vacía, nunca una ruta inventada (doctrina de certeza).
+ */
+export async function matchProfileToPaths(
+  deps: SvcDeps, orgId: string, profile: { sector?: string | null; puesto?: string | null },
+): Promise<MatchedPath[]> {
+  if (!profile.puesto && !profile.sector) return [];
+
+  const [sectors, puestos, competencies, paths] = await Promise.all([
+    listSectors(deps, orgId), listPuestos(deps, orgId), listCompetencies(deps, orgId), listPaths(deps, orgId),
+  ]);
+
+  let matchedPuestoIds = profile.puesto
+    ? puestos.filter((p) => textMatches(profile.puesto!, p.name)).map((p) => p.id)
+    : [];
+
+  if (matchedPuestoIds.length === 0 && profile.sector) {
+    const matchedSectorIds = new Set(sectors.filter((s) => textMatches(profile.sector!, s.name)).map((s) => s.id));
+    matchedPuestoIds = puestos.filter((p) => p.sectorId && matchedSectorIds.has(p.sectorId)).map((p) => p.id);
+  }
+  if (matchedPuestoIds.length === 0) return [];
+
+  const puestoIdSet = new Set(matchedPuestoIds);
+  const matchedCompetencies = competencies.filter((c) => c.puestoId && puestoIdSet.has(c.puestoId));
+  const competencyIdSet = new Set(matchedCompetencies.map((c) => c.id));
+  const competencyNameById = new Map(matchedCompetencies.map((c) => [c.id, c.name]));
+
+  return paths
+    .filter((p) => p.competencyId && competencyIdSet.has(p.competencyId))
+    .map((p) => ({
+      pathId: p.id, title: p.title,
+      competencyId: p.competencyId!, competencyName: competencyNameById.get(p.competencyId!) ?? "",
+    }));
+}
