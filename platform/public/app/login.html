@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -97,7 +97,7 @@ document.getElementById('f').addEventListener('submit', async function (e) {
       var mine = await SkillUp.api('/api/auth/organization/list').catch(function () { return []; });
       if (mine.length) await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: mine[0].id } });
     }
-    window.location.href = '/app/dashboard.html';
+    window.location.href = '/hub.html';
   } catch (ex) {
     err.textContent = ex.message || 'Ha ido mal, revisa los datos';
     btn.disabled = false;

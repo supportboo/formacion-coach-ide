@@ -23,7 +23,7 @@
   // ---- estilos ----
   var css = document.createElement('style');
   css.textContent = [
-    '.fb-toggle{position:fixed;right:22px;bottom:22px;z-index:1600;display:flex;align-items:center;gap:8px;background:#8B5CF6;color:#fff;border:none;border-radius:100px;padding:11px 18px;font:600 13px Inter,sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(139,92,246,.35)}',
+    '.fb-toggle{position:fixed;right:22px;bottom:22px;z-index:1750;display:flex;align-items:center;gap:8px;background:#8B5CF6;color:#fff;border:none;border-radius:100px;padding:11px 18px;font:600 13px Inter,sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(139,92,246,.35)}',
     '.fb-toggle.on{background:#0891B2}',
     '.fb-toggle .fb-badge{background:#fff;color:#8B5CF6;border-radius:100px;font-size:11px;font-weight:800;padding:1px 7px}',
     'body.fb-mode{cursor:crosshair}',
@@ -42,7 +42,8 @@
     '.fb-panel.open{transform:none}',
     '.fb-panel header{padding:18px 20px;border-bottom:1px solid #F0EAEE;display:flex;justify-content:space-between;align-items:center}',
     '.fb-panel header h3{font:800 17px Inter,sans-serif;color:#2D2D2D;margin:0}',
-    '.fb-panel .fb-x{background:none;border:0;font-size:24px;color:#8F8F8F;cursor:pointer}',
+    '.fb-panel .fb-x{background:#F5F0EE;border:0;width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1;color:#2D2D2D;cursor:pointer;display:grid;place-items:center;flex:none}',
+    '.fb-panel .fb-x:hover{background:#E8E0E5}',
     '.fb-list{flex:1;overflow-y:auto;padding:12px 16px}',
     '.fb-item{border:1px solid #F0EAEE;border-left:3px solid;border-radius:10px;padding:12px 14px;margin-bottom:10px}',
     '.fb-item .fb-q{font-size:13px;color:#4A4A4A;font-style:italic;cursor:pointer}',
@@ -162,7 +163,9 @@
     fbTxt.textContent = on ? 'Salir de revisión' : 'Sugerir mejora';
     if(on){ panel.classList.add('open'); } else { panel.classList.remove('open'); killBar(); }
   });
-  panel.querySelector('.fb-x').addEventListener('click', function(){ panel.classList.remove('open'); document.body.classList.remove('fb-mode'); toggle.classList.remove('on'); fbTxt.textContent='Sugerir mejora'; killBar(); });
+  function closePanel(){ panel.classList.remove('open'); document.body.classList.remove('fb-mode'); toggle.classList.remove('on'); fbTxt.textContent='Sugerir mejora'; killBar(); }
+  panel.querySelector('.fb-x').addEventListener('click', closePanel);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && panel.classList.contains('open')) closePanel(); });
   panel.querySelector('.fb-copy').addEventListener('click', function(){
     var data = JSON.stringify(forCourse(), null, 2);
     (navigator.clipboard ? navigator.clipboard.writeText(data) : Promise.reject()).then(function(){ alert('Notas copiadas al portapapeles ('+forCourse().length+').'); }, function(){ window.prompt('Copia tus notas:', data); });

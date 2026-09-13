@@ -1,10 +1,10 @@
-import { and, eq } from "drizzle-orm";
+﻿import { and, eq } from "drizzle-orm";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { z } from "zod";
 import { auth } from "./auth/auth.js";
 import { env } from "./config/env.js";
-import { getAuthContext, getPlatformAdminSession, type AuthCtx } from "./http/context.js";
+import { getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
 import { chat } from "./agents/chat.js";
 import { ROLES } from "./agents/registry.js";
 import { ingestDocument } from "./rag/rag.js";
@@ -204,6 +204,14 @@ app.post("/api/learning/onboarding", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const id = await learningSvc.startOnboarding(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, ...parsed.data });
   return c.json({ id });
+});
+
+// El dashboard consulta esto al entrar para saber si mandar al usuario a onboarding primero.
+app.get("/api/learning/onboarding", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  return c.json({ done: !!profile });
 });
 
 app.post("/api/learning/enroll", async (c) => {
@@ -539,6 +547,13 @@ app.get("/api/org/team", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   return c.json(await orgSvc.listMembers(svcDeps, ctx.orgId));
+});
+
+// El menu de la app (hub.html / dashboard.html) consulta esto para saber que opciones mostrar segun el rol.
+app.get("/api/org/me", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ role: ctx.role, platformAdmin: isPlatformAdmin(ctx) });
 });
 
 // El plugin organization de better-auth solo conoce sus propios roles (owner/admin/member) y

@@ -59,7 +59,7 @@ button.danger{background:#ffe3e3;color:#c92a2a}
   <table><tbody id="resets"></tbody></table>
 </div>
 
-<a class="back" href="/hub.html">← Volver a Brandooers</a>
+<a class="back" href="/panel.html">← Volver al panel</a>
 <script>
 var api={
   list:function(){return fetch('/auth/users').then(function(r){if(r.status===403){document.body.innerHTML='<p style="font-family:Inter;padding:40px">Solo un administrador puede ver esta página. <a href="/hub.html">Volver</a></p>';throw 0;}return r.json();});},

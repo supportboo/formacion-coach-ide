@@ -50,7 +50,7 @@ textarea{min-height:88px;resize:vertical}
 .card.dark label{color:var(--ink-mut)}
 
 /* Botones */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:13.5px;border-radius:100px;padding:12px 22px;cursor:pointer;border:0;transition:transform .15s,box-shadow .15s,opacity .15s;font-family:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:13.5px;text-transform:uppercase;letter-spacing:.03em;border-radius:100px;padding:12px 22px;cursor:pointer;border:0;transition:transform .15s,box-shadow .15s,opacity .15s;font-family:inherit}
 .btn-grad{background:var(--grad);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,.3)}
 .btn-grad:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(139,92,246,.45)}
 .btn-grad:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
