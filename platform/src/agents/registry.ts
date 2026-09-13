@@ -11,6 +11,8 @@ export interface AgentContext {
   orgName: string;
   userName: string;
   contextSnippets: string[]; // fragmentos RAG recuperados
+  sector?: string | null; // del onboarding del propio usuario -- mismo dato que ya usan tests/casos
+  puesto?: string | null;
 }
 
 export interface AgentDef {
@@ -26,11 +28,15 @@ const BASE =
   "No expongas la mecánica interna (niveles, puntos, ranking) salvo que sea necesaria para ayudar a este rol.";
 
 function withContext(role: string, mission: string) {
-  return (ctx: AgentContext) =>
-    `${BASE}\n\nEmpresa: ${ctx.orgName}. Usuario: ${ctx.userName} (rol: ${role}).\n${mission}\n\n` +
-    (ctx.contextSnippets.length
-      ? `Contexto recuperado (úsalo, no lo contradigas):\n- ${ctx.contextSnippets.join("\n- ")}`
-      : "No hay contexto recuperado para esta consulta.");
+  return (ctx: AgentContext) => {
+    const puesto = [ctx.sector && `sector ${ctx.sector}`, ctx.puesto && `puesto ${ctx.puesto}`].filter(Boolean).join(", ");
+    return `${BASE}\n\nEmpresa: ${ctx.orgName}. Usuario: ${ctx.userName} (rol: ${role}${puesto ? `, ${puesto}` : ""}).\n${mission}\n` +
+      (puesto ? `Adapta tus ejemplos y explicaciones a su día a día real (${puesto}), no genéricos.\n` : "") +
+      `\n` +
+      (ctx.contextSnippets.length
+        ? `Contexto recuperado (úsalo, no lo contradigas):\n- ${ctx.contextSnippets.join("\n- ")}`
+        : "No hay contexto recuperado para esta consulta.");
+  };
 }
 
 // Un agente por rol del organigrama. Preparados para trabajar en todas las fases.

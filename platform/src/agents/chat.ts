@@ -6,6 +6,7 @@ import { retrieve } from "../rag/rag.js";
 import type { VectorStore } from "../rag/store.js";
 import { resolveAgent, type AgentContext } from "./registry.js";
 import type { Llm, LlmMessage } from "./llm.js";
+import { getOnboardingProfile } from "../services/learning.js";
 
 export interface ChatDeps {
   db: DB;
@@ -48,11 +49,13 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
     });
   }
 
-  // 2) recuperar contexto RAG de la org
+  // 2) recuperar contexto RAG de la org + perfil (sector/puesto) para personalizar como ya hace aiContent
   const hits = await retrieve(deps.store, deps.emb, input.orgId, input.message, 5);
+  const profile = await getOnboardingProfile({ db: deps.db, newId: deps.newId }, input.orgId, input.userId);
   const ctx: AgentContext = {
     orgName: input.orgName, userName: input.userName,
     contextSnippets: hits.map((h) => h.content),
+    sector: profile?.sector, puesto: profile?.puesto,
   };
 
   // 3) historial reciente del hilo
