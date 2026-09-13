@@ -1,7 +1,7 @@
 import type { Llm } from "../agents/llm.js";
 
 /** Los LLM a veces envuelven el JSON en prosa pese a la instrucción; extrae el primer objeto. */
-function firstJson<T>(s: string): T {
+export function firstJson<T>(s: string): T {
   const a = s.indexOf("{"), b = s.lastIndexOf("}");
   if (a === -1 || b === -1) throw new Error("la IA no devolvió JSON: " + s.slice(0, 200));
   return JSON.parse(s.slice(a, b + 1)) as T;

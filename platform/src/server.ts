@@ -22,6 +22,7 @@ import * as rewardsSvc from "./services/rewards.js";
 import * as fundaeSvc from "./services/fundae.js";
 import * as analyticsSvc from "./services/analytics.js";
 import * as costsSvc from "./services/costs.js";
+import * as roleplaySvc from "./services/roleplay.js";
 import * as privacySvc from "./services/privacy.js";
 import * as billingSvc from "./services/billing.js";
 import * as careerSvc from "./services/career.js";
@@ -401,6 +402,66 @@ app.post("/api/validation/cases/:id/decide", async (c) => {
     }
     return c.json({ ...result, cascade, rewards });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+
+/* ============================================================
+ * ROLEPLAY — practica conversacional con un personaje IA. La decision de si aplica
+ * la competencia la sigue tomando un humano via /api/validation/cases/:id/decide;
+ * esto es practica y una sugerencia de fortalezas/areas de mejora, nunca una aprobacion.
+ * ============================================================ */
+app.post("/api/roleplay/start", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas sesiones, espera un momento" }, 429);
+  const parsed = z.object({ competencyId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+  if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  try {
+    const turn = await roleplaySvc.startRoleplay(svcDeps, llm, {
+      competencyId: parsed.data.competencyId, competencyName: comp.name,
+      sector: profile?.sector, puesto: profile?.puesto, orgId: ctx.orgId, userId: ctx.userId,
+    });
+    return c.json(turn);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+app.post("/api/roleplay/:id/reply", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ message: z.string().min(1), competencyId: z.string().min(1) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+  if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  try {
+    const turn = await roleplaySvc.replyRoleplay(svcDeps, llm, {
+      orgId: ctx.orgId, userId: ctx.userId, sessionId: c.req.param("id"), message: parsed.data.message,
+      competencyName: comp.name, sector: profile?.sector, puesto: profile?.puesto,
+    });
+    return c.json(turn);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+app.post("/api/roleplay/:id/close", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ competencyId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+  if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  try {
+    const summary = await roleplaySvc.closeRoleplay(svcDeps, llm, {
+      orgId: ctx.orgId, userId: ctx.userId, sessionId: c.req.param("id"), competencyName: comp.name,
+    });
+    return c.json(summary);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+app.get("/api/roleplay/mine", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json(await roleplaySvc.myRoleplays(svcDeps, ctx.orgId, ctx.userId));
 });
 
 /* ============================================================

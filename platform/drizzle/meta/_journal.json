@@ -99,6 +99,13 @@
       "when": 1789290537158,
       "tag": "0013_complete_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1789291265310,
+      "tag": "0014_complete_scarlet_witch",
+      "breakpoints": true
     }
   ]
 }

@@ -67,6 +67,22 @@
     <div class="msg" id="caseMsg"></div>
   </div>
 
+  <div class="card">
+    <h2>Roleplay <span class="hand" style="color:var(--t);font-size:15px">practica sin riesgo con un personaje IA</span></h2>
+    <input id="roleplayCompetencyId" list="compOptions" placeholder="Busca una competencia por nombre…" autocomplete="off">
+    <button class="btn btn-gh" id="btnStartRoleplay">Iniciar roleplay</button>
+    <div id="roleplayBox" style="display:none;margin-top:12px">
+      <div class="chat" id="roleplayChat"></div>
+      <input id="roleplayInput" placeholder="Escribe tu respuesta">
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-grad" id="btnRoleplaySend">Enviar</button>
+        <button class="btn btn-gh" id="btnRoleplayClose">Cerrar y ver resumen</button>
+      </div>
+    </div>
+    <div id="roleplaySummary" style="display:none;margin-top:12px;padding:14px;background:var(--warm);border-radius:12px;font-size:13.5px"></div>
+    <div class="msg" id="roleplayMsg"></div>
+  </div>
+
   <datalist id="pathOptions"></datalist>
   <datalist id="compOptions"></datalist>
 
@@ -190,10 +206,54 @@ var threadId = null;
     } catch (ex) { msg.textContent = ex.message; }
   });
 
-  function addChatMsg(role, text) {
-    var chat = document.getElementById('chat');
+  var roleplaySessionId = null;
+  document.getElementById('btnStartRoleplay').addEventListener('click', async function () {
+    var msg = document.getElementById('roleplayMsg'); msg.textContent = '';
+    var competencyId = resolveId('roleplayCompetencyId', compIdByLabel);
+    try {
+      var r = await SkillUp.api('/api/roleplay/start', { method: 'POST', body: { competencyId: competencyId } });
+      roleplaySessionId = r.sessionId;
+      document.getElementById('roleplayChat').innerHTML = '';
+      document.getElementById('roleplaySummary').style.display = 'none';
+      document.getElementById('roleplayBox').style.display = 'block';
+      addBubble('roleplayChat', 'agent', r.reply);
+    } catch (ex) { msg.textContent = ex.message; }
+  });
+  document.getElementById('btnRoleplaySend').addEventListener('click', async function () {
+    var input = document.getElementById('roleplayInput');
+    var text = input.value.trim(); if (!text || !roleplaySessionId) return;
+    addBubble('roleplayChat', 'user', text); input.value = '';
+    try {
+      var r = await SkillUp.api('/api/roleplay/' + roleplaySessionId + '/reply', { method: 'POST', body: {
+        message: text, competencyId: resolveId('roleplayCompetencyId', compIdByLabel),
+      } });
+      addBubble('roleplayChat', 'agent', r.reply);
+    } catch (ex) { addBubble('roleplayChat', 'agent', 'Error: ' + ex.message); }
+  });
+  document.getElementById('btnRoleplayClose').addEventListener('click', async function () {
+    if (!roleplaySessionId) return;
+    var msg = document.getElementById('roleplayMsg');
+    try {
+      var s = await SkillUp.api('/api/roleplay/' + roleplaySessionId + '/close', { method: 'POST', body: {
+        competencyId: resolveId('roleplayCompetencyId', compIdByLabel),
+      } });
+      document.getElementById('roleplayBox').style.display = 'none';
+      var box = document.getElementById('roleplaySummary');
+      box.style.display = 'block';
+      box.innerHTML = '<b>' + SkillUp.escHtml(s.resumen) + '</b>' +
+        '<p style="margin-top:8px;color:var(--green)">✓ ' + s.fortalezas.map(SkillUp.escHtml).join(' · ') + '</p>' +
+        '<p style="margin-top:6px;color:var(--mut)">→ A mejorar: ' + s.areasDeMejora.map(SkillUp.escHtml).join(' · ') + '</p>';
+      roleplaySessionId = null;
+    } catch (ex) { msg.textContent = ex.message; }
+  });
+  function addBubble(containerId, role, text) {
+    var box = document.getElementById(containerId);
     var d = document.createElement('div'); d.className = 'm ' + role; d.textContent = text;
-    chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+    box.appendChild(d); box.scrollTop = box.scrollHeight;
+  }
+
+  function addChatMsg(role, text) {
+    addBubble('chat', role, text);
   }
   document.getElementById('btnChat').addEventListener('click', async function () {
     var input = document.getElementById('chatInput');

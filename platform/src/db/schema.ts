@@ -455,6 +455,23 @@ export const aiUsage = pgTable("ai_usage", {
   byCreated: index("ai_usage_created_idx").on(t.createdAt),
 }));
 
+// Roleplay conversacional: la IA hace de personaje (cliente dificil, jefe, etc.) para practicar
+// sin riesgo real. Transcripcion completa en la propia fila (conversaciones cortas, no hace
+// falta una tabla de mensajes aparte). La decision de "lo hizo bien" la sigue tomando un humano
+// via validation.ts -- el resumen aqui es apoyo, nunca una aprobacion automatica.
+export const roleplaySession = pgTable("roleplay_session", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  competencyId: text("competency_id").notNull(),
+  persona: text("persona").notNull(),
+  status: text("status").notNull().default("activo"), // activo | cerrado
+  transcript: jsonb("transcript").$type<{ role: "user" | "assistant"; content: string }[]>().notNull().default([]),
+  summary: text("summary"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  closedAt: timestamp("closed_at"),
+}, (t) => ({ byOrg: index("roleplay_org_idx").on(t.organizationId) }));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
@@ -465,5 +482,5 @@ export const schema = {
   companyConfig, rewardRule, certificate, rewardGrant, careerPath,
   fundaeAction, fundaeParticipation,
   pricingTier, subscription,
-  baselineSnapshot, aiUsage,
+  baselineSnapshot, aiUsage, roleplaySession,
 };
