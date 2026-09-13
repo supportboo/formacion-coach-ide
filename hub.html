@@ -535,6 +535,8 @@ img,svg,video{-webkit-user-drag:none}
 .rail-step .rs-lb b{font-weight:700;color:var(--odoo-gold)}
 .rail:hover .rail-step .rs-lb,.rail.open .rail-step .rs-lb{opacity:1}
 .rail-sep{height:1px;background:var(--border-light);margin:8px 10px}
+.rail-cap{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:12px 16px 6px;opacity:0;white-space:nowrap;transition:opacity .18s}
+.rail:hover .rail-cap,.rail.open .rail-cap{opacity:1}
 .rail-burger{position:fixed;top:14px;left:12px;z-index:75;width:44px;height:44px;border-radius:12px;background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;display:none;place-items:center}
 .rail-burger svg{width:22px;height:22px;stroke:var(--text-dark)}
 .rail-ov{position:fixed;inset:0;background:rgba(45,45,45,.3);z-index:69;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
@@ -711,17 +713,21 @@ body{padding-left:66px}
     <span class="brandooers-logo" style="font-size:17px">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><g transform="translate(5,0)"><path class="browL" fill="none" stroke="url(#bo-brow1)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g><g transform="translate(53,0)"><path class="browR" fill="none" stroke="url(#bo-brow2)" stroke-width="3.5" stroke-linecap="round"/><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff" data-op="0.95"/></g></svg>ers</span>
   </div>
   <div class="rail-items">
+    <span class="rail-cap">Empezar</span>
     <a class="rail-item" href="#inicio" data-sec="inicio" title="Inicio"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="ri-lb">Inicio</span></a>
+    <a class="rail-item" href="#como" data-sec="como" title="Cómo funciona"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="ri-lb">Cómo funciona</span></a>
     <a class="rail-item gold" href="#empezar" data-sec="empezar" title="Encuentra tu ruta"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V9a4 4 0 0 1 4-4h4"/><path d="M18 7v8a4 4 0 0 1-4 4h-4"/></svg></span><span class="ri-lb">Tu ruta</span></a>
-    <a class="rail-item gold" href="crear-curso.html" title="Pide un tema nuevo y el motor te crea el curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="ri-lb">Pide un tema</span></a>
+    <div class="rail-sep"></div>
+    <span class="rail-cap">Cursos</span>
     <a class="rail-item" href="#cursos" data-sec="cursos" title="Todos los cursos"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span class="ri-lb">Cursos</span></a>
     <a class="rail-item" href="#rutas" data-sec="rutas" title="Rutas de aprendizaje"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg></span><span class="ri-lb">Rutas</span></a>
-    <a class="rail-item" href="#como" data-sec="como" title="Cómo funciona"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span><span class="ri-lb">Cómo va</span></a>
-    <a class="rail-item gold" href="por-que-brandooers.html" title="Por qué Brandooers"><span class="ri-ic"><svg viewBox="0 0 24 24"><polygon points="12 3 14.7 8.6 21 9.3 16.5 13.6 17.8 20 12 16.8 6.2 20 7.5 13.6 3 9.3 9.3 8.6"/></svg></span><span class="ri-lb">Por qué</span></a>
-    <div class="rail-sep"></div>
     <a class="rail-item" href="index.html" title="Formación del Coach"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/></svg></span><span class="ri-lb">Coach</span></a>
     <a class="rail-item" href="outbound-sales.html" title="Outbound Sales"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg></span><span class="ri-lb">Outbound</span></a>
     <a class="rail-item" href="reclutamiento-partners.html" title="Reclutamiento de Partners"><span class="ri-ic"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5M12 19c0-3 2.2-4.5 5-4.5s5 1.5 5 4.5"/></svg></span><span class="ri-lb">Partners</span></a>
+    <div class="rail-sep"></div>
+    <span class="rail-cap">Más</span>
+    <a class="rail-item gold" href="crear-curso.html" title="Pide un tema nuevo y el motor te crea el curso"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="ri-lb">Pide un tema</span></a>
+    <a class="rail-item gold" href="por-que-brandooers.html" title="Por qué Brandooers"><span class="ri-ic"><svg viewBox="0 0 24 24"><polygon points="12 3 14.7 8.6 21 9.3 16.5 13.6 17.8 20 12 16.8 6.2 20 7.5 13.6 3 9.3 9.3 8.6"/></svg></span><span class="ri-lb">Por qué</span></a>
   </div>
 </aside>
 
@@ -897,6 +903,37 @@ body{padding-left:66px}
   </div>
 </footer>
 <div class="userchip" id="userChip"><span class="dot"></span><span class="uname">Brandooers</span></div>
+<script src="/app/api.js"></script>
+<script>
+(async function () {
+  var s = await SkillUp.requireSession();
+  if (!s) return;
+  var ob = await SkillUp.api('/api/learning/onboarding').catch(function () { return { done: true }; });
+  if (!ob.done) { window.location.href = '/app/onboarding.html'; return; }
+  if (!localStorage.getItem('coach_user')) {
+    localStorage.setItem('coach_user', JSON.stringify({ name: s.user.name || s.user.email, email: s.user.email, at: new Date().toISOString() }));
+  }
+  var me = await SkillUp.api('/api/org/me').catch(function () { return { role: 'empleado', platformAdmin: false }; });
+  var items = document.querySelector('.rail-items');
+  if (!items) return;
+  var extra = '<div class="rail-sep"></div><span class="rail-cap">Tu cuenta</span>' +
+    '<a class="rail-item" href="/app/dashboard.html" title="Tests, casos y roleplay"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="ri-lb">Mi evaluacion</span></a>';
+  if (['team_leader', 'direccion', 'admin', 'inspirador'].indexOf(me.role) !== -1) {
+    extra += '<a class="rail-item" href="/app/panel.html" title="Panel de empresa"><span class="ri-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span><span class="ri-lb">Panel de empresa</span></a>';
+  }
+  if (me.platformAdmin) {
+    extra += '<a class="rail-item" href="/app/superadmin.html" title="Super admin"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></span><span class="ri-lb">Super admin</span></a>';
+  }
+  extra += '<a class="rail-item" href="#" id="railLogout" title="Salir"><span class="ri-ic"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="ri-lb">Salir</span></a>';
+  items.insertAdjacentHTML('beforeend', extra);
+  var lo = document.getElementById('railLogout');
+  if (lo) lo.addEventListener('click', async function (e) {
+    e.preventDefault();
+    await SkillUp.api('/api/auth/sign-out', { method: 'POST' }).catch(function () {});
+    window.location.href = '/app/login.html';
+  });
+})();
+</script>
 
 <script>
 /* ===== reveal + progreso + rail ===== */

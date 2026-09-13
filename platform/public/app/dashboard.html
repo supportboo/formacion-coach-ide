@@ -19,7 +19,7 @@
 </head>
 <body>
 <div class="topbar">
-  <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
+  <a href="/hub.html" class="blogo" style="text-decoration:none">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
     <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
     <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
     <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
@@ -27,13 +27,15 @@
     </defs>
     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
-  </svg>ers<span class="sk">SkillUp</span></span>
+  </svg>ers<span class="sk">SkillUp</span></a>
   <nav>
     <span class="who" id="whoami" style="margin-right:8px"></span>
-    <a href="#" id="exportLink">Mis datos</a>
+    <a href="/hub.html">Formaciones</a>
+    <a href="#" id="exportLink" title="Descarga un archivo con todos tus datos guardados">Descargar mis datos</a>
     <a href="/app/ranking.html">Ranking</a>
     <a href="/app/validar.html">Validar casos</a>
-    <a href="/app/panel.html">Panel de empresa</a>
+    <a href="/app/panel.html" id="panelLink" style="display:none">Panel de empresa</a>
+    <a href="/app/superadmin.html" id="superadminLink" style="display:none">Super admin</a>
     <a href="#" id="logout">Salir</a>
   </nav>
 </div>
@@ -99,7 +101,17 @@ var threadId = null;
 (async function () {
   var s = await SkillUp.requireSession();
   if (!s) return;
+  var onboarding = await SkillUp.api('/api/learning/onboarding').catch(function () { return { done: true }; });
+  if (!onboarding.done) { window.location.href = '/app/onboarding.html'; return; }
   document.getElementById('whoami').textContent = s.user.name || s.user.email;
+
+  var me = await SkillUp.api('/api/org/me').catch(function () { return { role: 'empleado', platformAdmin: false }; });
+  if (['team_leader', 'direccion', 'admin', 'inspirador'].indexOf(me.role) !== -1) {
+    document.getElementById('panelLink').style.display = '';
+  }
+  if (me.platformAdmin) {
+    document.getElementById('superadminLink').style.display = '';
+  }
 
   document.getElementById('logout').addEventListener('click', async function (e) {
     e.preventDefault();
@@ -137,6 +149,11 @@ var threadId = null;
   fillDatalist(document.getElementById('pathOptions'), paths, function (p) { return p.title; }, pathIdByLabel);
   var competencies = await SkillUp.api('/api/catalog/competencies').catch(function () { return []; });
   fillDatalist(document.getElementById('compOptions'), competencies, function (c) { return c.name; }, compIdByLabel);
+  if (!competencies.length) {
+    var noComp = 'Tu empresa todavía no ha configurado competencias — pide a tu responsable que las añada en Panel de empresa.';
+    ['testMsg', 'caseMsg', 'roleplayMsg'].forEach(function (id) { document.getElementById(id).textContent = noComp; });
+    ['btnGenTest', 'btnGenCase', 'btnStartRoleplay'].forEach(function (id) { document.getElementById(id).disabled = true; });
+  }
 
   var enrollments = await SkillUp.api('/api/learning/mine').catch(function () { return []; });
   var box = document.getElementById('enrollments');
