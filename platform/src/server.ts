@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -370,6 +370,28 @@ app.get("/api/validation/cases/:id/evidence", async (c) => {
   return c.json(await validationSvc.listEvidence(svcDeps, ctx.orgId, c.req.param("id")));
 });
 
+app.get("/api/validation/cases/:id/suggest", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`rubric-suggest:${ctx.orgId}:${ctx.userId}`, 15, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const caseId = c.req.param("id");
+  const [caseRow] = await db.select().from(appliedCase).where(and(eq(appliedCase.id, caseId), eq(appliedCase.organizationId, ctx.orgId)));
+  if (!caseRow) return c.json({ error: "caso no encontrado en esta organización" }, 404);
+  if (!caseRow.submission) return c.json({ error: "el caso todavía no tiene entrega" }, 400);
+  if (caseRow.userId === ctx.userId) return c.json({ error: "nadie valida su propio caso" }, 403);
+  if (!(await validationSvc.canValidate(svcDeps, ctx.orgId, ctx.userId, ctx.role, caseRow.competencyId))) {
+    return c.json({ error: "no eres referente (nivel 3+) ni responsable de esta competencia" }, 403);
+  }
+  const rubricRow = await validationSvc.latestRubric(svcDeps, ctx.orgId, caseRow.competencyId);
+  if (!rubricRow) return c.json({ error: "esta competencia todavía no tiene rúbrica publicada" }, 404);
+  try {
+    const suggestion = await aiContent.suggestRubricScore(llm, {
+      prompt: caseRow.prompt, submission: caseRow.submission, criteria: rubricRow.criteria,
+      orgId: ctx.orgId, userId: ctx.userId,
+    });
+    return c.json(suggestion);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
 app.get("/api/validation/pending", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);

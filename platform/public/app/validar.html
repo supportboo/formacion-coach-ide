@@ -14,6 +14,11 @@
 .case-item{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
 .case-item:first-child{border-top:0;padding-top:0;margin-top:0}
 .empty{color:var(--mut);font-size:14px}
+.suggestion{margin:10px 0;padding:12px 14px;background:#F1EDFB;border-radius:12px;font-size:13px}
+.suggestion .crit{display:flex;justify-content:space-between;gap:10px;padding:5px 0}
+.suggestion .crit:not(:last-child){border-bottom:1px solid rgba(139,92,246,.15)}
+.suggestion .score{font-weight:800;color:var(--p);flex-shrink:0}
+.suggestion .note{color:var(--mut);font-size:12px;flex:1}
 </style>
 </head>
 <body>
@@ -48,10 +53,28 @@
       '<div class="who">Competencia ' + SkillUp.escHtml(c.competencyId) + ' · alumno ' + SkillUp.escHtml(c.userId) + '</div>' +
       '<div class="prompt">' + SkillUp.escHtml(c.prompt) + '</div>' +
       '<div class="sub">' + SkillUp.escHtml(c.submission || '') + '</div>' +
-      '<textarea placeholder="Feedback (opcional)"></textarea>' +
+      '<button class="btn btn-gh" type="button">Ver sugerencia de IA por criterio</button>' +
+      '<div class="suggestion" style="display:none"></div>' +
+      '<textarea placeholder="Feedback (opcional)" style="margin-top:12px"></textarea>' +
       '<button class="btn btn-ok">Aprobar</button><button class="btn btn-danger" style="margin-left:8px">Rechazar</button>' +
       '<span class="msg" style="margin-left:10px"></span>';
     var ta = d.querySelector('textarea'), msg = d.querySelector('.msg');
+    var suggestBtn = d.querySelector('.btn-gh'), suggestBox = d.querySelector('.suggestion');
+    suggestBtn.addEventListener('click', async function () {
+      suggestBtn.disabled = true; suggestBtn.textContent = 'Pensando…';
+      try {
+        var s2 = await SkillUp.api('/api/validation/cases/' + c.id + '/suggest');
+        suggestBox.innerHTML = '<p style="margin-bottom:6px;color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.02em">Sugerencia IA — no decide, solo apoya</p>' +
+          s2.criteria.map(function (cr) {
+            return '<div class="crit"><span>' + SkillUp.escHtml(cr.label) + '</span><span class="note">' + SkillUp.escHtml(cr.note) + '</span><span class="score">' + cr.score + '/10</span></div>';
+          }).join('');
+        suggestBox.style.display = 'block';
+        suggestBtn.style.display = 'none';
+      } catch (ex) {
+        suggestBtn.disabled = false; suggestBtn.textContent = 'Ver sugerencia de IA por criterio';
+        suggestBox.style.display = 'block'; suggestBox.innerHTML = '<span class="msg err">' + SkillUp.escHtml(ex.message) + '</span>';
+      }
+    });
     async function decide(decision) {
       try {
         var r = await SkillUp.api('/api/validation/cases/' + c.id + '/decide', { method: 'POST', body: { decision: decision, feedback: ta.value.trim() || undefined } });

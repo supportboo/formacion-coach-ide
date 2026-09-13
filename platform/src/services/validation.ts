@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray } from "drizzle-orm";
 import { appliedCase, auditLog, evidence, levelByCompetency, rubric, validation } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import { getLevel, setLevelAtLeast } from "./learning.js";
@@ -13,6 +13,14 @@ export async function setRubric(
   const id = deps.newId();
   await deps.db.insert(rubric).values({ id, organizationId: orgId, competencyId, criteria });
   return id;
+}
+
+/** Rúbrica vigente de una competencia (la última publicada), o null si no hay ninguna. */
+export async function latestRubric(deps: SvcDeps, orgId: string, competencyId: string) {
+  const [row] = await deps.db.select().from(rubric)
+    .where(and(eq(rubric.organizationId, orgId), eq(rubric.competencyId, competencyId)))
+    .orderBy(desc(rubric.createdAt)).limit(1);
+  return row ?? null;
 }
 
 /** Abre un caso práctico (enunciado con el contexto real del alumno). */

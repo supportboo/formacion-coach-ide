@@ -82,6 +82,28 @@ export async function generateCasePrompt(
   return firstJson<{ prompt: string }>(out).prompt;
 }
 
+export interface RubricSuggestion { criteria: { label: string; score: number; note: string }[] }
+
+/**
+ * Puntuacion sugerida por criterio de rubrica, 0-10, con una nota breve -- SOLO una sugerencia
+ * visible para quien valida. La decision de aprobar/rechazar el caso la sigue tomando un humano
+ * via validateCase(); esta funcion nunca decide ni escribe en applied_case.
+ */
+export async function suggestRubricScore(
+  llm: Llm,
+  args: { prompt: string; submission: string; criteria: { label: string; weight?: number }[]; orgId?: string; userId?: string },
+): Promise<RubricSuggestion> {
+  const criteriaList = args.criteria.map((c) => `- ${c.label}`).join("\n");
+  const system = `Evalúas una entrega de caso práctico contra una rúbrica, criterio por criterio. ${BASE}\n` +
+    "Sé exigente y concreto: cita qué falta o sobra, no elogies en vacío. NO decidas si aprueba o no en general, eso no es tu trabajo. " +
+    `Rúbrica:\n${criteriaList}\n\nFormato: {"criteria":[{"label":"...","score":0-10,"note":"1 frase, concreta"}]} (un objeto por criterio, en el mismo orden).`;
+  const out = await llm.generate({
+    system, messages: [{ role: "user", content: `ENUNCIADO:\n${args.prompt}\n\nENTREGA DEL ALUMNO:\n${args.submission}` }],
+    maxTokens: 700, orgId: args.orgId, userId: args.userId, kind: "rubric_suggestion",
+  });
+  return firstJson<RubricSuggestion>(out);
+}
+
 export interface GeneratedLesson { title: string; body: string }
 
 /** Borrador de lección (SIEMPRE sin publicar — falta fuente+fecha real, las añade un humano). */
