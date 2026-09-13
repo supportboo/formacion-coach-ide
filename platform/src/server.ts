@@ -678,6 +678,18 @@ app.get("/api/analytics/panel", async (c) => {
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   return c.json(await analyticsSvc.panelSummary(svcDeps, ctx.orgId));
 });
+app.get("/api/analytics/completion", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await analyticsSvc.completionByPath(svcDeps, ctx.orgId));
+});
+app.get("/api/analytics/questions", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await analyticsSvc.recentQuestions(svcDeps, ctx.orgId));
+});
 app.get("/api/analytics/cost", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);

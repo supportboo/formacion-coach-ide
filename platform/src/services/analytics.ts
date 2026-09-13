@@ -1,6 +1,7 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 import {
-  appliedCase, baselineSnapshot, coaching, competency, enrollment, levelByCompetency, member, organization, validation,
+  agentMessage, agentThread, appliedCase, baselineSnapshot, coaching, competency, enrollment,
+  learningPath, levelByCompetency, member, organization, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
@@ -141,6 +142,39 @@ export async function panelSummary(deps: SvcDeps, orgId: string): Promise<PanelS
     internalTransfer: await internalTransferRate(deps, orgId),
     timeToAutonomyDays: await timeToAutonomyDays(deps, orgId),
   };
+}
+
+export interface PathCompletion { pathId: string; pathTitle: string; total: number; completado: number; pct: number }
+
+/** % de finalizacion real por ruta (enrollment.status), no inventado. Señal directa de que rutas enganchan y cuales no. */
+export async function completionByPath(deps: SvcDeps, orgId: string): Promise<PathCompletion[]> {
+  const rows = await deps.db.select({
+    pathId: enrollment.pathId, pathTitle: learningPath.title,
+    total: sql<number>`count(*)::int`,
+    completado: sql<number>`count(*) filter (where ${enrollment.status} = 'completado')::int`,
+  }).from(enrollment)
+    .innerJoin(learningPath, eq(enrollment.pathId, learningPath.id))
+    .where(eq(enrollment.organizationId, orgId))
+    .groupBy(enrollment.pathId, learningPath.title);
+  return rows.map((r) => ({ ...r, pct: r.total > 0 ? Math.round((r.completado / r.total) * 100) : 0 }));
+}
+
+export interface RecentQuestion { userName: string; role: string; content: string; createdAt: Date }
+
+/**
+ * Preguntas reales que la gente hace al tutor -- sin clasificar por tema (eso puede venir despues
+ * en un lote aparte, no hace falta gastar IA para listar lo que ya se pregunto). Es la senal cruda
+ * de "que necesita saber la gente" que hoy no se ve en ningun sitio.
+ */
+export async function recentQuestions(deps: SvcDeps, orgId: string, limit = 30): Promise<RecentQuestion[]> {
+  return deps.db.select({
+    userName: user.name, role: agentThread.role, content: agentMessage.content, createdAt: agentMessage.createdAt,
+  }).from(agentMessage)
+    .innerJoin(agentThread, eq(agentMessage.threadId, agentThread.id))
+    .innerJoin(user, eq(agentThread.userId, user.id))
+    .where(and(eq(agentMessage.organizationId, orgId), eq(agentMessage.sender, "user")))
+    .orderBy(desc(agentMessage.createdAt))
+    .limit(limit);
 }
 
 export interface PlatformOrgSummary {

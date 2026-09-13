@@ -59,6 +59,16 @@ details[open] summary:before{content:"▾ "}
   </div>
 
   <div class="card">
+    <h2>Finalización por ruta <span class="hand" style="color:var(--t);font-size:15px">quién termina y quién no</span></h2>
+    <div id="completion"><span class="msg">Cargando…</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Últimas preguntas al tutor <span class="hand" style="color:var(--t);font-size:15px">qué necesita saber tu gente</span></h2>
+    <div id="questions" style="max-height:280px;overflow-y:auto"><span class="msg">Cargando…</span></div>
+  </div>
+
+  <div class="card">
     <details>
       <summary>Catálogo (sectores, puestos, competencias, rutas)</summary>
       <input class="inline-input" id="sectorName" placeholder="Nuevo sector"><button class="btn btn-gh" id="btnSector">Crear</button>
@@ -146,6 +156,24 @@ details[open] summary:before{content:"▾ "}
     }).join('') || '<p class="msg">Sin riesgos de dependencia detectados.</p>';
   }
   loadPanel();
+
+  async function loadCompletion() {
+    var rows = await SkillUp.api('/api/analytics/completion').catch(function () { return []; });
+    document.getElementById('completion').innerHTML = rows.map(function (r) {
+      return '<div class="row"><span>' + SkillUp.escHtml(r.pathTitle) + '</span><span>' + r.completado + '/' + r.total + ' (' + r.pct + '%)</span></div>';
+    }).join('') || '<p class="msg">Aún sin matriculaciones.</p>';
+  }
+  loadCompletion();
+
+  async function loadQuestions() {
+    var rows = await SkillUp.api('/api/analytics/questions').catch(function () { return []; });
+    document.getElementById('questions').innerHTML = rows.map(function (q) {
+      var when = new Date(q.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+      return '<div class="row" style="align-items:flex-start"><span>' + SkillUp.escHtml(q.content) + '</span>' +
+        '<span style="white-space:nowrap;color:var(--mut);font-size:11.5px">' + SkillUp.escHtml(q.userName) + ' · ' + when + '</span></div>';
+    }).join('') || '<p class="msg">Nadie le ha preguntado nada al tutor todavía.</p>';
+  }
+  loadQuestions();
 
   document.getElementById('btnBaseline').addEventListener('click', async function () {
     var m = document.getElementById('baselineMsg');
