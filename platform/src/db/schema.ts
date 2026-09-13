@@ -438,6 +438,23 @@ export const baselineSnapshot = pgTable("baseline_snapshot", {
   capturedAt: timestamp("captured_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("baseline_org_idx").on(t.organizationId) }));
 
+// Ledger de coste IA: una fila por llamada al LLM, tokens reales devueltos por el proveedor
+// (nunca estimados). organizationId null = uso a nivel plataforma (p.ej. el orquestador,
+// que consulta todas las empresas a la vez, no se le puede facturar a una sola).
+export const aiUsage = pgTable("ai_usage", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id"),
+  userId: text("user_id"),
+  kind: text("kind").notNull(), // chat | exam | case | lesson | orchestrator
+  model: text("model").notNull(),
+  inputTokens: integer("input_tokens").notNull(),
+  outputTokens: integer("output_tokens").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  byOrg: index("ai_usage_org_idx").on(t.organizationId),
+  byCreated: index("ai_usage_created_idx").on(t.createdAt),
+}));
+
 export const schema = {
   user, session, account, verification, organization, member, invitation,
   sector, puesto, competency, learningPath, lesson,
@@ -448,5 +465,5 @@ export const schema = {
   companyConfig, rewardRule, certificate, rewardGrant, careerPath,
   fundaeAction, fundaeParticipation,
   pricingTier, subscription,
-  baselineSnapshot,
+  baselineSnapshot, aiUsage,
 };

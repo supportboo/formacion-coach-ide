@@ -21,6 +21,7 @@ import * as configSvc from "./services/config.js";
 import * as rewardsSvc from "./services/rewards.js";
 import * as fundaeSvc from "./services/fundae.js";
 import * as analyticsSvc from "./services/analytics.js";
+import * as costsSvc from "./services/costs.js";
 import * as privacySvc from "./services/privacy.js";
 import * as billingSvc from "./services/billing.js";
 import * as careerSvc from "./services/career.js";
@@ -168,7 +169,7 @@ app.post("/api/catalog/lessons/generate", async (c) => {
   const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
   if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
   try {
-    const draft = await aiContent.generateLessonDraft(llm, { competencyName: comp.name, topic: parsed.data.topic });
+    const draft = await aiContent.generateLessonDraft(llm, { competencyName: comp.name, topic: parsed.data.topic, orgId: ctx.orgId, userId: ctx.userId });
     const id = await catalogSvc.addLesson(svcDeps, ctx.orgId, { pathId: parsed.data.pathId, ...draft, published: false });
     return c.json({ id, ...draft });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
@@ -242,6 +243,7 @@ app.post("/api/learning/test/generate", async (c) => {
   try {
     const exam = await aiContent.generateExam(llm, {
       competencyName: comp.name, sector: profile?.sector ?? undefined, puesto: profile?.puesto ?? undefined,
+      orgId: ctx.orgId, userId: ctx.userId,
     });
     const { questions, correctAnswers } = aiContent.shuffleExam(exam);
     const examId = newId();
@@ -315,6 +317,7 @@ app.post("/api/validation/cases/generate", async (c) => {
     const prompt = await aiContent.generateCasePrompt(llm, {
       competencyName: comp.name, sector: profile?.sector ?? undefined,
       puesto: profile?.puesto ?? undefined, motivo: profile?.motivo ?? undefined,
+      orgId: ctx.orgId, userId: ctx.userId,
     });
     const id = await validationSvc.createCase(svcDeps, {
       orgId: ctx.orgId, userId: ctx.userId, competencyId: parsed.data.competencyId, pathId: parsed.data.pathId, prompt,
@@ -574,6 +577,16 @@ app.get("/api/platform/summary", async (c) => {
   if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
   return c.json(await analyticsSvc.platformSummary(svcDeps));
 });
+app.get("/api/platform/cost", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
+  const days = Number(c.req.query("days") ?? 30);
+  const [total, platformOnly] = await Promise.all([
+    costsSvc.platformCost(svcDeps, days),
+    costsSvc.platformOnlyCost(svcDeps, days),
+  ]);
+  return c.json({ days, total, orchestrator: platformOnly });
+});
 
 const assistantBody = z.object({ message: z.string().min(1) });
 // Orquestador v1: informa con datos reales de TODA la plataforma. NO ejecuta acciones todavia
@@ -592,7 +605,10 @@ app.post("/api/platform/assistant", async (c) => {
     + "ahora mismo (uno por organizacion): " + JSON.stringify(summary) + ". "
     + "Responde solo con base en estos datos. Si te piden ejecutar una accion (invitar a alguien, cambiar una "
     + "configuracion, borrar algo), dilo con claridad: todavia no tienes esa capacidad conectada, solo informas.";
-  const reply = await llm.generate({ system, messages: [{ role: "user", content: parsed.data.message }], maxTokens: 500 });
+  const reply = await llm.generate({
+    system, messages: [{ role: "user", content: parsed.data.message }], maxTokens: 500,
+    orgId: null, userId: admin.userId, kind: "orchestrator",
+  });
   return c.json({ reply });
 });
 app.get("/api/analytics/panel", async (c) => {
@@ -600,6 +616,13 @@ app.get("/api/analytics/panel", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   return c.json(await analyticsSvc.panelSummary(svcDeps, ctx.orgId));
+});
+app.get("/api/analytics/cost", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
+  const days = Number(c.req.query("days") ?? 30);
+  return c.json(await costsSvc.orgCost(svcDeps, ctx.orgId, days));
 });
 app.post("/api/analytics/baseline", async (c) => {
   const ctx = await getAuthContext(c);

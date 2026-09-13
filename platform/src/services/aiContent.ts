@@ -14,13 +14,16 @@ export interface GeneratedExam { questions: ExamQuestion[] }
 
 /** Genera un test de opción múltiple sobre una competencia, adaptado al sector/puesto si se conocen. */
 export async function generateExam(
-  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; n?: number },
+  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; n?: number; orgId?: string; userId?: string },
 ): Promise<GeneratedExam> {
   const n = args.n ?? 5;
   const ctx = [args.sector && `sector: ${args.sector}`, args.puesto && `puesto: ${args.puesto}`]
     .filter(Boolean).join(", ");
   const system = `Eres examinador. Crea ${n} preguntas tipo test (4 opciones, una correcta) sobre "${args.competencyName}"${ctx ? ` para alguien de ${ctx}` : ""}. ${BASE}\nFormato: {"questions":[{"q":"...","options":["a","b","c","d"]}]} (la opción correcta va SIEMPRE en options[0]; el cliente las mezclará).`;
-  const out = await llm.generate({ system, messages: [{ role: "user", content: "Genera el test." }], maxTokens: 1200 });
+  const out = await llm.generate({
+    system, messages: [{ role: "user", content: "Genera el test." }], maxTokens: 1200,
+    orgId: args.orgId, userId: args.userId, kind: "exam",
+  });
   return firstJson<GeneratedExam>(out);
 }
 
@@ -67,12 +70,15 @@ export function shuffleExam(exam: GeneratedExam): { questions: ExamQuestion[]; c
 
 /** Redacta el caso práctico con el contexto real del empleado (doctrina: nunca genérico). */
 export async function generateCasePrompt(
-  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; motivo?: string },
+  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; motivo?: string; orgId?: string; userId?: string },
 ): Promise<string> {
   const ctx = [args.sector && `sector ${args.sector}`, args.puesto && `puesto ${args.puesto}`, args.motivo && `motivo: ${args.motivo}`]
     .filter(Boolean).join(", ") || "contexto general (sin sector/puesto declarados, pídeselo en el propio enunciado)";
   const system = `Eres diseñador de casos prácticos. Redacta UN enunciado de caso real y concreto para demostrar la competencia "${args.competencyName}", ambientado en ${ctx}. Debe ser algo que la persona pueda hacer de verdad en su trabajo esta semana, no un ejercicio abstracto. ${BASE}\nFormato: {"prompt":"..."}`;
-  const out = await llm.generate({ system, messages: [{ role: "user", content: "Genera el caso." }], maxTokens: 500 });
+  const out = await llm.generate({
+    system, messages: [{ role: "user", content: "Genera el caso." }], maxTokens: 500,
+    orgId: args.orgId, userId: args.userId, kind: "case",
+  });
   return firstJson<{ prompt: string }>(out).prompt;
 }
 
@@ -80,9 +86,12 @@ export interface GeneratedLesson { title: string; body: string }
 
 /** Borrador de lección (SIEMPRE sin publicar — falta fuente+fecha real, las añade un humano). */
 export async function generateLessonDraft(
-  llm: Llm, args: { competencyName: string; topic: string },
+  llm: Llm, args: { competencyName: string; topic: string; orgId?: string; userId?: string },
 ): Promise<GeneratedLesson> {
   const system = `Eres autor de formación. Escribe una lección breve (300-500 palabras) sobre "${args.topic}" dentro de la competencia "${args.competencyName}". ${BASE}\nFormato: {"title":"...","body":"..."}`;
-  const out = await llm.generate({ system, messages: [{ role: "user", content: "Escribe la lección." }], maxTokens: 1200 });
+  const out = await llm.generate({
+    system, messages: [{ role: "user", content: "Escribe la lección." }], maxTokens: 1200,
+    orgId: args.orgId, userId: args.userId, kind: "lesson",
+  });
   return firstJson<GeneratedLesson>(out);
 }

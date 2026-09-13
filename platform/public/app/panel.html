@@ -43,6 +43,11 @@ details[open] summary:before{content:"▾ "}
   </div>
 
   <div class="card">
+    <h2>Coste IA <span class="hand" style="color:var(--t);font-size:15px">últimos 30 días</span></h2>
+    <div class="grid" id="costStats"><span class="msg">Cargando…</span></div>
+  </div>
+
+  <div class="card">
     <h2>ROI <span class="hand" style="color:var(--t);font-size:15px">línea base vs. hoy</span></h2>
     <div class="grid" id="stats"></div>
     <h2 style="margin-top:20px">Cobertura por competencia</h2>
@@ -110,6 +115,22 @@ details[open] summary:before{content:"▾ "}
     });
   }
   loadBilling();
+
+  async function loadCost() {
+    var box = document.getElementById('costStats');
+    var c = await SkillUp.api('/api/analytics/cost').catch(function () { return null; });
+    if (!c) { box.innerHTML = '<p class="msg">Solo admin/dirección puede ver el coste.</p>'; return; }
+    box.innerHTML =
+      '<div class="stat"><b>' + c.usd.toFixed(4) + ' $</b><span>coste total</span></div>' +
+      '<div class="stat"><b>' + c.calls + '</b><span>llamadas a la IA</span></div>' +
+      '<div class="stat"><b>' + (c.inputTokens + c.outputTokens).toLocaleString('es-ES') + '</b><span>tokens totales</span></div>';
+    if (c.byKind.length) {
+      box.innerHTML += '<div class="row" style="grid-column:1/-1;flex-wrap:wrap;gap:6px;border:0;padding-top:8px">' +
+        c.byKind.map(function (k) { return '<span class="badge">' + k.kind + ': ' + k.usd.toFixed(4) + ' $ (' + k.calls + ')</span>'; }).join('') +
+      '</div>';
+    }
+  }
+  loadCost();
 
   async function loadPanel() {
     var p = await SkillUp.api('/api/analytics/panel').catch(function (e) { return null; });

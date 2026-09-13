@@ -65,7 +65,10 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   msgs.push({ role: "user", content: input.message });
 
   // 4) generar
-  const reply = await deps.llm.generate({ system: agent.system(ctx), messages: msgs, model: agent.model });
+  const reply = await deps.llm.generate({
+    system: agent.system(ctx), messages: msgs, model: agent.model,
+    orgId: input.orgId, userId: input.userId, kind: "chat",
+  });
 
   // 5) persistir + auditar
   await deps.db.insert(agentMessage).values([
