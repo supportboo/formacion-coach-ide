@@ -24,10 +24,10 @@ details[open] summary:before{content:"▾ "}
 <body>
 <div class="topbar">
   <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
     </defs>
     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
@@ -109,6 +109,7 @@ details[open] summary:before{content:"▾ "}
 <script>
 (async function () {
   var s = await SkillUp.requireSession(); if (!s) return;
+  var esSuper = !!(await SkillUp.api('/api/org/me').catch(function () { return {}; })).platformAdmin;
 
   async function loadBilling() {
     var sub = await SkillUp.api('/api/billing/subscription').catch(function () { return null; });
@@ -167,9 +168,9 @@ details[open] summary:before{content:"▾ "}
     var rows = await SkillUp.api('/api/analytics/history').catch(function () { return []; });
     if (!rows.length) { box.innerHTML = '<p class="msg">Sin histórico todavía — vuelve mañana, se captura solo cada día.</p>'; return; }
     box.innerHTML =
-      '<p class="msg" style="margin-bottom:6px">Cobertura media</p>' + SkillUp.lineChart(rows, 'avgCoveragePct', { color: '#8B5CF6', format: function (v) { return v + '%'; } }) +
+      '<p class="msg" style="margin-bottom:6px">Cobertura media</p>' + SkillUp.lineChart(rows, 'avgCoveragePct', { color: '#8a5f7c', format: function (v) { return v + '%'; } }) +
       '<p class="msg" style="margin:16px 0 6px">Riesgos críticos</p>' + SkillUp.lineChart(rows, 'criticalRisks', { color: '#DC2626', format: function (v) { return String(Math.round(v)); } }) +
-      '<p class="msg" style="margin:16px 0 6px">Días a autonomía</p>' + SkillUp.lineChart(rows, 'timeToAutonomyDays', { color: '#0891B2', format: function (v) { return v.toFixed(1); } });
+      '<p class="msg" style="margin:16px 0 6px">Días a autonomía</p>' + SkillUp.lineChart(rows, 'timeToAutonomyDays', { color: '#1a9aa0', format: function (v) { return v.toFixed(1); } });
   }
   loadHistory();
 
@@ -238,9 +239,15 @@ details[open] summary:before{content:"▾ "}
   async function renderTeam() {
     var team = await SkillUp.api('/api/org/team').catch(function () { return []; });
     document.getElementById('team').innerHTML = team.map(function (m) {
-      var opts = ROLES.map(function (r) { return '<option value="' + r + '"' + (r === m.role ? ' selected' : '') + '>' + r + '</option>'; }).join('');
+      var roleCell;
+      if (esSuper) {
+        var opts = ROLES.map(function (r) { return '<option value="' + r + '"' + (r === m.role ? ' selected' : '') + '>' + r + '</option>'; }).join('');
+        roleCell = '<select data-u="' + m.userId + '" class="roleSel" style="margin:0;width:auto">' + opts + '</select>';
+      } else {
+        roleCell = '<span class="badge">' + SkillUp.escHtml(m.role) + '</span>';
+      }
       return '<div class="row"><span>' + SkillUp.escHtml(m.name) + ' · ' + SkillUp.escHtml(m.email) + '</span>' +
-        '<span style="display:flex;align-items:center;gap:10px"><select data-u="' + m.userId + '" class="roleSel" style="margin:0;width:auto">' + opts + '</select>' +
+        '<span style="display:flex;align-items:center;gap:10px">' + roleCell +
         ' <a href="#" data-u="' + m.userId + '" class="erase" style="color:var(--red);font-size:12.5px">borrar (RGPD)</a></span></div>';
     }).join('') || '<p class="msg">Sin miembros todavía.</p>';
 
@@ -262,5 +269,6 @@ details[open] summary:before{content:"▾ "}
   renderTeam();
 })();
 </script>
+<script src="/app/boo-eyes.js"></script>
 </body>
 </html>

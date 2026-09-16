@@ -1,200 +1,449 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillUp · Superadmin</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Consola Superadmin</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app/theme.css">
 <style>
-table.orgs{width:100%;border-collapse:collapse;font-size:13.5px}
-table.orgs th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.02em;color:var(--mut);padding:8px 10px;border-bottom:1px solid var(--line)}
-table.orgs td{padding:8px 10px;border-bottom:1px solid var(--line)}
-table.orgs tr:hover td{background:var(--warm)}
-.risk{color:var(--red);font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
-.stat{background:var(--warm);border-radius:14px;padding:16px}
-.stat b{display:block;font-size:26px;color:var(--p);letter-spacing:-.02em}
-.stat span{font-size:11.5px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.02em}
-
-.voice-bubble{position:fixed;right:24px;bottom:24px;width:64px;height:64px;border-radius:50%;
-  background:#0E0B14;display:flex;align-items:center;justify-content:center;cursor:pointer;
-  box-shadow:0 8px 24px rgba(0,0,0,.25);border:2px solid transparent;transition:transform .15s,border-color .2s;
-  user-select:none;-webkit-user-select:none;z-index:999}
-.voice-bubble .beyes{width:30px;height:auto}
-.voice-bubble:hover{transform:scale(1.05)}
-.voice-bubble.listening{border-color:#EC4899;animation:vbPulse 1.1s infinite}
-.voice-bubble.thinking{border-color:#00D4FF}
-.voice-bubble.speaking{border-color:#8B5CF6}
-@keyframes vbPulse{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 0 0 rgba(236,72,153,.5)}50%{box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 0 10px rgba(236,72,153,0)}}
-.voice-status{position:fixed;right:24px;bottom:96px;max-width:280px;background:#171121;color:#ECE9F3;
-  font-size:12.5px;line-height:1.4;padding:10px 14px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:999}
+body{display:flex;min-height:100dvh}
+/* Barra lateral estructurada */
+.side{width:236px;flex:none;position:sticky;top:0;align-self:flex-start;height:100dvh;display:flex;flex-direction:column;gap:2px;padding:16px 12px;background:var(--panel);border-right:1px solid var(--line);overflow-y:auto}
+.side .brand{display:flex;align-items:center;gap:2px;font-weight:900;font-size:18px;color:var(--ink);padding:6px 8px 12px}
+.side .brand .sk{font-family:var(--fc);color:var(--teal2);font-size:15px;margin-left:6px}
+.side .grp{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 10px 4px;font-weight:700}
+.navb{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:11px;color:var(--body);font-size:14px;font-weight:600;cursor:pointer;border:0;background:none;width:100%;text-align:left;transition:background .12s,color .12s}
+.navb:hover{background:var(--soft);color:var(--ink)}
+.navb.on{background:linear-gradient(120deg,rgba(26,154,160,.22),rgba(138,95,124,.22));color:var(--ink)}
+.navb svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.side .foot{margin-top:auto;padding-top:10px;border-top:1px solid var(--line)}
+/* Contenido */
+.main{flex:1;min-width:0;padding:26px 30px 60px;max-width:1080px}
+.sec{display:none}.sec.on{display:block;animation:fade .25s both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+.h h1{font-family:var(--fh);font-size:26px;color:var(--ink);letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13.5px;margin-bottom:22px;max-width:640px}
+/* Tooltip */
+.tip{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--soft);border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:800;cursor:help;margin-left:6px;position:relative;vertical-align:middle}
+.tip:hover::after{content:attr(data-tip);position:absolute;left:50%;top:130%;transform:translateX(-50%);width:240px;background:#0f0d15;color:#EDE9F3;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12px;font-weight:500;line-height:1.45;z-index:40;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+/* Tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.tile .v{font-family:var(--fh);font-size:26px;font-weight:800;color:var(--ink)}
+.tile .l{font-size:11.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.tile .v.teal{color:var(--teal2)}.tile .v.gold{color:var(--gold)}.tile .v.aub{color:var(--aub2)}
+/* Tabla */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);font-weight:700}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--body);vertical-align:middle}
+.tbl tr:hover td{background:var(--soft)}
+.tbl select{margin:0;padding:6px 8px;font-size:12.5px;width:auto;min-width:130px}
+.bar{height:7px;border-radius:5px;background:var(--soft);overflow:hidden;min-width:70px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal2),var(--aub2))}
+.pill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px;background:var(--soft);color:var(--aub2)}
+.pill.sa{background:rgba(240,198,69,.16);color:var(--gold)}
+.scroll{overflow-x:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two{grid-template-columns:1fr}.main{padding:20px 16px 60px}}
+@media(max-width:760px){body{flex-direction:column}.side{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}.side .grp,.side .brand{width:100%}.side .foot{margin:0}}
+details.ag{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:var(--panel)}
+details.ag summary{cursor:pointer;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+details.ag pre{white-space:pre-wrap;font-size:12.5px;color:var(--body);margin-top:10px;font-family:var(--ff);line-height:1.55;background:var(--soft);padding:12px;border-radius:10px}
+.mono{font-size:12px;color:var(--muted)}
+.mic{width:42px;flex:none;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--teal2);cursor:pointer;display:grid;place-items:center;height:44px}
+.mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c}
+.rowflex{display:flex;gap:8px;align-items:flex-start}
+.ok{color:var(--green);font-size:13px}.err{color:var(--red);font-size:13px}
+.note{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px;color:var(--body);line-height:1.55}
+.k{font-family:var(--fc);color:var(--teal2);font-size:15px}
+.crumb{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap}
+.crumb a{color:var(--teal2);cursor:pointer}.crumb .sep{color:var(--muted)}
+.linkname{color:var(--ink);cursor:pointer;border-bottom:1px dashed var(--line)}
+.linkname:hover{color:var(--teal2);border-color:var(--teal2)}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
-    </defs>
-    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
-    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
-  </svg>ers<span class="sk">Superadmin</span></span>
-  <nav><a href="/app/dashboard.html">← Mi panel</a></nav>
-</div>
-<div class="wrap">
-  <div class="card">
-    <h2>Coste IA de la plataforma <span class="hand" style="color:var(--t);font-size:15px">últimos 30 días, todas las empresas</span></h2>
-    <div id="costBox"><span class="msg">Cargando…</span></div>
+<aside class="side">
+  <div class="brand">Brand<svg width="30" height="18" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>ers<span class="sk">Consola</span></div>
+  <div class="grp">Visión</div>
+  <button class="navb on" data-sec="resumen"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Resumen</button>
+  <button class="navb" data-sec="empresas"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V7l6-4 6 4v14"/><path d="M10 9h.01M14 9h.01M10 13h.01M14 13h.01"/></svg>Empresas</button>
+  <button class="navb" data-sec="insights"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><circle cx="9" cy="12" r="1.5"/><circle cx="14" cy="8" r="1.5"/><circle cx="19" cy="13" r="1.5"/><path d="M9 12l5-4 5 5"/></svg>Insights</button>
+  <div class="grp">Personas</div>
+  <button class="navb" data-sec="usuarios"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 4-6 7-6s7 2 7 6"/><path d="M17 11l2 2 4-4"/></svg>Usuarios y roles</button>
+  <button class="navb" data-sec="perfiles"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="15" width="7" height="7" rx="1.5"/><rect x="14" y="15" width="7" height="7" rx="1.5"/></svg>Perfiles de prueba</button>
+  <div class="grp">Inteligencia</div>
+  <button class="navb" data-sec="agentes"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M8 2h8"/><circle cx="9" cy="14" r="1.3"/><circle cx="15" cy="14" r="1.3"/></svg>Agentes tutores</button>
+  <button class="navb" data-sec="conocimiento"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h7M8 11h7"/></svg>Conocimiento</button>
+  <button class="navb" data-sec="retos"><svg viewBox="0 0 24 24"><path d="M6 3v7a6 6 0 0 0 12 0V3"/><path d="M6 3H4m14 0h2M9 21h6M12 15v6"/></svg>Retos y práctica</button>
+  <div class="grp">Sistema</div>
+  <button class="navb" data-sec="ajustes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 0 0-1.7-1L14.5 2h-4l-.4 2.9a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.4 2.9h4l.4-2.9a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z"/></svg>Ajustes</button>
+  <div class="foot">
+    <button class="navb" onclick="location.href='/app/inicio.html?app=1'"><svg viewBox="0 0 24 24"><path d="M4 12h16M4 12l6-6M4 12l6 6"/></svg>Ir a Formación</button>
+    <button class="navb" id="logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Salir</button>
   </div>
-
-  <div class="card">
-    <h2>Evolución de la plataforma <span class="hand" style="color:var(--t);font-size:15px">agregado de todas las empresas</span></h2>
-    <div id="historyBox"><span class="msg">Cargando…</span></div>
-  </div>
-
-  <div class="card">
-    <h2>Todas las empresas <span class="hand" style="color:var(--t);font-size:15px">evolución, ROI y riesgo por cliente</span></h2>
-    <div class="msg" id="msg">Cargando…</div>
-    <div style="overflow-x:auto">
-      <table class="orgs" id="orgsTable" style="display:none">
-        <thead><tr>
-          <th>Empresa</th><th>Miembros</th><th>Competencias</th><th>Riesgos críticos</th><th>Formado de casa</th><th>Días a autonomía</th>
-        </tr></thead>
-        <tbody id="orgsBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div id="voiceBubble" class="voice-bubble" title="Mantén pulsado y habla con el orquestador">
-  <svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><defs>
-    <linearGradient id="vg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <linearGradient id="vg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <radialGradient id="vi1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-    <radialGradient id="vi2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
-    </defs>
-    <g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#vg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#vi1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
-    <g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#vg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#vi2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
-  </svg>
-</div>
-<div id="voiceStatus" class="voice-status" hidden></div>
-
+</aside>
+<main class="main" id="main"><div class="note" style="margin-top:40px">Comprobando acceso de superadmin…</div></main>
 <script src="/app/api.js"></script>
 <script>
-(async function () {
-  var s = await SkillUp.requireSession(); if (!s) return;
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var E=SkillUp.escHtml, main=document.getElementById('main');
+var DATA={}; // caché por sección
+function money(n){ return (Number(n)||0).toFixed(4)+' $'; }
+function pct(n){ return Math.round(Number(n)||0)+'%'; }
+function tip(t){ return '<span class="tip" data-tip="'+E(t)+'">i</span>'; }
+function hdr(title,tt,sub){ return '<div class="h"><h1>'+E(title)+tip(tt)+'</h1></div><p class="sub">'+E(sub)+'</p>'; }
 
-  try {
-    var cost = await SkillUp.api('/api/platform/cost');
-    document.getElementById('costBox').innerHTML =
-      '<div class="grid">' +
-      '<div class="stat"><b>' + cost.total.usd.toFixed(4) + ' $</b><span>coste total</span></div>' +
-      '<div class="stat"><b>' + cost.total.calls + '</b><span>llamadas a la IA</span></div>' +
-      '<div class="stat"><b>' + cost.orchestrator.usd.toFixed(4) + ' $</b><span>solo orquestador</span></div>' +
-      '</div>';
-  } catch (ex) {
-    document.getElementById('costBox').innerHTML = '<p class="msg">' + ex.message + '</p>';
-  }
+/* ---------- RESUMEN ---------- */
+async function resumen(box){
+  box.innerHTML=hdr('Resumen','Foto rápida de toda la plataforma: empresas, usuarios y coste real de IA (nunca estimado).','Cómo va todo, de un vistazo. Los datos son en vivo de todas las empresas cliente.')
+    +'<div class="tiles" id="tiles"><div class="note">Cargando…</div></div>'
+    +'<div class="two"><div class="card"><h2>Evolución de riesgos críticos '+tip('Suma de competencias críticas sin cobertura en todas las empresas, día a día. Baja = mejor.')+'</h2><div id="chart"><p class="msg">Cargando…</p></div></div>'
+    +'<div class="card"><h2>Pregunta al orquestador '+tip('Un agente que responde SOLO con los datos reales de todas las empresas. No ejecuta acciones.')+'</h2><div id="orq"></div></div></div>';
+  var summary=await SkillUp.api('/api/platform/summary').catch(function(){return [];});
+  var cost=await SkillUp.api('/api/platform/cost?days=30').catch(function(){return {total:{usd:0},orchestrator:{usd:0}};});
+  var users=await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};});
+  DATA.summary=summary; DATA.users=(users&&users.users)||[];
+  var nUsers=new Set(DATA.users.map(function(u){return u.userId;})).size;
+  var totUsd=cost&&cost.total?(cost.total.usd!=null?cost.total.usd:cost.total):0;
+  var orqUsd=cost&&cost.orchestrator?(cost.orchestrator.usd!=null?cost.orchestrator.usd:cost.orchestrator):0;
+  document.getElementById('tiles').innerHTML=
+     tile(Array.isArray(summary)?summary.length:0,'Empresas','teal')
+    +tile(nUsers,'Usuarios','aub')
+    +tile(money(totUsd),'Coste IA · 30 días','gold')
+    +tile(money(orqUsd),'Solo orquestador','');
+  var hist=await SkillUp.api('/api/platform/history?days=90').catch(function(){return [];});
+  var pts=(Array.isArray(hist)?hist:[]).map(function(h){return {day:h.day,r:h.criticalRisks!=null?h.criticalRisks:(h.critical_risks||0)};});
+  document.getElementById('chart').innerHTML=SkillUp.lineChart(pts,'r',{color:'#3FD8E0',label:'Riesgos críticos',format:function(v){return String(v);}});
+  wireOrq(document.getElementById('orq'));
+}
+function tile(v,l,cls){ return '<div class="tile"><div class="v '+(cls||'')+'">'+E(String(v))+'</div><div class="l">'+E(l)+'</div></div>'; }
+function wireOrq(box){
+  box.innerHTML='<div id="olog" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow:auto;margin-bottom:10px"></div><div class="rowflex"><input id="oin" placeholder="Ej: ¿qué empresa tiene más riesgo?" style="margin:0"><button class="btn btn-grad" id="oask" style="flex:none">Preguntar</button></div>';
+  var log=document.getElementById('olog'),inp=document.getElementById('oin');
+  function bub(role,txt){var d=document.createElement('div');d.style.cssText='padding:9px 12px;border-radius:12px;font-size:13px;max-width:90%;'+(role==='u'?'align-self:flex-end;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff':'align-self:flex-start;background:var(--soft);border:1px solid var(--line)');d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+  async function ask(){var t=inp.value.trim();if(!t)return;inp.value='';bub('u',t);var th=bub('a','…');try{var r=await SkillUp.api('/api/platform/assistant',{method:'POST',body:{message:t}});th.textContent=r.reply||'—';}catch(e){th.textContent='No pude responder ahora.';}}
+  document.getElementById('oask').onclick=ask; inp.addEventListener('keydown',function(e){if(e.key==='Enter')ask();});
+}
 
-  try {
-    var hist = await SkillUp.api('/api/platform/history');
-    var hbox = document.getElementById('historyBox');
-    if (!hist.length) { hbox.innerHTML = '<p class="msg">Sin histórico todavía — se captura solo cada día.</p>'; }
-    else {
-      hbox.innerHTML =
-        '<p class="msg" style="margin-bottom:6px">Cobertura media (todas las empresas)</p>' + SkillUp.lineChart(hist, 'avgCoveragePct', { color: '#8B5CF6', format: function (v) { return v + '%'; } }) +
-        '<p class="msg" style="margin:16px 0 6px">Riesgos críticos totales</p>' + SkillUp.lineChart(hist, 'criticalRisks', { color: '#DC2626', format: function (v) { return String(Math.round(v)); } });
+/* ---------- INSIGHTS ---------- */
+async function insights(box){
+  box.innerHTML=hdr('Insights','El sistema aprende de todo lo que pasa: cada conversación con el tutor, cada nota, subrayado y comentario alimenta el conocimiento de cada alumno y de su empresa.','Datos vivos de la app y de qué está aprendiendo el sistema.')
+    +'<div class="tiles" id="itiles"><div class="note">Cargando…</div></div><div class="note" id="ilearn"></div>';
+  var d=await SkillUp.api('/api/platform/insights').catch(function(){return {};});
+  document.getElementById('itiles').innerHTML=
+     tile(d.conversaciones||0,'Conversaciones con tutores','teal')
+    +tile(d.mensajes||0,'Mensajes intercambiados','')
+    +tile(d.notasCurso||0,'Notas y aprendizajes','aub')
+    +tile(d.roleplays||0,'Roleplays practicados','gold')
+    +tile(d.casos||0,'Casos prácticos','')
+    +tile(d.documentos||0,'Documentos de conocimiento','teal')
+    +tile(d.retos||0,'Retos asignados','aub')
+    +tile(d.usuarios||0,'Personas','');
+  document.getElementById('ilearn').innerHTML='El sistema está aprendiendo de <b style="color:var(--teal2)">'+(d.conversaciones||0)+'</b> conversaciones y <b style="color:var(--teal2)">'+(d.notasCurso||0)+'</b> notas y comentarios de tus usuarios. Cuanto más usan la plataforma, mejor conoce a cada persona y mejor personaliza sus tutores.';
+}
+
+/* ---------- EMPRESAS ---------- */
+function armed(b,fn){ if(b.getAttribute('data-armed')){ fn(); return; } var old=b.textContent, obg=b.style.background; b.setAttribute('data-armed','1'); b.textContent='¿Seguro?'; b.style.background='var(--red)'; b.style.color='#fff'; setTimeout(function(){ try{b.removeAttribute('data-armed');b.textContent=old;b.style.background=obg;}catch(e){} },4000); }
+async function empresas(box){
+  box.innerHTML=hdr('Empresas','Gestiona cada empresa: su suscripción (si tiene o no), su estado y acciones. Archivar la oculta del uso; desactivar la congela; eliminar la borra con todos sus datos.','Ver la suscripción ligada, archivar, activar/desactivar o eliminar empresas.')+'<div class="card scroll" id="etbl"><p class="msg">Cargando…</p></div>';
+  loadOrgs();
+}
+function oact(o,status,label){ if(o.status===status) return ''; return '<button class="btn btn-gh" style="padding:6px 12px;font-size:11px" data-st="'+status+'" data-o="'+E(o.id)+'">'+label+'</button>'; }
+async function loadOrgs(){
+  var box=document.getElementById('etbl'); if(!box)return;
+  var d=await SkillUp.api('/api/platform/orgs').catch(function(){return {orgs:[]};});
+  var orgs=(d&&d.orgs)||[]; DATA.orgs=orgs;
+  if(!orgs.length){ box.innerHTML='<p class="msg">No hay empresas.</p>'; return; }
+  box.innerHTML='<table class="tbl"><thead><tr><th>Empresa</th><th>Miembros</th><th>Suscripción</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+orgs.map(function(o){
+    var s=o.subscription, act=(s&&(s.status==='active'||s.status==='trialing'));
+    var subTxt=s?('<span class="pill" style="color:'+(act?'var(--green)':'var(--aub2)')+'">'+E(s.tier||'—')+' · '+E(s.status||'')+(s.seats?' · '+s.seats+' asientos':'')+'</span>'):'<span class="mono">sin suscripción</span>';
+    var stColor=o.status==='activa'?'var(--green)':(o.status==='archivada'?'var(--muted)':'var(--gold)');
+    return '<tr'+(o.status!=='activa'?' style="opacity:.65"':'')+'><td><span class="linkname" data-open="'+E(o.id)+'"><b>'+E(o.name||'—')+'</b></span><br><span class="mono">'+E(o.slug||'')+'</span></td>'
+      +'<td>'+E(String(o.members||0))+'</td><td>'+subTxt+'</td>'
+      +'<td><span class="pill" style="color:'+stColor+'">'+E(o.status||'activa')+'</span></td>'
+      +'<td><div class="rowflex" style="gap:6px;flex-wrap:wrap;align-items:center">'+oact(o,'archivada','Archivar')+oact(o,'inactiva','Desactivar')+oact(o,'activa','Activar')
+        +'<button class="btn btn-danger" style="padding:6px 12px;font-size:11px" data-del="'+E(o.id)+'">Eliminar</button></div></td></tr>';
+  }).join('')+'</tbody></table>';
+  box.querySelectorAll('button[data-st]').forEach(function(b){ b.onclick=async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/orgs/status',{method:'POST',body:{organizationId:b.getAttribute('data-o'),status:b.getAttribute('data-st')}}); loadOrgs(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }; });
+  box.querySelectorAll('button[data-del]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/orgs/delete',{method:'POST',body:{organizationId:b.getAttribute('data-del')}}); loadOrgs(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
+  box.querySelectorAll('span[data-open]').forEach(function(a){ a.onclick=function(){ navigate('empresas/'+a.getAttribute('data-open')); }; });
+}
+
+/* ---------- USUARIOS ---------- */
+var ROLES=['empleado','coach','team_leader','inspirador','admin','direccion'];
+async function usuarios(box){
+  box.innerHTML=hdr('Usuarios y roles','Cambia el rol de cualquier persona en su empresa. team_leader gestiona su equipo; admin/dirección gestionan la empresa; superadmin (dorado) es global.','Todas las personas de todas las empresas. Cambiar un rol es inmediato.')
+    +'<div id="pendbox"></div>'
+    +'<input id="usearch" placeholder="Buscar por nombre, email o empresa…" style="max-width:360px">'
+    +'<div class="card scroll" id="utbl"><p class="msg">Cargando…</p></div>';
+  loadPending();
+  var d=DATA.users&&DATA.users.length?{users:DATA.users}:await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};});
+  DATA.users=(d&&d.users)||[];
+  var st=await SkillUp.api('/api/platform/users/states').catch(function(){return {states:{}};}); DATA.userStates=(st&&st.states)||{};
+  renderUsers('');
+  document.getElementById('usearch').addEventListener('input',function(e){renderUsers(e.target.value.toLowerCase());});
+}
+function userState(u){ if(u.platformAdmin) return 'aprobado'; if(!u.organizationId) return ''; return (DATA.userStates&&DATA.userStates[u.organizationId+'|'+u.userId])||'aprobado'; }
+async function refreshUsersStates(){ var d=await SkillUp.api('/api/platform/users/states').catch(function(){return {states:{}};}); DATA.userStates=(d&&d.states)||{}; var s=document.getElementById('usearch'); renderUsers(s?s.value.toLowerCase():''); loadPending(); }
+async function loadPending(){
+  var box=document.getElementById('pendbox'); if(!box)return;
+  var d=await SkillUp.api('/api/platform/pending').catch(function(){return {pending:[]};});
+  var p=(d&&d.pending)||[];
+  updatePendBadge(p.length);
+  if(!p.length){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="card" style="border-color:rgba(240,198,69,.45);background:linear-gradient(90deg,rgba(240,198,69,.09),transparent)"><h2>Pendientes de aprobar <span class="pill sa">'+p.length+'</span>'+tip('Registros externos nuevos. Apruébalos para que puedan abrir cursos. Hasta entonces solo pueden hacer el onboarding.')+'</h2><div class="scroll"><table class="tbl"><thead><tr><th>Persona</th><th>Empresa</th><th></th></tr></thead><tbody>'
+    +p.map(function(u){return '<tr><td><b style="color:var(--ink)">'+E(u.name||'—')+'</b><br><span class="mono">'+E(u.email)+'</span></td><td>'+E(u.orgName||'—')+'</td><td><button class="btn btn-grad" style="padding:8px 16px;font-size:12px" data-ap="'+E(u.userId)+'" data-apo="'+E(u.organizationId)+'">Aprobar</button></td></tr>';}).join('')
+    +'</tbody></table></div></div>';
+  box.querySelectorAll('button[data-ap]').forEach(function(b){ b.onclick=async function(){ b.disabled=true;b.textContent='…'; try{ await SkillUp.api('/api/platform/users/approve',{method:'POST',body:{userId:b.getAttribute('data-ap'),organizationId:b.getAttribute('data-apo')}}); loadPending(); }catch(e){ b.disabled=false;b.textContent='Aprobar'; alert('No se pudo aprobar: '+(e.message||'')); } }; });
+}
+function updatePendBadge(n){ var nav=document.querySelector('.navb[data-sec="usuarios"]'); if(!nav)return; var old=nav.querySelector('.pbadge'); if(old)old.remove(); if(n>0){ var s=document.createElement('span'); s.className='pbadge pill sa'; s.style.marginLeft='auto'; s.textContent=n; nav.appendChild(s); } }
+function userRowsHTML(list){
+  return '<table class="tbl"><thead><tr><th>Persona</th><th>Empresa</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+list.map(function(u){
+    var sel=u.organizationId?('<select data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">'+ROLES.map(function(r){return '<option value="'+r+'"'+(r===u.orgRole?' selected':'')+'>'+r+'</option>';}).join('')+'</select>'):'<span class="mono">sin empresa</span>';
+    var st=userState(u);
+    var stPill=st?('<span class="pill" style="color:'+(st==='aprobado'?'var(--green)':(st==='pendiente'?'var(--gold)':'var(--red)'))+'">'+E(st==='aprobado'?'activo':st)+'</span>'):'';
+    var acts='';
+    if(!u.platformAdmin && u.organizationId){
+      if(st==='pendiente'||st==='desactivado') acts+='<button class="btn btn-grad" style="padding:6px 10px;font-size:11px" data-set="aprobado" data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">'+(st==='pendiente'?'Aprobar':'Reactivar')+'</button>';
+      else acts+='<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-set="desactivado" data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">Desactivar</button>';
+      acts+=' <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" data-delu="'+E(u.userId)+'">Eliminar</button>';
     }
-  } catch (ex) {
-    document.getElementById('historyBox').innerHTML = '<p class="msg">' + ex.message + '</p>';
-  }
+    return '<tr><td><b style="color:var(--ink)">'+E(u.name||'—')+'</b><br><span class="mono">'+E(u.email||'')+'</span>'+(u.platformAdmin?' <span class="pill sa">superadmin</span>':'')+'</td>'
+      +'<td>'+E(u.orgName||'—')+'</td><td>'+sel+'</td><td>'+stPill+'</td><td><div class="rowflex" style="gap:6px;flex-wrap:wrap;align-items:center">'+acts+'</div></td></tr>';
+  }).join('')+'</tbody></table>';
+}
+function bindUserRows(box){
+  box.querySelectorAll('select[data-u]').forEach(function(s){ s.addEventListener('change',async function(){ s.disabled=true; try{ await SkillUp.api('/api/platform/users/set-role',{method:'POST',body:{userId:s.getAttribute('data-u'),organizationId:s.getAttribute('data-o'),role:s.value}}); var u=DATA.users.find(function(x){return x.userId===s.getAttribute('data-u')&&x.organizationId===s.getAttribute('data-o');}); if(u)u.orgRole=s.value; s.style.borderColor='var(--green)'; setTimeout(function(){s.style.borderColor='';},1200); }catch(e){ alert('No se pudo cambiar el rol: '+(e.message||'')); } s.disabled=false; }); });
+  box.querySelectorAll('button[data-set]').forEach(function(b){ b.onclick=async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/users/set-state',{method:'POST',body:{userId:b.getAttribute('data-u'),organizationId:b.getAttribute('data-o'),state:b.getAttribute('data-set')}}); DATA.userStates=null; reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }; });
+  box.querySelectorAll('button[data-delu]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/users/delete',{method:'POST',body:{userId:b.getAttribute('data-delu')}}); DATA.users=DATA.users.filter(function(x){return x.userId!==b.getAttribute('data-delu');}); reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
+}
+function renderUsers(q){
+  var box=document.getElementById('utbl'); if(!box)return;
+  var list=DATA.users.filter(function(u){ if(!q)return true; return ((u.name||'')+(u.email||'')+(u.orgName||'')).toLowerCase().indexOf(q)>=0; });
+  if(!list.length){ box.innerHTML='<p class="msg">Sin resultados.</p>'; return; }
+  box.innerHTML=userRowsHTML(list); bindUserRows(box);
+}
 
-  var msg = document.getElementById('msg');
-  try {
-    var orgs = await SkillUp.api('/api/platform/summary');
-    msg.style.display = 'none';
-    document.getElementById('orgsTable').style.display = 'table';
-    document.getElementById('orgsBody').innerHTML = orgs.map(function (o) {
-      return '<tr><td>' + SkillUp.escHtml(o.orgName) + '</td><td>' + o.memberCount + '</td><td>' + o.competencyCount + '</td>' +
-        '<td' + (o.criticalRisks > 0 ? ' class="risk"' : '') + '>' + o.criticalRisks + '</td>' +
-        '<td>' + Math.round(o.internalTransfer * 100) + '%</td><td>' + o.timeToAutonomyDays + '</td></tr>';
-    }).join('') || '<tr><td colspan="6">Sin organizaciones todavía.</td></tr>';
-  } catch (ex) {
-    msg.textContent = ex.message || 'No tienes acceso de superadmin.';
-  }
-})();
+/* ---------- FICHA DE EMPRESA (nivel 2) ---------- */
+async function empresaDetail(box,orgId){
+  box.innerHTML='<div class="note">Cargando empresa…</div>';
+  var orgs=DATA.orgs&&DATA.orgs.length?DATA.orgs:((await SkillUp.api('/api/platform/orgs').catch(function(){return {orgs:[]};})).orgs||[]); DATA.orgs=orgs;
+  var o=orgs.filter(function(x){return x.id===orgId;})[0];
+  if(!o){ box.innerHTML='<p class="msg">Empresa no encontrada.</p>'; return; }
+  var users=DATA.users&&DATA.users.length?DATA.users:((await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};})).users||[]); DATA.users=users;
+  if(!DATA.userStates){ var st=await SkillUp.api('/api/platform/users/states').catch(function(){return {states:{}};}); DATA.userStates=(st&&st.states)||{}; }
+  var mem=users.filter(function(u){return u.organizationId===orgId;});
+  var s=o.subscription;
+  box.innerHTML='<div class="h"><h1>'+E(o.name)+'</h1></div><p class="sub"><span class="mono">'+E(o.slug||'')+'</span></p>'
+    +'<div class="tiles">'+tile(mem.length,'Miembros','teal')+tile(o.status||'activa','Estado','')
+      +'<div class="tile"><div class="v aub" style="font-size:15px;line-height:1.3">'+(s?E((s.tier||'—')+' · '+(s.status||''))+(s.seats?'<br><span class="l" style="margin:0">'+s.seats+' asientos</span>':''):'sin suscripción')+'</div><div class="l">Suscripción ligada</div></div></div>'
+    +'<div class="rowflex" style="gap:8px;flex-wrap:wrap;margin-bottom:16px">'+oact(o,'archivada','Archivar')+oact(o,'inactiva','Desactivar')+oact(o,'activa','Activar')+'<button class="btn btn-danger" style="padding:8px 16px;font-size:12px" data-del="'+E(o.id)+'">Eliminar empresa</button></div>'
+    +'<div class="card scroll"><h2>Miembros '+tip('Cambia rol, activa/desactiva o elimina personas de esta empresa.')+'</h2><div id="mtbl">'+(mem.length?userRowsHTML(mem):'<p class="msg">Sin miembros.</p>')+'</div></div>';
+  if(mem.length) bindUserRows(document.getElementById('mtbl'));
+  box.querySelectorAll('button[data-st]').forEach(function(b){ b.onclick=async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/orgs/status',{method:'POST',body:{organizationId:o.id,status:b.getAttribute('data-st')}}); DATA.orgs=null; reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }; });
+  box.querySelectorAll('button[data-del]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/orgs/delete',{method:'POST',body:{organizationId:o.id}}); DATA.orgs=null; navigate('empresas'); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
+}
 
-// Orquestador por voz: mantener pulsado sobre la burbuja, hablar, soltar -> responde en voz.
-// v1: solo informa con datos reales de la plataforma, no ejecuta acciones (lo dice el propio backend).
-(function () {
-  var bubble = document.getElementById('voiceBubble');
-  var status = document.getElementById('voiceStatus');
-  var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Recognition) { bubble.title = 'Este navegador no soporta reconocimiento de voz (usa Chrome)'; bubble.style.opacity = '0.4'; return; }
+/* ---------- AGENTES ---------- */
+async function agentes(box){
+  box.innerHTML=hdr('Agentes tutores','Cada rol del organigrama tiene su agente. Aquí revisas EXACTAMENTE con qué instrucciones trabaja cada tutor.','Revisión de conocimientos de los tutores: sus instrucciones base, por rol.')+'<div id="aglist"><p class="msg">Cargando…</p></div>';
+  var d=await SkillUp.api('/api/platform/agents').catch(function(){return {agents:[]};});
+  var ags=(d&&d.agents)||[];
+  document.getElementById('aglist').innerHTML=ags.map(function(a){
+    return '<details class="ag"><summary>'+E(a.title)+' <span class="pill">'+E(a.role)+'</span> <span class="mono">'+E(a.model||'')+'</span></summary><pre>'+E(a.system||'')+'</pre></details>';
+  }).join('')||'<p class="msg">No hay agentes definidos.</p>';
+}
 
-  var recog = new Recognition();
-  recog.lang = 'es-ES';
-  recog.interimResults = false;
-  recog.maxAlternatives = 1;
-  var listening = false;
+/* ---------- CONOCIMIENTO ---------- */
+async function conocimiento(box){
+  box.innerHTML=hdr('Conocimiento de los tutores','La base de conocimiento (RAG) que consultan los tutores por empresa. Puedes añadir conocimiento específico y a partir de ahí lo usan.','Revisa qué sabe cada tutor y añade conocimiento propio de una empresa.')
+    +'<div class="two"><div class="card"><h2>Añadir conocimiento '+tip('Se indexa y los tutores de esa empresa lo usarán al responder y preparar casos.')+'</h2><div id="kadd"></div></div>'
+    +'<div class="card scroll"><h2>Conocimiento existente</h2><div id="klist"><p class="msg">Cargando…</p></div></div></div>';
+  var orgs=DATA.orgs||(await SkillUp.api('/api/platform/orgs').catch(function(){return {orgs:[]};})).orgs; DATA.orgs=orgs||[];
+  var kadd=document.getElementById('kadd');
+  kadd.innerHTML='<label>Empresa</label><select id="korg">'+(DATA.orgs.map(function(o){return '<option value="'+E(o.id)+'">'+E(o.name)+'</option>';}).join(''))+'</select>'
+    +'<label>Título</label><input id="ktit" placeholder="Ej: Política de descuentos 2026">'
+    +'<label>Tipo</label><input id="kkind" value="nota" placeholder="nota | politica | caso | leccion">'
+    +'<label>Contenido</label><textarea id="ktext" placeholder="Pega aquí el conocimiento que quieres que los tutores usen…"></textarea>'
+    +'<button class="btn btn-grad" id="ksave">Añadir a la base</button><div id="kmsg" style="margin-top:8px"></div>';
+  document.getElementById('ksave').onclick=async function(){
+    var msg=document.getElementById('kmsg'); msg.textContent='';
+    var org=document.getElementById('korg').value, tit=document.getElementById('ktit').value.trim(), kind=document.getElementById('kkind').value.trim()||'nota', text=document.getElementById('ktext').value.trim();
+    if(!tit||!text){ msg.innerHTML='<span class="err">Título y contenido son obligatorios.</span>'; return; }
+    this.disabled=true; msg.textContent='Indexando…';
+    try{ await SkillUp.api('/api/platform/knowledge',{method:'POST',body:{organizationId:org,title:tit,text:text,kind:kind}});
+      msg.innerHTML='<span class="ok">Añadido. Los tutores ya pueden usarlo.</span>'; document.getElementById('ktit').value='';document.getElementById('ktext').value=''; loadKlist();
+    }catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo añadir')+'</span>'; }
+    this.disabled=false;
+  };
+  loadKlist();
+}
+async function loadKlist(){
+  var box=document.getElementById('klist'); if(!box)return;
+  var d=await SkillUp.api('/api/platform/knowledge').catch(function(){return {docs:[]};});
+  var docs=(d&&d.docs)||[];
+  if(!docs.length){ box.innerHTML='<p class="msg">Aún no hay conocimiento cargado.</p>'; return; }
+  box.innerHTML='<table class="tbl"><thead><tr><th>Título</th><th>Tipo</th><th>Empresa</th><th></th></tr></thead><tbody>'+docs.slice(0,80).map(function(k){
+    return '<tr><td><b style="color:var(--ink)">'+E(k.title||'—')+'</b></td><td><span class="pill">'+E(k.kind||'nota')+'</span></td><td>'+E(k.orgName||'—')+'</td><td><button class="btn btn-danger" style="padding:6px 10px;font-size:11px" data-delk="'+E(k.id)+'">Eliminar</button></td></tr>';
+  }).join('')+'</tbody></table>';
+  box.querySelectorAll('button[data-delk]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/knowledge/delete',{method:'POST',body:{id:b.getAttribute('data-delk')}}); loadKlist(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
+}
 
-  function setStatus(text) { status.hidden = !text; status.textContent = text || ''; }
+/* ---------- RETOS Y PRÁCTICA ---------- */
+async function retos(box){
+  box.innerHTML=hdr('Retos y práctica','Rétales con un caso concreto o un roleplay. El agente prepara un borrador y TÚ influyes: escribe o dicta cómo debe comportarse el tutor. La validación de si aplica sigue siendo humana.','Evaluaciones y roleplays dirigidos: das las instrucciones al agente tutor.')
+    +'<div class="card"><h2>Nuevo reto '+tip('El brief se lo lee el agente tutor. En roleplay describe a quién interpreta y cómo (dureza, objeciones). En caso, el enunciado a resolver.')+'</h2><div id="retform"></div></div>';
+  var orgs=DATA.orgs||(await SkillUp.api('/api/platform/orgs').catch(function(){return {orgs:[]};})).orgs; DATA.orgs=orgs||[];
+  var users=DATA.users&&DATA.users.length?DATA.users:((await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};})).users||[]); DATA.users=users;
+  var f=document.getElementById('retform');
+  f.innerHTML='<div class="two"><div><label>Empresa</label><select id="rorg">'+DATA.orgs.map(function(o){return '<option value="'+E(o.id)+'">'+E(o.name)+'</option>';}).join('')+'</select>'
+    +'<label>A quién retas</label><select id="rwho"></select></div>'
+    +'<div><label>Tipo</label><select id="rtipo"><option value="roleplay">Roleplay (conversación con personaje IA)</option><option value="caso">Caso práctico (lo resuelve por escrito)</option></select>'
+    +'<label>Tema / competencia</label><input id="rtema" placeholder="Ej: objeciones de precio con un partner de Odoo">'
+    +'<label>Dificultad</label><select id="rdif"><option>Suave</option><option selected>Media</option><option>Exigente</option></select></div></div>'
+    +'<label style="margin-top:6px">Instrucciones para el agente tutor '+tip('Habla o escribe: quién es el personaje, qué situación, qué objeciones lanzar, cómo de duro ser.')+'</label>'
+    +'<div class="rowflex"><textarea id="rbrief" placeholder="Ej: Eres un director de compras de retail muy exigente. Regateas el precio, comparas con la competencia y amenazas con irte. Sé educado pero duro." style="flex:1"></textarea><button class="mic" id="rmic" title="Dictar">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></button></div>'
+    +'<label>Título del reto</label><input id="rtit" placeholder="Se rellena solo con el borrador, o escríbelo tú">'
+    +'<div class="rowflex" style="margin-top:8px"><button class="btn btn-gh" id="rdraft">Que el agente prepare un borrador</button><button class="btn btn-grad" id="rassign">Asignar reto</button></div>'
+    +'<div id="rmsg" style="margin-top:10px"></div>';
+  function fillWho(){ var org=document.getElementById('rorg').value; var opts=DATA.users.filter(function(u){return u.organizationId===org;}).map(function(u){return '<option value="'+E(u.userId)+'">'+E(u.name||u.email)+'</option>';}).join(''); document.getElementById('rwho').innerHTML=opts||'<option value="">(sin miembros)</option>'; }
+  document.getElementById('rorg').addEventListener('change',fillWho); fillWho();
+  // dictado
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, mic=document.getElementById('rmic');
+  if(SR){ mic.onclick=function(){ if(rec){try{rec.stop();}catch(e){}return;} rec=new SR();rec.lang='es-ES';rec.interimResults=false;mic.classList.add('rec'); rec.onresult=function(ev){var t=document.getElementById('rbrief');t.value=(t.value?t.value+' ':'')+ev.results[0][0].transcript;}; rec.onend=function(){mic.classList.remove('rec');rec=null;}; rec.onerror=function(){mic.classList.remove('rec');rec=null;}; try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;} }; } else { mic.style.display='none'; }
+  document.getElementById('rdraft').onclick=async function(){
+    var msg=document.getElementById('rmsg'); var tema=document.getElementById('rtema').value.trim();
+    if(!tema){ msg.innerHTML='<span class="err">Escribe primero el tema.</span>'; return; }
+    this.disabled=true; msg.textContent='El agente está preparando el borrador…';
+    try{ var r=await SkillUp.api('/api/learning/challenges/draft',{method:'POST',body:{tipo:document.getElementById('rtipo').value,tema:tema,dificultad:document.getElementById('rdif').value,notas:document.getElementById('rbrief').value.trim()}});
+      document.getElementById('rtit').value=r.titulo||''; document.getElementById('rbrief').value=r.brief||''; msg.innerHTML='<span class="ok">Borrador listo. Ajústalo si quieres y asigna.</span>';
+    }catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo preparar')+'</span>'; }
+    this.disabled=false;
+  };
+  document.getElementById('rassign').onclick=async function(){
+    var msg=document.getElementById('rmsg');
+    var who=document.getElementById('rwho').value, tit=document.getElementById('rtit').value.trim(), brief=document.getElementById('rbrief').value.trim();
+    if(!who){ msg.innerHTML='<span class="err">Esa empresa no tiene miembros a quien retar.</span>'; return; }
+    if(!brief){ msg.innerHTML='<span class="err">Escribe o dicta las instrucciones para el agente.</span>'; return; }
+    if(!tit) tit=document.getElementById('rtema').value.trim()||'Reto de práctica';
+    this.disabled=true; msg.textContent='Asignando…';
+    try{ await SkillUp.api('/api/learning/challenges',{method:'POST',body:{organizationId:document.getElementById('rorg').value,assignedToUserId:who,tipo:document.getElementById('rtipo').value,titulo:tit,brief:brief,tema:document.getElementById('rtema').value.trim(),dificultad:document.getElementById('rdif').value}});
+      msg.innerHTML='<span class="ok">Reto asignado. La persona lo verá en su inicio y podrá empezarlo.</span>'; document.getElementById('rbrief').value='';document.getElementById('rtit').value='';document.getElementById('rtema').value='';
+    }catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo asignar')+'</span>'; }
+    this.disabled=false;
+  };
+}
 
-  function startListening() {
-    if (listening) return;
-    listening = true;
-    bubble.classList.add('listening');
-    setStatus('Escuchando… suelta para enviar');
-    try { recog.start(); } catch (e) { /* ya estaba escuchando */ }
-  }
-  function stopListening() {
-    if (!listening) return;
-    try { recog.stop(); } catch (e) {}
-  }
-  bubble.addEventListener('mousedown', function (e) { e.preventDefault(); startListening(); });
-  bubble.addEventListener('touchstart', function (e) { e.preventDefault(); startListening(); }, { passive: false });
-  document.addEventListener('mouseup', stopListening);
-  document.addEventListener('touchend', stopListening);
+/* ---------- AJUSTES ---------- */
+async function ajustes(box){
+  box.innerHTML=hdr('Ajustes','Configuración de plataforma: correo, superadmins y precios.','Los ajustes globales de toda la app.')
+    +'<div class="two"><div class="card"><h2>Correo (recuperar contraseña) '+tip('Sin proveedor, los enlaces de recuperación quedan en el log del servidor. Con Resend, se envían por email a los usuarios.')+'</h2>'
+      +'<div class="note">Para que los usuarios reciban por email el enlace de recuperación, añade en el servidor (<span class="k">.env.local</span>) y reinicia:<br><br><span class="mono">RESEND_API_KEY=tu_clave</span><br><span class="mono">MAIL_FROM=SkillUp &lt;no-reply@tudominio&gt;</span><br><br>Mientras no esté, la recuperación funciona igual pero el enlace se guarda en el log para entrega manual.</div></div>'
+    +'<div class="card"><h2>Superadmins '+tip('Acceso global a todas las empresas. Se definen por email en PLATFORM_ADMIN_EMAILS.')+'</h2><div id="salist"><p class="msg">Cargando…</p></div></div></div>'
+    +'<div class="card scroll"><h2>Precios por plan '+tip('Precio por asiento/mes de cada modalidad. Los fija Boomatik.')+'</h2><div id="tiers"><p class="msg">Cargando…</p></div></div>';
+  var users=DATA.users&&DATA.users.length?DATA.users:((await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};})).users||[]); DATA.users=users;
+  var sa=[]; var seen={}; users.forEach(function(u){ if(u.platformAdmin&&!seen[u.email]){seen[u.email]=1;sa.push(u);} });
+  document.getElementById('salist').innerHTML=sa.length?sa.map(function(u){return '<div class="row"><span>'+E(u.name||u.email)+'</span><span class="mono">'+E(u.email)+'</span></div>';}).join(''):'<p class="msg">—</p>';
+  var t=await SkillUp.api('/api/billing/tiers').catch(function(){return null;});
+  var tiers=t&&(t.tiers||t)||[];
+  var box=document.getElementById('tiers');
+  if(!Array.isArray(tiers)||!tiers.length){ box.innerHTML='<p class="msg">No hay planes configurados.</p>'; return; }
+  box.innerHTML='<table class="tbl"><thead><tr><th>Plan</th><th>Precio/asiento (€)</th><th></th></tr></thead><tbody>'+tiers.map(function(x){var cents=x.pricePerSeatCents!=null?x.pricePerSeatCents:(x.price_per_seat_cents||0);
+    return '<tr><td><b style="color:var(--ink)">'+E(x.label||x.tier)+'</b><br><span class="mono">'+E(x.tier)+'</span></td>'
+      +'<td><input type="number" step="0.01" min="0" value="'+(cents/100).toFixed(2)+'" data-tier="'+E(x.tier)+'" data-label="'+E(x.label||x.tier)+'" style="width:120px;margin:0"></td>'
+      +'<td><button class="btn btn-grad" style="padding:7px 14px;font-size:12px" data-savetier="'+E(x.tier)+'">Guardar</button></td></tr>';
+  }).join('')+'</tbody></table><div id="tmsg" style="margin-top:8px"></div>';
+  box.querySelectorAll('button[data-savetier]').forEach(function(b){ b.onclick=async function(){
+    var tier=b.getAttribute('data-savetier'); var inp=box.querySelector('input[data-tier="'+tier+'"]'); var msg=document.getElementById('tmsg');
+    var eur=parseFloat(inp.value); if(isNaN(eur)||eur<0){ msg.innerHTML='<span class="err">Precio no válido.</span>'; return; }
+    b.disabled=true; try{ await SkillUp.api('/api/platform/tiers/set',{method:'POST',body:{tier:tier,label:inp.getAttribute('data-label'),pricePerSeatCents:Math.round(eur*100)}}); msg.innerHTML='<span class="ok">Precio de «'+E(tier)+'» actualizado.</span>'; }catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo guardar')+'</span>'; } b.disabled=false;
+  }; });
+}
 
-  recog.addEventListener('end', function () { listening = false; bubble.classList.remove('listening'); });
-  recog.addEventListener('error', function (e) {
-    listening = false; bubble.classList.remove('listening');
-    setStatus(e.error === 'not-allowed' ? 'Permiso de micrófono denegado' : '');
-    setTimeout(function () { setStatus(''); }, 3000);
-  });
+/* ---------- PERFILES DE PRUEBA ---------- */
+var ROLE_LABEL={empleado:'Empleado',coach:'Coach',team_leader:'Team Leader',inspirador:'Inspirador',admin:'Admin',direccion:'Dirección'};
+var ROLE_DESC={
+  empleado:'Solo ve y hace sus propios cursos y evaluaciones.',
+  coach:'Como empleado, y además valida evidencias de su equipo.',
+  team_leader:'Gestiona, asigna cursos y ve el progreso de su equipo.',
+  inspirador:'Valida y ve el progreso de toda la empresa.',
+  admin:'Control total de la empresa: cursos, usuarios, precios.',
+  direccion:'Como admin, con foco en analítica global de la empresa.',
+};
+var ROLE_ORDER=['empleado','coach','team_leader','inspirador','admin','direccion'];
+async function perfiles(box){
+  box.innerHTML=hdr('Perfiles de prueba','6 usuarios permanentes, uno por cada rol del organigrama, en una empresa de pruebas aparte.','Entra como cualquiera de ellos para testear la app con una sesión real: verás y podrás hacer exactamente lo que ese rol puede. Tu sesión de superadmin queda en pausa mientras tanto, con un aviso arriba y un botón para volver cuando quieras.')
+    +'<div id="plist"><p class="msg">Cargando…</p></div>';
+  var users=DATA.users&&DATA.users.length?DATA.users:((await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};})).users||[]); DATA.users=users;
+  var qa=users.filter(function(u){ return u.orgName==='QA - Perfiles de prueba'; });
+  qa.sort(function(a,b){ return ROLE_ORDER.indexOf(a.orgRole)-ROLE_ORDER.indexOf(b.orgRole); });
+  var list=document.getElementById('plist');
+  if(!qa.length){ list.innerHTML='<p class="msg">No se encontraron los perfiles de prueba. En el servidor: <span class="mono">npx tsx scripts/seed-qa-profiles.ts</span></p>'; return; }
+  list.innerHTML=qa.map(function(u){
+    return '<div class="card" style="margin-bottom:12px"><div class="row" style="align-items:center;justify-content:space-between;gap:14px">'
+      +'<div><h2 style="margin:0">'+E(ROLE_LABEL[u.orgRole]||u.orgRole)+'</h2><p class="sub" style="margin:4px 0 0">'+E(ROLE_DESC[u.orgRole]||'')+'</p></div>'
+      +'<div style="display:flex;gap:8px;flex:none">'
+      +'<button class="btn" data-reset="'+E(u.userId)+'" title="Borra su actividad para que vuelva a arrancar el onboarding, como si acabase de registrarse">Reiniciar</button>'
+      +'<button class="btn btn-grad" data-enter="'+E(u.userId)+'" data-org="'+E(u.organizationId)+'">Entrar como →</button>'
+      +'</div></div></div>';
+  }).join('')+'<div id="pmsg" style="margin-top:8px"></div>';
+  list.querySelectorAll('[data-enter]').forEach(function(b){ b.onclick=async function(){
+    var msg=document.getElementById('pmsg'); b.disabled=true; msg.textContent='Entrando…';
+    var orgId=b.getAttribute('data-org');
+    try{
+      await SkillUp.api('/api/auth/admin/impersonate-user',{method:'POST',body:{userId:b.getAttribute('data-enter')}});
+      if(orgId) await SkillUp.api('/api/auth/organization/set-active',{method:'POST',body:{organizationId:orgId}}).catch(function(){});
+      location.href='/app/inicio.html';
+    }catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo entrar')+'</span>'; b.disabled=false; }
+  }; });
+  list.querySelectorAll('[data-reset]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){
+    var msg=document.getElementById('pmsg'); b.disabled=true;
+    try{ await SkillUp.api('/api/platform/test-profiles/reset',{method:'POST',body:{userId:b.getAttribute('data-reset')}}); msg.innerHTML='<span class="ok">Perfil reiniciado. Al entrar, arrancará el onboarding desde cero.</span>'; }
+    catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo reiniciar')+'</span>'; }
+    b.disabled=false;
+  }); }; });
+}
 
-  recog.addEventListener('result', async function (e) {
-    var text = e.results[0][0].transcript;
-    bubble.classList.add('thinking');
-    setStatus('Revisando datos de todas las empresas…');
-    try {
-      var r = await SkillUp.api('/api/platform/assistant', { method: 'POST', body: { message: text } });
-      bubble.classList.remove('thinking');
-      speak(r.reply);
-    } catch (ex) {
-      bubble.classList.remove('thinking');
-      setStatus(ex.message || 'Ha ido mal');
-      setTimeout(function () { setStatus(''); }, 4000);
-    }
-  });
-
-  function speak(text) {
-    setStatus(text);
-    bubble.classList.add('speaking');
-    if (!window.speechSynthesis) { setTimeout(function () { setStatus(''); }, 6000); return; }
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'es-ES';
-    var voices = window.speechSynthesis.getVoices();
-    var esVoice = voices.find(function (v) { return /es/i.test(v.lang); });
-    if (esVoice) u.voice = esVoice;
-    u.onend = function () { bubble.classList.remove('speaking'); setTimeout(function () { setStatus(''); }, 1200); };
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-  }
+var SECTIONS={resumen:resumen,empresas:empresas,insights:insights,usuarios:usuarios,perfiles:perfiles,agentes:agentes,conocimiento:conocimiento,retos:retos,ajustes:ajustes};
+var TITLES={resumen:'Resumen',empresas:'Empresas',insights:'Insights',usuarios:'Usuarios y roles',perfiles:'Perfiles de prueba',agentes:'Agentes tutores',conocimiento:'Conocimiento',retos:'Retos y práctica',ajustes:'Ajustes'};
+function setCrumb(parts){
+  var el=document.getElementById('crumb'); if(!el)return;
+  el.innerHTML='<a data-nav="resumen">Consola</a><span class="sep">›</span>'+parts.map(function(p,i){ var last=i===parts.length-1; return (last||!p.path)?'<span>'+E(p.label)+'</span>':'<a data-nav="'+E(p.path)+'">'+E(p.label)+'</a><span class="sep">›</span>'; }).join('');
+  el.querySelectorAll('a[data-nav]').forEach(function(a){ a.onclick=function(){ navigate(a.getAttribute('data-nav')); }; });
+}
+function render(path){
+  var seg=String(path||'').split('/'); var sec=seg[0]||'resumen'; if(!SECTIONS[sec])sec='resumen';
+  document.querySelectorAll('.navb[data-sec]').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-sec')===sec); });
+  main.innerHTML='';
+  var crumb=document.createElement('div'); crumb.className='crumb'; crumb.id='crumb'; main.appendChild(crumb);
+  var box=document.createElement('div'); box.className='sec on'; main.appendChild(box);
+  if(sec==='empresas'&&seg[1]){ setCrumb([{label:'Empresas',path:'empresas'},{label:'Ficha de empresa'}]); empresaDetail(box,seg[1]); return; }
+  setCrumb([{label:TITLES[sec]||'Consola'}]);
+  (SECTIONS[sec]||resumen)(box);
+}
+function navigate(path,replace){ try{ if(replace) history.replaceState({p:path},'','#'+path); else history.pushState({p:path},'','#'+path); }catch(e){} render(path); }
+function reRender(){ render((location.hash||'').replace('#','')||'resumen'); }
+window.addEventListener('popstate',function(){ render((location.hash||'').replace('#','')||'resumen'); });
+function boot(){
+  document.querySelectorAll('.navb[data-sec]').forEach(function(b){ b.onclick=function(){ navigate(b.getAttribute('data-sec')); }; });
+  document.getElementById('logout').onclick=async function(){ try{await fetch('/api/auth/sign-out',{method:'POST',credentials:'same-origin'});}catch(e){} location.href='/app/login.html'; };
+  navigate((location.hash||'').replace('#','')||'resumen', true);
+  SkillUp.api('/api/platform/pending').then(function(d){ updatePendBadge(((d&&d.pending)||[]).length); }).catch(function(){});
+}
+SkillUp.requireSession('/app/login.html').then(function(s){ if(!s)return;
+  SkillUp.api('/api/org/me').then(function(me){
+    if(!me||!me.platformAdmin){ main.innerHTML='<div class="note" style="margin-top:40px">Esta consola es solo para el superadmin. <a href="/app/inicio.html" style="color:var(--teal2)">Volver a la app</a></div>'; return; }
+    boot();
+  }).catch(function(){ main.innerHTML='<div class="note" style="margin-top:40px">No se pudo comprobar tu acceso. Recarga la página.</div>'; });
+});
 })();
 </script>
 </body>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Bienvenida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--green:#54C79A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.05);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--green:#2E9E73;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);overflow:hidden;
+  background:radial-gradient(760px 460px at 50% 20%,rgba(113,75,103,.28),transparent 60%),var(--bg)}
+button{font-family:inherit}[hidden]{display:none!important}
+.wrap{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px}
+.card{width:min(600px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh);display:flex;flex-direction:column;max-height:88dvh}
+.mascota{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 16px 10px}
+.mascota svg{width:96px;height:auto}
+.mascota .ir{transition:transform .3s}
+.mascota .nm{font-family:var(--fc);color:var(--teal2);font-size:19px}
+.conv{flex:1;overflow-y:auto;padding:8px 18px 12px;display:flex;flex-direction:column;gap:10px}
+.b{max-width:88%;padding:11px 15px;border-radius:16px;font-size:14.5px;line-height:1.5;animation:rise .35s both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.b.a{align-self:flex-start;background:var(--soft);border:1px solid var(--line);color:var(--body);border-bottom-left-radius:4px}
+.b.u{align-self:flex-end;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;border-bottom-right-radius:4px}
+.b.co{align-self:stretch;max-width:100%;background:rgba(63,216,224,.08);border-color:rgba(63,216,224,.3)}
+.b.co .lbl{font-family:var(--fc);color:var(--teal2);font-size:16px;display:block;margin-bottom:3px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;padding:2px 18px 6px}
+.chips button{border:1px solid var(--line);background:var(--soft);color:var(--body);border-radius:11px;padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
+.chips button:hover{border-color:var(--aub2);color:var(--ink)}
+.row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line)}
+.row .mic{width:44px;flex:none;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--aub2);cursor:pointer;display:grid;place-items:center}
+.row .mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c}
+.row input{flex:1;min-width:0;background:var(--soft);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px 14px;font:inherit;font-size:14.5px;outline:none}
+.row .snd{border:0;border-radius:12px;padding:0 18px;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));flex:none}
+.row .snd[disabled]{opacity:.5}
+.done{padding:18px;text-align:center}
+.done .btn{border:0;border-radius:12px;padding:12px 22px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:inline-block}
+.skip{margin-top:14px;color:var(--muted);font-size:12.5px;text-decoration:none;display:inline-block}
+.loader{min-height:100dvh;display:grid;place-items:center;color:var(--muted);font-size:13px}
+@media(prefers-reduced-motion:no-preference){.mascota .ir{animation:blink 4s infinite}@keyframes blink{0%,94%,100%{opacity:1}96%{opacity:.15}98%{opacity:1}}}
+</style>
+</head>
+<body>
+<div class="loader" id="loader">Cargando…</div>
+<div class="wrap" id="wrap" hidden>
+  <div class="card">
+    <div class="mascota"><svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="3.5"/><circle class="ir" cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="3.5"/><circle class="ir" cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g></svg><span class="nm">Tu guía</span></div>
+    <div class="conv" id="conv"></div>
+    <div class="chips" id="chips" hidden></div>
+    <div class="row" id="row"><button class="mic" id="mic" aria-label="Hablar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></button><input id="inp" placeholder="Escribe o dicta tu respuesta…" aria-label="Respuesta"><button class="snd" id="snd">Enviar</button></div>
+    <div class="done" id="done" hidden></div>
+  </div>
+</div>
+<script src="/app/api.js"></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var loader=document.getElementById('loader'), wrap=document.getElementById('wrap');
+if(!window.SkillUp||!SkillUp.api){loader.textContent='No se pudo cargar. Vuelve a entrar.';return;}
+var conv=document.getElementById('conv'), chipsEl=document.getElementById('chips'), row=document.getElementById('row'), inp=document.getElementById('inp'), done=document.getElementById('done');
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function bubble(role,txt,cls){var d=document.createElement('div');d.className='b '+role+(cls?' '+cls:'');if(cls==='co'){d.innerHTML='<span class="lbl">Tu empresa</span>'+esc(txt);}else{d.textContent=txt;}conv.appendChild(d);conv.scrollTop=conv.scrollHeight;return d;}
+
+var STEPS=[
+ {ask:'Hola. Vamos a conocernos en un minuto para que todo esto se adapte a ti. ¿A qué te dedicas? Descríbeme tu puesto con detalle: qué haces, con quién y qué decides.',key:'rol'},
+ {ask:'Genial. ¿Cuál es la web de tu empresa? Le echo un ojo para conoceros y afinar los ejemplos a lo vuestro.',key:'empresa',company:true},
+ {ask:'¿Qué te gustaría conseguir con esto? Tu objetivo, aunque sea en una frase.',key:'objetivo'},
+ {ask:'¿En qué nivel te ves ahora mismo?',key:'nivel',chips:['Empezando','Con experiencia','Con soltura']},
+ {ask:'¿Cómo aprendes mejor?',key:'estilo',chips:['Con ejemplos reales','Practicando','Viendo vídeos','Teoría primero']},
+ {ask:'¿Cuánto tiempo puedes dedicarle a la semana? Sé realista, así te marco un ritmo que puedas cumplir.',key:'ritmo',chips:['Menos de 1 hora','2-3 horas','5 horas o más']},
+ {ask:'¿Qué te suele frenar cuando aprendes algo nuevo? Esto me ayuda a acompañarte mejor.',key:'freno',chips:['Falta de tiempo','Me disperso','No veo el para qué','Me da corte practicar']},
+ {ask:'Y para terminar: ¿cómo prefieres que te hable tu tutor?',key:'trato',chips:['Directo y al grano','Con tacto y calma','Retándome']}
+];
+var step=-1, busy=false;
+
+function save(key,val){ try{ SkillUp.api('/api/notes/add',{method:'POST',body:{source:'onboarding',kind:'insight',body:'['+key+'] '+val}}).catch(function(){}); }catch(e){} }
+
+function ask(){
+  step++;
+  if(step>=STEPS.length){ finish(); return; }
+  var s=STEPS[step];
+  bubble('a',s.ask);
+  chipsEl.innerHTML=''; chipsEl.hidden=true;
+  if(s.chips){ chipsEl.hidden=false; s.chips.forEach(function(ch){ var b=document.createElement('button'); b.textContent=ch; b.onclick=function(){ answer(ch); }; chipsEl.appendChild(b); }); }
+  inp.focus();
+}
+async function answer(val){
+  val=(val||inp.value).trim(); if(!val||busy)return; busy=true; inp.value=''; chipsEl.hidden=true; chipsEl.innerHTML='';
+  bubble('u',val);
+  var s=STEPS[step];
+  if(s.company){
+    var t=bubble('a','Dame un segundo, estoy leyendo vuestra web…');
+    try{ var r=await SkillUp.api('/api/onboarding/company',{method:'POST',body:{url:val}});
+      t.remove(); if(r&&r.summary){ bubble('a','Esto es lo que he entendido de vuestra empresa:'); bubble('a',r.summary,'co'); } else { bubble('a','No he podido leer esa web, pero no pasa nada, seguimos.'); save('empresa',val); }
+    }catch(e){ t.remove(); bubble('a','No he podido leer esa web, pero no pasa nada, seguimos.'); save('empresa',val); }
+  } else { save(s.key,val); }
+  busy=false;
+  setTimeout(ask,400);
+}
+function finish(){
+  row.hidden=true; chipsEl.hidden=true;
+  bubble('a','Listo, ya te conozco un poco. Con esto tus tutores te hablarán a tu medida, con ejemplos de tu mundo. Vamos a tu ruta.');
+  done.hidden=false;
+  done.innerHTML='<a class="btn" href="/app/inicio.html">Empezar</a>';
+}
+
+// dictado
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, mic=document.getElementById('mic');
+if(SR){ mic.onclick=function(){ if(rec){try{rec.stop();}catch(e){}return;} rec=new SR();rec.lang='es-ES';rec.interimResults=false;mic.classList.add('rec'); rec.onresult=function(ev){inp.value=(inp.value?inp.value+' ':'')+ev.results[0][0].transcript;}; rec.onend=function(){mic.classList.remove('rec');rec=null;}; rec.onerror=function(){mic.classList.remove('rec');rec=null;}; try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;} }; } else { mic.style.display='none'; }
+document.getElementById('snd').onclick=function(){answer();};
+inp.addEventListener('keydown',function(e){if(e.key==='Enter')answer();});
+
+var FORCE_APP=/[?&]app=1/.test(location.search);
+SkillUp.requireSession('/app/login.html').then(function(sess){ if(!sess) return;
+  SkillUp.api('/api/org/me').catch(function(){return null;}).then(function(d){
+    if(d && d.platformAdmin && !FORCE_APP){ location.href='/app/superadmin.html'; return; }
+    loader.hidden=true; wrap.hidden=false; ask();
+  });
+});
+})();
+</script>
+</body>
+</html>

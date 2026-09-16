@@ -418,7 +418,7 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, {
       usuarios: Object.keys(users()).length,
       onboardings: ob.length,
-      peticiones: { total: rq.length, estados: byStatus(rq), ultimas: rq.slice(0, 6).map(x => ({ topic: (x.data || {}).topic, status: x.status, ts: x.ts })) },
+      peticiones: { total: rq.length, estados: byStatus(rq), ultimas: rq.slice(0, 6).map(x => ({ topic: (x.data || {}).topic, reason: (x.data || {}).reason || "", status: x.status, ts: x.ts })) },
       feedback: { total: fb.length, tipos: fbType, estados: byStatus(fb) },
       leads: countLines(W('leads.jsonl')),
       vistas: countLines(W('views.jsonl')),

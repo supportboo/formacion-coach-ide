@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+﻿import { existsSync } from "node:fs";
 import { z } from "zod";
 
 // Carga .env.local si existe (Node 21+). Sin dependencias.
@@ -9,6 +9,9 @@ const schema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   EMBEDDINGS_PROVIDER: z.enum(["dev", "openai"]).default("dev"),
   OPENAI_API_KEY: z.string().optional(),
+  ELEVENLABS_API_KEY: z.string().optional(),
+  ELEVENLABS_EXTRA_VOICES: z.string().optional(),
+  YOUTUBE_API_KEY: z.string().optional(),
   BETTER_AUTH_SECRET: z.string().min(32, "BETTER_AUTH_SECRET debe fijarse explícitamente (>=32 chars), sin valor por defecto"),
   BETTER_AUTH_URL: z.string().default("http://localhost:8080"),
   PORT: z.coerce.number().default(8080),
@@ -25,6 +28,8 @@ const schema = z.object({
   APP_URL: z.string().default("http://localhost:8080"), // base para redirects de Stripe Checkout
   // Emails con acceso de superadmin (todas las organizaciones, no solo la suya). Separados por coma.
   PLATFORM_ADMIN_EMAILS: z.string().default("").transform((v) => v.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)),
+  // user.id (better-auth) de los mismos superadmins, para el plugin admin (impersonar perfiles de prueba).
+  PLATFORM_ADMIN_USER_IDS: z.string().default("").transform((v) => v.split(",").map((s) => s.trim()).filter(Boolean)),
 });
 
 export const env = schema.parse(process.env);

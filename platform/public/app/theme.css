@@ -1,65 +1,79 @@
-/* Tema compartido de la app SkillUp — mismos tokens reales que skillup.html (marca Brandooers). */
+/* Tema compartido de la app SkillUp — diseño interno Brandooers (nuevo). Misma paleta que
+   inicio/bienvenida/curso: oscuro por defecto, con modo claro opcional (data-theme="light").
+   Mantiene los NOMBRES de token antiguos como alias para no tocar el markup de cada página. */
 :root{
-  --dark:#0E0B14;--dark2:#171121;--ink:#ECE9F3;--ink-mut:#A79FB8;
-  --bg:#FAFAFA;--white:#FFF;--text:#2D2D2D;--body:#4A4A4A;--mut:#8F8F8F;--line:#E8E0E5;--warm:#F5F0EE;
-  --p:#8B5CF6;--t:#0891B2;--gold:#E4A900;--green:#21B799;--red:#DC2626;
-  --grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);--radius:18px;
+  color-scheme:dark;
+  --bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--green:#54C79A;--red:#E2506A;
+  --line:rgba(180,150,205,.16);--soft:rgba(255,255,255,.05);--sh:0 24px 70px rgba(0,0,0,.5);
+  --ff:'Inter',system-ui,-apple-system,sans-serif;--fh:'Playfair Display',Georgia,serif;--fc:'Caveat',cursive;
+  /* alias de compatibilidad con el markup antiguo */
+  --dark:#171121;--dark2:#221f2a;--ink-mut:var(--muted);--white:var(--panel);--text:var(--ink);
+  --warm:var(--soft);--mut:var(--muted);--p:var(--aub2);--t:var(--teal2);
+  --grad:linear-gradient(120deg,var(--teal),var(--aub));--radius:18px;
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--green:#2E9E73;--red:#C23A54;
+  --line:rgba(70,50,90,.16);--soft:rgba(60,42,84,.05);--sh:0 18px 50px rgba(80,60,100,.12);
+  --dark:#171121;--dark2:#FFFFFF;--warm:rgba(60,42,84,.05);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:var(--ff);color:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100dvh;
+  background:radial-gradient(760px 460px at 50% -6%,rgba(113,75,103,.26),transparent 60%),var(--bg)}
 a{text-decoration:none;color:inherit}
-.hand{font-family:'Caveat',cursive}
-.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+[hidden]{display:none!important}
+.hand,.grad-text{font-family:var(--fc)}
+.grad-text{color:var(--teal2)}
 
 /* Cabecera de la app — logo real animado + navegación */
-.topbar{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.topbar nav{display:flex;align-items:center;gap:6px}
-.topbar nav a{font-size:13.5px;font-weight:600;color:var(--mut);padding:8px 12px;border-radius:100px;transition:color .15s,background .15s}
-.topbar nav a:hover{color:var(--text);background:var(--warm)}
-.blogo{display:inline-flex;align-items:baseline;font-weight:900;letter-spacing:-.02em;font-size:19px;color:var(--text);user-select:none}
+.topbar{position:sticky;top:env(safe-area-inset-top,0);z-index:50;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--line)}
+.topbar nav{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.topbar nav a{font-size:13.5px;font-weight:600;color:var(--muted);padding:8px 12px;border-radius:100px;transition:color .15s,background .15s}
+.topbar nav a:hover{color:var(--ink);background:var(--soft)}
+.blogo{display:inline-flex;align-items:baseline;font-weight:900;letter-spacing:-.02em;font-size:19px;color:var(--ink);user-select:none}
 .blogo .beyes{display:inline-block;align-self:center;margin:0 1px}
 .beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR{transform-box:fill-box;transform-origin:center;animation:bBlink 5.4s infinite}
 .beyes .socketL{transform-box:fill-box;transform-origin:center;animation:bBlinkL 5.4s infinite}
 .beyes .socketR{transform-box:fill-box;transform-origin:center;animation:bBlinkR 5.4s infinite}
 @keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
-/* socketL/socketR llevan su propio transform="translate(...)" en el SVG; un transform por CSS lo pisaría por completo (SVG2), así que el offset se hornea aquí dentro de la propia animación. */
 @keyframes bBlinkL{0%,91%,100%{transform:translate(5px,0) scaleY(1)}95%{transform:translate(5px,0) scaleY(.08)}98%{transform:translate(5px,0) scaleY(1)}}
 @keyframes bBlinkR{0%,91%,100%{transform:translate(53px,0) scaleY(1)}95%{transform:translate(53px,0) scaleY(.08)}98%{transform:translate(53px,0) scaleY(1)}}
-.blogo .sk{font-family:'Caveat',cursive;font-size:15px;color:var(--t);margin-left:6px}
+.blogo .sk{font-family:var(--fc);font-size:16px;color:var(--teal2);margin-left:6px}
 
-.wrap{max-width:820px;margin:0 auto;padding:32px 24px}
+.wrap{max-width:820px;margin:0 auto;padding:32px 24px 60px}
 
 /* Tarjetas */
-.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:18px;box-shadow:0 1px 2px rgba(20,10,30,.03)}
-.card h2{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.01em;margin-bottom:14px}
-.card.dark{background:var(--dark);color:var(--ink);border-color:rgba(255,255,255,.08)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.card h2{font-family:var(--fh);font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.01em;margin-bottom:14px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.card.dark{background:linear-gradient(160deg,#241a2b,#1b1622);color:var(--ink);border-color:rgba(255,255,255,.08)}
 .card.dark h2{color:#fff}
-.card.notice{background:linear-gradient(90deg,rgba(228,169,0,.08),rgba(228,169,0,.03));border-color:rgba(228,169,0,.35)}
+.card.notice{background:linear-gradient(90deg,rgba(240,198,69,.10),rgba(240,198,69,.03));border-color:rgba(240,198,69,.35)}
 
-.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #F1ECF3;font-size:14px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
 .row:last-child{border-bottom:0}
-.badge{font-size:11px;font-weight:700;padding:3px 11px;border-radius:100px;background:#F3EEFB;color:var(--p)}
+.badge{font-size:11px;font-weight:700;padding:3px 11px;border-radius:100px;background:var(--soft);color:var(--aub2)}
 
 /* Formularios */
-label{display:block;font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--mut);margin:0 0 6px}
-input,textarea,select{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--text);margin-bottom:12px;transition:border-color .15s,box-shadow .15s}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+input,textarea,select{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--soft);color:var(--ink);margin-bottom:12px;transition:border-color .15s,box-shadow .15s}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal2);box-shadow:0 0 0 3px rgba(63,216,224,.14)}
 textarea{min-height:88px;resize:vertical}
-.card.dark input,.card.dark select{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#fff}
-.card.dark input::placeholder{color:#6b6480}
-.card.dark label{color:var(--ink-mut)}
+select option{background:var(--panel);color:var(--ink)}
 
 /* Botones */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:13.5px;text-transform:uppercase;letter-spacing:.03em;border-radius:100px;padding:12px 22px;cursor:pointer;border:0;transition:transform .15s,box-shadow .15s,opacity .15s;font-family:inherit}
-.btn-grad{background:var(--grad);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,.3)}
-.btn-grad:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(139,92,246,.45)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.03em;border-radius:100px;padding:12px 22px;cursor:pointer;border:0;transition:transform .15s,box-shadow .15s,opacity .15s;font-family:inherit}
+.btn-grad{background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;box-shadow:0 6px 18px rgba(138,95,124,.35)}
+.btn-grad:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(138,95,124,.5)}
 .btn-grad:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
-.btn-gh{background:none;color:var(--p);border:1.5px solid var(--p);padding:10.5px 20px}
-.btn-gh:hover{background:rgba(139,92,246,.06)}
+.btn-gh{background:none;color:var(--teal2);border:1.5px solid var(--line);padding:10.5px 20px}
+.btn-gh:hover{background:var(--soft);border-color:var(--teal2)}
 .btn-danger{background:var(--red);color:#fff}
 .btn-ok{background:var(--green);color:#fff}
 .btn-block{width:100%}
 
-.msg{font-size:13px;color:var(--mut);margin-top:8px}
+.msg{font-size:13px;color:var(--muted);margin-top:8px}
 .msg.err{color:var(--red)}
 .risk{color:var(--red);font-weight:700}

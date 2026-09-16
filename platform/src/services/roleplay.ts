@@ -8,6 +8,10 @@ const BASE = "Español de España, natural, sin acotaciones de guion ni asterisc
 
 export interface RoleplayArgs {
   competencyName: string; sector?: string | null; puesto?: string | null; orgId: string; userId: string;
+  // Instrucciones del responsable/Team Leader al agente tutor: a quién interpreta y cómo comportarse
+  // (dictadas o escritas). Si vienen, mandan sobre el personaje automático. Guardrail: es práctica,
+  // la validación sigue siendo humana.
+  brief?: string | null;
 }
 
 /** Elige un personaje de practica razonable para la competencia (determinista, sin IA: no hace falta gastar en esto). */
@@ -31,7 +35,8 @@ export interface RoleplayTurn { sessionId: string; reply: string; status: "activ
 export async function startRoleplay(
   deps: SvcDeps, llm: Llm, args: RoleplayArgs & { competencyId: string },
 ): Promise<RoleplayTurn> {
-  const persona = pickPersona(args.competencyName);
+  // Si el responsable ha dado un brief (instrucciones al agente), manda sobre el personaje automático.
+  const persona = (args.brief && args.brief.trim()) ? args.brief.trim().slice(0, 1500) : pickPersona(args.competencyName);
   const ctx = [args.sector, args.puesto].filter(Boolean).join(", ");
   const system = personaSystem(persona, args.competencyName, ctx);
   const opening = await llm.generate({

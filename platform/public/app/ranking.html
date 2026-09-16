@@ -30,10 +30,10 @@
 <body>
 <div class="topbar">
   <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
     </defs>
     <g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
     <g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
@@ -59,15 +59,15 @@
 <script>
 var TIERS = [
   { key: 'aprendiz', label: 'Aprendiz', min: 0, scale: 0.70, ring: '#8F8F8F' },
-  { key: 'practicante', label: 'Practicante', min: 100, scale: 0.82, ring: '#0891B2' },
-  { key: 'referente', label: 'Referente', min: 300, scale: 1, ring: '#8B5CF6' },
-  { key: 'inspirador', label: 'Inspirador', min: 700, scale: 1.15, ring: '#E4A900' },
+  { key: 'practicante', label: 'Practicante', min: 100, scale: 0.82, ring: '#1a9aa0' },
+  { key: 'referente', label: 'Referente', min: 300, scale: 1, ring: '#8a5f7c' },
+  { key: 'inspirador', label: 'Inspirador', min: 700, scale: 1.15, ring: '#F0C645' },
   { key: 'leyenda', label: 'Leyenda', min: 1500, scale: 1.3, ring: 'url(#legendGrad)' },
 ];
 function avatarSvg(size) {
   return '<svg class="beyes" width="' + Math.round(size * 0.6) + '" height="' + Math.round(size * 0.34) + '" viewBox="0 0 100 58">' +
-    '<defs><linearGradient id="ag1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>' +
-    '<radialGradient id="ai1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient></defs>' +
+    '<defs><linearGradient id="ag1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>' +
+    '<radialGradient id="ai1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient></defs>' +
     '<g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#ag1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#ai1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>' +
     '<g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#ag1)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#ai1)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>';
 }
@@ -98,7 +98,7 @@ function rowHtml(rank, name, points, isMe) {
   var myId = s.user.id;
 
   document.getElementById('legend').innerHTML = TIERS.map(function (t) {
-    return '<span><i style="background:' + (t.ring.indexOf('url') === 0 ? '#E4A900' : t.ring) + '"></i>' + t.label + ' · ' + t.min + '+ pts</span>';
+    return '<span><i style="background:' + (t.ring.indexOf('url') === 0 ? '#F0C645' : t.ring) + '"></i>' + t.label + ' · ' + t.min + '+ pts</span>';
   }).join('');
 
   try {

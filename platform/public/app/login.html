@@ -9,17 +9,17 @@
 <link rel="stylesheet" href="/app/theme.css">
 <style>
 body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--dark);
-  background-image:radial-gradient(circle at 15% 15%,rgba(0,212,255,.10),transparent 42%),radial-gradient(circle at 85% 85%,rgba(236,72,153,.10),transparent 42%)}
+  background-image:radial-gradient(circle at 15% 15%,rgba(63,216,224,.10),transparent 42%),radial-gradient(circle at 85% 85%,rgba(138,95,124,.10),transparent 42%)}
 .card{width:100%;max-width:400px;padding:36px;background:var(--dark2);border:1px solid rgba(255,255,255,.08);color:var(--ink);box-shadow:0 30px 70px rgba(0,0,0,.4)}
 .logohead{display:flex;justify-content:center;margin-bottom:26px}
 .blogo{color:#fff;font-size:24px}
-.kx{font-family:'Caveat',cursive;font-size:16px;color:#67E8F9;text-align:center;margin:-18px 0 24px}
+.kx{font-family:'Caveat',cursive;font-size:16px;color:#3FD8E0;text-align:center;margin:-18px 0 24px}
 h1{font-size:20px;text-align:center;margin-bottom:20px;color:#fff}
 label{color:var(--ink-mut)}
 input{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#fff}
 input::placeholder{color:#6b6480}
 .swap{text-align:center;margin-top:16px;font-size:13px;color:var(--ink-mut)}
-.swap a{color:#67E8F9;font-weight:700;text-decoration:none;cursor:pointer}
+.swap a{color:#3FD8E0;font-weight:700;text-decoration:none;cursor:pointer}
 .err{color:#fda4af;font-size:13px;margin-top:8px;min-height:16px}
 </style>
 </head>
@@ -27,10 +27,10 @@ input::placeholder{color:#6b6480}
 <div class="card">
   <div class="logohead">
     <span class="blogo">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><defs>
-      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-      <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-      <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-      <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+      <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+      <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+      <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
       </defs>
       <g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
       <g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
@@ -53,6 +53,7 @@ input::placeholder{color:#6b6480}
   <div class="swap">
     <span id="swapText">¿Primera vez de tu empresa?</span> <a id="swapLink">Crear cuenta y empresa</a>
   </div>
+  <div class="swap" id="forgotRow" style="margin-top:10px"><a id="forgot">He olvidado mi contraseña</a></div>
 </div>
 <script src="/app/api.js"></script>
 <script>
@@ -68,6 +69,20 @@ function setMode(m) {
   document.getElementById('err').textContent = '';
 }
 document.getElementById('swapLink').addEventListener('click', function () { setMode(mode === 'login' ? 'signup' : 'login'); });
+
+// Recuperar contraseña: envia un enlace al email (mensaje neutro, no revela si la cuenta existe).
+document.getElementById('forgot').addEventListener('click', async function () {
+  var err = document.getElementById('err');
+  var email = (document.getElementById('email').value || '').trim();
+  if (!email) { err.style.color = '#fda4af'; err.textContent = 'Escribe tu email arriba y vuelve a pulsar.'; return; }
+  var body = { email: email, redirectTo: location.origin + '/app/reset.html' };
+  try {
+    try { await SkillUp.api('/api/auth/request-password-reset', { method: 'POST', body: body }); }
+    catch (e1) { await SkillUp.api('/api/auth/forget-password', { method: 'POST', body: body }); }
+  } catch (ex) { /* mensaje neutro igualmente */ }
+  err.style.color = '#3FD8E0';
+  err.textContent = 'Si ese email tiene cuenta, te hemos enviado un enlace para cambiar la contraseña.';
+});
 
 document.getElementById('f').addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -97,7 +112,9 @@ document.getElementById('f').addEventListener('submit', async function (e) {
       var mine = await SkillUp.api('/api/auth/organization/list').catch(function () { return []; });
       if (mine.length) await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: mine[0].id } });
     }
-    window.location.href = '/hub.html';
+    var me = await SkillUp.api('/api/org/me').catch(function () { return { role: 'empleado', platformAdmin: false }; });
+    var esGestor = me.platformAdmin || ['admin', 'direccion', 'team_leader', 'inspirador'].indexOf(me.role) !== -1;
+    window.location.href = '/app/inicio.html';
   } catch (ex) {
     err.textContent = ex.message || 'Ha ido mal, revisa los datos';
     btn.disabled = false;

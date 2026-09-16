@@ -14,6 +14,11 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  // Campos del plugin "admin" de better-auth (impersonar usuarios de prueba). Nullable: nadie los tenia antes.
+  role: text("role"),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
 });
 
 export const session = pgTable("session", {
@@ -26,6 +31,8 @@ export const session = pgTable("session", {
   activeOrganizationId: text("active_organization_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  // Plugin "admin": de quien es la sesion real cuando un superadmin esta impersonando a este usuario.
+  impersonatedBy: text("impersonated_by"),
 });
 
 export const account = pgTable("account", {
@@ -503,3 +510,39 @@ export const schema = {
   pricingTier, subscription,
   baselineSnapshot, aiUsage, roleplaySession, analyticsSnapshot,
 };
+
+/* Anotaciones del alumno sobre el curso (subrayar, nota, pregunta, repasar). Por org + usuario. */
+export const annotation = pgTable("annotation", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  source: text("source").notNull(),
+  card: integer("card").notNull().default(0),
+  cardTitle: text("card_title"),
+  kind: text("kind").notNull(),
+  quote: text("quote"),
+  body: text("body"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byUserSrc: index("annotation_user_src").on(t.organizationId, t.userId, t.source) }));
+
+/* Resultados de YouTube cacheados por tema, para no golpear la cuota de la API en cada carga.
+ * pinned queda sin usar aun: hueco para cuando haya curacion manual desde la Consola. */
+export const videoCache = pgTable("video_cache", {
+  id: text("id").primaryKey(),
+  topic: text("topic").notNull(),
+  sortType: text("sort_type").notNull(),
+  videos: jsonb("videos").notNull(),
+  pinned: boolean("pinned").notNull().default(false),
+  fetchedAt: timestamp("fetched_at").notNull().defaultNow(),
+}, (t) => ({ byTopicSort: uniqueIndex("video_cache_topic_sort_uidx").on(t.topic, t.sortType) }));
+
+/* Reproducciones internas de video dentro de SkillUp (slider "Brandooers Favs" = popularidad real del equipo). */
+export const videoEvent = pgTable("video_event", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  youtubeId: text("youtube_id").notNull(),
+  title: text("title").notNull(),
+  thumbnail: text("thumbnail").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byYoutubeId: index("video_event_youtube_idx").on(t.youtubeId) }));
