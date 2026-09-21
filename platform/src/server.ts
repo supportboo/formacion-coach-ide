@@ -1219,6 +1219,24 @@ app.post("/api/platform/users/set-state", async (c) => {
   return c.json({ ok: true });
 });
 
+// A3: ajustar puntos a mano (corrige el ranking) con motivo y auditoría. Puede ser negativo.
+app.post("/api/platform/users/adjust-points", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1),
+    delta: z.number().int().min(-100000).max(100000), reason: z.string().min(1).max(200) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const [m] = await db.select({ id: member.id }).from(member)
+    .where(and(eq(member.organizationId, parsed.data.organizationId), eq(member.userId, parsed.data.userId)));
+  if (!m) return c.json({ error: "ese usuario no pertenece a esa organización" }, 404);
+  await propagationSvc.awardPoints(svcDeps, parsed.data.organizationId, parsed.data.userId,
+    propagationSvc.currentSeason(), parsed.data.delta, "ajuste manual: " + parsed.data.reason);
+  await db.insert(auditLog).values({ id: newId(), organizationId: parsed.data.organizationId, userId: null,
+    action: "platform.adjust-points", meta: { by: admin.userId, target: parsed.data.userId, delta: parsed.data.delta, reason: parsed.data.reason } });
+  return c.json({ ok: true });
+});
+
 // Reactivar y hacer que rehaga el onboarding: borra su perfil, ADN y ruta; vuelve a "aprobado" (A2).
 app.post("/api/platform/users/reset-onboarding", async (c) => {
   const admin = await getPlatformAdminSession(c);
@@ -1380,8 +1398,23 @@ app.post("/api/learning/challenges/:id/complete", async (c) => {
   try { obj = JSON.parse(String(target.body).slice(6).trim()); } catch { obj = {}; }
   obj.estado = "hecho"; obj.completedAt = new Date().toISOString();
   if (parsed.data.resultado) obj.resultado = parsed.data.resultado.slice(0, 6000);
+  // P6: un reto de tipo "caso" con competencia entra en la cola de validación humana (no solo "hecho").
+  let caseId: string | null = null;
+  if (obj.tipo === "caso" && typeof obj.competencyId === "string" && obj.competencyId) {
+    const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, obj.competencyId);
+    if (comp) {
+      try {
+        caseId = await validationSvc.createCase(svcDeps, {
+          orgId: ctx.orgId, userId: ctx.userId, competencyId: obj.competencyId,
+          prompt: String(obj.titulo || "Reto") + ": " + String(obj.brief || ""),
+        });
+        await validationSvc.submitCase(svcDeps, ctx.orgId, ctx.userId, caseId, parsed.data.resultado || "(entregado desde el reto)");
+        obj.caseId = caseId; obj.estado = "en_validacion";
+      } catch { caseId = null; }
+    }
+  }
   await db.update(annotation).set({ body: "[reto] " + JSON.stringify(obj) }).where(eq(annotation.id, target.id));
-  return c.json({ ok: true });
+  return c.json({ ok: true, caseId, enValidacion: !!caseId });
 });
 
 const assistantBody = z.object({ message: z.string().min(1) });

@@ -221,6 +221,7 @@ function userRowsHTML(list){
         acts+='<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-set="desactivado" '+du+' title="Bloquea el acceso temporalmente">Desactivar</button>';
         acts+=' <button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-set="archivado" '+du+' title="Archiva la cuenta (recuperable), no borra nada">Archivar</button>';
       }
+      acts+=' <button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-pts="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'" title="Ajustar puntos a mano (corrige el ranking)">± Puntos</button>';
       acts+=' <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" data-delu="'+E(u.userId)+'" title="Borrado DEFINITIVO e irreversible. Mejor archiva.">Borrar definitivamente</button>';
     }
     return '<tr><td><b style="color:var(--ink)">'+E(u.name||'—')+'</b><br><span class="mono">'+E(u.email||'')+'</span>'+(u.platformAdmin?' <span class="pill sa">superadmin</span>':'')+'</td>'
@@ -248,6 +249,15 @@ function bindUserRows(box){
   }; });
   box.querySelectorAll('button[data-delu]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/users/delete',{method:'POST',body:{userId:b.getAttribute('data-delu')}}); DATA.users=DATA.users.filter(function(x){return x.userId!==b.getAttribute('data-delu');}); reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
   box.querySelectorAll('button[data-reonb]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; b.textContent='…'; try{ await SkillUp.api('/api/platform/users/reset-onboarding',{method:'POST',body:{userId:b.getAttribute('data-u'),organizationId:b.getAttribute('data-o')}}); DATA.userStates=null; reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
+  box.querySelectorAll('button[data-pts]').forEach(function(b){ b.onclick=function(){
+    if(b.nextSibling&&b.nextSibling.className==='ptsbox'){ b.nextSibling.remove(); return; }
+    var w=document.createElement('span'); w.className='ptsbox'; w.style.cssText='display:inline-flex;gap:5px;align-items:center;margin-left:6px';
+    var d=document.createElement('input'); d.type='number'; d.placeholder='±pts'; d.style.cssText='width:64px;font-size:11px;padding:4px 6px';
+    var r=document.createElement('input'); r.placeholder='motivo'; r.style.cssText='width:120px;font-size:11px;padding:4px 6px';
+    var ap=document.createElement('button'); ap.className='btn btn-grad'; ap.style.cssText='padding:5px 10px;font-size:11px'; ap.textContent='Aplicar';
+    ap.onclick=async function(){ var delta=parseInt(d.value,10); if(!delta||!r.value.trim()){ r.focus(); return; } ap.disabled=true; try{ await SkillUp.api('/api/platform/users/adjust-points',{method:'POST',body:{userId:b.getAttribute('data-pts'),organizationId:b.getAttribute('data-o'),delta:delta,reason:r.value.trim()}}); ap.textContent='Hecho'; setTimeout(function(){w.remove();},900); }catch(e){ ap.disabled=false; alert('No se pudo: '+(e.message||'')); } };
+    w.appendChild(d); w.appendChild(r); w.appendChild(ap); b.parentNode.insertBefore(w,b.nextSibling); d.focus();
+  }; });
 }
 function renderUsers(q){
   var box=document.getElementById('utbl'); if(!box)return;
