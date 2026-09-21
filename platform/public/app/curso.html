@@ -664,5 +664,14 @@ SkillUp.session().then(function(s){
 }).catch(function(e){ if(e&&e.message==='__pending'){ setBoot('Tu cuenta está pendiente de aprobación. Los cursos se abrirán en cuanto el administrador te apruebe.',100); } else { setBoot('No se ha podido cargar el curso. Recarga la página.',100); } });
 })();
 </script>
+<script src="/app/gestures.js"></script>
+<script>
+if(window.SkillUpGestures){ SkillUpGestures.onIntent(function(i){
+  if(i==='next'){ var n=document.getElementById('next'); if(n){ n.click(); return true; } }
+  if(i==='prev'){ var p=document.getElementById('prev'); if(p){ p.click(); return true; } }
+  if(i==='ask'){ var c=document.getElementById('chat'); if(c){ c.classList.add('open'); var ci=document.getElementById('chatInput'); if(ci) ci.focus(); return true; } }
+  return false; // down/up: scroll por defecto
+}); }
+</script>
 </body>
 </html>
