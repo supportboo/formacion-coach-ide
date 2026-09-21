@@ -12,7 +12,7 @@ import { chat } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession } from "./db/schema.js";
+import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, auditLog } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import * as aiContent from "./services/aiContent.js";
 import { rateLimited } from "./util/rateLimit.js";
@@ -1211,9 +1211,28 @@ app.post("/api/platform/users/approve", async (c) => {
 app.post("/api/platform/users/set-state", async (c) => {
   const admin = await getPlatformAdminSession(c);
   if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
-  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1), state: z.enum(["aprobado", "desactivado", "pendiente"]) }).safeParse(await c.req.json().catch(() => ({})));
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1), state: z.enum(["aprobado", "desactivado", "pendiente", "archivado"]) }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   await setAccountState(parsed.data.organizationId, parsed.data.userId, parsed.data.state);
+  await db.insert(auditLog).values({ id: newId(), organizationId: parsed.data.organizationId, userId: null,
+    action: "platform.set-state", meta: { by: admin.userId, target: parsed.data.userId, state: parsed.data.state } });
+  return c.json({ ok: true });
+});
+
+// Reactivar y hacer que rehaga el onboarding: borra su perfil, ADN y ruta; vuelve a "aprobado" (A2).
+app.post("/api/platform/users/reset-onboarding", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const { organizationId: oid, userId: uid } = parsed.data;
+  await db.delete(onboardingProfile).where(and(eq(onboardingProfile.organizationId, oid), eq(onboardingProfile.userId, uid)));
+  await db.delete(teamDna).where(and(eq(teamDna.organizationId, oid), eq(teamDna.userId, uid)));
+  await db.delete(annotation).where(and(eq(annotation.organizationId, oid), eq(annotation.userId, uid), eq(annotation.source, "ruta")));
+  await db.delete(annotation).where(and(eq(annotation.organizationId, oid), eq(annotation.userId, uid), eq(annotation.source, "onboarding")));
+  await setAccountState(oid, uid, "aprobado");
+  await db.insert(auditLog).values({ id: newId(), organizationId: oid, userId: null,
+    action: "platform.reset-onboarding", meta: { by: admin.userId, target: uid } });
   return c.json({ ok: true });
 });
 
@@ -1239,6 +1258,8 @@ app.post("/api/platform/users/delete", async (c) => {
   const parsed = z.object({ userId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   if (parsed.data.userId === admin.userId) return c.json({ error: "no puedes borrar tu propia cuenta desde aquí" }, 400);
+  await db.insert(auditLog).values({ id: newId(), organizationId: "", userId: null,
+    action: "platform.delete-user", meta: { by: admin.userId, target: parsed.data.userId } });
   await db.delete(user).where(eq(user.id, parsed.data.userId));
   return c.json({ ok: true });
 });

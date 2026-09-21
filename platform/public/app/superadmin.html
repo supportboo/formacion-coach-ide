@@ -208,12 +208,20 @@ function userRowsHTML(list){
   return '<table class="tbl"><thead><tr><th>Persona</th><th>Empresa</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+list.map(function(u){
     var sel=u.organizationId?('<select data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">'+ROLES.map(function(r){return '<option value="'+r+'"'+(r===u.orgRole?' selected':'')+'>'+r+'</option>';}).join('')+'</select>'):'<span class="mono">sin empresa</span>';
     var st=userState(u);
-    var stPill=st?('<span class="pill" style="color:'+(st==='aprobado'?'var(--green)':(st==='pendiente'?'var(--gold)':'var(--red)'))+'">'+E(st==='aprobado'?'activo':st)+'</span>'):'';
+    var stColor=st==='aprobado'?'var(--green)':(st==='pendiente'?'var(--gold)':(st==='archivado'?'var(--muted)':'var(--red)'));
+    var stPill=st?('<span class="pill" style="color:'+stColor+'">'+E(st==='aprobado'?'activo':st)+'</span>'):'';
     var acts=u.email?'<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-pw="'+E(u.userId)+'" title="Envía a '+E(u.email)+' un enlace para elegir contraseña nueva">Restablecer contraseña</button> ':'';
     if(!u.platformAdmin && u.organizationId){
-      if(st==='pendiente'||st==='desactivado') acts+='<button class="btn btn-grad" style="padding:6px 10px;font-size:11px" data-set="aprobado" data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">'+(st==='pendiente'?'Aprobar':'Reactivar')+'</button>';
-      else acts+='<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-set="desactivado" data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">Desactivar</button>';
-      acts+=' <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" data-delu="'+E(u.userId)+'">Eliminar</button>';
+      var du='data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'"';
+      if(st==='pendiente') acts+='<button class="btn btn-grad" style="padding:6px 10px;font-size:11px" data-set="aprobado" '+du+'>Aprobar</button>';
+      else if(st==='desactivado'||st==='archivado'){
+        acts+='<button class="btn btn-grad" style="padding:6px 10px;font-size:11px" data-set="aprobado" '+du+'>Reactivar</button>';
+        acts+=' <button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-reonb="1" '+du+' title="Reactiva la cuenta y borra su perfil para que rehaga el onboarding">Reactivar y rehacer onboarding</button>';
+      } else {
+        acts+='<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-set="desactivado" '+du+' title="Bloquea el acceso temporalmente">Desactivar</button>';
+        acts+=' <button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-set="archivado" '+du+' title="Archiva la cuenta (recuperable), no borra nada">Archivar</button>';
+      }
+      acts+=' <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" data-delu="'+E(u.userId)+'" title="Borrado DEFINITIVO e irreversible. Mejor archiva.">Borrar definitivamente</button>';
     }
     return '<tr><td><b style="color:var(--ink)">'+E(u.name||'—')+'</b><br><span class="mono">'+E(u.email||'')+'</span>'+(u.platformAdmin?' <span class="pill sa">superadmin</span>':'')+'</td>'
       +'<td>'+E(u.orgName||'—')+'</td><td>'+sel+'</td><td>'+stPill+'</td><td><div class="rowflex" style="gap:6px;flex-wrap:wrap;align-items:center">'+acts+'</div></td></tr>';
@@ -239,6 +247,7 @@ function bindUserRows(box){
     }catch(e){ b.disabled=false; b.textContent='Restablecer contraseña'; alert('No se pudo: '+(e.message||'')); }
   }; });
   box.querySelectorAll('button[data-delu]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/users/delete',{method:'POST',body:{userId:b.getAttribute('data-delu')}}); DATA.users=DATA.users.filter(function(x){return x.userId!==b.getAttribute('data-delu');}); reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
+  box.querySelectorAll('button[data-reonb]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; b.textContent='…'; try{ await SkillUp.api('/api/platform/users/reset-onboarding',{method:'POST',body:{userId:b.getAttribute('data-u'),organizationId:b.getAttribute('data-o')}}); DATA.userStates=null; reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
 }
 function renderUsers(q){
   var box=document.getElementById('utbl'); if(!box)return;

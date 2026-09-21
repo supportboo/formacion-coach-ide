@@ -75,7 +75,10 @@ export async function getAuthContext(c: Context): Promise<AuthCtx | null> {
     .where(and(eq(member.organizationId, orgId), eq(member.userId, s.user.id)));
   if (!m) return null;
   // Deactivated accounts are locked out of every route, not just course content.
-  if (!isPlatformAdmin({ userEmail: s.user.email }) && (await getAccountState(orgId, s.user.id)) === "desactivado") return null;
+  if (!isPlatformAdmin({ userEmail: s.user.email })) {
+    const st = await getAccountState(orgId, s.user.id);
+    if (st === "desactivado" || st === "archivado") return null; // bloqueada / archivada
+  }
   const [org] = await db.select().from(organization).where(eq(organization.id, orgId));
   return {
     orgId, userId: s.user.id,
