@@ -12,8 +12,8 @@ if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
   exit 1
 fi
 prev=$(git rev-parse HEAD)
-git fetch --quiet origin
-git checkout --quiet --detach "origin/$ref" 2>/dev/null || git checkout --quiet --detach "$ref"
+# The server's refspec only tracks main, so fetch the exact ref asked for (branch or tag); else treat it as a sha.
+if git fetch --quiet origin "$ref" 2>/dev/null; then git checkout --quiet --detach FETCH_HEAD; else git checkout --quiet --detach "$ref"; fi
 echo "deploying $(git log --oneline -1) (was ${prev:0:7})"
 
 rollback() {
