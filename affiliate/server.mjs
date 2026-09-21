@@ -71,6 +71,26 @@ function rateOk(ip) {
   w.n++; hits.set(ip, w); return w.n <= 10;
 }
 
+// P11 — unificación de login: si no hay cookie legacy (bd_sess), aceptamos una sesión válida del
+// login moderno (better-auth, 8080). Así quien entra por /app no vuelve a loguearse al abrir las
+// páginas antiguas. Fallo CERRADO: sin cookie moderna, cualquier error, timeout o sesión no válida
+// => null (el gate responde 401). No sustituye al login legacy, lo complementa.
+const MODERN_URL = process.env.MODERN_URL || 'http://127.0.0.1:8080';
+async function verifyModernSession(req) {
+  const cookie = req.headers.cookie || '';
+  if (typeof fetch !== 'function' || cookie.indexOf('better-auth') < 0) return null; // sin sesión moderna posible
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 1500);
+  try {
+    const r = await fetch(MODERN_URL + '/api/org/me', { headers: { cookie }, signal: ctl.signal });
+    if (!r.ok) return null;
+    const d = await r.json().catch(() => null);
+    if (!d || d.error || d.approved === false) return null;         // no autenticado o pendiente de aprobar
+    // admin Brandooers (páginas revisiones/usuarios/aff…) = superadmin de plataforma
+    return { user: 'app', admin: d.platformAdmin === true, role: d.platformAdmin ? 'admin' : 'member' };
+  } catch { return null; } finally { clearTimeout(t); }
+}
+
 /* ---------------- AFILIACIÓN ---------------- */
 function reload() {
   return {
@@ -226,14 +246,24 @@ const server = http.createServer(async (req, res) => {
 
   /* ----- AUTH ----- */
   if (path === '/auth/verify') {
+    const needAdmin = url.searchParams.get('admin') === '1';
     const s = session(req);
-    if (!s) { res.writeHead(401); return res.end('no'); }
-    if (url.searchParams.get('admin') === '1' && s.role !== 'admin') { res.writeHead(403); return res.end('no admin'); }
-    res.writeHead(200, { 'x-auth-user': s.u }); return res.end('ok');
+    if (s) {
+      if (needAdmin && s.role !== 'admin') { res.writeHead(403); return res.end('no admin'); }
+      res.writeHead(200, { 'x-auth-user': s.u }); return res.end('ok');
+    }
+    // P11: sin cookie legacy, aceptamos la sesión del login moderno (fallo cerrado dentro del helper).
+    const m = await verifyModernSession(req);
+    if (!m) { res.writeHead(401); return res.end('no'); }
+    if (needAdmin && !m.admin) { res.writeHead(403); return res.end('no admin'); }
+    res.writeHead(200, { 'x-auth-user': m.user }); return res.end('ok');
   }
   if (path === '/auth/me') {
-    const s = session(req); if (!s) return json(res, 401, { error: 'no autenticado' });
-    return json(res, 200, { user: s.u, role: s.role });
+    const s = session(req); if (s) return json(res, 200, { user: s.u, role: s.role });
+    // P11: reconoce también la sesión del login moderno (better-auth) para no forzar un 2º login.
+    const m = await verifyModernSession(req);
+    if (!m) return json(res, 401, { error: 'no autenticado' });
+    return json(res, 200, { user: m.user, role: m.role });
   }
   if (path === '/auth/login' && req.method === 'POST') {
     const ip = String(req.headers['x-real-ip'] || req.socket.remoteAddress || '');
