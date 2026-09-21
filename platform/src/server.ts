@@ -34,6 +34,7 @@ import * as remindersSvc from "./services/reminders.js";
 import * as voiceSvc from "./services/voice.js";
 import * as notesSvc from "./services/notes.js";
 import * as onboardingSvc from "./services/onboarding.js";
+import * as teamdnaSvc from "./services/teamdna.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 
@@ -279,6 +280,42 @@ app.post("/api/onboarding/company", async (c) => {
   try { await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "onboarding", kind: "insight", body: "[Empresa " + res.source + "] " + res.summary }); } catch (e) {}
   return c.json(res);
 });
+/* ---------- Team DNA (arquetipos de fortaleza, determinista) ---------- */
+// Catálogo (preguntas + arquetipos + familias) para pintar el test y el certificado.
+app.get("/api/teamdna/catalog", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({
+    questions: teamdnaSvc.QUESTIONS, archetypes: teamdnaSvc.ARCHETYPES,
+    families: teamdnaSvc.FAMILIES, familyLabel: teamdnaSvc.FAMILY_LABEL, familySub: teamdnaSvc.FAMILY_SUB,
+  });
+});
+app.get("/api/teamdna/me", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const row = await teamdnaSvc.getDna(svcDeps, ctx.orgId, ctx.userId);
+  if (!row) return c.json({ dna: null });
+  return c.json({ dna: row, archetype: teamdnaSvc.archetypeByKey(row.archetype) ?? null });
+});
+app.post("/api/teamdna/answers", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ answers: z.array(z.enum(["vision", "accion", "analisis", "personas"])).min(4).max(40) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const result = teamdnaSvc.scoreDna(parsed.data.answers);
+  await teamdnaSvc.saveDna(svcDeps, ctx.orgId, ctx.userId, result, parsed.data.answers);
+  return c.json({ dna: result, archetype: teamdnaSvc.archetypeByKey(result.archetypeKey) ?? null });
+});
+// Mezcla del equipo (para gestores): cobertura de familias y arquetipos, peso medio.
+const DNA_MANAGERS = ["admin", "direccion", "team_leader", "inspirador"];
+app.get("/api/teamdna/team", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !DNA_MANAGERS.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await teamdnaSvc.teamAggregate(svcDeps, ctx.orgId));
+});
+
 app.get("/api/voice/voices", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);

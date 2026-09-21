@@ -525,6 +525,21 @@ export const annotation = pgTable("annotation", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byUserSrc: index("annotation_user_src").on(t.organizationId, t.userId, t.source) }));
 
+/* Team DNA: foto de fortalezas del usuario (arquetipo + pesos por familia). Una fila por usuario/org. */
+export const teamDna = pgTable("team_dna", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  weights: jsonb("weights").$type<Record<string, number>>().notNull(),
+  primary: text("primary").notNull(),
+  secondary: text("secondary").notNull(),
+  archetype: text("archetype").notNull(),
+  near: jsonb("near").$type<string[]>().notNull().default([]),
+  answers: jsonb("answers").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({ byUser: uniqueIndex("team_dna_user_uidx").on(t.organizationId, t.userId) }));
+
 /* Resultados de YouTube cacheados por tema, para no golpear la cuota de la API en cada carga.
  * pinned queda sin usar aun: hueco para cuando haya curacion manual desde la Consola. */
 export const videoCache = pgTable("video_cache", {

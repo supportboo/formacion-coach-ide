@@ -232,7 +232,7 @@ function bizPanel(o){
     +(dom?'<div class="src">Leído de <a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(dom)+'</a></div>':'')
     +rows.map(function(r){return '<div class="row2"><div class="lbl">'+esc(r[0])+'</div><div class="val">'+esc(r[1])+'</div></div>';}).join('')
     +(chips.length?'<div class="facts">'+chips.map(function(f){return '<div class="fact"><i>'+esc(f[0])+'</i><b>'+esc(f[1])+'</b></div>';}).join('')+'</div>':'')
-    +'<div class="foot">Tus tutores ya lo tienen presente y te hablarán con ejemplos de lo tuyo. <a href="/app/bienvenida.html">Actualizar</a></div></div>';
+    +'<div class="foot">Tus tutores ya lo tienen presente y te hablarán con ejemplos de lo tuyo. <a href="/app/bienvenida.html">Actualizar</a> · <a href="/app/team-dna.html">Tu ADN de aprendizaje</a></div></div>';
 }
 // Hoja de ruta real de formatos de contenido: solo marcamos "activo" lo que ya funciona hoy.
 var RM=[
