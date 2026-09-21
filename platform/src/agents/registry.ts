@@ -13,6 +13,8 @@ export interface AgentContext {
   contextSnippets: string[]; // fragmentos RAG recuperados
   sector?: string | null; // del onboarding del propio usuario -- mismo dato que ya usan tests/casos
   puesto?: string | null;
+  ruta?: string[]; // títulos de los módulos de SU ruta (para no decir "no sé qué estás estudiando")
+  avance?: string | null; // resumen breve de su nivel actual
 }
 
 export interface AgentDef {
@@ -34,7 +36,9 @@ function withContext(role: string, mission: string) {
     const puesto = [ctx.sector && `sector ${ctx.sector}`, ctx.puesto && `puesto ${ctx.puesto}`].filter(Boolean).join(", ");
     return `${BASE}\n\nEmpresa: ${ctx.orgName}. Usuario: ${ctx.userName} (rol: ${role}${puesto ? `, ${puesto}` : ""}).\n${mission}\n` +
       (puesto ? `Adapta tus ejemplos y explicaciones a su día a día real (${puesto}), no genéricos.\n` : "") +
-      `\n` +
+      (ctx.ruta && ctx.ruta.length ? `Su ruta de aprendizaje: ${ctx.ruta.join(" · ")}.\n` : "") +
+      (ctx.avance ? `Su avance: ${ctx.avance}.\n` : "") +
+      `No empieces disculpándote por lo que no sabes; con lo que tienes (puesto, ruta, avance) da algo útil desde la primera frase.\n\n` +
       (ctx.contextSnippets.length
         ? `Contexto recuperado (úsalo, no lo contradigas):\n- ${ctx.contextSnippets.join("\n- ")}`
         : "No hay contexto recuperado para esta consulta.");

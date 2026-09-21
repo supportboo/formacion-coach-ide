@@ -1,6 +1,6 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import type { DB } from "../db/index.js";
-import { agentMessage, agentThread, auditLog } from "../db/schema.js";
+import { agentMessage, agentThread, annotation, auditLog, levelByCompetency } from "../db/schema.js";
 import type { Embeddings } from "../rag/embeddings.js";
 import { retrieve } from "../rag/rag.js";
 import type { VectorStore } from "../rag/store.js";
@@ -54,10 +54,14 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   // 2) recuperar contexto RAG de la org + perfil (sector/puesto) para personalizar como ya hace aiContent
   const hits = await retrieve(deps.store, deps.emb, input.orgId, input.message, 5);
   const profile = await getOnboardingProfile({ db: deps.db, newId: deps.newId }, input.orgId, input.userId);
+  const [ruta, avance] = await Promise.all([
+    learnerRoute(deps.db, input.orgId, input.userId),
+    learnerProgress(deps.db, input.orgId, input.userId),
+  ]);
   const ctx: AgentContext = {
     orgName: input.orgName, userName: input.userName,
     contextSnippets: hits.map((h) => h.content),
-    sector: profile?.sector, puesto: profile?.puesto,
+    sector: profile?.sector, puesto: profile?.puesto, ruta, avance,
   };
 
   // 3) historial reciente del hilo
@@ -86,4 +90,26 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   });
 
   return { threadId, reply };
+}
+
+/** Módulos de la ruta del alumno (guardada como nota source='ruta' body '[ruta-plan] <json>'). */
+async function learnerRoute(db: DB, orgId: string, userId: string): Promise<string[]> {
+  const rows = await db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "ruta")))
+    .orderBy(desc(annotation.createdAt));
+  const plan = rows.find((r) => String(r.body || "").startsWith("[ruta-plan]"));
+  if (!plan) return [];
+  try {
+    const p = JSON.parse(String(plan.body).slice("[ruta-plan]".length).trim()) as { modulos?: { titulo?: string }[] };
+    return (p.modulos || []).map((m) => m.titulo || "").filter(Boolean).slice(0, 8);
+  } catch { return []; }
+}
+
+/** Resumen breve del nivel actual del alumno, sin exponer la mecánica de puntos. */
+async function learnerProgress(db: DB, orgId: string, userId: string): Promise<string | null> {
+  const rows = await db.select({ level: levelByCompetency.level }).from(levelByCompetency)
+    .where(and(eq(levelByCompetency.organizationId, orgId), eq(levelByCompetency.userId, userId)));
+  if (!rows.length) return null;
+  const max = Math.max(...rows.map((r) => r.level));
+  return `va por Nivel ${max} en ${rows.length} competencia${rows.length > 1 ? "s" : ""}`;
 }
