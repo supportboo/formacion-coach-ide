@@ -15,6 +15,7 @@ export interface AgentContext {
   puesto?: string | null;
   ruta?: string[]; // títulos de los módulos de SU ruta (para no decir "no sé qué estás estudiando")
   avance?: string | null; // resumen breve de su nivel actual
+  estilo?: string | null; // cómo prefiere aprender (guía el formato de los ejemplos/recursos)
 }
 
 export interface AgentDef {
@@ -38,6 +39,7 @@ function withContext(role: string, mission: string) {
       (puesto ? `Adapta tus ejemplos y explicaciones a su día a día real (${puesto}), no genéricos.\n` : "") +
       (ctx.ruta && ctx.ruta.length ? `Su ruta de aprendizaje: ${ctx.ruta.join(" · ")}.\n` : "") +
       (ctx.avance ? `Su avance: ${ctx.avance}.\n` : "") +
+      (ctx.estilo ? `Aprende mejor "${ctx.estilo}": ajusta el FORMATO a eso (p. ej. si es con vídeos, sugiere alguno; si es practicando, propón un ejercicio), nunca el rigor.\n` : "") +
       `No empieces disculpándote por lo que no sabes; con lo que tienes (puesto, ruta, avance) da algo útil desde la primera frase.\n\n` +
       (ctx.contextSnippets.length
         ? `Contexto recuperado (úsalo, no lo contradigas):\n- ${ctx.contextSnippets.join("\n- ")}`

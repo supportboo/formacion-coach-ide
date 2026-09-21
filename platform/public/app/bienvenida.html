@@ -81,7 +81,8 @@ var STEPS=[
 ];
 var step=-1, busy=false;
 
-function save(key,val){ try{ SkillUp.api('/api/notes/add',{method:'POST',body:{source:'onboarding',kind:'insight',body:'['+key+'] '+val}}).catch(function(){}); }catch(e){} }
+var ANS={};
+function save(key,val){ ANS[key]=val; try{ SkillUp.api('/api/notes/add',{method:'POST',body:{source:'onboarding',kind:'insight',body:'['+key+'] '+val}}).catch(function(){}); }catch(e){} }
 
 function ask(){
   step++;
@@ -105,8 +106,15 @@ async function answer(val){
   busy=false;
   setTimeout(ask,400);
 }
-function finish(){
+async function finish(){
   row.hidden=true; chipsEl.hidden=true;
+  // Rellena el perfil real (sector/puesto/motivo) que usan tutor, examen y ruta.
+  // P5: el sector se PROPONE desde la empresa (su sector de catálogo), no lo teclea el alumno.
+  try{
+    var sec=await SkillUp.api('/api/catalog/sectors').catch(function(){return [];});
+    var sector=(Array.isArray(sec)&&sec.length&&sec[0].name)||undefined;
+    await SkillUp.api('/api/learning/onboarding',{method:'POST',body:{puesto:ANS.rol,motivo:ANS.objetivo,sector:sector}}).catch(function(){});
+  }catch(e){}
   bubble('a','Listo, ya te conozco un poco. Ahora descubramos tu ADN de aprendizaje: unas preguntas rápidas y tendrás tu arquetipo y tu certificado. Al terminar se abre tu ruta.');
   done.hidden=false;
   done.innerHTML='<a class="btn" href="/app/team-dna.html">Descubrir mi ADN</a>';

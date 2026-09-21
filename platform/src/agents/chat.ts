@@ -54,14 +54,15 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   // 2) recuperar contexto RAG de la org + perfil (sector/puesto) para personalizar como ya hace aiContent
   const hits = await retrieve(deps.store, deps.emb, input.orgId, input.message, 5);
   const profile = await getOnboardingProfile({ db: deps.db, newId: deps.newId }, input.orgId, input.userId);
-  const [ruta, avance] = await Promise.all([
+  const [ruta, avance, estilo] = await Promise.all([
     learnerRoute(deps.db, input.orgId, input.userId),
     learnerProgress(deps.db, input.orgId, input.userId),
+    learnerStyle(deps.db, input.orgId, input.userId),
   ]);
   const ctx: AgentContext = {
     orgName: input.orgName, userName: input.userName,
     contextSnippets: hits.map((h) => h.content),
-    sector: profile?.sector, puesto: profile?.puesto, ruta, avance,
+    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo,
   };
 
   // 3) historial reciente del hilo
@@ -103,6 +104,15 @@ async function learnerRoute(db: DB, orgId: string, userId: string): Promise<stri
     const p = JSON.parse(String(plan.body).slice("[ruta-plan]".length).trim()) as { modulos?: { titulo?: string }[] };
     return (p.modulos || []).map((m) => m.titulo || "").filter(Boolean).slice(0, 8);
   } catch { return []; }
+}
+
+/** Cómo dijo el alumno que aprende mejor (nota onboarding [estilo]); guía el FORMATO, no el fondo. */
+async function learnerStyle(db: DB, orgId: string, userId: string): Promise<string | null> {
+  const rows = await db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "onboarding")))
+    .orderBy(desc(annotation.createdAt));
+  const r = rows.find((x) => String(x.body || "").startsWith("[estilo]"));
+  return r ? String(r.body).slice("[estilo]".length).trim() : null;
 }
 
 /** Resumen breve del nivel actual del alumno, sin exponer la mecánica de puntos. */

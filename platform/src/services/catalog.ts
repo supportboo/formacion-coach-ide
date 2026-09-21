@@ -79,11 +79,18 @@ function normalizeText(s: string): string {
 
 /** ¿Se refieren a lo mismo? Contención en cualquier dirección, sin acentos ni mayúsculas — nunca
  *  una IA "adivinando": si no hay coincidencia de texto real, no hay match, y no se inventa uno. */
-function textMatches(a: string, b: string): boolean {
-  const na = normalizeText(a);
-  const nb = normalizeText(b);
+// Palabras vacías que no cuentan como coincidencia de puesto/sector.
+const STOP = new Set(["de", "del", "la", "el", "los", "las", "y", "en", "para", "por", "con", "a", "un", "una"]);
+function words(s: string): string[] {
+  return normalizeText(s).split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !STOP.has(w));
+}
+export function textMatches(a: string, b: string): boolean {
+  const na = normalizeText(a), nb = normalizeText(b);
   if (!na || !nb) return false;
-  return na.includes(nb) || nb.includes(na);
+  if (na.includes(nb) || nb.includes(na)) return true;
+  // Coincidencia por palabra significativa compartida (p.ej. "técnico de taller" ↔ "técnico de motos").
+  const wa = new Set(words(a));
+  return words(b).some((w) => wa.has(w));
 }
 
 export interface MatchedPath { pathId: string; title: string; competencyId: string; competencyName: string }
