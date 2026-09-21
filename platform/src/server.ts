@@ -515,7 +515,22 @@ app.post("/api/learning/enroll", async (c) => {
 app.get("/api/learning/mine", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  return c.json(await learningSvc.listMyEnrollments(svcDeps, ctx.orgId, ctx.userId));
+  const rows = await learningSvc.listMyEnrollments(svcDeps, ctx.orgId, ctx.userId);
+  // P16: enriquecemos con nombre de competencia y nivel actual para que "demuéstralo y salta"
+  // solo aparezca en competencias reales del catálogo donde el alumno aún está a nivel 0.
+  const cids = [...new Set(rows.map((r) => r.competencyId).filter((x): x is string => !!x))];
+  const names = new Map<string, string>();
+  const levels = new Map<string, number>();
+  await Promise.all(cids.map(async (cid) => {
+    const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, cid).catch(() => null);
+    if (comp) names.set(cid, comp.name);
+    levels.set(cid, await learningSvc.getLevel(svcDeps, ctx.orgId, ctx.userId, cid).catch(() => 0));
+  }));
+  return c.json(rows.map((r) => ({
+    ...r,
+    competencyName: r.competencyId ? names.get(r.competencyId) ?? null : null,
+    level: r.competencyId ? levels.get(r.competencyId) ?? 0 : null,
+  })));
 });
 
 app.post("/api/learning/test", async (c) => {
