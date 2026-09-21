@@ -6,7 +6,9 @@ export interface Mail { to: string; subject: string; text: string; html?: string
 
 export async function sendMail(m: Mail): Promise<{ ok: boolean; via: "resend" | "log" }> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.MAIL_FROM || "Brandooers SkillUp <no-reply@brandooers.com>";
+  // MAIL_FROM is a bare address shared with the legacy lead notifier (it adds its own display name).
+  const rawFrom = process.env.MAIL_FROM || "no-reply@brandooers.com";
+  const from = rawFrom.includes("<") ? rawFrom : `Brandooers SkillUp <${rawFrom}>`;
   if (key) {
     try {
       const res = await fetch("https://api.resend.com/emails", {
