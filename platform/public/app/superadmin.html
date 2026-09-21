@@ -205,7 +205,8 @@ async function loadPending(){
 }
 function updatePendBadge(n){ var nav=document.querySelector('.navb[data-sec="usuarios"]'); if(!nav)return; var old=nav.querySelector('.pbadge'); if(old)old.remove(); if(n>0){ var s=document.createElement('span'); s.className='pbadge pill sa'; s.style.marginLeft='auto'; s.textContent=n; nav.appendChild(s); } }
 function userRowsHTML(list){
-  return '<table class="tbl"><thead><tr><th>Persona</th><th>Empresa</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+list.map(function(u){
+  return '<div id="bulkbar" hidden style="position:sticky;top:0;z-index:3;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--teal2);border-radius:12px;padding:9px 12px;margin-bottom:10px;box-shadow:var(--sh)"><b style="color:var(--ink)"><span id="bulkn">0</span> seleccionados</b><span style="flex:1"></span><select id="bulkrole" style="font-size:12px;padding:5px 8px"><option value="">Cambiar rol…</option>'+ROLES.map(function(r){return '<option value="'+r+'">'+r+'</option>';}).join('')+'</select><button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-bulk="aprobado">Reactivar</button><button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-bulk="desactivado">Desactivar</button><button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-bulk="archivado">Archivar</button></div>'
+    +'<table class="tbl"><thead><tr><th><input type="checkbox" id="uAll" title="Seleccionar todos"></th><th>Persona</th><th>Empresa</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+list.map(function(u){
     var sel=u.organizationId?('<select data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">'+ROLES.map(function(r){return '<option value="'+r+'"'+(r===u.orgRole?' selected':'')+'>'+r+'</option>';}).join('')+'</select>'):'<span class="mono">sin empresa</span>';
     var st=userState(u);
     var stColor=st==='aprobado'?'var(--green)':(st==='pendiente'?'var(--gold)':(st==='archivado'?'var(--muted)':'var(--red)'));
@@ -224,7 +225,8 @@ function userRowsHTML(list){
       acts+=' <button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-pts="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'" title="Ajustar puntos a mano (corrige el ranking)">± Puntos</button>';
       acts+=' <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" data-delu="'+E(u.userId)+'" title="Borrado DEFINITIVO e irreversible. Mejor archiva.">Borrar definitivamente</button>';
     }
-    return '<tr><td><b style="color:var(--ink)">'+E(u.name||'—')+'</b><br><span class="mono">'+E(u.email||'')+'</span>'+(u.platformAdmin?' <span class="pill sa">superadmin</span>':'')+'</td>'
+    var selCell=(!u.platformAdmin&&u.organizationId)?'<input type="checkbox" class="usel" data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'">':'';
+    return '<tr><td>'+selCell+'</td><td><b style="color:var(--ink)">'+E(u.name||'—')+'</b><br><span class="mono">'+E(u.email||'')+'</span>'+(u.platformAdmin?' <span class="pill sa">superadmin</span>':'')+'</td>'
       +'<td>'+E(u.orgName||'—')+'</td><td>'+sel+'</td><td>'+stPill+'</td><td><div class="rowflex" style="gap:6px;flex-wrap:wrap;align-items:center">'+acts+'</div></td></tr>';
   }).join('')+'</tbody></table>';
 }
@@ -249,6 +251,22 @@ function bindUserRows(box){
   }; });
   box.querySelectorAll('button[data-delu]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/users/delete',{method:'POST',body:{userId:b.getAttribute('data-delu')}}); DATA.users=DATA.users.filter(function(x){return x.userId!==b.getAttribute('data-delu');}); reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
   box.querySelectorAll('button[data-reonb]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; b.textContent='…'; try{ await SkillUp.api('/api/platform/users/reset-onboarding',{method:'POST',body:{userId:b.getAttribute('data-u'),organizationId:b.getAttribute('data-o')}}); DATA.userStates=null; reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
+  // A4: selección múltiple + acciones en masa.
+  function selected(){ return [].slice.call(box.querySelectorAll('.usel:checked')); }
+  function refreshBulk(){ var n=selected().length; var bar=box.querySelector('#bulkbar'); if(bar){ bar.hidden=n===0; var el=box.querySelector('#bulkn'); if(el)el.textContent=n; } }
+  var all=box.querySelector('#uAll'); if(all) all.onchange=function(){ box.querySelectorAll('.usel').forEach(function(c){c.checked=all.checked;}); refreshBulk(); };
+  box.querySelectorAll('.usel').forEach(function(c){ c.onchange=refreshBulk; });
+  async function applyBulk(fn, label){
+    var sel=selected(); if(!sel.length) return;
+    if(!confirm('¿Aplicar «'+label+'» a '+sel.length+' persona(s)?')) return;
+    var bar=box.querySelector('#bulkbar'); if(bar) bar.querySelectorAll('button,select').forEach(function(x){x.disabled=true;});
+    var ok=0,err=0;
+    for(var i=0;i<sel.length;i++){ try{ await fn(sel[i]); ok++; }catch(e){ err++; } }
+    DATA.userStates=null; reRender();
+    if(err) alert('Aplicado a '+ok+', fallaron '+err+'.');
+  }
+  box.querySelectorAll('button[data-bulk]').forEach(function(b){ b.onclick=function(){ var st=b.getAttribute('data-bulk'); applyBulk(function(c){ return SkillUp.api('/api/platform/users/set-state',{method:'POST',body:{userId:c.getAttribute('data-u'),organizationId:c.getAttribute('data-o'),state:st}}); }, b.textContent); }; });
+  var brole=box.querySelector('#bulkrole'); if(brole) brole.onchange=function(){ var role=brole.value; if(!role) return; applyBulk(function(c){ return SkillUp.api('/api/platform/users/set-role',{method:'POST',body:{userId:c.getAttribute('data-u'),organizationId:c.getAttribute('data-o'),role:role}}); }, 'Rol: '+role); brole.value=''; };
   box.querySelectorAll('button[data-pts]').forEach(function(b){ b.onclick=function(){
     if(b.nextSibling&&b.nextSibling.className==='ptsbox'){ b.nextSibling.remove(); return; }
     var w=document.createElement('span'); w.className='ptsbox'; w.style.cssText='display:inline-flex;gap:5px;align-items:center;margin-left:6px';
