@@ -46,6 +46,10 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
   database: drizzleAdapter(db, { provider: "pg", schema }),
+  // Rate limiting per real client IP. nginx overwrites X-Real-IP with $remote_addr; the default
+  // X-Forwarded-For is passed through untouched, so a client could spoof it and dodge login limits
+  // (and without it every user shared one bucket, letting anyone lock out sign-in for all).
+  advanced: { ipAddress: { ipAddressHeaders: ["x-real-ip"] } },
   emailAndPassword: {
     enabled: true,
     // Recuperación de contraseña por enlace (válido 1 hora). El enlace apunta a nuestra propia
