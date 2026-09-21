@@ -188,7 +188,7 @@ SkillUp.session().then(function(s){
 }).catch(function(){ setBoot('No se ha podido cargar. Recarga la página.',100); });
 
 function railBtns(){return NAV.map(function(x,i){return '<a href="'+x[1]+'" class="'+(i===1?'on':'')+'" title="'+x[0]+'">'+ico(x[2])+'<small>'+x[0]+'</small></a>';}).join('')
-  +'<a href="/panel.html" class="gated" title="Panel (responsables)">'+ico('<path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/>')+'<small>Panel</small></a>';}
+  +'<a href="/app/panel.html" class="gated" title="Panel (responsables)">'+ico('<path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/>')+'<small>Panel</small></a>';}
 function tabBtns(){return NAV.map(function(x,i){return '<a href="'+x[1]+'" class="'+(i===1?'on':'')+'">'+ico(x[2])+'<span>'+x[0]+'</span></a>';}).join('');}
 function cardHTML(b){
   var body='<p class="lead">'+b.lead+'</p>';

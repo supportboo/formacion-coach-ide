@@ -139,13 +139,22 @@ app.post("/api/learning/route/build", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   const { temas, objetivo, compromiso, plazo } = parsed.data;
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
+  // P16: el nivel que el alumno declaró en el onboarding ([nivel]) adapta la profundidad de la ruta.
+  const nivel = await (async () => {
+    const rows = await db.select({ body: annotation.body }).from(annotation)
+      .where(and(eq(annotation.organizationId, ctx.orgId), eq(annotation.userId, ctx.userId), eq(annotation.source, "onboarding")))
+      .orderBy(desc(annotation.createdAt));
+    const r = rows.find((x) => String(x.body || "").startsWith("[nivel]"));
+    return r ? String(r.body).slice("[nivel]".length).trim() : null;
+  })().catch(() => null);
   const catalogo = AVAILABLE_COURSES.map((x) => `- src:"${x.src}" | ${x.name}: ${x.desc}`).join("\n");
-  const perfil = [profile?.sector && `sector ${profile.sector}`, profile?.puesto && `puesto ${profile.puesto}`].filter(Boolean).join(", ");
+  const perfil = [profile?.sector && `sector ${profile.sector}`, profile?.puesto && `puesto ${profile.puesto}`, nivel && `se ve a sí mismo: ${nivel}`].filter(Boolean).join(", ");
   const system =
     "Eres el orquestador de aprendizaje de Brandooers SkillUp. El alumno quiere dominar unos temas y tu montas SU ruta. " +
     "Selecciona y ORDENA solo los cursos del catalogo que de verdad sirvan a lo que pide (courseSrc debe ser EXACTAMENTE uno de los \"src\" del catalogo). " +
     "Si pide algo que NINGUN curso cubre, añade como mucho 2 modulos nuevos con courseSrc:null (se prepararan aparte). No metas cursos que no ha pedido para rellenar. " +
     "Entre 2 y 6 modulos. " + (perfil ? "Perfil del alumno: " + perfil + ". " : "") +
+    (nivel ? `Ajusta la PROFUNDIDAD a su nivel declarado (${nivel}): si tiene soltura o experiencia, salta lo básico y empieza más arriba; si empieza, incluye los fundamentos. ` : "") +
     "Español de España, claro, sin inventar. Responde SOLO JSON valido, sin markdown.\n" +
     "Catalogo disponible:\n" + catalogo + "\n\n" +
     "Formato: {\"titulo\":\"...\",\"resumen\":\"1-2 frases\",\"modulos\":[{\"titulo\":\"...\",\"resumen\":\"1 frase\",\"courseSrc\":\"/xxx.html\"|null}]}";
