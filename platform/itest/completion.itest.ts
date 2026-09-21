@@ -23,7 +23,7 @@ describe("gate de progreso + línea base + tiempo a autonomía (integración)", 
     await recordKnowledgeTest(deps, { orgId, userId: learner, pathId, competencyId: compId, score: 90 });
 
     const caseId = await createCase(deps, { orgId, userId: learner, competencyId: compId, pathId, prompt: "resuelve" });
-    await submitCase(deps, orgId, caseId, "resuelto");
+    await submitCase(deps, orgId, learner, caseId, "resuelto");
 
     // gate: pendiente -> no progresa
     await expect(assertCanProgress(deps, orgId, learner, compId)).rejects.toThrow(/pendiente de validar/i);

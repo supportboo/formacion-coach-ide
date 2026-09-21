@@ -32,13 +32,13 @@ async function searchAndStats(topic: string, order: "date" | "viewCount", max = 
   if (!key) return [];
   const searchUrl = `${API}/search?part=snippet&type=video&order=${order}&maxResults=${max}` +
     `&q=${encodeURIComponent(withContext(topic))}&key=${key}`;
-  const sr = await fetch(searchUrl);
+  const sr = await fetch(searchUrl, { signal: AbortSignal.timeout(8000) });
   if (!sr.ok) return [];
   const sj = (await sr.json()) as { items?: { id?: { videoId?: string } }[] };
   const ids = (sj.items || []).map((it) => it.id?.videoId).filter((x): x is string => !!x);
   if (!ids.length) return [];
   const statsUrl = `${API}/videos?part=snippet,statistics,contentDetails&id=${ids.join(",")}&key=${key}`;
-  const vr = await fetch(statsUrl);
+  const vr = await fetch(statsUrl, { signal: AbortSignal.timeout(8000) });
   if (!vr.ok) return [];
   const vj = (await vr.json()) as {
     items?: {

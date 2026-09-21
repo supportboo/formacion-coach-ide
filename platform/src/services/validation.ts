@@ -36,9 +36,9 @@ export async function createCase(
 }
 
 /** El alumno entrega su resolución -> queda pendiente de validación humana. */
-export async function submitCase(deps: SvcDeps, orgId: string, caseId: string, submission: string): Promise<void> {
+export async function submitCase(deps: SvcDeps, orgId: string, userId: string, caseId: string, submission: string): Promise<void> {
   const [c] = await deps.db.select().from(appliedCase)
-    .where(and(eq(appliedCase.id, caseId), eq(appliedCase.organizationId, orgId)));
+    .where(and(eq(appliedCase.id, caseId), eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
   if (!c) throw new Error("caso no encontrado en esta organización");
   if (c.status !== "borrador") throw new Error(`el caso no está en borrador (está: ${c.status})`);
   await deps.db.update(appliedCase)
@@ -54,8 +54,8 @@ export async function addEvidence(
   args: { orgId: string; caseId: string; userId: string; kind: EvidenceKind; url?: string; note?: string },
 ): Promise<string> {
   const [c] = await deps.db.select({ id: appliedCase.id }).from(appliedCase)
-    .where(and(eq(appliedCase.id, args.caseId), eq(appliedCase.organizationId, args.orgId)));
-  if (!c) throw new Error("caso no encontrado en esta organización");
+    .where(and(eq(appliedCase.id, args.caseId), eq(appliedCase.organizationId, args.orgId), eq(appliedCase.userId, args.userId)));
+  if (!c) throw new Error("caso no encontrado (solo el propio alumno añade evidencia a su caso)");
   const id = deps.newId();
   await deps.db.insert(evidence).values({
     id, organizationId: args.orgId, ownerType: "applied_case", ownerId: args.caseId,
@@ -144,12 +144,17 @@ export async function validateCase(deps: SvcDeps, input: ValidateInput): Promise
     throw new Error("el validador no es referente (nivel 3+) ni responsable de esta competencia");
   }
 
+  const status = input.decision === "aprobado" ? "aprobado" : "rechazado";
+  // Compare-and-swap: only the first decision on a delivered case wins (double click / two
+  // validators at once must not pay points or issue certificates twice).
+  const claimed = await deps.db.update(appliedCase).set({ status })
+    .where(and(eq(appliedCase.id, input.caseId), eq(appliedCase.status, "entregado")))
+    .returning({ id: appliedCase.id });
+  if (!claimed.length) throw new Error("este caso ya ha sido validado");
   await deps.db.insert(validation).values({
     id: deps.newId(), organizationId: input.orgId, caseId: input.caseId,
     validatorId: input.validatorId, decision: input.decision, feedback: input.feedback ?? null,
   });
-  const status = input.decision === "aprobado" ? "aprobado" : "rechazado";
-  await deps.db.update(appliedCase).set({ status }).where(eq(appliedCase.id, input.caseId));
 
   if (input.decision === "aprobado") {
     await setLevelAtLeast(deps, input.orgId, c.userId, c.competencyId, 2);

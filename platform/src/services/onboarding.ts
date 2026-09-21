@@ -1,6 +1,7 @@
 // Onboarding: analiza la web de la empresa para preparar a los tutores.
 // Escrapea (fetch simple) + resume con IA sin inventar. Coste LLM acotado (entrada ~6k chars, salida corta).
 import { llm } from "../container.js";
+import { fetchPublic } from "../util/publicUrl.js";
 
 function stripHtml(html: string): string {
   return html
@@ -20,8 +21,8 @@ export async function analyzeCompany(url: string): Promise<{ summary: string; so
   if (!/^https?:\/\//i.test(u)) u = "https://" + u.replace(/^\/+/, "");
   let text = "";
   try {
-    const r = await fetch(u, { signal: AbortSignal.timeout(12000), headers: { "user-agent": "Mozilla/5.0 (compatible; SkillUpBot)" } });
-    if (!r.ok) return null;
+    const r = await fetchPublic(u, { signal: AbortSignal.timeout(12000), headers: { "user-agent": "Mozilla/5.0 (compatible; SkillUpBot)" } });
+    if (!r?.ok) return null;
     text = stripHtml(await r.text()).slice(0, 6000);
   } catch {
     return null;

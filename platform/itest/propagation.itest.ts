@@ -20,7 +20,7 @@ async function newLearner(orgId: string) {
 async function toN2(orgId: string, learner: string, pathId: string, compId: string, admin: string) {
   await recordKnowledgeTest(deps, { orgId, userId: learner, pathId, competencyId: compId, score: 90 });
   const caseId = await createCase(deps, { orgId, userId: learner, competencyId: compId, pathId, prompt: "resuelve" });
-  await submitCase(deps, orgId, caseId, "resuelto");
+  await submitCase(deps, orgId, learner, caseId, "resuelto");
   await validateCase(deps, { orgId, caseId, validatorId: admin, validatorRole: "admin", decision: "aprobado" });
   await onLearnerReachedN2(deps, { orgId, learnerId: learner, competencyId: compId, season: SEASON });
 }

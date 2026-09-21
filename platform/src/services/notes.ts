@@ -1,6 +1,6 @@
 // Anotaciones del alumno sobre el propio curso (subrayados, notas, preguntas, marcar para repasar).
 // Cada usuario tiene su versión: acotado por organización + usuario. Base de "el curso como superficie".
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { annotation } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
@@ -33,6 +33,7 @@ export async function create(deps: SvcDeps, orgId: string, userId: string, d: No
 }
 
 export async function remove(deps: SvcDeps, orgId: string, userId: string, id: string) {
+  // Never let a user delete their own account-state row (would reset them to "approved").
   await deps.db.delete(annotation)
-    .where(and(eq(annotation.id, id), eq(annotation.organizationId, orgId), eq(annotation.userId, userId)));
+    .where(and(eq(annotation.id, id), eq(annotation.organizationId, orgId), eq(annotation.userId, userId), ne(annotation.source, "cuenta")));
 }

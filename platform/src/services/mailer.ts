@@ -13,6 +13,7 @@ export async function sendMail(m: Mail): Promise<{ ok: boolean; via: "resend" | 
         method: "POST",
         headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
         body: JSON.stringify({ from, to: m.to, subject: m.subject, text: m.text, html: m.html }),
+        signal: AbortSignal.timeout(8000),
       });
       if (res.ok) return { ok: true, via: "resend" };
       console.error("[mailer] Resend respondió", res.status, (await res.text().catch(() => "")).slice(0, 200));

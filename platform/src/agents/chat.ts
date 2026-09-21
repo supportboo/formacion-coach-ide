@@ -39,9 +39,11 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   let threadId = input.threadId;
   if (threadId) {
     const [t] = await deps.db.select().from(agentThread)
-      .where(and(eq(agentThread.id, threadId), eq(agentThread.organizationId, input.orgId)));
-    if (!t) throw new Error("hilo no encontrado en esta organización");
-  } else {
+      .where(and(eq(agentThread.id, threadId), eq(agentThread.organizationId, input.orgId), eq(agentThread.userId, input.userId)));
+    // Stale or someone else's thread id (e.g. another profile in the same browser): start fresh.
+    if (!t) threadId = undefined;
+  }
+  if (!threadId) {
     threadId = deps.newId();
     await deps.db.insert(agentThread).values({
       id: threadId, organizationId: input.orgId, userId: input.userId,

@@ -7,7 +7,7 @@ import { z } from "zod";
 import { auth } from "./auth/auth.js";
 import { capabilitiesFor } from "./auth/capabilities.js";
 import { env } from "./config/env.js";
-import { getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
+import { ACCOUNT_SOURCE, getAccountState, getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
 import { chat } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument } from "./rag/rag.js";
@@ -40,26 +40,13 @@ import * as videosSvc from "./services/videos.js";
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
 
-// Estado de cuenta (nota canónica única source='cuenta', body='[cuenta] <estado>'):
-//  aprobado = acceso normal · pendiente = registro externo sin aprobar · desactivado = bloqueado.
-// Sin nota = usuario previo a esta regla = aprobado (grandfathered). Anti-infiltrados + activar/desactivar.
-async function getAccountState(orgId: string, userId: string): Promise<string | null> {
-  const rows = await db.select().from(annotation)
-    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "cuenta")))
-    .orderBy(desc(annotation.createdAt));
-  for (const r of rows) {
-    const b = String(r.body || "");
-    const m = b.match(/^\[(?:cuenta|aprobacion)\]\s*(\w+)/i);
-    if (m) return m[1].toLowerCase();
-  }
-  return null;
-}
+// Estado de cuenta: ver getAccountState en http/context.ts (fuente reservada ACCOUNT_SOURCE).
 async function setAccountState(orgId: string, userId: string, state: string): Promise<void> {
   const rows = await db.select().from(annotation)
-    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "cuenta")))
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, ACCOUNT_SOURCE)))
     .orderBy(desc(annotation.createdAt));
   if (rows[0]) await db.update(annotation).set({ body: "[cuenta] " + state }).where(eq(annotation.id, rows[0].id));
-  else await notesSvc.create(svcDeps, orgId, userId, { source: "cuenta", kind: "insight", body: "[cuenta] " + state });
+  else await notesSvc.create(svcDeps, orgId, userId, { source: ACCOUNT_SOURCE, kind: "insight", body: "[cuenta] " + state });
 }
 async function isApproved(orgId: string, userId: string): Promise<boolean> {
   const s = await getAccountState(orgId, userId);
@@ -195,6 +182,8 @@ app.post("/api/learning/route/build", async (c) => {
 app.get("/api/learning/videos", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // Each unseen topic spends shared YouTube quota (all tenants): cap per user.
+  if (rateLimited(`videos:${ctx.orgId}:${ctx.userId}`, 15, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const topic = String(c.req.query("topic") || "").trim().slice(0, 120);
   if (!topic) return c.json({ error: "falta topic" }, 400);
   return c.json(await videosSvc.forTopic(svcDeps, topic));
@@ -231,9 +220,8 @@ app.post("/api/learning/videos/watch", async (c) => {
 });
 
 const chatBody = z.object({
-  message: z.string().min(1),
+  message: z.string().min(1).max(20000),
   threadId: z.string().optional(),
-  role: z.string().optional(),
 });
 
 // Cada usuario habla con su agente de rol. Todo acotado a su organización.
@@ -246,10 +234,9 @@ app.post("/api/agent/chat", async (c) => {
   }
   const parsed = chatBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const role = parsed.data.role ?? ctx.role;
   const res = await chat(chatDeps, {
     orgId: ctx.orgId, orgName: ctx.orgName, userId: ctx.userId, userName: ctx.userName,
-    role, threadId: parsed.data.threadId, message: parsed.data.message,
+    role: ctx.role, threadId: parsed.data.threadId, message: parsed.data.message,
   });
   return c.json(res);
 });
@@ -269,6 +256,7 @@ app.post("/api/notes/add", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   const parsed = noteBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  if (parsed.data.source === ACCOUNT_SOURCE) return c.json({ error: "source reservado" }, 400);
   const id = await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, parsed.data);
   return c.json({ id });
 });
@@ -608,7 +596,7 @@ app.post("/api/validation/cases/:id/submit", async (c) => {
   const parsed = z.object({ submission: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   try {
-    await validationSvc.submitCase(svcDeps, ctx.orgId, c.req.param("id"), parsed.data.submission);
+    await validationSvc.submitCase(svcDeps, ctx.orgId, ctx.userId, c.req.param("id"), parsed.data.submission);
     return c.json({ ok: true });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
@@ -662,7 +650,7 @@ app.get("/api/validation/pending", async (c) => {
 app.post("/api/validation/cases/:id/decide", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  const parsed = z.object({ decision: z.enum(["aprobado", "rechazado"]), feedback: z.string().optional() })
+  const parsed = z.object({ decision: z.enum(["aprobado", "rechazado"]), feedback: z.string().max(4000).optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   try {
@@ -806,12 +794,15 @@ app.post("/api/org/bootstrap-admin", async (c) => {
     await setAccountState(ctx.orgId, ctx.userId, "pendiente");
     const base = env.APP_URL || env.BETTER_AUTH_URL;
     const link = `${base}/app/superadmin.html#usuarios`;
+    // Name and company are typed by an unapproved stranger: escape before putting them in HTML mail.
+    const esc = (s: string) => s.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+    const who = esc(ctx.userName), mail = esc(ctx.userEmail), org = esc(ctx.orgName);
     for (const adminEmail of env.PLATFORM_ADMIN_EMAILS) {
       await sendMail({
         to: adminEmail,
         subject: "Nuevo registro pendiente de aprobación · SkillUp",
         text: `Se ha registrado ${ctx.userName} (${ctx.userEmail}) en la empresa "${ctx.orgName}". Revisa y aprueba (o no) desde la consola:\n${link}`,
-        html: `<p>Nuevo registro <b>pendiente de aprobación</b>:</p><p><b>${ctx.userName}</b> (${ctx.userEmail}) — empresa "${ctx.orgName}".</p><p><a href="${link}" style="display:inline-block;background:#1a9aa0;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-family:Arial,sans-serif">Revisar y aprobar</a></p><p style="color:#888;font-size:13px">Hasta que lo apruebes, esa persona puede hacer el onboarding pero no abrir cursos.</p>`,
+        html: `<p>Nuevo registro <b>pendiente de aprobación</b>:</p><p><b>${who}</b> (${mail}) — empresa "${org}".</p><p><a href="${link}" style="display:inline-block;background:#1a9aa0;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-family:Arial,sans-serif">Revisar y aprobar</a></p><p style="color:#888;font-size:13px">Hasta que lo apruebes, esa persona puede hacer el onboarding pero no abrir cursos.</p>`,
       });
     }
   } catch (e) { /* no bloquear el alta si falla el aviso */ }
@@ -1118,12 +1109,12 @@ app.get("/api/platform/pending", async (c) => {
     const key = r.organizationId + "|" + r.userId;
     if (seen[key]) continue; // primera (más reciente) gana
     const m = String(r.body || "").match(/^\[(?:cuenta|aprobacion)\]\s*(\w+)/i);
-    seen[key] = m ? m[1].toLowerCase() : "";
+    seen[key] = m ? (m[1] ?? "").toLowerCase() : "";
   }
   const out: Array<Record<string, unknown>> = [];
   for (const key of Object.keys(seen)) {
     if (seen[key] !== "pendiente") continue;
-    const [orgId, userId] = key.split("|");
+    const [orgId = "", userId = ""] = key.split("|");
     const [u] = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, userId));
     const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, orgId));
     out.push({ userId, organizationId: orgId, name: u?.name || "", email: u?.email || "", orgName: o?.name || "" });
@@ -1160,7 +1151,7 @@ app.get("/api/platform/users/states", async (c) => {
   for (const r of rows) {
     const key = r.organizationId + "|" + r.userId; if (states[key]) continue;
     const m = String(r.body || "").match(/^\[(?:cuenta|aprobacion)\]\s*(\w+)/i);
-    if (m) states[key] = m[1].toLowerCase();
+    if (m) states[key] = (m[1] ?? "").toLowerCase();
   }
   return c.json({ states });
 });
@@ -1381,7 +1372,11 @@ app.post("/api/privacy/users/:userId/erase", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
-  await privacySvc.eraseUserData(svcDeps, ctx.orgId, c.req.param("userId"));
+  try {
+    await privacySvc.eraseUserData(svcDeps, ctx.orgId, c.req.param("userId"));
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 404);
+  }
   return c.json({ ok: true });
 });
 

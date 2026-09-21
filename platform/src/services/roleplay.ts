@@ -51,9 +51,9 @@ export async function startRoleplay(
   return { sessionId: id, reply: opening, status: "activo" };
 }
 
-async function loadSession(deps: SvcDeps, orgId: string, id: string) {
+async function loadSession(deps: SvcDeps, orgId: string, userId: string, id: string) {
   const [row] = await deps.db.select().from(roleplaySession)
-    .where(and(eq(roleplaySession.id, id), eq(roleplaySession.organizationId, orgId)));
+    .where(and(eq(roleplaySession.id, id), eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
   if (!row) throw new Error("sesión de roleplay no encontrada");
   if (row.status === "cerrado") throw new Error("esta sesión ya está cerrada");
   return row;
@@ -63,7 +63,7 @@ async function loadSession(deps: SvcDeps, orgId: string, id: string) {
 export async function replyRoleplay(
   deps: SvcDeps, llm: Llm, args: { orgId: string; userId: string; sessionId: string; message: string; competencyName: string; sector?: string | null; puesto?: string | null },
 ): Promise<RoleplayTurn> {
-  const row = await loadSession(deps, args.orgId, args.sessionId);
+  const row = await loadSession(deps, args.orgId, args.userId, args.sessionId);
   const ctx = [args.sector, args.puesto].filter(Boolean).join(", ");
   const system = personaSystem(row.persona, args.competencyName, ctx);
   const transcript = [...row.transcript, { role: "user" as const, content: args.message }];
@@ -86,7 +86,7 @@ export interface RoleplaySummary { fortalezas: string[]; areasDeMejora: string[]
 export async function closeRoleplay(
   deps: SvcDeps, llm: Llm, args: { orgId: string; userId: string; sessionId: string; competencyName: string },
 ): Promise<RoleplaySummary> {
-  const row = await loadSession(deps, args.orgId, args.sessionId);
+  const row = await loadSession(deps, args.orgId, args.userId, args.sessionId);
   const dialogue = row.transcript.map((m) => `${m.role === "assistant" ? "Personaje" : "Alumno"}: ${m.content}`).join("\n");
   const system = `Analiza esta práctica de roleplay para la competencia "${args.competencyName}". ${BASE} ` +
     "No inventes nada que no esté en la conversación. Responde SOLO JSON: " +

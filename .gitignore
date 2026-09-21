@@ -14,3 +14,11 @@ brandooers-original-ref.html
 affiliate/node_modules/
 affiliate/package.json
 affiliate/package-lock.json
+
+# secrets variants and deploy/backup leftovers (never commit)
+.env*
+!.env.example
+*.bak
+*.bak-*
+.deploy-bak-*
+.stylebak*

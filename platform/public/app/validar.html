@@ -76,11 +76,16 @@
       }
     });
     async function decide(decision) {
+      var btns = d.querySelectorAll('.btn-ok, .btn-danger');
+      btns.forEach(function (b) { b.disabled = true; });
       try {
         var r = await SkillUp.api('/api/validation/cases/' + c.id + '/decide', { method: 'POST', body: { decision: decision, feedback: ta.value.trim() || undefined } });
         msg.textContent = 'Hecho — nivel actual del alumno: ' + r.level;
         d.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
-      } catch (ex) { msg.textContent = ex.message; }
+      } catch (ex) {
+        msg.textContent = ex.message;
+        btns.forEach(function (b) { b.disabled = false; });
+      }
     }
     d.querySelector('.btn-ok').addEventListener('click', function () { decide('aprobado'); });
     d.querySelector('.btn-danger').addEventListener('click', function () { decide('rechazado'); });

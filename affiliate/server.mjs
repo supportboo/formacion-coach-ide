@@ -274,6 +274,7 @@ const server = http.createServer(async (req, res) => {
   // recuperación de contraseña (self-service): crea un token; el email se envía si hay SMTP,
   // si no, el admin ve la petición en Usuarios y pasa el enlace. Respuesta genérica (no revela si existe).
   if (path === '/auth/forgot' && req.method === 'POST') {
+    if (!rateOk(String(req.headers['x-real-ip'] || req.socket.remoteAddress || ''))) return json(res, 429, { error: 'Demasiadas solicitudes, prueba en un rato' });
     const b = await body(req); const u = String(b.u || '').slice(0, 60);
     if (users()[u]) {
       const token = crypto.randomBytes(24).toString('base64url');

@@ -1,8 +1,8 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import {
-  agentMessage, agentThread, appliedCase, auditLog, certificate, coaching,
-  enrollment, fundaeParticipation, levelByCompetency, onboardingProfile,
-  pointsLedger, rewardGrant, testAttempt, user, validation,
+  agentMessage, agentThread, annotation, appliedCase, auditLog, certificate, coaching,
+  enrollment, fundaeParticipation, levelByCompetency, member, onboardingProfile,
+  pointsLedger, rewardGrant, roleplaySession, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
@@ -55,6 +55,10 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
  * certificate, rewardGrant, pointsLedger, coaching, fundaeParticipation.
  */
 export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string): Promise<void> {
+  // An org admin may only erase members of their own organization (user rows are global).
+  const [m] = await deps.db.select({ id: member.id }).from(member)
+    .where(and(eq(member.organizationId, orgId), eq(member.userId, userId)));
+  if (!m) throw new Error("ese usuario no pertenece a tu organización");
   const myThreads = await deps.db.select({ id: agentThread.id }).from(agentThread)
     .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId)));
   const threadIds = myThreads.map((t) => t.id);
@@ -63,6 +67,9 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   }
   await deps.db.delete(agentThread).where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId)));
   await deps.db.delete(onboardingProfile).where(and(eq(onboardingProfile.organizationId, orgId), eq(onboardingProfile.userId, userId)));
+  // Free text: course notes/questions/company summary and roleplay transcripts.
+  await deps.db.delete(annotation).where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId)));
+  await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
   await deps.db.update(appliedCase).set({ submission: null })
     .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
   await deps.db.insert(auditLog).values({
@@ -70,5 +77,9 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
     action: "privacy.erase", meta: { erasedUserId: userId },
   });
   // Borra identidad real (nombre/email). session/account/member caen en cascada.
-  await deps.db.delete(user).where(eq(user.id, userId));
+  // If the person also belongs to another organization, only leave this one.
+  const [other] = await deps.db.select({ id: member.id }).from(member)
+    .where(and(eq(member.userId, userId), ne(member.organizationId, orgId)));
+  if (other) await deps.db.delete(member).where(and(eq(member.organizationId, orgId), eq(member.userId, userId)));
+  else await deps.db.delete(user).where(eq(user.id, userId));
 }
