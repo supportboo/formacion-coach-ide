@@ -1438,16 +1438,71 @@ app.post("/api/platform/assistant", async (c) => {
   const parsed = assistantBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   const summary = await analyticsSvc.platformSummary(svcDeps);
-  const system = "Eres el orquestador de Brandooers SkillUp, hablando con el superadmin (dueno del negocio). "
-    + "Espanol de Espana, directo, sin inventar cifras. Estos son los datos reales de TODAS las empresas cliente "
-    + "ahora mismo (uno por organizacion): " + JSON.stringify(summary) + ". "
-    + "Responde solo con base en estos datos. Si te piden ejecutar una accion (invitar a alguien, cambiar una "
-    + "configuracion, borrar algo), dilo con claridad: todavia no tienes esa capacidad conectada, solo informas.";
-  const reply = await llm.generate({
+  // Personas (compactas) para que pueda proponer una acción sobre alguien real.
+  const people = (await db.select({ email: user.email, name: user.name, org: organization.name, role: member.orgRole })
+    .from(user).leftJoin(member, eq(member.userId, user.id)).leftJoin(organization, eq(organization.id, member.organizationId))
+    .orderBy(desc(user.createdAt)).limit(150))
+    .filter((p) => p.org).map((p) => `${p.name} <${p.email}> · ${p.org} · ${p.role || "empleado"}`);
+  const system = "Eres el orquestador (JARVIS) de Brandooers SkillUp, hablando con el superadmin. "
+    + "Espanol de Espana, directo, sin inventar. Datos reales por empresa: " + JSON.stringify(summary) + ". "
+    + "Personas (nombre <email> · empresa · rol): " + JSON.stringify(people) + ". "
+    + "Por defecto INFORMAS con texto. PERO si el superadmin te pide claramente EJECUTAR una de estas acciones, "
+    + "responde SOLO con este JSON (sin texto alrededor): {\"accion\":\"aprobar|estado|rol|puntos|password\",\"email\":\"<email exacto de la lista>\",\"empresa\":\"<nombre empresa>\",\"estado\":\"aprobado|desactivado|archivado\",\"rol\":\"empleado|coach|team_leader|inspirador|admin|direccion\",\"delta\":<entero>,\"motivo\":\"...\",\"confirmar\":\"frase clara de lo que vas a hacer para que el superadmin confirme\"}. "
+    + "Incluye solo los campos que la accion necesita (aprobar/estado/rol/puntos requieren email+empresa; puntos requiere delta+motivo; estado requiere estado; rol requiere rol; password solo email). "
+    + "Si no estas seguro de a quien se refiere o falta un dato, NO propongas accion: pregunta en texto. Nunca borres nada.";
+  const raw = await llm.generate({
     system, messages: [{ role: "user", content: parsed.data.message }], maxTokens: 500,
     orgId: null, userId: admin.userId, kind: "orchestrator",
   });
-  return c.json({ reply });
+  // ¿Ha propuesto una acción? (JSON con accion válida). Si no, es texto normal.
+  if (raw.indexOf("{") >= 0 && /"accion"/.test(raw)) {
+    try {
+      const prop = aiContent.firstJson<Record<string, unknown>>(raw);
+      if (prop && typeof prop.accion === "string" && ["aprobar", "estado", "rol", "puntos", "password"].includes(prop.accion)) {
+        return c.json({ proposal: prop });
+      }
+    } catch { /* no era JSON válido → cae a texto */ }
+  }
+  return c.json({ reply: raw });
+});
+
+// A7 fase 2: ejecutar una acción PROPUESTA por el orquestador, tras confirmación del superadmin.
+// Whitelist cerrada; la IA nunca ejecuta, solo propone; aquí se valida y se audita.
+const EXEC_STATES = ["aprobado", "desactivado", "archivado"];
+app.post("/api/platform/execute", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({
+    accion: z.enum(["aprobar", "estado", "rol", "puntos", "password"]),
+    email: z.string().email(), empresa: z.string().optional(),
+    estado: z.string().optional(), rol: z.string().optional(),
+    delta: z.number().int().min(-100000).max(100000).optional(), motivo: z.string().max(200).optional(),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const d = parsed.data;
+  const [u] = await db.select({ id: user.id }).from(user).where(eq(user.email, d.email.toLowerCase()));
+  if (!u) return c.json({ error: "no encuentro a nadie con ese email" }, 404);
+  // password es global por email; el resto necesita la organización.
+  if (d.accion === "password") {
+    lastResetLink.delete(d.email.toLowerCase());
+    await auth.api.requestPasswordReset({ body: { email: d.email } });
+    const r = lastResetLink.get(d.email.toLowerCase());
+    await db.insert(auditLog).values({ id: newId(), organizationId: "", userId: null, action: "jarvis.password", meta: { by: admin.userId, target: d.email } });
+    return c.json({ ok: true, sent: r?.delivered ?? false, link: r && !r.delivered ? r.link : undefined, hecho: "Enlace de contraseña generado para " + d.email });
+  }
+  // resolver organización por nombre (o la única del usuario)
+  const mems = await db.select({ orgId: member.organizationId, orgName: organization.name, orgRole: member.orgRole })
+    .from(member).leftJoin(organization, eq(organization.id, member.organizationId)).where(eq(member.userId, u.id));
+  let m = mems.find((x) => d.empresa && x.orgName && x.orgName.toLowerCase() === d.empresa.toLowerCase());
+  if (!m && mems.length === 1) m = mems[0];
+  if (!m) return c.json({ error: "dime en qué empresa (esa persona está en varias o ninguna)" }, 400);
+  const oid = m.orgId!;
+  if (d.accion === "aprobar") { await setAccountState(oid, u.id, "aprobado"); }
+  else if (d.accion === "estado") { if (!d.estado || !EXEC_STATES.includes(d.estado)) return c.json({ error: "estado no válido" }, 400); await setAccountState(oid, u.id, d.estado); }
+  else if (d.accion === "rol") { if (!d.rol || !ROLES.includes(d.rol as (typeof ROLES)[number])) return c.json({ error: "rol no válido" }, 400); await orgSvc.setMemberRole(svcDeps, oid, u.id, d.rol as (typeof ROLES)[number]); }
+  else if (d.accion === "puntos") { if (!d.delta || !d.motivo) return c.json({ error: "faltan puntos o motivo" }, 400); await propagationSvc.awardPoints(svcDeps, oid, u.id, propagationSvc.currentSeason(), d.delta, "JARVIS: " + d.motivo); }
+  await db.insert(auditLog).values({ id: newId(), organizationId: oid, userId: null, action: "jarvis." + d.accion, meta: { by: admin.userId, target: u.id, ...d } });
+  return c.json({ ok: true, hecho: "Hecho: " + d.accion + " · " + d.email + " · " + (m.orgName || oid) });
 });
 app.get("/api/analytics/panel", async (c) => {
   const ctx = await getAuthContext(c);

@@ -128,8 +128,20 @@ function wireOrq(box){
   box.innerHTML='<div id="olog" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow:auto;margin-bottom:10px"></div><div class="rowflex"><input id="oin" placeholder="Ej: ¿qué empresa tiene más riesgo?" style="margin:0"><button class="btn btn-grad" id="oask" style="flex:none">Preguntar</button></div>';
   var log=document.getElementById('olog'),inp=document.getElementById('oin');
   function bub(role,txt){var d=document.createElement('div');d.style.cssText='padding:9px 12px;border-radius:12px;font-size:13px;max-width:90%;'+(role==='u'?'align-self:flex-end;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff':'align-self:flex-start;background:var(--soft);border:1px solid var(--line)');d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
-  async function ask(){var t=inp.value.trim();if(!t)return;inp.value='';bub('u',t);var th=bub('a','…');try{var r=await SkillUp.api('/api/platform/assistant',{method:'POST',body:{message:t}});th.textContent=r.reply||'—';}catch(e){th.textContent='No pude responder ahora.';}}
+  async function ask(){var t=inp.value.trim();if(!t)return;inp.value='';bub('u',t);var th=bub('a','…');try{var r=await SkillUp.api('/api/platform/assistant',{method:'POST',body:{message:t}}); if(r.proposal){ th.remove(); renderProposal(r.proposal, bub); } else { th.textContent=r.reply||'—'; } }catch(e){th.textContent='No pude responder ahora.';}}
   document.getElementById('oask').onclick=ask; inp.addEventListener('keydown',function(e){if(e.key==='Enter')ask();});
+}
+// A7 fase 2: tarjeta de confirmación de una acción propuesta por el orquestador. Ejecuta solo al confirmar.
+function renderProposal(prop, bub){
+  var c=bub('a', (prop.confirmar||'¿Ejecuto esta acción?'));
+  c.style.borderColor='var(--gold)';
+  var row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;margin-top:8px';
+  var ok=document.createElement('button'); ok.className='btn btn-grad'; ok.style.cssText='padding:6px 12px;font-size:12px'; ok.textContent='Confirmar y ejecutar';
+  var no=document.createElement('button'); no.className='btn btn-gh'; no.style.cssText='padding:6px 12px;font-size:12px'; no.textContent='Cancelar';
+  ok.onclick=async function(){ ok.disabled=true;no.disabled=true;ok.textContent='…'; try{ var r=await SkillUp.api('/api/platform/execute',{method:'POST',body:prop}); c.textContent=r.hecho||'Hecho.'; c.style.borderColor='var(--green)'; if(r.link){ var lk=document.createElement('div'); lk.style.cssText='margin-top:6px;font-size:11px;word-break:break-all;color:var(--gold)'; lk.textContent='Enlace (cópialo): '+r.link; c.appendChild(lk); } DATA.users=null;DATA.userStates=null; }catch(e){ c.textContent='No se pudo: '+(e.message||''); c.style.borderColor='var(--red)'; } row.remove(); };
+  no.onclick=function(){ c.textContent='Cancelado.'; c.style.borderColor='var(--line)'; row.remove(); };
+  row.appendChild(ok); row.appendChild(no); c.appendChild(row);
+  return prop;
 }
 
 /* ---------- INSIGHTS ---------- */
@@ -505,7 +517,17 @@ function wireVoiceJarvis(){
     fab.style.borderColor='var(--gold)'; fab.style.transform='scale(1.08)'; say('🎙️ Escuchando…'); try{ rec.start(); }catch(e){}
   }
   async function stop(){ fab.style.borderColor='var(--teal2)'; fab.style.transform=''; if(rec){ try{ rec.stop(); }catch(e){} } var q=heard.trim(); if(!q)  { say('No te he oído. Mantén pulsado y habla.'); return; }
-    busy=true; say('Tú: '+q+'\n\n…'); try{ var r=await SkillUp.api('/api/platform/assistant',{method:'POST',body:{message:q}}); var reply=r.reply||'No he podido responder.'; say(reply); speak(reply); }catch(e){ say('No he podido responder ahora.'); } busy=false; }
+    busy=true; say('Tú: '+q+'\n\n…'); try{ var r=await SkillUp.api('/api/platform/assistant',{method:'POST',body:{message:q}});
+      if(r.proposal){ var cf=r.proposal.confirmar||'¿Ejecuto la acción?'; say(cf); speak(cf+'. ¿Confirmas?');
+        tip.innerHTML=''; var p=document.createElement('div'); p.textContent=cf; p.style.marginBottom='8px'; tip.appendChild(p);
+        var rw=document.createElement('div'); rw.style.cssText='display:flex;gap:8px';
+        var okb=document.createElement('button'); okb.className='btn btn-grad'; okb.style.cssText='padding:6px 12px;font-size:12px'; okb.textContent='Confirmar';
+        var nob=document.createElement('button'); nob.className='btn btn-ghost'; nob.style.cssText='padding:6px 12px;font-size:12px;border:1px solid var(--line)'; nob.textContent='Cancelar';
+        okb.onclick=async function(){ okb.disabled=true; try{ var er=await SkillUp.api('/api/platform/execute',{method:'POST',body:r.proposal}); say(er.hecho||'Hecho.'); speak(er.hecho||'Hecho.'); }catch(e){ say('No se pudo: '+(e.message||'')); } };
+        nob.onclick=function(){ say('Cancelado.'); };
+        rw.appendChild(okb); rw.appendChild(nob); tip.appendChild(rw); tip.style.display='block';
+      } else { var reply=r.reply||'No he podido responder.'; say(reply); speak(reply); }
+    }catch(e){ say('No he podido responder ahora.'); } busy=false; }
   fab.addEventListener('pointerdown',function(e){ e.preventDefault(); start(); });
   fab.addEventListener('pointerup',function(e){ e.preventDefault(); stop(); });
   fab.addEventListener('pointerleave',function(){ if(rec) stop(); });
