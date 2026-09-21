@@ -71,17 +71,24 @@ function setMode(m) {
 document.getElementById('swapLink').addEventListener('click', function () { setMode(mode === 'login' ? 'signup' : 'login'); });
 
 // Recuperar contraseña: envia un enlace al email (mensaje neutro, no revela si la cuenta existe).
-document.getElementById('forgot').addEventListener('click', async function () {
+var forgot = document.getElementById('forgot');
+forgot.setAttribute('href', '#'); forgot.setAttribute('role', 'button');
+forgot.addEventListener('click', async function (e) {
+  e.preventDefault();
+  if (forgot.dataset.busy) return;
   var err = document.getElementById('err');
   var email = (document.getElementById('email').value || '').trim();
-  if (!email) { err.style.color = '#fda4af'; err.textContent = 'Escribe tu email arriba y vuelve a pulsar.'; return; }
-  var body = { email: email, redirectTo: location.origin + '/app/reset.html' };
-  try {
-    try { await SkillUp.api('/api/auth/request-password-reset', { method: 'POST', body: body }); }
-    catch (e1) { await SkillUp.api('/api/auth/forget-password', { method: 'POST', body: body }); }
-  } catch (ex) { /* mensaje neutro igualmente */ }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    err.style.color = '#fda4af'; err.textContent = 'Escribe arriba el email con el que entras y vuelve a pulsar.';
+    document.getElementById('email').focus(); return;
+  }
+  forgot.dataset.busy = '1'; forgot.textContent = 'Enviando…';
+  try { await SkillUp.api('/api/auth/request-password-reset', { method: 'POST', body: { email: email, redirectTo: location.origin + '/app/reset.html' } }); }
+  catch (ex) { /* mensaje neutro igualmente: no revela si la cuenta existe */ }
   err.style.color = '#3FD8E0';
-  err.textContent = 'Si ese email tiene cuenta, te hemos enviado un enlace para cambiar la contraseña.';
+  err.textContent = 'Si ' + email + ' tiene cuenta, te llegará un correo con un enlace para cambiar la contraseña (caduca en 1 hora). Mira también en spam.';
+  forgot.textContent = 'Reenviar enlace';
+  setTimeout(function () { delete forgot.dataset.busy; }, 30000);
 });
 
 document.getElementById('f').addEventListener('submit', async function (e) {

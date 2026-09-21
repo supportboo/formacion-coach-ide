@@ -6,6 +6,25 @@ import { schema } from "../db/schema.js";
 import { env } from "../config/env.js";
 import { sendMail } from "../services/mailer.js";
 
+// Last reset link per email (in-process), so the superadmin console can hand it over by hand
+// when mail is not delivered. ponytail: lost on restart, fine because links expire in 1h anyway.
+export const lastResetLink = new Map<string, { link: string; delivered: boolean; at: number }>();
+
+function resetEmailHtml(name: string, link: string): string {
+  return `<!doctype html><html lang="es"><body style="margin:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2430">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:32px 12px"><tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden">
+<tr><td style="background:#0f1720;padding:20px 28px;color:#ffffff;font-size:18px;font-weight:bold;letter-spacing:.3px">SkillUp <span style="color:#3FD8E0;font-weight:normal">· Brandooers</span></td></tr>
+<tr><td style="padding:28px">
+<p style="margin:0 0 14px;font-size:16px">Hola${name ? " " + name : ""}:</p>
+<p style="margin:0 0 22px;font-size:15px;line-height:1.55">Has pedido cambiar tu contraseña de SkillUp. Pulsa el botón para elegir una nueva.</p>
+<p style="margin:0 0 22px"><a href="${link}" style="display:inline-block;background:#1a9aa0;color:#ffffff;padding:13px 22px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:14px;letter-spacing:.4px">CAMBIAR MI CONTRASEÑA</a></p>
+<p style="margin:0 0 8px;font-size:13px;color:#5b6270">El enlace caduca en 1 hora y solo sirve una vez. Si el botón no funciona, copia esto en el navegador:</p>
+<p style="margin:0 0 22px;font-size:12px;word-break:break-all"><a href="${link}" style="color:#1a9aa0">${link}</a></p>
+<p style="margin:0;font-size:13px;color:#5b6270">Si no lo has pedido tú, ignora este correo: tu contraseña actual sigue funcionando.</p>
+</td></tr></table></td></tr></table></body></html>`;
+}
+
 // Auth multi-tenant: better-auth + plugin organization (empresa = organización).
 // El mismo modelo sirve de 1 usuario a multinacional.
 export const auth = betterAuth({
@@ -21,12 +40,14 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, token }) => {
       const base = env.APP_URL || env.BETTER_AUTH_URL;
       const link = `${base}/app/reset.html?token=${encodeURIComponent(token)}`;
-      await sendMail({
+      const name = (user.name || "").split(" ")[0]?.replace(/[&<>"']/g, "") || "";
+      const r = await sendMail({
         to: user.email,
-        subject: "Recupera tu contraseña · Brandooers SkillUp",
-        text: `Hola,\n\nPara poner una contraseña nueva en SkillUp, abre este enlace (válido 1 hora):\n${link}\n\nSi no has sido tú, ignora este correo.`,
-        html: `<p>Hola,</p><p>Para poner una contraseña nueva en <b>SkillUp</b>, pulsa aquí (válido 1 hora):</p><p><a href="${link}" style="display:inline-block;background:#1a9aa0;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-family:Arial,sans-serif">Restablecer mi contraseña</a></p><p style="color:#888;font-size:13px">Si no has sido tú, ignora este correo.</p>`,
+        subject: "Tu enlace para cambiar la contraseña · SkillUp",
+        text: `Hola${name ? " " + name : ""}:\n\nHas pedido cambiar tu contraseña de SkillUp. Abre este enlace para elegir una nueva (caduca en 1 hora y solo sirve una vez):\n${link}\n\nSi no lo has pedido tú, ignora este correo: tu contraseña actual sigue funcionando.\n\nBrandooers SkillUp`,
+        html: resetEmailHtml(name, link),
       });
+      lastResetLink.set(user.email.toLowerCase(), { link, delivered: r.ok, at: Date.now() });
     },
   },
   plugins: [

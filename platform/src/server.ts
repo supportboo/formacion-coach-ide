@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { z } from "zod";
-import { auth } from "./auth/auth.js";
+import { auth, lastResetLink } from "./auth/auth.js";
 import { capabilitiesFor } from "./auth/capabilities.js";
 import { env } from "./config/env.js";
 import { ACCOUNT_SOURCE, getAccountState, getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
@@ -1044,6 +1044,23 @@ app.post("/api/platform/users/set-role", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   await orgSvc.setMemberRole(svcDeps, parsed.data.organizationId, parsed.data.userId, parsed.data.role);
   return c.json({ ok: true });
+});
+
+// Superadmin sends a password-reset link (same better-auth flow as "He olvidado mi contraseña").
+// If the mail was not delivered, the link comes back ONLY to the superadmin to hand over by hand.
+app.post("/api/platform/users/reset-password", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const [u] = await db.select({ email: user.email }).from(user).where(eq(user.id, parsed.data.userId));
+  if (!u) return c.json({ error: "usuario no encontrado" }, 404);
+  const key = u.email.toLowerCase();
+  lastResetLink.delete(key);
+  await auth.api.requestPasswordReset({ body: { email: u.email } });
+  const r = lastResetLink.get(key);
+  if (!r) return c.json({ error: "no se pudo generar el enlace" }, 500);
+  return c.json({ email: u.email, sent: r.delivered, link: r.delivered ? undefined : r.link });
 });
 
 // Insights de plataforma: de qué aprende el sistema (conversaciones, notas, prácticas, documentos).
