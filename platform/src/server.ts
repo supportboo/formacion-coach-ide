@@ -586,9 +586,18 @@ app.post("/api/validation/cases", async (c) => {
     userId: z.string().optional(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  // The competency must belong to the caller's org (no referencing another tenant's ids).
+  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+  if (!comp) return c.json({ error: "competencia no encontrada en esta organización" }, 404);
   const canAssignOthers = hasRole(ctx, "admin", "inspirador", "team_leader");
-  const userId = (canAssignOthers && parsed.data.userId) ? parsed.data.userId : ctx.userId;
-  const id = await validationSvc.createCase(svcDeps, { orgId: ctx.orgId, userId, ...parsed.data });
+  let userId = ctx.userId;
+  if (canAssignOthers && parsed.data.userId && parsed.data.userId !== ctx.userId) {
+    const [m] = await db.select({ id: member.id }).from(member)
+      .where(and(eq(member.organizationId, ctx.orgId), eq(member.userId, parsed.data.userId)));
+    if (!m) return c.json({ error: "ese usuario no pertenece a tu organización" }, 404);
+    userId = parsed.data.userId;
+  }
+  const id = await validationSvc.createCase(svcDeps, { orgId: ctx.orgId, userId, competencyId: parsed.data.competencyId, pathId: parsed.data.pathId, prompt: parsed.data.prompt });
   return c.json({ id });
 });
 
@@ -863,6 +872,10 @@ app.put("/api/org/members/:userId/role", async (c) => {
 app.get("/api/config/company", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // Business config (salary-linked flag, level labels): managers only, not every employee.
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "direccion", "team_leader", "inspirador")) {
+    return c.json({ error: "sin permiso" }, 403);
+  }
   return c.json(await configSvc.getCompanyConfig(svcDeps, ctx.orgId));
 });
 app.put("/api/config/company", async (c) => {

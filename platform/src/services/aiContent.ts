@@ -1,10 +1,46 @@
 import type { Llm } from "../agents/llm.js";
 
-/** Los LLM a veces envuelven el JSON en prosa pese a la instrucción; extrae el primer objeto. */
+/**
+ * Los LLM a veces envuelven el JSON en prosa o vallas markdown, o se quedan a medias
+ * cuando se agotan los tokens. Extrae el objeto y, si viene truncado, lo repara descartando
+ * el último elemento incompleto y cerrando corchetes/llaves abiertos.
+ */
 export function firstJson<T>(s: string): T {
-  const a = s.indexOf("{"), b = s.lastIndexOf("}");
-  if (a === -1 || b === -1) throw new Error("la IA no devolvió JSON: " + s.slice(0, 200));
-  return JSON.parse(s.slice(a, b + 1)) as T;
+  const cleaned = s.replace(/```(?:json)?/gi, "");
+  const a = cleaned.indexOf("{");
+  if (a === -1) throw new Error("la IA no devolvió JSON: " + s.slice(0, 200));
+  const b = cleaned.lastIndexOf("}");
+  if (b > a) {
+    try { return JSON.parse(cleaned.slice(a, b + 1)) as T; } catch { /* intenta reparar debajo */ }
+  }
+  const repaired = repairTruncatedJson(cleaned.slice(a));
+  if (repaired === null) throw new Error("la IA no devolvió JSON: " + s.slice(0, 200));
+  return JSON.parse(repaired) as T;
+}
+
+/**
+ * Rescata un JSON truncado (tokens agotados): prueba puntos de corte desde el final, cerrando los
+ * contenedores abiertos, hasta que uno parsea. Descarta el último elemento a medias. null si nada sirve.
+ */
+// ponytail: O(n) parse attempts on the error path only; fine for our own prompts' small shapes.
+function repairTruncatedJson(s: string): string | null {
+  for (let cut = s.length; cut >= 1; cut--) {
+    let out = s.slice(0, cut).replace(/,\s*$/, "");
+    const open: string[] = [];
+    let inStr = false, esc = false, bad = false;
+    for (const ch of out) {
+      if (inStr) { if (esc) esc = false; else if (ch === "\\") esc = true; else if (ch === '"') inStr = false; continue; }
+      if (ch === '"') inStr = true;
+      else if (ch === "{") open.push("}");
+      else if (ch === "[") open.push("]");
+      else if (ch === "}" || ch === "]") { if (open.pop() !== ch) { bad = true; break; } }
+    }
+    if (bad || inStr) continue;
+    out = out.replace(/,\s*$/, "");
+    while (open.length) out += open.pop();
+    try { JSON.parse(out); return out; } catch { /* prueba un corte anterior */ }
+  }
+  return null;
 }
 
 const BASE = "Español de España, claro y sin jerga. No inventes cifras ni estudios. Responde SOLO JSON válido, sin markdown.";
@@ -21,10 +57,16 @@ export async function generateExam(
     .filter(Boolean).join(", ");
   const system = `Eres examinador. Crea ${n} preguntas tipo test (4 opciones, una correcta) sobre "${args.competencyName}"${ctx ? ` para alguien de ${ctx}` : ""}. ${BASE}\nFormato: {"questions":[{"q":"...","options":["a","b","c","d"]}]} (la opción correcta va SIEMPRE en options[0]; el cliente las mezclará).`;
   const out = await llm.generate({
-    system, messages: [{ role: "user", content: "Genera el test." }], maxTokens: 1200,
+    system, messages: [{ role: "user", content: "Genera el test." }], maxTokens: 2000,
     orgId: args.orgId, userId: args.userId, kind: "exam",
   });
-  return firstJson<GeneratedExam>(out);
+  const exam = firstJson<GeneratedExam>(out);
+  // Drop malformed questions (a salvaged truncation can leave a last question with <4 options).
+  const questions = (Array.isArray(exam.questions) ? exam.questions : [])
+    .filter((q) => q && typeof q.q === "string" && Array.isArray(q.options) && q.options.length >= 4)
+    .map((q) => ({ q: q.q, options: q.options.slice(0, 4) }));
+  if (!questions.length) throw new Error("no se pudo generar el test, inténtalo de nuevo");
+  return { questions };
 }
 
 /**
