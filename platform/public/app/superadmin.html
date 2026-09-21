@@ -485,8 +485,35 @@ function render(path){
 function navigate(path,replace){ try{ if(replace) history.replaceState({p:path},'','#'+path); else history.pushState({p:path},'','#'+path); }catch(e){} render(path); }
 function reRender(){ render((location.hash||'').replace('#','')||'resumen'); }
 window.addEventListener('popstate',function(){ render((location.hash||'').replace('#','')||'resumen'); });
+// A7 v1: burbuja de voz (JARVIS) — mantener pulsado para hablar al orquestador; responde por voz.
+// Fase 2 pendiente (con candados): que ejecute acciones sobre los agentes, no solo informe.
+function wireVoiceJarvis(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var fab=document.createElement('button');
+  fab.id='jarvisFab'; fab.setAttribute('aria-label','Mantén pulsado para hablar');
+  fab.style.cssText='position:fixed;right:20px;bottom:20px;z-index:40;width:66px;height:66px;border-radius:50%;border:2px solid var(--teal2);background:var(--panel);cursor:pointer;box-shadow:var(--sh);display:grid;place-items:center;touch-action:none;padding:0';
+  fab.innerHTML='<svg width="34" height="20" viewBox="0 0 100 58" aria-hidden="true"><g fill="none" stroke="var(--teal2)" stroke-width="6"><circle cx="30" cy="29" r="16"/><circle cx="70" cy="29" r="16"/></g><circle cx="30" cy="29" r="6" fill="var(--aub2)"/><circle cx="70" cy="29" r="6" fill="var(--aub2)"/></svg>';
+  var tip=document.createElement('div');
+  tip.style.cssText='position:fixed;right:20px;bottom:94px;z-index:40;max-width:280px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 13px;box-shadow:var(--sh);font-size:13px;color:var(--body);display:none';
+  document.body.appendChild(tip); document.body.appendChild(fab);
+  function say(t){ tip.textContent=t; tip.style.display='block'; }
+  function speak(t){ try{ var u=new SpeechSynthesisUtterance(t); u.lang='es-ES'; u.rate=1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){} }
+  if(!SR){ fab.title='Tu navegador no permite dictado por voz; usa «Pregunta al orquestador».'; fab.onclick=function(){ say('Este navegador no permite hablar. Usa el chat de «Pregunta al orquestador» en Resumen.'); }; return; }
+  var rec=null, heard='', busy=false;
+  function start(){ if(busy)return; heard=''; try{ rec=new SR(); }catch(e){ return; } rec.lang='es-ES'; rec.interimResults=true; rec.continuous=true;
+    rec.onresult=function(e){ var s=''; for(var i=0;i<e.results.length;i++) s+=e.results[i][0].transcript; heard=s; say('🎙️ '+s); };
+    fab.style.borderColor='var(--gold)'; fab.style.transform='scale(1.08)'; say('🎙️ Escuchando…'); try{ rec.start(); }catch(e){}
+  }
+  async function stop(){ fab.style.borderColor='var(--teal2)'; fab.style.transform=''; if(rec){ try{ rec.stop(); }catch(e){} } var q=heard.trim(); if(!q)  { say('No te he oído. Mantén pulsado y habla.'); return; }
+    busy=true; say('Tú: '+q+'\n\n…'); try{ var r=await SkillUp.api('/api/platform/assistant',{method:'POST',body:{message:q}}); var reply=r.reply||'No he podido responder.'; say(reply); speak(reply); }catch(e){ say('No he podido responder ahora.'); } busy=false; }
+  fab.addEventListener('pointerdown',function(e){ e.preventDefault(); start(); });
+  fab.addEventListener('pointerup',function(e){ e.preventDefault(); stop(); });
+  fab.addEventListener('pointerleave',function(){ if(rec) stop(); });
+  tip.addEventListener('click',function(){ tip.style.display='none'; });
+}
 function boot(){
   document.querySelectorAll('.navb[data-sec]').forEach(function(b){ b.onclick=function(){ navigate(b.getAttribute('data-sec')); }; });
+  try{ wireVoiceJarvis(); }catch(e){}
   document.getElementById('logout').onclick=async function(){ try{await SkillUp.api('/api/auth/sign-out',{method:'POST'});}catch(e){} location.href='/app/login.html'; };
   navigate((location.hash||'').replace('#','')||'resumen', true);
   SkillUp.api('/api/platform/pending').then(function(d){ updatePendBadge(((d&&d.pending)||[]).length); }).catch(function(){});
