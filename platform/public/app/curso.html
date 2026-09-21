@@ -263,7 +263,13 @@ function clean(el){
     }
     [].slice.call(n.attributes).forEach(function(a){
       if(a.name==='id') return;
-      if(n.tagName==='A'&&a.name==='href'){ if(a.value&&a.value[0]==='#'){n.removeAttribute('href'); n.setAttribute('data-jump',a.value.slice(1));} return; }
+      if(n.tagName==='A'&&a.name==='href'){
+        var hv=(a.value||'').trim(), cm=hv.match(/^\/?([a-z0-9-]+)\.html(?:#.*)?$/i);
+        if(hv[0]==='#'){n.removeAttribute('href'); n.setAttribute('data-jump',hv.slice(1));}
+        else if(cm){n.setAttribute('href','/app/curso.html?src='+encodeURIComponent('/'+cm[1]+'.html'));} // other course -> viewer
+        else if(/^javascript:/i.test(hv)){n.removeAttribute('href');}
+        return;
+      }
       if(n.tagName==='IMG'&&(a.name==='src'||a.name==='alt')) return;
       n.removeAttribute(a.name);
     });
@@ -398,7 +404,7 @@ function wireDeck(){
     var cc=document.querySelector('.card:nth-child('+(idx+1)+')');if(cc)cc.scrollTop=0;
     var cm=document.getElementById('ccMsg'); if(cm) cm.textContent=PERSONA.name+': '+NUDGES[idx%NUDGES.length].replace('{t}',CARDS[idx].title);
     if(window._onSection) window._onSection(idx);};
-  prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===CARDS.length-1){location.href='/hub.html';return;}window._go(idx+1)};
+  prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===CARDS.length-1){location.href='/app/inicio.html';return;}window._go(idx+1)};
   document.getElementById('idxBtn').onclick=function(){document.getElementById('idx').classList.add('open')};
   // Vídeos externos reales sobre el tema del bloque actual: dentro de la app (slider tipo Netflix), datos reales de YouTube.
   var vb=document.getElementById('vidBtn'); if(vb) vb.onclick=function(){ location.href='/app/videos.html?topic='+encodeURIComponent(COURSE.slice(0,90)); };

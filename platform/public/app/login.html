@@ -58,6 +58,16 @@ input::placeholder{color:#6b6480}
 <script src="/app/api.js"></script>
 <script>
 var mode = 'login';
+// better-auth answers in English; show the person a Spanish message.
+function authErrorEs(msg) {
+  msg = msg || '';
+  if (/invalid email or password|invalid password|user not found/i.test(msg)) return 'Email o contraseña incorrectos.';
+  if (/already exists/i.test(msg)) return 'Ya hay una cuenta con ese email. Entra con tu contraseña o usa «He olvidado mi contraseña».';
+  if (/too short|at least/i.test(msg)) return 'La contraseña debe tener al menos 8 caracteres.';
+  if (/invalid email/i.test(msg)) return 'El email no es válido.';
+  if (/too many|429/i.test(msg)) return 'Demasiados intentos. Espera un minuto y vuelve a probar.';
+  return msg || 'Ha ido mal, revisa los datos.';
+}
 function setMode(m) {
   mode = m;
   document.getElementById('title').textContent = m === 'login' ? 'Entra a tu equipo' : 'Crea tu cuenta y tu empresa';
@@ -107,11 +117,17 @@ document.getElementById('f').addEventListener('submit', async function (e) {
       } catch (signupEx) {
         // La cuenta ya existe (p.ej. un intento previo se quedo a medias antes de crear la empresa) -> intenta entrar con los mismos datos en vez de bloquear.
         if (!/already exists/i.test(signupEx.message || '')) throw signupEx;
-        await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } });
+        await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } }).catch(function () { throw signupEx; });
       }
-      var org = await SkillUp.api('/api/auth/organization/create', { method: 'POST', body: { name: orgName, slug: orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now().toString(36).slice(-4) } });
-      await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: org.id } });
-      await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
+      // An existing account that already has a company just enters it (never a second company per repeated sign-up).
+      var existing = await SkillUp.api('/api/auth/organization/list').catch(function () { return []; });
+      if (existing.length) {
+        await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: existing[0].id } });
+      } else {
+        var org = await SkillUp.api('/api/auth/organization/create', { method: 'POST', body: { name: orgName, slug: orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now().toString(36).slice(-4) } });
+        await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: org.id } });
+        await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
+      }
     } else {
       await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } });
       // El login (a diferencia del registro) no deja la organizacion activa en la sesion nueva ->
@@ -123,7 +139,7 @@ document.getElementById('f').addEventListener('submit', async function (e) {
     var esGestor = me.platformAdmin || ['admin', 'direccion', 'team_leader', 'inspirador'].indexOf(me.role) !== -1;
     window.location.href = '/app/inicio.html';
   } catch (ex) {
-    err.textContent = ex.message || 'Ha ido mal, revisa los datos';
+    err.textContent = authErrorEs(ex.message);
     btn.disabled = false;
   }
 });

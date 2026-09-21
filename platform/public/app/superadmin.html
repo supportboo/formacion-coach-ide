@@ -450,7 +450,7 @@ function reRender(){ render((location.hash||'').replace('#','')||'resumen'); }
 window.addEventListener('popstate',function(){ render((location.hash||'').replace('#','')||'resumen'); });
 function boot(){
   document.querySelectorAll('.navb[data-sec]').forEach(function(b){ b.onclick=function(){ navigate(b.getAttribute('data-sec')); }; });
-  document.getElementById('logout').onclick=async function(){ try{await fetch('/api/auth/sign-out',{method:'POST',credentials:'same-origin'});}catch(e){} location.href='/app/login.html'; };
+  document.getElementById('logout').onclick=async function(){ try{await SkillUp.api('/api/auth/sign-out',{method:'POST'});}catch(e){} location.href='/app/login.html'; };
   navigate((location.hash||'').replace('#','')||'resumen', true);
   SkillUp.api('/api/platform/pending').then(function(d){ updatePendBadge(((d&&d.pending)||[]).length); }).catch(function(){});
 }

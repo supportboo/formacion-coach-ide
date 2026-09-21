@@ -50,7 +50,7 @@
     var d = document.createElement('div');
     d.className = 'case-item';
     d.innerHTML =
-      '<div class="who">Competencia ' + SkillUp.escHtml(c.competencyId) + ' · alumno ' + SkillUp.escHtml(c.userId) + '</div>' +
+      '<div class="who">' + SkillUp.escHtml(c.competencyName || 'Competencia') + ' · ' + SkillUp.escHtml(c.learnerName || 'alumno') + '</div>' +
       '<div class="prompt">' + SkillUp.escHtml(c.prompt) + '</div>' +
       '<div class="sub">' + SkillUp.escHtml(c.submission || '') + '</div>' +
       '<button class="btn btn-gh" type="button">Ver sugerencia de IA por criterio</button>' +

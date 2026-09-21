@@ -40,6 +40,11 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       .where(and(eq(rewardGrant.organizationId, orgId), eq(rewardGrant.userId, userId))),
     fundaeParticipation: await deps.db.select().from(fundaeParticipation)
       .where(and(eq(fundaeParticipation.organizationId, orgId), eq(fundaeParticipation.userId, userId))),
+    // Course notes/highlights/questions, onboarding answers and roleplay transcripts.
+    notes: await deps.db.select().from(annotation)
+      .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId))),
+    roleplays: await deps.db.select().from(roleplaySession)
+      .where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId))),
     chatThreads: await deps.db.select().from(agentThread)
       .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId))),
   };

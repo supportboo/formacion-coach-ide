@@ -230,8 +230,18 @@ details[open] summary:before{content:"▾ "}
     if (!email) return;
     try {
       // better-auth solo conoce sus propios roles al invitar; el rol real se fija después de aceptar.
-      await SkillUp.api('/api/auth/organization/invite-member', { method: 'POST', body: { email: email, role: 'member', organizationId: orgId } });
-      m.textContent = 'Invitación enviada. Cuando la acepte, asígnale su rol abajo.';
+      var inv = await SkillUp.api('/api/auth/organization/invite-member', { method: 'POST', body: { email: email, role: 'member', organizationId: orgId } });
+      var invId = inv && (inv.id || (inv.invitation && inv.invitation.id) || (inv.data && inv.data.id));
+      m.textContent = 'Invitación enviada a ' + email + '. Cuando la acepte, asígnale su rol abajo.';
+      if (invId) {
+        // Copyable link in case the mail does not arrive; only someone signed in with that email can accept it.
+        var link = location.origin + '/app/aceptar-invitacion.html?invitation=' + encodeURIComponent(invId);
+        var row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;margin-top:6px';
+        var i = document.createElement('input'); i.className = 'inline-input'; i.readOnly = true; i.value = link; i.style.flex = '1'; i.onclick = function () { i.select(); };
+        var cp = document.createElement('button'); cp.className = 'btn btn-grad'; cp.textContent = 'Copiar enlace';
+        cp.onclick = function () { (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { cp.textContent = 'Copiado'; }, function () { i.select(); }); };
+        row.appendChild(i); row.appendChild(cp); m.appendChild(row);
+      }
       document.getElementById('inviteEmail').value = '';
     } catch (ex) { m.textContent = ex.message; }
   });

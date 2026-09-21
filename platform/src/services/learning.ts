@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { enrollment, levelByCompetency, onboardingProfile, testAttempt } from "../db/schema.js";
+import { competency, enrollment, learningPath, levelByCompetency, onboardingProfile, testAttempt } from "../db/schema.js";
 import { matchProfileToPaths, type MatchedPath } from "./catalog.js";
 import type { SvcDeps } from "./org.js";
 
@@ -32,6 +32,15 @@ export async function startOnboarding(deps: SvcDeps, input: OnboardingInput): Pr
 export async function enroll(
   deps: SvcDeps, orgId: string, userId: string, pathId: string, competencyId?: string,
 ): Promise<string> {
+  // Path and competency must belong to the caller's organization (no cross-tenant enrollments).
+  const [p] = await deps.db.select({ id: learningPath.id }).from(learningPath)
+    .where(and(eq(learningPath.id, pathId), eq(learningPath.organizationId, orgId)));
+  if (!p) throw new Error("ruta no encontrada en esta organización");
+  if (competencyId) {
+    const [c] = await deps.db.select({ id: competency.id }).from(competency)
+      .where(and(eq(competency.id, competencyId), eq(competency.organizationId, orgId)));
+    if (!c) throw new Error("competencia no encontrada en esta organización");
+  }
   const id = deps.newId();
   await deps.db.insert(enrollment).values({
     id, organizationId: orgId, userId, pathId, competencyId: competencyId ?? null, status: "en_curso",

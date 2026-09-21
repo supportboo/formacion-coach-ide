@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, ne } from "drizzle-orm";
 import { appliedCase, auditLog, evidence, levelByCompetency, rubric, validation } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import { getLevel, setLevelAtLeast } from "./learning.js";
@@ -83,7 +83,7 @@ export async function listPendingCases(
 ): Promise<Array<typeof appliedCase.$inferSelect>> {
   if (validatorRole === "admin" || validatorRole === "inspirador") {
     return deps.db.select().from(appliedCase)
-      .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.status, "entregado")));
+      .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.status, "entregado"), ne(appliedCase.userId, validatorId)));
   }
   const referente = await deps.db.select({ competencyId: levelByCompetency.competencyId })
     .from(levelByCompetency)
@@ -95,7 +95,7 @@ export async function listPendingCases(
   if (compIds.length === 0) return [];
   return deps.db.select().from(appliedCase).where(and(
     eq(appliedCase.organizationId, orgId), eq(appliedCase.status, "entregado"),
-    inArray(appliedCase.competencyId, compIds),
+    inArray(appliedCase.competencyId, compIds), ne(appliedCase.userId, validatorId), // nobody sees their own case
   ));
 }
 

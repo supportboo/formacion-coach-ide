@@ -1,4 +1,4 @@
-﻿import { and, count, desc, eq } from "drizzle-orm";
+﻿import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { serveStatic } from "@hono/node-server/serve-static";
@@ -12,7 +12,7 @@ import { chat } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession } from "./db/schema.js";
+import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import * as aiContent from "./services/aiContent.js";
 import { rateLimited } from "./util/rateLimit.js";
@@ -263,7 +263,7 @@ app.post("/api/notes/add", async (c) => {
 app.delete("/api/notes/:id", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  await notesSvc.remove(svcDeps, ctx.orgId, ctx.userId, c.req.param("id"));
+  if (!(await notesSvc.remove(svcDeps, ctx.orgId, ctx.userId, c.req.param("id")))) return c.json({ error: "nota no encontrada" }, 404);
   return c.json({ ok: true });
 });
 // --- Onboarding: analizar la web de la empresa para preparar a los tutores ---
@@ -461,8 +461,10 @@ app.post("/api/learning/enroll", async (c) => {
   const parsed = z.object({ pathId: z.string().min(1), competencyId: z.string().optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const id = await learningSvc.enroll(svcDeps, ctx.orgId, ctx.userId, parsed.data.pathId, parsed.data.competencyId);
-  return c.json({ id });
+  try {
+    const id = await learningSvc.enroll(svcDeps, ctx.orgId, ctx.userId, parsed.data.pathId, parsed.data.competencyId);
+    return c.json({ id });
+  } catch (e) { return c.json({ error: (e as Error).message }, 404); }
 });
 app.get("/api/learning/mine", async (c) => {
   const ctx = await getAuthContext(c);
@@ -644,7 +646,14 @@ app.get("/api/validation/cases/:id/suggest", async (c) => {
 app.get("/api/validation/pending", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  return c.json(await validationSvc.listPendingCases(svcDeps, ctx.orgId, ctx.userId, ctx.role));
+  const rows = await validationSvc.listPendingCases(svcDeps, ctx.orgId, ctx.userId, ctx.role);
+  // Validators decide on people and skills, not ids: add learner and competency names.
+  const uids = [...new Set(rows.map((r) => r.userId))], cids = [...new Set(rows.map((r) => r.competencyId))];
+  const people = uids.length ? await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, uids)) : [];
+  const comps = cids.length ? await db.select({ id: competency.id, name: competency.name }).from(competency)
+    .where(and(eq(competency.organizationId, ctx.orgId), inArray(competency.id, cids))) : [];
+  const pn = new Map(people.map((p) => [p.id, p.name])), cn = new Map(comps.map((x) => [x.id, x.name]));
+  return c.json(rows.map((r) => ({ ...r, learnerName: pn.get(r.userId) ?? null, competencyName: cn.get(r.competencyId) ?? null })));
 });
 
 app.post("/api/validation/cases/:id/decide", async (c) => {

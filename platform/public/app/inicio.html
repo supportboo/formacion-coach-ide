@@ -393,7 +393,7 @@ function start(){
       +'<nav class="tabbar"><a href="#" class="on">'+ico('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>')+'<span>Inicio</span></a><button data-ov="perfil">'+ico('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>')+'<span>Perfil</span></button><button data-ov="ajustes">'+ico('<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 0 0-1.7-1L14.5 2h-4l-.4 2.9a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.4 2.9h4l.4-2.9a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z"/>')+'<span>Ajustes</span></button></nav>'
     +'</div>'
     +'<div class="ov" id="ovPerfil"><div class="ov-in"><div class="ov-hd"><b>Tu perfil</b><button class="x" data-close>×</button></div><div class="ov-body">'
-      +'<div class="kv"><span>Nombre</span><b>'+esc(ME.name||'—')+'</b></div><div class="kv"><span>Email</span><b>'+esc(ME.email||'—')+'</b></div><div class="kv"><span>Rol</span><b>'+esc(ME.role||'—')+'</b></div>'
+      +'<div class="kv"><span>Nombre</span><b>'+esc(ME.name||'—')+'</b></div><div class="kv"><span>Email</span><b>'+esc(ME.email||'—')+'</b></div><div class="kv"><span>Rol</span><b>'+esc(({empleado:'Empleado',coach:'Coach',team_leader:'Team leader',inspirador:'Inspirador',admin:'Administrador',direccion:'Dirección'})[ME.role]||ME.role||'—')+'</b></div>'
       +profileFacts(ONB)
       +'<div class="acthd">Tu actividad</div><div class="actbox" id="actBox"><div class="actmut">Cargando tu actividad…</div></div>'
       +'<div class="ov-note">Se va construyendo a medida que aprendes. Cuanto más practicas y compartes con tus tutores, mejor te conocen.</div></div></div></div>'
@@ -443,7 +443,7 @@ function wire(){
     }catch(ex){ msg.style.color='var(--red,#E2506A)'; msg.textContent=(ex&&/invalid|incorrect|current|credential/i.test(ex.message||''))?'La contraseña actual no es correcta.':(ex.message||'No se pudo cambiar.'); }
     pwBtn.disabled=false;
   };
-  var lo=document.getElementById('logout'); if(lo) lo.onclick=async function(){ try{await fetch('/api/auth/sign-out',{method:'POST',credentials:'same-origin'});}catch(e){} location.href='/app/login.html'; };
+  var lo=document.getElementById('logout'); if(lo) lo.onclick=async function(){ try{await SkillUp.api('/api/auth/sign-out',{method:'POST'});}catch(e){} location.href='/app/login.html'; };
 }
 
 setBoot('Comprobando tu sesión…',22);

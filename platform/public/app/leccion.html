@@ -164,9 +164,9 @@ var BEATS=[
   tutor:["Casi lo tienes","Cuando completes la práctica, te presento a tu referente para el sello final."]}
 ];
 var NAV=[
- ["Inicio","/hub.html",'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'],
- ["Mi ruta","/hub.html#empezar",'<circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 6h6a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/>'],
- ["Explorar","/hub.html#cursos",'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>'],
+ ["Inicio","/app/inicio.html",'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'],
+ ["Mi ruta","/app/ruta.html",'<circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 6h6a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/>'],
+ ["Explorar","/app/explorar.html",'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>'],
  ["Perfil","/perfil.html",'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>']
 ];
 var EYES='<svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#2FD3C6" stroke-width="3"/><circle cx="20" cy="36" r="7" fill="#B588A8"/><circle cx="20" cy="36" r="3.2" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#FFD700" stroke-width="3"/><circle cx="20" cy="36" r="7" fill="#2FD3C6"/><circle cx="20" cy="36" r="3.2" fill="#0a0a0f"/></g></svg>';
@@ -201,7 +201,7 @@ function start(){
   app.innerHTML=
     '<aside class="rail"><svg class="rlogo" viewBox="0 0 100 58">'+innerEyes()+'</svg>'+railBtns()+'</aside>'
     +'<div class="main">'
-      +'<div class="ctx"><svg class="mlogo" viewBox="0 0 100 58">'+innerEyes()+'</svg><div class="crumb">'+LESSON.ruta+' · '+LESSON.curso+' · <b>'+LESSON.titulo+'</b></div><a class="back" href="/hub.html">Salir</a></div>'
+      +'<div class="ctx"><svg class="mlogo" viewBox="0 0 100 58">'+innerEyes()+'</svg><div class="crumb">'+LESSON.ruta+' · '+LESSON.curso+' · <b>'+LESSON.titulo+'</b></div><a class="back" href="/app/inicio.html">Salir</a></div>'
       +'<div class="coachbar" id="coachbar"><div class="av">'+EYES+'</div><div class="tx"><b id="cbName">Tu tutor</b><span id="cbMsg"></span> <u>Hablar ›</u></div></div>'
       +'<div class="deckwrap"><div class="track" id="track">'+BEATS.map(cardHTML).join('')+'</div></div>'
       +'<div class="dfoot"><button class="nb" id="prev">‹</button><div class="spine" id="spine"></div><button class="nb primary" id="next">Siguiente</button></div>'
@@ -228,7 +228,7 @@ function wireDeck(){
   window._go=function(x){idx=Math.max(0,Math.min(BEATS.length-1,x));track.style.transform='translateX('+(-idx*100)+'%)';
     [].forEach.call(spine.children,function(s,j){s.firstChild.style.width=j<=idx?'100%':'0';});
     prev.disabled=idx===0;next.textContent=idx===BEATS.length-1?'Terminar':'Siguiente';tutor(idx);}
-  prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===BEATS.length-1){location.href='/hub.html';return;}window._go(idx+1)};
+  prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===BEATS.length-1){location.href='/app/inicio.html';return;}window._go(idx+1)};
   track.addEventListener('click',function(e){var o=e.target.closest('.opt');if(!o)return;var c=o.closest('.card-in');var ok=o.dataset.ok==='1';o.classList.add(ok?'ok':'no');c.querySelector('.fb').textContent=ok?BEATS[4].quiz.yes:BEATS[4].quiz.no;});
   var x0=null;track.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
   track.addEventListener('touchend',function(e){if(x0==null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>45)window._go(idx+(dx<0?1:-1));x0=null;});

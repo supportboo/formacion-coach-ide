@@ -6,7 +6,8 @@ window.SkillUp = (function () {
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
       ...opts,
-      body: opts && opts.body ? JSON.stringify(opts.body) : undefined,
+      // better-auth rejects a JSON POST with no body (e.g. sign-out -> 400 and the session stays alive).
+      body: opts && opts.body ? JSON.stringify(opts.body) : (opts && opts.method && opts.method !== 'GET' ? '{}' : undefined),
     });
     let data = null;
     try { data = await res.json(); } catch { /* respuesta vacía */ }

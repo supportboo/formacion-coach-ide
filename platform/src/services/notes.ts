@@ -32,8 +32,10 @@ export async function create(deps: SvcDeps, orgId: string, userId: string, d: No
   return id;
 }
 
-export async function remove(deps: SvcDeps, orgId: string, userId: string, id: string) {
+export async function remove(deps: SvcDeps, orgId: string, userId: string, id: string): Promise<boolean> {
   // Never let a user delete their own account-state row (would reset them to "approved").
-  await deps.db.delete(annotation)
-    .where(and(eq(annotation.id, id), eq(annotation.organizationId, orgId), eq(annotation.userId, userId), ne(annotation.source, "cuenta")));
+  const gone = await deps.db.delete(annotation)
+    .where(and(eq(annotation.id, id), eq(annotation.organizationId, orgId), eq(annotation.userId, userId), ne(annotation.source, "cuenta")))
+    .returning({ id: annotation.id });
+  return gone.length > 0;
 }
