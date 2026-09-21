@@ -104,6 +104,28 @@ details[open] summary:before{content:"▾ "}
     </details>
   </div>
 
+  <div class="card">
+    <h2>Ajustes de empresa</h2>
+    <p class="msg" style="margin-top:0">Nombres de los niveles (como los verá tu equipo) y si los puntos cuentan para nómina.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:420px">
+      <input class="inline-input" id="lvl1" placeholder="Nivel 1 (p. ej. «Conoce»)">
+      <input class="inline-input" id="lvl2" placeholder="Nivel 2 (p. ej. «Aplica»)">
+      <input class="inline-input" id="lvl3" placeholder="Nivel 3 (p. ej. «Referente»)">
+      <label style="display:flex;gap:9px;align-items:flex-start;font-size:14px;margin-top:4px"><input type="checkbox" id="salaryLinked" style="margin-top:3px"><span>Los puntos cuentan para nómina o incentivos.<br><small class="msg">Recomendación: no atarlos a nómina el primer año.</small></span></label>
+      <button class="btn btn-grad" id="btnCfg" style="align-self:flex-start">Guardar ajustes</button><div id="cfgMsg" class="msg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Rúbricas de validación</h2>
+    <p class="msg" style="margin-top:0">Los criterios con los que un referente valida un caso de esa competencia. Uno por línea.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:520px">
+      <select class="inline-input" id="rubComp"><option value="">Elige competencia…</option></select>
+      <textarea id="rubCrit" placeholder="Un criterio por línea&#10;p. ej. Aplica el descuento correcto&#10;Justifica la decisión con datos" style="min-height:90px;width:100%;padding:11px 13px;border-radius:10px"></textarea>
+      <button class="btn btn-grad" id="btnRub" style="align-self:flex-start">Guardar rúbrica</button><div id="rubMsg" class="msg"></div>
+    </div>
+  </div>
+
 </div>
 <script src="/app/api.js"></script>
 <script>
@@ -219,6 +241,35 @@ details[open] summary:before{content:"▾ "}
   });
   wireCreate('btnRule', 'ruleMsg', '/api/config/reward-rules', function () {
     return { event: document.getElementById('ruleEvent').value.trim(), reward: document.getElementById('ruleReward').value.trim() };
+  });
+
+  // P8: ajustes de empresa (nombres de nivel + puntos-salario)
+  SkillUp.api('/api/config/company').then(function (cfg) {
+    if (!cfg) return; var l = cfg.levelLabels || {};
+    if (l['1']) document.getElementById('lvl1').value = l['1'];
+    if (l['2']) document.getElementById('lvl2').value = l['2'];
+    if (l['3']) document.getElementById('lvl3').value = l['3'];
+    document.getElementById('salaryLinked').checked = !!cfg.salaryLinked;
+  }).catch(function () {});
+  document.getElementById('btnCfg').addEventListener('click', async function () {
+    var m = document.getElementById('cfgMsg'); var labels = {};
+    ['1', '2', '3'].forEach(function (n) { var v = document.getElementById('lvl' + n).value.trim(); if (v) labels[n] = v; });
+    try { await SkillUp.api('/api/config/company', { method: 'PUT', body: { levelLabels: labels, salaryLinked: document.getElementById('salaryLinked').checked } }); m.textContent = 'Ajustes guardados.'; }
+    catch (ex) { m.textContent = ex.message; }
+  });
+
+  // P7: rúbricas — cargar competencias en el selector
+  SkillUp.api('/api/catalog/competencies').then(function (cs) {
+    var sel = document.getElementById('rubComp'); if (!sel || !Array.isArray(cs)) return;
+    cs.forEach(function (c) { var o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+  }).catch(function () {});
+  document.getElementById('btnRub').addEventListener('click', async function () {
+    var m = document.getElementById('rubMsg'); var cid = document.getElementById('rubComp').value;
+    var crit = document.getElementById('rubCrit').value.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) { return { label: l }; });
+    if (!cid) { m.textContent = 'Elige una competencia.'; return; }
+    if (!crit.length) { m.textContent = 'Escribe al menos un criterio.'; return; }
+    try { await SkillUp.api('/api/validation/rubrics', { method: 'POST', body: { competencyId: cid, criteria: crit } }); m.textContent = 'Rúbrica guardada (' + crit.length + ' criterios).'; }
+    catch (ex) { m.textContent = ex.message; }
   });
 
   var ROLES = ['empleado', 'coach', 'team_leader', 'inspirador', 'admin', 'direccion'];
