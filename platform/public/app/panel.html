@@ -126,6 +126,20 @@ details[open] summary:before{content:"▾ "}
     </div>
   </div>
 
+  <div class="card">
+    <h2>FUNDAE</h2>
+    <p class="msg" style="margin-top:0">Crea la acción formativa bonificable y descarga su justificante.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:520px">
+      <input class="inline-input" id="fdTitle" placeholder="Título de la acción formativa">
+      <input class="inline-input" id="fdHoras" type="number" min="1" placeholder="Horas (mínimo 2 para bonificar)">
+      <select class="inline-input" id="fdTutor"><option value="">Tutor-formador…</option></select>
+      <select class="inline-input" id="fdComp"><option value="">Competencia (opcional)…</option></select>
+      <label style="display:flex;gap:9px;align-items:center;font-size:14px"><input type="checkbox" id="fdCert"><span>Conduce a certificado de profesionalidad</span></label>
+      <button class="btn btn-grad" id="btnFd" style="align-self:flex-start">Crear acción</button><div id="fdMsg" class="msg"></div>
+      <div id="fdResult" style="margin-top:6px"></div>
+    </div>
+  </div>
+
 </div>
 <script src="/app/api.js"></script>
 <script>
@@ -270,6 +284,36 @@ details[open] summary:before{content:"▾ "}
     if (!crit.length) { m.textContent = 'Escribe al menos un criterio.'; return; }
     try { await SkillUp.api('/api/validation/rubrics', { method: 'POST', body: { competencyId: cid, criteria: crit } }); m.textContent = 'Rúbrica guardada (' + crit.length + ' criterios).'; }
     catch (ex) { m.textContent = ex.message; }
+  });
+
+  // P9: FUNDAE — poblar tutor (equipo) y competencia; crear acción + descargar justificante
+  SkillUp.api('/api/org/team').then(function (t) {
+    var sel = document.getElementById('fdTutor'); if (!sel || !Array.isArray(t)) return;
+    t.forEach(function (mm) { var o = document.createElement('option'); o.value = mm.userId || mm.id; o.textContent = (mm.name || mm.email || mm.userId); sel.appendChild(o); });
+  }).catch(function () {});
+  SkillUp.api('/api/catalog/competencies').then(function (cs) {
+    var sel = document.getElementById('fdComp'); if (!sel || !Array.isArray(cs)) return;
+    cs.forEach(function (c) { var o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+  }).catch(function () {});
+  document.getElementById('btnFd').addEventListener('click', async function () {
+    var m = document.getElementById('fdMsg'), res = document.getElementById('fdResult');
+    var title = document.getElementById('fdTitle').value.trim();
+    var horas = parseInt(document.getElementById('fdHoras').value, 10);
+    var tutorId = document.getElementById('fdTutor').value;
+    if (!title || !horas || !tutorId) { m.textContent = 'Rellena título, horas y tutor.'; return; }
+    m.textContent = 'Creando…';
+    try {
+      var r = await SkillUp.api('/api/fundae/actions', { method: 'POST', body: { title: title, horas: horas, tutorId: tutorId, competencyId: document.getElementById('fdComp').value || undefined, esCertProfesionalidad: document.getElementById('fdCert').checked } });
+      var just = await SkillUp.api('/api/fundae/actions/' + r.id + '/justification');
+      m.textContent = just && just.bonificable ? 'Acción creada y BONIFICABLE.' : ('Acción creada, NO bonificable' + (just && just.motivoNoBonificable ? ': ' + just.motivoNoBonificable : '') + '.');
+      res.innerHTML = '';
+      var btn = document.createElement('button'); btn.className = 'btn btn-gh'; btn.textContent = 'Descargar justificante';
+      btn.onclick = function () {
+        var blob = new Blob([JSON.stringify(just, null, 2)], { type: 'application/json' });
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fundae-' + r.id + '.json'; a.click(); URL.revokeObjectURL(a.href);
+      };
+      res.appendChild(btn);
+    } catch (ex) { m.textContent = ex.message; res.innerHTML = ''; }
   });
 
   var ROLES = ['empleado', 'coach', 'team_leader', 'inspirador', 'admin', 'direccion'];
