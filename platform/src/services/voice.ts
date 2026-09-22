@@ -20,11 +20,21 @@ const VOICES: VoiceOpt[] = [
   { id: "iuYybvSfclFoJ9ab2Im6", name: "Estela (f)", accent: "peninsular" },
 ];
 
-// Ajuste expresivo: enérgica, con emoción, tono profesional (aire JARVIS). Estabilidad media = ritmo estable sin sonar acelerada;
-// style alto = más intención; speaker_boost = presencia. (EQ de estudio real necesitaría postproceso de audio.)
-// v3: estabilidad media = equilibrio entre emoción/naturalidad y ritmo estable; similarity alto = fiel a la voz.
-// stability 0.45: ni monótona ni acelerada (Marc reportó voz demasiado rápida/perdía el tono con 0.3).
-const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.85, use_speaker_boost: true };
+// Ajuste base: enérgica, con emoción, tono profesional (aire JARVIS). speaker_boost = presencia.
+// speed 1.08 = ritmo vivo, no lento ni aburrido (ElevenLabs: 1.0 normal, >1 más rápido, rango ~0.7–1.2).
+// Marc reportó voz demasiado rápida con stability 0.3 y demasiado LENTA a 1.0 -> subimos el ritmo por defecto.
+const DEFAULT_SETTINGS = { stability: 0.45, similarity_boost: 0.85, use_speaker_boost: true, speed: 1.08 };
+// Ritmo + carácter POR VOZ (Marc: cada tutor con su personalidad y su ritmo; ninguno lento). El "qué esperar"
+// de cada personalidad se refuerza además en el prompt del tutor; aquí va el ritmo y el temperamento de la voz.
+const VOICE_PROFILES: Record<string, { speed?: number; stability?: number }> = {
+  "WsvUasyBVDfzPhE0B6jC": { speed: 1.14, stability: 0.40 }, // Diego (comercial): ágil, directo, con chispa
+  "fjMC3Wxp5QfFT9wNGQOI": { speed: 1.12, stability: 0.42 }, // Álvaro (m): resolutivo, al grano
+  "jQrhxsqzG6CPKo3ll0w9": { speed: 1.11, stability: 0.43 }, // Natalia (f): dinámica, motivadora
+  "bkcxugbRtulPFV1CinBX": { speed: 1.07, stability: 0.45 }, // Marc (tú): cercano, natural
+  "oHMibLgDqXK3fjgFVtJ6": { speed: 1.06, stability: 0.50 }, // Inés (f): cálida y clara
+  "iuYybvSfclFoJ9ab2Im6": { speed: 1.05, stability: 0.52 }, // Estela (f): serena pero sin arrastrar
+};
+function settingsFor(voiceId: string) { return { ...DEFAULT_SETTINGS, ...(VOICE_PROFILES[voiceId] || {}) }; }
 
 function envVoices(): VoiceOpt[] | null {
   const raw = env.ELEVENLABS_EXTRA_VOICES?.trim();
@@ -49,7 +59,7 @@ export async function synthesize(text: string, voiceId: string): Promise<ArrayBu
     const r = await fetch(`${API}/text-to-speech/${encodeURIComponent(voiceId)}`, {
       method: "POST",
       headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "content-type": "application/json", accept: "audio/mpeg" },
-      body: JSON.stringify({ text, model_id: MODEL, voice_settings: VOICE_SETTINGS }),
+      body: JSON.stringify({ text, model_id: MODEL, voice_settings: settingsFor(voiceId) }),
       signal: AbortSignal.timeout(20000),
     });
     if (!r.ok) return null;
@@ -68,7 +78,7 @@ export async function synthesizeWithTimestamps(text: string, voiceId: string): P
     const r = await fetch(`${API}/text-to-speech/${encodeURIComponent(voiceId)}/with-timestamps`, {
       method: "POST",
       headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "content-type": "application/json", accept: "application/json" },
-      body: JSON.stringify({ text, model_id: MODEL, voice_settings: VOICE_SETTINGS }),
+      body: JSON.stringify({ text, model_id: MODEL, voice_settings: settingsFor(voiceId) }),
       signal: AbortSignal.timeout(20000),
     });
     if (!r.ok) return null;
