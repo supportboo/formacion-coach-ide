@@ -152,9 +152,13 @@ export interface GeneratedLesson { title: string; body: string }
 export async function generateLessonDraft(
   llm: Llm, args: { competencyName: string; topic: string; orgId?: string; userId?: string },
 ): Promise<GeneratedLesson> {
-  const system = `Eres autor de formación. Escribe una lección breve (300-500 palabras) sobre "${args.topic}" dentro de la competencia "${args.competencyName}". ${BASE}\nFormato: {"title":"...","body":"..."}`;
+  // Estándar de calidad (guía 0→100): aplicable ya, mucha práctica, estructura fija, cero relleno, sin inventar.
+  const system = `Eres diseñador instruccional sénior. Escribe UNA lección práctica y aplicable (350-600 palabras) sobre "${args.topic}" dentro de la competencia "${args.competencyName}".`
+    + ` CALIDAD OBLIGATORIA: al grano y aplicable desde la primera frase; ≥60% práctica y ≤40% teoría (solo la teoría justa para ejecutar); cero relleno (si una frase no cambia lo que la persona hará en su trabajo, bórrala).`
+    + ` ESTRUCTURA: (1) para qué te sirve esto en tu trabajo, (2) concepto mínimo, (3) cómo se hace paso a paso, (4) un ejemplo real y concreto, (5) un ejercicio o acción para aplicar hoy, (6) un error común a evitar.`
+    + ` Nada de cifras, estudios ni casos inventados; si citas un dato, que sea real. ${BASE}\nFormato: {"title":"...","body":"..."}`;
   const out = await llm.generate({
-    system, messages: [{ role: "user", content: "Escribe la lección." }], maxTokens: 1200,
+    system, messages: [{ role: "user", content: "Escribe la lección." }], maxTokens: 1500,
     orgId: args.orgId, userId: args.userId, kind: "lesson",
   });
   return firstJson<GeneratedLesson>(out);

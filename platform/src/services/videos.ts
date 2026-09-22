@@ -49,7 +49,8 @@ async function channelSubs(key: string, channelIds: string[]): Promise<Record<st
 async function searchAndStats(topic: string, order: "date" | "viewCount", max = 25): Promise<VideoItem[]> {
   const key = env.YOUTUBE_API_KEY;
   if (!key) return [];
-  const searchUrl = `${API}/search?part=snippet&type=video&videoDuration=medium&order=${order}&maxResults=${max}` +
+  // videoDuration=medium (4-20 min) ya excluye Shorts (máx 3 min desde oct-2024); es+ES mejora la pertinencia.
+  const searchUrl = `${API}/search?part=snippet&type=video&videoDuration=medium&relevanceLanguage=es&regionCode=ES&order=${order}&maxResults=${max}` +
     `&q=${encodeURIComponent(withContext(topic))}&key=${key}`;
   const sr = await fetch(searchUrl, { signal: AbortSignal.timeout(8000) });
   if (!sr.ok) return [];
