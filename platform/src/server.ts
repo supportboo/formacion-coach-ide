@@ -131,6 +131,29 @@ app.get("/api/learning/route", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   return c.json({ plan: await readRutaPlan(ctx.orgId, ctx.userId) });
 });
+// Micro-subtemas de un módulo (para las burbujas tipo cerebro/Graphify). Cacheado por tema (proceso).
+const subtopicCache = new Map<string, string[]>();
+app.get("/api/learning/subtopics", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const topic = String(c.req.query("topic") || "").slice(0, 160).trim();
+  if (!topic) return c.json({ subtopics: [] });
+  const key = topic.toLowerCase();
+  const cached = subtopicCache.get(key);
+  if (cached) return c.json({ subtopics: cached });
+  if (rateLimited(`sub:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones" }, 429);
+  try {
+    const out = await llm.generate({
+      system: "Devuelve SOLO un array JSON de 4 a 6 subtemas concretos y accionables (cadenas cortas de 2-5 palabras) del tema dado, en español de España, sin inventar. Sin markdown. Formato: [\"...\",\"...\"]",
+      messages: [{ role: "user", content: "Tema del módulo: " + topic }], maxTokens: 300, orgId: ctx.orgId, userId: ctx.userId, kind: "chat",
+    });
+    let arr = aiContent.firstJson<string[]>(out);
+    if (!Array.isArray(arr)) arr = [];
+    arr = arr.map((x) => String(x).slice(0, 60)).filter(Boolean).slice(0, 6);
+    if (arr.length) subtopicCache.set(key, arr);
+    return c.json({ subtopics: arr });
+  } catch { return c.json({ subtopics: [] }); }
+});
 
 app.post("/api/learning/route/build", async (c) => {
   const ctx = await getAuthContext(c);
