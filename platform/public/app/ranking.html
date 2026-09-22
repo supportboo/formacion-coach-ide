@@ -8,21 +8,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app/theme.css">
 <style>
-.rank-row{display:flex;align-items:center;gap:14px;padding:12px 4px;border-bottom:1px solid #F1ECF3}
-.rank-row:last-child{border-bottom:0}
-.rank-row.me{background:rgba(139,92,246,.06);border-radius:14px;padding:12px 10px;margin:0 -10px}
-.rank-n{width:26px;text-align:center;font-weight:800;color:var(--mut);font-size:14px;flex-shrink:0}
-.rank-n.top1{color:var(--gold)}
-.rank-n.top2{color:#9aa0a6}
-.rank-n.top3{color:#b08d57}
-.avatar-ring{border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  width:52px;height:52px;background:var(--dark);transition:width .2s,height .2s}
+/* Pódium llamativo del top 3 */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:6px 0 10px;padding-top:34px}
+.pod{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;max-width:120px}
+.pod .avatar-wrap{position:relative}
+.pod .pname{font-weight:800;font-size:13px;color:var(--text);text-align:center;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pod .ptier{font-size:11px;color:var(--mut);text-align:center}
+.pod .base{width:100%;border-radius:14px 14px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:9px;color:#fff}
+.pod .base .pos{font-family:Inter,sans-serif;font-weight:900;font-size:26px;line-height:1}
+.pod .base .pts{font-weight:800;font-size:12.5px;opacity:.95;font-variant-numeric:tabular-nums}
+.pod1 .base{height:110px;background:linear-gradient(180deg,#F0C645,#c99a10)}
+.pod2 .base{height:82px;background:linear-gradient(180deg,#c3c8ce,#9aa0a6)}
+.pod3 .base{height:64px;background:linear-gradient(180deg,#d8a56a,#b08d57)}
+.medal{position:absolute;top:-6px;right:-6px;font-size:20px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+/* Avatar que evoluciona por nivel */
+.avatar-wrap{position:relative;display:inline-flex;justify-content:center}
+.avatar-wrap .adorn{position:absolute;top:-20px;left:50%;transform:translateX(-50%);pointer-events:none}
+.avatar-ring{border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--dark);transition:width .2s,height .2s}
 .avatar-ring .beyes{width:60%;height:auto}
+/* Lista (puestos 4+) */
+.rank-row{display:flex;align-items:center;gap:14px;padding:11px 4px;border-bottom:1px solid var(--line,#F1ECF3)}
+.rank-row:last-child{border-bottom:0}
+.rank-row.me{background:rgba(139,92,246,.07);border-radius:14px;padding:11px 10px;margin:0 -10px}
+.rank-n{width:26px;text-align:center;font-weight:800;color:var(--mut);font-size:14px;flex-shrink:0}
 .rank-info{flex:1;min-width:0}
 .rank-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rank-tier{font-size:11.5px;color:var(--mut)}
 .rank-pts{font-weight:900;font-size:16px;color:var(--p);font-variant-numeric:tabular-nums;flex-shrink:0}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:16px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:16px}
 .legend span{display:flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
 </style>
@@ -35,21 +48,23 @@
     <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
     <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
     </defs>
-    <g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
-    <g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
   </svg>ers<span class="sk">SkillUp</span></span>
-  <nav><a href="/app/dashboard.html">← Mi panel</a></nav>
+  <nav><a href="/app/inicio.html">← Inicio</a></nav>
 </div>
 <div class="wrap">
 
   <div class="card">
     <h2>Tu progreso <span class="hand" style="color:var(--t);font-size:15px">esta temporada</span></h2>
     <div id="mine" class="rank-row" style="border:0"><span class="msg">Cargando…</span></div>
+    <p class="msg" id="nextTier" style="margin:6px 0 0"></p>
   </div>
 
   <div class="card">
-    <h2>Ranking <span class="hand" style="color:var(--t);font-size:15px">quién más está enseñando a otros</span></h2>
-    <p class="msg" style="margin:-6px 0 14px">Puntos reales por ayudar a que un compañero llegue a aplicar una competencia — no por actividad, por enseñar de verdad.</p>
+    <h2>Ranking <span class="hand" style="color:var(--t);font-size:15px">quién más enseña a otros</span></h2>
+    <p class="msg" style="margin:-6px 0 10px">Puntos reales por ayudar a que un compañero llegue a aplicar una competencia — no por actividad, por enseñar de verdad. Tu avatar evoluciona según subes de nivel.</p>
+    <div id="podium"></div>
     <div id="ranking"><span class="msg">Cargando…</span></div>
     <div class="legend" id="legend"></div>
   </div>
@@ -58,39 +73,52 @@
 <script src="/app/api.js"></script>
 <script>
 var TIERS = [
-  { key: 'aprendiz', label: 'Aprendiz', min: 0, scale: 0.70, ring: '#8F8F8F' },
-  { key: 'practicante', label: 'Practicante', min: 100, scale: 0.82, ring: '#1a9aa0' },
+  { key: 'aprendiz', label: 'Aprendiz', min: 0, scale: 0.72, ring: '#8F8F8F' },
+  { key: 'practicante', label: 'Practicante', min: 100, scale: 0.84, ring: '#1a9aa0' },
   { key: 'referente', label: 'Referente', min: 300, scale: 1, ring: '#8a5f7c' },
-  { key: 'inspirador', label: 'Inspirador', min: 700, scale: 1.15, ring: '#F0C645' },
-  { key: 'leyenda', label: 'Leyenda', min: 1500, scale: 1.3, ring: 'url(#legendGrad)' },
+  { key: 'inspirador', label: 'Inspirador', min: 700, scale: 1.14, ring: '#F0C645' },
+  { key: 'leyenda', label: 'Leyenda', min: 1500, scale: 1.3, ring: '#EC6FA6' },
 ];
-function avatarSvg(size) {
+function tierIndex(points){ var idx = 0; TIERS.forEach(function (x, i) { if (points >= x.min) idx = i; }); return idx; }
+function tierOf(points){ return TIERS[tierIndex(points)]; }
+function eyesSvg(size){
   return '<svg class="beyes" width="' + Math.round(size * 0.6) + '" height="' + Math.round(size * 0.34) + '" viewBox="0 0 100 58">' +
     '<defs><linearGradient id="ag1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>' +
     '<radialGradient id="ai1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient></defs>' +
-    '<g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#ag1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#ai1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>' +
-    '<g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#ag1)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#ai1)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>';
+    '<g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#ag1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#ai1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>' +
+    '<g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#ag1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#ai1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>';
 }
-function tierOf(points) {
-  var t = TIERS[0];
-  TIERS.forEach(function (x) { if (points >= x.min) t = x; });
-  return t;
-}
-function avatarHtml(points, baseSize) {
-  var t = tierOf(points);
+// Adornos por nivel: aura + estrella (Inspirador) o corona (Leyenda). Determinista, a marca.
+function crownSvg(){ return '<svg class="adorn" width="30" height="18" viewBox="0 0 30 18"><path d="M3 16 L5 5 L11 10 L15 2 L19 10 L25 5 L27 16 Z" fill="#F0C645" stroke="#b8860b" stroke-width="1.2" stroke-linejoin="round"/><circle cx="15" cy="2" r="1.6" fill="#EC6FA6"/></svg>'; }
+function starSvg(){ return '<svg class="adorn" width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l2.6 6.3 6.8.5-5.2 4.4 1.6 6.6L12 16.9 6.2 20.3l1.6-6.6L2.6 9.3l6.8-.5z" fill="#F0C645" stroke="#c99a10" stroke-width="1"/></svg>'; }
+function avatarHtml(points, baseSize){
+  var ti = tierIndex(points), t = TIERS[ti];
   var size = Math.round(baseSize * t.scale);
-  return '<div class="avatar-ring" style="width:' + size + 'px;height:' + size + 'px;box-shadow:0 0 0 3px ' + t.ring + '">' + avatarSvg(size) + '</div>';
+  var glow = ti >= 4 ? '0 0 28px rgba(236,111,166,.75)' : ti >= 3 ? '0 0 20px rgba(240,198,69,.6)' : ti >= 2 ? '0 0 13px rgba(138,95,124,.5)' : 'none';
+  var adorn = ti >= 4 ? crownSvg() : ti >= 3 ? starSvg() : '';
+  return '<div class="avatar-wrap">' + adorn +
+    '<div class="avatar-ring" style="width:' + size + 'px;height:' + size + 'px;box-shadow:0 0 0 3px ' + t.ring + ', ' + glow + '">' + eyesSvg(size) + '</div></div>';
 }
-function rowHtml(rank, name, points, isMe) {
+function podHtml(pos, r, isMe){
+  var t = tierOf(r.points), medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : '🥉';
+  return '<div class="pod pod' + pos + '">' +
+    '<div class="avatar-wrap" style="position:relative">' + avatarHtml(r.points, 66) + '<span class="medal">' + medal + '</span></div>' +
+    '<div class="pname">' + SkillUp.escHtml(r.name) + (isMe ? ' (tú)' : '') + '</div>' +
+    '<div class="ptier">' + t.label + '</div>' +
+    '<div class="base"><div class="pos">' + pos + '</div><div class="pts">' + r.points + ' pts</div></div></div>';
+}
+function rowHtml(rank, name, points, isMe){
   var t = tierOf(points);
-  var medal = rank === 1 ? 'top1' : rank === 2 ? 'top2' : rank === 3 ? 'top3' : '';
-  var rankLabel = rank ? '<span class="rank-n ' + medal + '">' + rank + '</span>' : '<span class="rank-n"></span>';
-  return '<div class="rank-row' + (isMe ? ' me' : '') + '">' +
-    rankLabel +
-    avatarHtml(points, 52) +
+  return '<div class="rank-row' + (isMe ? ' me' : '') + '"><span class="rank-n">' + rank + '</span>' +
+    avatarHtml(points, 46) +
     '<div class="rank-info"><div class="rank-name">' + SkillUp.escHtml(name) + (isMe ? ' (tú)' : '') + '</div><div class="rank-tier">' + t.label + '</div></div>' +
-    '<div class="rank-pts">' + points + '</div>' +
-  '</div>';
+    '<div class="rank-pts">' + points + '</div></div>';
+}
+function nextTierMsg(points){
+  var ti = tierIndex(points);
+  if (ti >= TIERS.length - 1) return '¡Nivel máximo: ' + TIERS[ti].label + '! Sigue enseñando para mantenerlo.';
+  var next = TIERS[ti + 1];
+  return 'Te faltan <b>' + (next.min - points) + ' puntos</b> para ser <b>' + next.label + '</b> — cada compañero al que ayudas a aplicar suma.';
 }
 
 (async function () {
@@ -98,21 +126,28 @@ function rowHtml(rank, name, points, isMe) {
   var myId = s.user.id;
 
   document.getElementById('legend').innerHTML = TIERS.map(function (t) {
-    return '<span><i style="background:' + (t.ring.indexOf('url') === 0 ? '#F0C645' : t.ring) + '"></i>' + t.label + ' · ' + t.min + '+ pts</span>';
+    return '<span><i style="background:' + t.ring + '"></i>' + t.label + ' · ' + t.min + '+ pts</span>';
   }).join('');
 
   try {
     var mine = await SkillUp.api('/api/propagation/points');
-    document.getElementById('mine').outerHTML = rowHtml(null, s.user.name || s.user.email, mine.points, true);
+    document.getElementById('mine').outerHTML = rowHtml('', s.user.name || s.user.email, mine.points, true);
+    var nt = document.getElementById('nextTier'); if (nt) nt.innerHTML = nextTierMsg(mine.points);
   } catch (ex) {
     document.getElementById('mine').innerHTML = '<span class="msg err">' + ex.message + '</span>';
   }
 
   try {
     var data = await SkillUp.api('/api/propagation/ranking');
-    var box = document.getElementById('ranking');
-    if (!data.ranking.length) { box.innerHTML = '<p class="msg">Todavía nadie ha sumado puntos esta temporada — empieza enseñando a un compañero.</p>'; return; }
-    box.innerHTML = data.ranking.map(function (r, i) { return rowHtml(i + 1, r.name, r.points, r.userId === myId); }).join('');
+    var pod = document.getElementById('podium'), box = document.getElementById('ranking');
+    var list = data.ranking || [];
+    if (!list.length) { box.innerHTML = '<p class="msg">Todavía nadie ha sumado puntos esta temporada — empieza enseñando a un compañero.</p>'; return; }
+    var top = list.slice(0, 3);
+    // orden visual del pódium: 2º · 1º · 3º
+    var order = top.length === 3 ? [top[1], top[0], top[2]] : top.length === 2 ? [top[1], top[0]] : [top[0]];
+    var posOf = function (r) { return list.indexOf(r) + 1; };
+    pod.innerHTML = '<div class="podium">' + order.map(function (r) { return podHtml(posOf(r), r, r.userId === myId); }).join('') + '</div>';
+    box.innerHTML = list.slice(3).map(function (r, i) { return rowHtml(i + 4, r.name, r.points, r.userId === myId); }).join('');
   } catch (ex) {
     document.getElementById('ranking').innerHTML = '<span class="msg err">' + ex.message + '</span>';
   }

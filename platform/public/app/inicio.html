@@ -365,7 +365,8 @@ function rankBlock(items){
   return '<div class="rankcard'+(up?' rankup':'')+'"><div class="rankav" style="background:linear-gradient(160deg,'+cur.c1+'22,'+cur.c2+'22)">'+rankAvatar(cur)+'</div>'
     +'<div class="rankinfo"><div class="rankname">'+esc(cur.name)+'<button class="rankq" id="rankHelp" type="button" aria-label="Cómo funciona">?</button></div>'
     +'<div class="rankbar"><div class="rankfill" style="width:'+pct+'%;background:linear-gradient(90deg,'+cur.c1+','+cur.c2+')"></div></div>'
-    +'<div class="ranklbl">'+(up?'¡Has subido de rango! · ':'')+xp+' XP'+(next?(' · '+(next.min-xp)+' para llegar a '+esc(next.name)):' · nivel máximo')+'</div></div></div>';
+    +'<div class="ranklbl">'+(up?'¡Has subido de rango! · ':'')+xp+' XP'+(next?(' · '+(next.min-xp)+' para llegar a '+esc(next.name)):' · nivel máximo')+'</div>'
+    +'<a href="/app/ranking.html" style="display:inline-block;margin-top:7px;font-size:12px;font-weight:800;color:var(--teal2,#3FD8E0);text-decoration:none">Ver el pódium ›</a></div></div>';
 }
 // Recordatorios reales (Notification API del navegador; sin backend de push/email todavía — ver blueprint).
 // Apagado por defecto. Usa la fecha real de tu última actividad, nunca inventada.
