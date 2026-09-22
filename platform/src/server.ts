@@ -251,6 +251,55 @@ app.post("/api/agent/chat", async (c) => {
   return c.json(res);
 });
 
+// Coach de voz proactivo (BOO): saluda con seguimiento REAL — reconoce, motiva, hace seguimiento y
+// suelta una broma amable. Solo con hechos reales del alumno (nada de fechas ni plazos inventados).
+app.get("/api/agent/coach", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`coach:${ctx.orgId}:${ctx.userId}`, 8, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const hour = Math.max(0, Math.min(23, Number(c.req.query("h")) || new Date().getHours()));
+  const place = String(c.req.query("place") || "").replace(/[^a-zñáéíóú ]/gi, "").slice(0, 12); // solo si el usuario lo declaró; jamás detectado
+  const dayMs = 86_400_000, now = Date.now();
+  const all = await notesSvc.listAll(svcDeps, ctx.orgId, ctx.userId).catch(() => [] as { body: string | null; createdAt: Date; source: string | null }[]);
+  const ts = (x: { createdAt: Date }) => new Date(x.createdAt).getTime();
+  const newest = all[0];
+  const daysSince = newest ? Math.max(0, Math.floor((now - ts(newest)) / dayMs)) : null; // "días sin venir" nunca negativo
+  const activeDays = new Set(all.filter((a) => now - ts(a) < 30 * dayMs).map((a) => new Date(a.createdAt).toISOString().slice(0, 10))).size;
+  const retos = all.filter((a) => a.source === "reto").map((r) => { try { return JSON.parse(String(r.body || "").slice(6).trim()) as { titulo?: string; estado?: string; createdAt?: string }; } catch { return null; } }).filter((x): x is { titulo?: string; estado?: string; createdAt?: string } => !!x);
+  const pend = retos.filter((r) => r.estado !== "hecho");
+  const oldestPendingDays = pend.length ? Math.max(...pend.map((r) => r.createdAt ? Math.floor((now - new Date(r.createdAt).getTime()) / dayMs) : 0)) : null;
+  const plan = await readRutaPlan(ctx.orgId, ctx.userId).catch(() => null);
+  const mods = plan?.modulos?.length || 0;
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
+  const objetivo = (() => { for (const n of all) { if (n.source === "ruta" && String(n.body || "").startsWith("[objetivo]")) return String(n.body).slice("[objetivo]".length).trim().slice(0, 160); } return null; })();
+  const name = (ctx.userName || "").split(" ")[0] || "";
+  const franja = hour < 6 ? "de madrugada" : hour < 13 ? "por la mañana" : hour < 21 ? "por la tarde" : "de noche";
+  const hechos = [
+    name && `Se llama ${name}.`,
+    daysSince === null ? "Es de sus primeras veces por aquí." : daysSince === 0 ? "Ha estado activo hoy." : daysSince === 1 ? "Su última actividad fue ayer." : `Lleva ${daysSince} días sin pasarse.`,
+    activeDays > 1 ? `Ha estado activo ${activeDays} días distintos este último mes.` : "",
+    pend.length ? `Tiene ${pend.length} reto${pend.length > 1 ? "s" : ""} pendiente${pend.length > 1 ? "s" : ""} de su responsable${pend[0]?.titulo ? ` (el primero: "${pend[0].titulo}")` : ""}${oldestPendingDays != null && oldestPendingDays >= 2 ? `, el más antiguo esperando ${oldestPendingDays} días` : ""}.` : "No tiene retos pendientes.",
+    mods ? `Su ruta de aprendizaje tiene ${mods} módulo${mods > 1 ? "s" : ""}.` : "Aún no ha montado su ruta de aprendizaje.",
+    objetivo ? `Su objetivo: ${objetivo}.` : "",
+    profile?.puesto ? `Su puesto: ${profile.puesto}.` : "",
+    place ? `Dice estar ahora en ${place}.` : "",
+    `Ahora es ${franja}.`,
+  ].filter(Boolean).join(" ");
+  const system =
+    "Eres BOO, el coach de voz de Brandooers: cercano, motivador y con chispa, como un entrenador que se alegra de verte. " +
+    "Saluda en voz alta a esta persona en 2 o 3 frases cortas. Español de España, natural, de tú, sin markdown, sin emojis, sin listas. " +
+    "Usa SOLO los hechos que te doy: no inventes fechas, plazos ni datos. Reconócele por su nombre y por lo que trae entre manos. " +
+    "Hazle seguimiento con cariño (si lleva días sin venir, recupéralo con humor amable; si va bien, celébralo) y remátalo con UN empujón concreto a su próximo paso real (un reto pendiente, o montar/seguir su ruta). " +
+    "Mete UNA broma ligera y amable ligada a su situación, nunca sobre su físico ni ofensiva. Máximo 45 palabras. Devuelve SOLO la frase hablada, sin comillas.";
+  let text: string;
+  try {
+    const out = await llm.generate({ system, messages: [{ role: "user", content: "Hechos reales de la persona: " + hechos + "\n\nSalúdale ahora." }], maxTokens: 160, orgId: ctx.orgId, userId: ctx.userId, kind: "chat" });
+    text = String(out || "").trim().replace(/^["'«]+|["'»]+$/g, "").slice(0, 400);
+  } catch { text = ""; }
+  if (!text) text = `¡Hola${name ? " " + name : ""}! Me alegra verte. ` + (pend.length ? `Tienes ${pend.length} reto${pend.length > 1 ? "s" : ""} esperándote, ¿le entramos?` : mods ? "Tu ruta te espera, sigamos por donde lo dejaste." : "¿Montamos tu ruta de aprendizaje y arrancamos?");
+  return c.json({ text, signals: { daysSince, pendientes: pend.length, modulos: mods, activeDays } });
+});
+
 // --- Voz del asistente (ElevenLabs). Lista de voces: Marc primero + peninsulares humanas. ---
 // --- Anotaciones del alumno sobre el curso (subrayar, nota, pregunta, repasar) ---
 app.get("/api/notes/list", async (c) => {

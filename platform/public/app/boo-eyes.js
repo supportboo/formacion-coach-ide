@@ -241,7 +241,22 @@
     if (open) {
       loadVoices();
       input.focus();
-      if (!greeted) { greeted = true; bubble('agent', 'Hola' + (userName ? ', ' + userName : '') + '. Soy tu guía en Brandooers. Te llevo con el tutor adecuado, o al menú principal con la casita de arriba. Pregúntame qué es Brandooers, por dónde empezar, o dime tu objetivo.'); showRoster(); }
+      if (!greeted) {
+        greeted = true;
+        var g = bubble('agent', 'Hola' + (userName ? ', ' + userName : '') + '…');
+        // Coach proactivo: saludo con seguimiento real + voz. Si la IA no responde, se queda el saludo base.
+        (function () {
+          var fallback = 'Hola' + (userName ? ', ' + userName : '') + '. Soy tu guía en Brandooers. Dime tu objetivo o pregúntame por dónde empezar.';
+          // voiceId ya trae la voz de Marc por defecto, así que playTTS funciona sin esperar a loadVoices.
+          SkillUp.api('/api/agent/coach?h=' + new Date().getHours()).then(function (r) {
+            g.textContent = (r && r.text) || fallback; chat.scrollTop = chat.scrollHeight;
+            if (voiceOn) playTTS(g.textContent);
+          }).catch(function () {
+            g.textContent = fallback; if (voiceOn) playTTS(g.textContent);
+          });
+        })();
+        showRoster();
+      }
     } else { stopAudio(); }
   }
   function bubble(role, text) {
