@@ -9,41 +9,50 @@
 <style>
 :root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
   --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--pink:#EC6FA6;--green:#54C79A;
-  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);
+  --line:rgba(180,150,205,.16);--soft:rgba(255,255,255,.05);--sh:0 24px 70px rgba(0,0,0,.5);
   --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
 :root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
   --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--pink:#C24E86;--green:#2E9E73;
-  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);}
+  --line:rgba(70,50,90,.16);--soft:rgba(60,42,84,.05);--sh:0 18px 50px rgba(80,60,100,.12);}
 *{box-sizing:border-box}html,body{height:100%}
 body{margin:0;font-family:var(--ff);color:var(--body);overflow:hidden;background:var(--bg)}
 button{font-family:inherit}[hidden]{display:none!important}
-.top{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:14px;padding:14px 20px;background:linear-gradient(var(--bg),transparent)}
+.top{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:14px;padding:14px 20px;background:linear-gradient(var(--bg),transparent);pointer-events:none}
+.top>*{pointer-events:auto}
 .top a.back{color:var(--muted);text-decoration:none;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
 .top a.back:hover{color:var(--ink)}
 .top h1{font-family:var(--fh);color:var(--ink);font-size:20px;margin:0;flex:1;min-width:0;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .hint{font-family:var(--fc);color:var(--teal2);font-size:16px;white-space:nowrap}
-@media(max-width:520px){.top .hint{display:none}.radar-card{transform:scale(.82);transform-origin:top right;top:50px;right:10px;padding:9px 11px}}
+@media(max-width:560px){.top .hint{display:none}.radar-card{transform:scale(.8);transform-origin:top right;top:48px;right:8px;padding:9px 11px}}
 #stage{position:fixed;inset:0}
-.brain-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.9}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.brain-center{position:absolute;z-index:2;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.92;transform:translate(-50%,-50%)}
 .brain-center .bIris{animation:brainBlink 4.5s infinite}
 @keyframes brainBlink{0%,92%,100%{opacity:1}96%{opacity:.15}98%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.brain-center .bIris{animation:none}}
-.brain-center svg{width:56px;height:34px}
-.brain-center span{font-family:var(--fc);color:var(--teal2);font-size:15px;white-space:nowrap}
+.brain-center svg{width:52px;height:32px}
+.brain-center span{font-family:var(--fc);color:var(--teal2);font-size:14px;white-space:nowrap}
 .radar-card{position:fixed;right:20px;top:56px;z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--sh)}
 .radar-card b{display:block;font-family:var(--fh);color:var(--ink);font-size:13px;margin-bottom:6px}
 .radar-card svg{display:block}
-canvas{display:block;width:100%;height:100%}
-.card{position:fixed;z-index:6;pointer-events:none;max-width:230px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--sh);opacity:0;transition:opacity .15s;transform:translate(-50%,-115%);cursor:pointer}
+.card{position:fixed;z-index:6;pointer-events:none;max-width:230px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--sh);opacity:0;transition:opacity .12s;transform:translate(-50%,-115%);cursor:pointer}
 .card.on{opacity:1;pointer-events:auto}
-.card.pinned{border-color:var(--teal2)}
-.brain-bubble{position:absolute;top:calc(50% - 78px);left:50%;transform:translateX(-50%);z-index:2;max-width:230px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:9px 30px 9px 14px;font-family:var(--fc);font-size:16px;color:var(--gold);box-shadow:var(--sh);cursor:pointer;pointer-events:auto;animation:bubbleIn .4s cubic-bezier(.2,1.4,.4,1) both}
-.brain-bubble::after{content:"×";position:absolute;top:5px;right:9px;font-family:var(--ff);font-size:13px;line-height:1;color:var(--muted)}
-.brain-bubble.gone{animation:bubbleOut .25s ease both}
-@keyframes bubbleIn{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.9)}}
-@keyframes bubbleOut{to{opacity:0;transform:translateX(-50%) translateY(-6px) scale(.9)}}
-@media(prefers-reduced-motion:reduce){.brain-bubble{animation:none}.brain-bubble.gone{animation:none;opacity:0}}
-.a11y-list{position:fixed;left:20px;bottom:16px;z-index:5;font-size:12.5px}
+.card .rt{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--aub2)}
+.card b{display:block;color:var(--ink);font-family:var(--fh);font-size:15px;margin:2px 0 4px}
+.card small{color:var(--muted);font-size:12px;line-height:1.4;display:block}
+.card .go{color:var(--teal2);font-size:11.5px;font-weight:800;margin-top:6px;display:block}
+/* Barra de herramientas tipo Excalidraw, a la izquierda */
+.tools{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:7;display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:7px;box-shadow:var(--sh)}
+.tools button{position:relative;width:42px;height:42px;border:1.5px solid transparent;border-radius:12px;background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.tools button:hover{color:var(--ink);background:var(--soft)}
+.tools button.sel{color:var(--teal2);border-color:var(--teal2);background:rgba(63,216,224,.12)}
+.tools button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tools .sep{height:1px;background:var(--line);margin:3px 5px}
+.tools button::after{content:attr(data-tip);position:absolute;left:50px;top:50%;transform:translateY(-50%);background:var(--panel);border:1px solid var(--line);color:var(--ink);font-size:12px;font-weight:600;white-space:nowrap;padding:5px 9px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .12s;box-shadow:var(--sh)}
+.tools button:hover::after{opacity:1}
+@media(max-width:560px){.tools{left:8px;padding:5px;gap:4px}.tools button{width:38px;height:38px}.tools button::after{display:none}}
+.note-input{position:fixed;z-index:9;font-family:var(--fc);font-size:22px;font-weight:700;color:var(--gold);background:var(--panel);border:1px solid var(--gold);border-radius:8px;padding:4px 8px;outline:none;min-width:120px;transform:translateY(-50%);box-shadow:var(--sh)}
+.a11y-list{position:fixed;left:70px;bottom:16px;z-index:5;font-size:12.5px}
 .a11y-list summary{color:var(--muted);cursor:pointer;font-weight:700;list-style:none}
 .a11y-list summary::-webkit-details-marker{display:none}
 .a11y-list[open] summary{color:var(--ink)}
@@ -52,21 +61,26 @@ canvas{display:block;width:100%;height:100%}
 .a11y-list .grp:first-child{margin-top:0}
 .a11y-list a{display:block;color:var(--body);text-decoration:none;padding:4px 0}
 .a11y-list a:hover,.a11y-list a:focus{color:var(--teal2)}
-.card .rt{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--aub2)}
-.card b{display:block;color:var(--ink);font-family:var(--fh);font-size:15px;margin:2px 0 4px}
-.card small{color:var(--muted);font-size:12px;line-height:1.4;display:block}
-.card .go{color:var(--teal2);font-size:11.5px;font-weight:800;margin-top:6px;display:block}
 .loader{position:fixed;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;background:var(--bg)}
 </style>
 </head>
 <body>
 <div class="loader" id="loader">Cargando tu mapa…</div>
-<div class="top" id="top" hidden><a class="back" href="/app/inicio.html">‹ Inicio</a><h1>Mi ruta</h1><span class="hint">toca una zona del cerebro</span></div>
+<div class="top" id="top" hidden><a class="back" href="/app/inicio.html">‹ Inicio</a><h1>Mi ruta</h1><span class="hint">arrastra para mover · zoom con la rueda</span></div>
 <div id="stage" hidden><canvas id="cv"></canvas>
   <div class="brain-center" id="brainCenter" aria-hidden="true"></div>
-  <div class="brain-bubble" id="brainBubble" hidden></div>
   <div class="radar-card" id="radarCard" hidden></div>
 </div>
+<nav class="tools" id="tools" hidden aria-label="Herramientas del mapa">
+  <button data-tool="move" data-tip="Mover (arrastra)" class="sel" aria-label="Mover"><svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-1a8 8 0 0 1-7-4l-2.5-4.5a2 2 0 0 1 3.4-2L8 15"/></svg></button>
+  <button data-tool="arrow" data-tip="Flecha" aria-label="Flecha"><svg viewBox="0 0 24 24"><path d="M4 13c6-7 10-7 16-1"/><path d="M14 5l6 6-1 7"/></svg></button>
+  <button data-tool="note" data-tip="Nota a mano" aria-label="Nota"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+  <div class="sep"></div>
+  <button data-act="zin" data-tip="Acercar" aria-label="Acercar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6"/></svg></button>
+  <button data-act="zout" data-tip="Alejar" aria-label="Alejar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M8 11h6"/></svg></button>
+  <button data-act="fit" data-tip="Centrar" aria-label="Centrar"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <button data-act="clear" data-tip="Borrar notas" aria-label="Borrar notas"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+</nav>
 <div class="card" id="card" tabindex="-1"></div>
 <details class="a11y-list" id="a11yList" hidden><summary>Ver tus cursos como lista</summary><div class="lst" id="a11yLst"></div></details>
 <script src="/app/api.js"></script>
@@ -74,11 +88,10 @@ canvas{display:block;width:100%;height:100%}
 (function(){
 "use strict";
 try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
-var loader=document.getElementById('loader'),top=document.getElementById('top'),stage=document.getElementById('stage'),cv=document.getElementById('cv'),card=document.getElementById('card');
+var loader=document.getElementById('loader'),top=document.getElementById('top'),stage=document.getElementById('stage'),cv=document.getElementById('cv'),card=document.getElementById('card'),toolsEl=document.getElementById('tools');
 if(!window.SkillUp||!SkillUp.api){loader.textContent='No se pudo cargar. Vuelve a entrar.';return;}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
 
-// Mismas rutas/cursos reales que en inicio.html (Marc: mapa del conocimiento tipo cerebro/Obsidian).
 var COURSES=[
  {name:'Guía del Coach',src:'/index.html',desc:'Acompañar a quien llega en sus primeros meses.',rt:'Ruta A'},
  {name:'Prospección con IA',src:'/prospeccion-social-selling.html',desc:'Encontrar y abrir con criterio.',rt:'Ruta A'},
@@ -93,16 +106,20 @@ var RCOL={'Ruta A':'#3FD8E0','Ruta B':'#EC6FA6','Ruta C':'#F0C645','Ruta D':'#8a
 function hash(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return Math.abs(h);}
 
 var W=0,H=0,DPR=Math.max(1,window.devicePixelRatio||1),ctx=cv.getContext('2d');
-function resize(){W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
+function resize(){W=innerWidth;H=innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);cv.style.width=W+'px';cv.style.height=H+'px';}
 addEventListener('resize',resize);
+
+// --- Cámara (pan/zoom estilo Excalidraw). El mapa vive en coordenadas de "mundo" centradas en (0,0). ---
+var cam={x:0,y:0,scale:1};
+function s2w(sx,sy){ return {x:(sx-cam.x)/cam.scale, y:(sy-cam.y)/cam.scale}; }
+function w2s(wx,wy){ return {x:wx*cam.scale+cam.x, y:wy*cam.scale+cam.y}; }
 
 var nodes=[],clusters={};
 function buildLayout(counts){
-  var cx=innerWidth/2,cy=innerHeight/2,R=Math.min(innerWidth,innerHeight)*0.30;
-  RUTAS.forEach(function(rt,i){ var a=(-90+i*(360/RUTAS.length))*Math.PI/180; clusters[rt]={x:cx+Math.cos(a)*R,y:cy+Math.sin(a)*R,angle:a,hoverT:0}; });
+  var R=260; // radio del mundo (centrado en 0,0 -> luego la cámara lo centra en pantalla)
+  RUTAS.forEach(function(rt,i){ var a=(-90+i*(360/RUTAS.length))*Math.PI/180; clusters[rt]={x:Math.cos(a)*R,y:Math.sin(a)*R,angle:a}; });
   var maxN=1; COURSES.forEach(function(c){ if((counts[c.src]||0)>maxN) maxN=counts[c.src]||0; });
-  var perRuta={}; COURSES.forEach(function(c){ perRuta[c.rt]=(perRuta[c.rt]||0); });
-  nodes=COURSES.map(function(c,idx){
+  nodes=COURSES.map(function(c){
     var cl=clusters[c.rt]; var siblings=COURSES.filter(function(x){return x.rt===c.rt;}); var pos=siblings.indexOf(c);
     var spread=(pos-(siblings.length-1)/2)*0.62; var h=hash(c.src);
     var baseA=cl.angle+spread+((h%100)/100-0.5)*0.25;
@@ -112,131 +129,132 @@ function buildLayout(counts){
       x:cl.x+Math.cos(baseA)*baseR,y:cl.y+Math.sin(baseA)*baseR,phase:Math.random()*Math.PI*2,cx:cl.x,cy:cl.y};
   });
 }
-
-var hoverRuta=null,mouseX=-999,mouseY=-999,tHover={},pinned=null; RUTAS.forEach(function(r){tHover[r]=0;});
-function pick(x,y){
-  var best=null,bestD=1e9;
-  nodes.forEach(function(n){ var tol=32+n.size; var dx=x-n.x,dy=y-n.y,d=dx*dx+dy*dy; if(d<tol*tol&&d<bestD){best=n;bestD=d;} });
-  return best;
+function fitView(){
+  var xs=[0],ys=[0];
+  RUTAS.forEach(function(rt){ var c=clusters[rt]; xs.push(c.x);ys.push(c.y); });
+  nodes.forEach(function(n){ [n.baseR,n.expandR].forEach(function(rr){ xs.push(n.cx+Math.cos(n.angle)*rr+n.size); xs.push(n.cx+Math.cos(n.angle)*rr-n.size); ys.push(n.cy+Math.sin(n.angle)*rr+n.size); ys.push(n.cy+Math.sin(n.angle)*rr-n.size); }); });
+  var minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs),minY=Math.min.apply(null,ys),maxY=Math.max.apply(null,ys);
+  var padX=70,padY=110, bw=(maxX-minX)||1, bh=(maxY-minY)||1;
+  var sc=Math.min((W-padX*2)/bw,(H-padY*2)/bh); sc=Math.max(0.4,Math.min(sc,1.5));
+  cam.scale=sc; cam.x=W/2-((minX+maxX)/2)*sc; cam.y=(H/2+8)-((minY+maxY)/2)*sc;
 }
-cv.addEventListener('mousemove',function(e){ mouseX=e.clientX; mouseY=e.clientY; });
-cv.addEventListener('mouseleave',function(){ if(!pinned){ hoverRuta=null; mouseX=mouseY=-999; card.classList.remove('on'); } });
-// El resaltado y el tooltip se recalculan cada frame (no solo al mover el ratón): los nodos se EXPANDEN con
-// animación tras el hover, así que la posición cambia después del evento; si solo se leyera en mousemove,
-// el tooltip quedaría pegado a la posición vieja del nodo.
-// Histéresis + FIJAR CON CLIC (Marc: "se encoge antes de poder hacer clic, bloquéalo"): un primer clic
-// sobre un nodo lo fija (deja de depender del ratón) para dar tiempo real a hacer el segundo clic y entrar.
-function updateHover(){
-  var hit;
-  if(pinned){ hoverRuta=pinned.cluster; hit=pinned; }
-  else{
-    var cur=hoverRuta, keep=false;
-    if(cur){ var cd=Math.hypot(mouseX-clusters[cur].x,mouseY-clusters[cur].y); if(cd<280) keep=true; }
-    if(!keep){ var near=null,bd=9999; RUTAS.forEach(function(rt){ var cl=clusters[rt]; var d=Math.hypot(mouseX-cl.x,mouseY-cl.y); if(d<220&&d<bd){bd=d;near=rt;} }); hoverRuta=near; }
-    hit=pick(mouseX,mouseY);
+function zoomAt(sx,sy,f){ var w=s2w(sx,sy); cam.scale=Math.max(0.3,Math.min(2.6,cam.scale*f)); cam.x=sx-w.x*cam.scale; cam.y=sy-w.y*cam.scale; }
+
+// --- Anotaciones (flechas y notas a mano), guardadas por ruta en este navegador. ---
+var annos=[], ANNO_KEY='skillup-ruta-annos:default';
+function saveAnnos(){ try{ localStorage.setItem(ANNO_KEY, JSON.stringify(annos)); }catch(e){} }
+function loadAnnos(){ try{ annos=JSON.parse(localStorage.getItem(ANNO_KEY)||'[]')||[]; }catch(e){ annos=[]; } }
+
+var hoverRuta=null,hoverNode=null,mouseSX=-999,mouseSY=-999,tHover={},drawing=null,panning=false,downMoved=false; RUTAS.forEach(function(r){tHover[r]=0;});
+function pick(wx,wy){ var best=null,bestD=1e9; nodes.forEach(function(n){ var tol=30+n.size; var dx=wx-n.x,dy=wy-n.y,d=dx*dx+dy*dy; if(d<tol*tol&&d<bestD){best=n;bestD=d;} }); return best; }
+function nearestRuta(wx,wy){ var near=null,bd=9999; RUTAS.forEach(function(rt){ var cl=clusters[rt]; var d=Math.hypot(wx-cl.x,wy-cl.y); if(d<200&&d<bd){bd=d;near=rt;} }); return near; }
+
+// --- Herramientas ---
+var tool='move';
+function setTool(t){ tool=t; Array.prototype.forEach.call(toolsEl.querySelectorAll('button[data-tool]'),function(b){ b.classList.toggle('sel', b.getAttribute('data-tool')===t); });
+  cv.style.cursor = t==='move'?'grab':(t==='note'?'text':'crosshair'); }
+toolsEl.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.tool){ setTool(b.dataset.tool); return; }
+  var a=b.dataset.act;
+  if(a==='zin') zoomAt(W/2,H/2,1.25); else if(a==='zout') zoomAt(W/2,H/2,0.8); else if(a==='fit') fitView();
+  else if(a==='clear'){ if(annos.length){ annos=[]; saveAnnos(); } }
+});
+
+function placeNote(sx,sy){
+  var w=s2w(sx,sy);
+  var inp=document.createElement('input'); inp.className='note-input'; inp.placeholder='escribe…';
+  inp.style.left=sx+'px'; inp.style.top=sy+'px'; document.body.appendChild(inp);
+  setTimeout(function(){ try{ inp.focus(); }catch(e){} },0); // el foco tras terminar el gesto de puntero, si no se pierde
+  var done=false;
+  function commit(){ if(done)return; done=true; var t=inp.value.trim(); if(t){ annos.push({t:'note',x:w.x,y:w.y,text:t.slice(0,140),col:'#F0C645'}); saveAnnos(); } inp.remove(); setTool('move'); }
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); commit(); } else if(e.key==='Escape'){ done=true; inp.remove(); setTool('move'); } });
+  inp.addEventListener('blur',commit);
+}
+
+// --- Puntero unificado (ratón + táctil) ---
+var lastSX=0,lastSY=0;
+cv.addEventListener('pointerdown',function(e){
+  lastSX=e.clientX; lastSY=e.clientY; downMoved=false;
+  var w=s2w(e.clientX,e.clientY);
+  if(tool==='note'){ placeNote(e.clientX,e.clientY); return; }  // sin captura: el input recibe el foco bien
+  cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);
+  if(tool==='arrow'){ drawing={x1:w.x,y1:w.y,x2:w.x,y2:w.y}; return; }
+  panning=true; cv.style.cursor='grabbing';
+});
+cv.addEventListener('pointermove',function(e){
+  mouseSX=e.clientX; mouseSY=e.clientY;
+  var dx=e.clientX-lastSX, dy=e.clientY-lastSY;
+  if(Math.abs(dx)+Math.abs(dy)>3) downMoved=true;
+  if(drawing){ var w=s2w(e.clientX,e.clientY); drawing.x2=w.x; drawing.y2=w.y; }
+  else if(panning){ cam.x+=dx; cam.y+=dy; }
+  lastSX=e.clientX; lastSY=e.clientY;
+});
+function endPointer(e){
+  if(drawing){ var len=Math.hypot(drawing.x2-drawing.x1,drawing.y2-drawing.y1); if(len>10/cam.scale){ annos.push({t:'arrow',x1:drawing.x1,y1:drawing.y1,x2:drawing.x2,y2:drawing.y2,col:'#EC6FA6'}); saveAnnos(); } drawing=null; return; }
+  if(panning){ panning=false; cv.style.cursor=(tool==='move'?'grab':'crosshair');
+    if(!downMoved && tool==='move'){ var w=s2w(e.clientX,e.clientY); var hit=pick(w.x,w.y); if(hit){ location.href='/app/curso.html?src='+encodeURIComponent(hit.c.src); } }
   }
-  if(hit){ card.classList.add('on'); card.classList.toggle('pinned',!!pinned); card.style.left=hit.x+'px'; card.style.top=(hit.y-hit.size-6)+'px'; card.dataset.src=hit.c.src;
-    card.innerHTML='<span class="rt">'+esc(hit.cluster)+'</span><b>'+esc(hit.c.name)+'</b><small>'+esc(hit.c.desc)+'</small><span class="go">'+(hit.n?hit.n+' aportaciones · ':'')+(pinned?'Toca de nuevo para entrar ›':'Entrar ›')+'</span>';
+}
+cv.addEventListener('pointerup',endPointer);
+cv.addEventListener('pointercancel',function(){ drawing=null; panning=false; });
+cv.addEventListener('pointerleave',function(){ if(!panning){ mouseSX=mouseSY=-999; } });
+cv.addEventListener('wheel',function(e){ e.preventDefault(); zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*0.0016)); },{passive:false});
+card.addEventListener('click',function(){ if(card.dataset.src) location.href='/app/curso.html?src='+encodeURIComponent(card.dataset.src); });
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){ setTool('move'); }
+  else if(e.key==='+'||e.key==='='){ zoomAt(W/2,H/2,1.2); }
+  else if(e.key==='-'){ zoomAt(W/2,H/2,0.83); }
+});
+
+function updateHover(){
+  if(tool!=='move'||panning){ card.classList.remove('on'); hoverNode=null; return; }
+  var w=s2w(mouseSX,mouseSY);
+  hoverRuta=nearestRuta(w.x,w.y);
+  var hit=pick(w.x,w.y); hoverNode=hit;
+  if(hit){ var sp=w2s(hit.x,hit.y);
+    card.classList.add('on'); card.style.left=sp.x+'px'; card.style.top=(sp.y-hit.size*cam.scale-8)+'px'; card.dataset.src=hit.c.src;
+    card.innerHTML='<span class="rt">'+esc(hit.cluster)+'</span><b>'+esc(hit.c.name)+'</b><small>'+esc(hit.c.desc)+'</small><span class="go">'+(hit.n?hit.n+' aportaciones · ':'')+'Entrar ›</span>';
   } else card.classList.remove('on');
 }
-// La tarjeta es un objetivo de clic mucho más grande y estable que el punto diminuto del nodo.
-card.addEventListener('click',function(){ if(card.dataset.src) location.href='/app/curso.html?src='+card.dataset.src; });
-cv.addEventListener('click',function(){
-  // Con algo fijado, CUALQUIER clic en el lienzo entra (el nodo se ha movido al expandirse; exigir
-  // acertar su posición exacta era el bug: "hago clic y se queda, no entra"). Sin nada fijado, el
-  // primer clic sobre un nodo lo fija para poder leerlo con calma antes de decidir entrar.
-  if(pinned){ location.href='/app/curso.html?src='+pinned.c.src; return; }
-  var hit=pick(mouseX,mouseY);
-  if(hit) pinned=hit;
-});
-document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&pinned){ pinned=null; card.classList.remove('on'); } });
 
-function jitterCurve(x1,y1,x2,y2,seed){ var mx=(x1+x2)/2,my=(y1+y2)/2; var dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1;
-  var nx=-dy/len,ny=dx/len; var amt=((seed%17)-8)*2.1; return {mx:mx+nx*amt,my:my+ny*amt}; }
-function drawSketchLine(x1,y1,x2,y2,seed,color,alpha,width){
-  ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash([5,7]); ctx.lineCap='round';
-  var j=jitterCurve(x1,y1,x2,y2,seed); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.quadraticCurveTo(j.mx,j.my,x2,y2); ctx.stroke(); ctx.restore();
-}
+function jitterCurve(x1,y1,x2,y2,seed){ var mx=(x1+x2)/2,my=(y1+y2)/2; var dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1; var nx=-dy/len,ny=dx/len; var amt=((seed%17)-8)*2.1; return {mx:mx+nx*amt,my:my+ny*amt}; }
+function drawSketchLine(x1,y1,x2,y2,seed,color,alpha,width){ ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash([5,7]); ctx.lineCap='round'; var j=jitterCurve(x1,y1,x2,y2,seed); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.quadraticCurveTo(j.mx,j.my,x2,y2); ctx.stroke(); ctx.restore(); }
+function drawArrow(x1,y1,x2,y2,col,ghost){ ctx.save(); ctx.globalAlpha=ghost?0.5:1; ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2.6; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); var a=Math.atan2(y2-y1,x2-x1),h=13; ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-h*Math.cos(a-0.42),y2-h*Math.sin(a-0.42)); ctx.lineTo(x2-h*Math.cos(a+0.42),y2-h*Math.sin(a+0.42)); ctx.closePath(); ctx.fill(); ctx.restore(); }
+function drawNote(a){ ctx.save(); ctx.font='700 22px "Caveat",cursive'; ctx.fillStyle=a.col||'#F0C645'; ctx.textBaseline='middle'; ctx.beginPath(); ctx.arc(a.x,a.y,3,0,7); ctx.fill(); ctx.fillText(a.text,a.x+9,a.y); ctx.restore(); }
 var rootStyles=getComputedStyle(document.documentElement);
 function tok(name,fallback){ var v=rootStyles.getPropertyValue(name); return v?v.trim():fallback; }
+var brainCenter=document.getElementById('brainCenter');
 
 function frame(t){
-  ctx.clearRect(0,0,innerWidth,innerHeight);
+  ctx.setTransform(DPR,0,0,DPR,0,0); ctx.clearRect(0,0,W,H);
+  ctx.save(); ctx.translate(cam.x,cam.y); ctx.scale(cam.scale,cam.scale);
   RUTAS.forEach(function(rt){ tHover[rt]+=((hoverRuta===rt?1:0)-tHover[rt])*0.09; });
-  // líneas troncales entre clusters (forman el "cerebro" interconectado)
-  for(var i=0;i<RUTAS.length;i++){ for(var j=i+1;j<RUTAS.length;j++){
-    var a=clusters[RUTAS[i]],b=clusters[RUTAS[j]];
-    drawSketchLine(a.x,a.y,b.x,b.y,i*7+j,'rgba(150,140,170,.22)',1,1.1);
-  }}
-  nodes.forEach(function(n){
-    var expand=tHover[n.cluster];
-    var targetR=n.baseR+(n.expandR-n.baseR)*expand;
-    n.r+=(targetR-n.r)*0.14;
-    var breathe=Math.sin(t/900+n.phase)*3*(1-expand*0.6);
-    n.x=n.cx+Math.cos(n.angle)*(n.r+breathe); n.y=n.cy+Math.sin(n.angle)*(n.r+breathe);
-  });
+  for(var i=0;i<RUTAS.length;i++){ for(var j=i+1;j<RUTAS.length;j++){ var a=clusters[RUTAS[i]],b=clusters[RUTAS[j]]; drawSketchLine(a.x,a.y,b.x,b.y,i*7+j,'rgba(150,140,170,.22)',1,1.1); }}
+  nodes.forEach(function(n){ var expand=tHover[n.cluster]; var targetR=n.baseR+(n.expandR-n.baseR)*expand; n.r+=(targetR-n.r)*0.14; var breathe=(n===hoverNode)?0:Math.sin(t/900+n.phase)*3*(1-expand*0.6); n.x=n.cx+Math.cos(n.angle)*(n.r+breathe); n.y=n.cy+Math.sin(n.angle)*(n.r+breathe); });
   updateHover();
-  // líneas dentro de cada cluster (conectan sus cursos entre sí, tipo neuronas)
-  RUTAS.forEach(function(rt){ var sib=nodes.filter(function(n){return n.cluster===rt;}); var op=0.14+tHover[rt]*0.55;
-    for(var i=0;i<sib.length;i++){ drawSketchLine(clusters[rt].x,clusters[rt].y,sib[i].x,sib[i].y,i*13+1,RCOL[rt],op,1.3);
-      for(var j=i+1;j<sib.length;j++){ drawSketchLine(sib[i].x,sib[i].y,sib[j].x,sib[j].y,i*5+j*3,RCOL[rt],op*0.7,1); }
-    }
-  });
-  nodes.forEach(function(n){
-    var dim=hoverRuta&&hoverRuta!==n.cluster?0.28:1;
-    ctx.save(); ctx.globalAlpha=dim;
-    ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2);
-    ctx.fillStyle=RCOL[n.cluster]; ctx.globalAlpha=dim*(0.16+tHover[n.cluster]*0.18); ctx.fill();
-    ctx.globalAlpha=dim; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*0.52,0,Math.PI*2); ctx.fillStyle=RCOL[n.cluster]; ctx.fill();
-    ctx.strokeStyle=tok('--panel','#221f2a'); ctx.lineWidth=2; ctx.stroke();
-    ctx.restore();
-  });
+  RUTAS.forEach(function(rt){ var sib=nodes.filter(function(n){return n.cluster===rt;}); var op=0.14+tHover[rt]*0.55; for(var i=0;i<sib.length;i++){ drawSketchLine(clusters[rt].x,clusters[rt].y,sib[i].x,sib[i].y,i*13+1,RCOL[rt],op,1.3); for(var j=i+1;j<sib.length;j++){ drawSketchLine(sib[i].x,sib[i].y,sib[j].x,sib[j].y,i*5+j*3,RCOL[rt],op*0.7,1); } } });
+  nodes.forEach(function(n){ var dim=hoverRuta&&hoverRuta!==n.cluster?0.3:1; ctx.save(); ctx.globalAlpha=dim; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fillStyle=RCOL[n.cluster]; ctx.globalAlpha=dim*(0.16+tHover[n.cluster]*0.18); ctx.fill(); ctx.globalAlpha=dim; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*0.52,0,Math.PI*2); ctx.fillStyle=RCOL[n.cluster]; ctx.fill(); ctx.strokeStyle=tok('--panel','#221f2a'); ctx.lineWidth=2; ctx.stroke(); ctx.restore(); });
+  annos.forEach(function(a){ if(a.t==='arrow') drawArrow(a.x1,a.y1,a.x2,a.y2,a.col); else if(a.t==='note') drawNote(a); });
+  if(drawing) drawArrow(drawing.x1,drawing.y1,drawing.x2,drawing.y2,'#EC6FA6',true);
+  ctx.restore();
+  var pc=w2s(0,0); brainCenter.style.left=pc.x+'px'; brainCenter.style.top=pc.y+'px';
   requestAnimationFrame(frame);
 }
 
-// Ojos de marca en el centro del cerebro conectado (Marc: "los dos ojitos dibujados en medio").
-function paintBrainCenter(){
-  document.getElementById('brainCenter').innerHTML=
-    '<svg viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="3.5"/><circle class="bIris" cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="3.5"/><circle class="bIris" cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g></svg>'
-    +'<span>tu cerebro de conocimiento</span>';
-}
-// Radar con TUS 3 métricas reales (nunca un test de personalidad): aprende / aporta / aplica.
-// Solo 3 ejes porque son los únicos que medimos de verdad hoy; no se inventa un 4º para forzar un pentágono.
-function paintRadar(radar){
-  var card=document.getElementById('radarCard'); var max=Math.max(3,radar.aprende,radar.aporta,radar.aplica);
-  var cx=80,cy=80,R=40, axes=[{k:'aprende',lbl:'Aprende',ang:-90},{k:'aporta',lbl:'Aporta',ang:30},{k:'aplica',lbl:'Aplica',ang:150}];
+function paintBrainCenter(){ brainCenter.innerHTML='<svg viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="3.5"/><circle class="bIris" cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="3.5"/><circle class="bIris" cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g></svg><span>tu cerebro de conocimiento</span>'; }
+function paintRadar(radar){ var rc=document.getElementById('radarCard'); var max=Math.max(3,radar.aprende,radar.aporta,radar.aplica); var cx=80,cy=80,R=40, axes=[{k:'aprende',lbl:'Aprende',ang:-90},{k:'aporta',lbl:'Aporta',ang:30},{k:'aplica',lbl:'Aplica',ang:150}];
   function pt(ang,r){ var a=ang*Math.PI/180; return [cx+Math.cos(a)*r, cy+Math.sin(a)*r]; }
   var poly=axes.map(function(ax){ var v=radar[ax.k]||0; var r=(v/max)*R; return pt(ax.ang,r).join(','); }).join(' ');
   var grid=[0.33,0.66,1].map(function(f){ return '<polygon points="'+axes.map(function(ax){return pt(ax.ang,R*f).join(',');}).join(' ')+'" fill="none" stroke="rgba(150,140,170,.22)" stroke-width="1"/>'; }).join('');
   var spokes=axes.map(function(ax){ var p=pt(ax.ang,R); return '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="rgba(150,140,170,.22)" stroke-width="1"/>'; }).join('');
   var labels=axes.map(function(ax){ var p=pt(ax.ang,R+22); return '<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="middle" font-family="Caveat, cursive" font-size="15" fill="'+(ax.k==='aprende'?'#3FD8E0':ax.k==='aporta'?'#EC6FA6':'#F0C645')+'">'+ax.lbl+'</text>'; }).join('');
-  card.innerHTML='<b>Tu perfil real de aprendizaje</b><svg width="160" height="150" viewBox="0 0 160 150">'+grid+spokes
-    +'<polygon points="'+poly+'" fill="rgba(63,216,224,.22)" stroke="#3FD8E0" stroke-width="1.6"/>'+labels+'</svg>';
-  card.hidden=false;
-}
-// Sugerencia junto a los ojos, calculada con reglas simples sobre TUS datos reales (nunca IA adivinando,
-// nunca inventado): si aportas mucho pero aplicas poco, te lo dice; si no hay datos aún, invita a empezar.
-function pickInsight(radar){
-  var total=radar.aprende+radar.aporta+radar.aplica;
-  if(total<2) return '¿Por dónde empezamos? Elige un curso y vamos construyendo tu mapa.';
-  if(radar.aplica<1 && (radar.aporta>=2 || radar.aprende>=2)) return '¿Qué tal si aplicamos lo que ya sabes? Ahí es donde más se nota, y donde más ROI aporta al equipo.';
-  if(radar.aporta<1 && radar.aprende>=2) return 'Cuéntale a tu tutor algún caso real tuyo: así aprende de ti y te acompaña mejor.';
-  if(radar.aprende<1 && (radar.aporta>=2 || radar.aplica>=1)) return 'Explora algún curso nuevo: hay contenido que te puede sorprender.';
-  return 'Vas equilibrado. Tus tutores especialistas siguen aquí para ayudarte a llegar más lejos.';
-}
-// P4: la ruta real del usuario (plan generado) manda; si existe, los nodos del cerebro son SUS módulos.
+  rc.innerHTML='<b>Tu perfil real de aprendizaje</b><svg width="160" height="150" viewBox="0 0 160 150">'+grid+spokes+'<polygon points="'+poly+'" fill="rgba(63,216,224,.22)" stroke="#3FD8E0" stroke-width="1.6"/>'+labels+'</svg>'; rc.hidden=false; }
 var RPAL=['#3FD8E0','#EC6FA6','#F0C645','#8a5f7c','#54C79A','#C69CB8'];
-function applyRealRoute(plan){
-  if(!plan||!plan.modulos||!plan.modulos.length) return false;
-  var mods=plan.modulos.filter(function(m){return m&&m.courseSrc;});
-  if(!mods.length) return false;
+function applyRealRoute(plan){ if(!plan||!plan.modulos||!plan.modulos.length) return false; var mods=plan.modulos.filter(function(m){return m&&m.courseSrc;}); if(!mods.length) return false;
   COURSES=mods.map(function(m){return {name:m.titulo||'Módulo',src:m.courseSrc,desc:m.resumen||'',rt:m.titulo||'Módulo'};});
-  RUTAS=COURSES.map(function(c){return c.rt;});
-  RCOL={}; RUTAS.forEach(function(rt,i){RCOL[rt]=RPAL[i%RPAL.length];});
-  tHover={}; RUTAS.forEach(function(r){tHover[r]=0;});
-  var h1=document.querySelector('.top h1'); if(h1&&plan.titulo) h1.textContent=plan.titulo;
-  return true;
-}
+  RUTAS=COURSES.map(function(c){return c.rt;}); RCOL={}; RUTAS.forEach(function(rt,i){RCOL[rt]=RPAL[i%RPAL.length];}); tHover={}; RUTAS.forEach(function(r){tHover[r]=0;});
+  var h1=document.querySelector('.top h1'); if(h1&&plan.titulo){ h1.textContent=plan.titulo; ANNO_KEY='skillup-ruta-annos:'+plan.titulo; } return true; }
+
 SkillUp.session().then(function(s){
   if(!s||!s.user){ location.href='/app/login.html'; return; }
   return Promise.all([
@@ -244,29 +262,18 @@ SkillUp.session().then(function(s){
     SkillUp.api('/api/learning/route').catch(function(){return {plan:null};})
   ]).then(function(res){
     var d=res[0]||{items:[]}; var hasRoute=applyRealRoute(res[1]&&res[1].plan);
-    var summ=document.querySelector('#a11yList summary');
-    if(summ) summ.textContent=hasRoute?'Ver los pasos de tu ruta':'Ver los cursos como lista';
-    var hint=document.querySelector('.top .hint');
-    if(hint&&!hasRoute) hint.innerHTML='<a href="/app/ruta-crear.html" style="color:var(--teal2);text-decoration:none">crea tu ruta a medida ›</a>';
+    var summ=document.querySelector('#a11yList summary'); if(summ) summ.textContent=hasRoute?'Ver los pasos de tu ruta':'Ver los cursos como lista';
+    var hint=document.querySelector('.top .hint'); if(hint&&!hasRoute) hint.innerHTML='<a href="/app/ruta-crear.html" style="color:var(--teal2);text-decoration:none">crea tu ruta a medida ›</a>';
     var counts={}; var radar={aprende:0,aporta:0,aplica:0};
-    (d&&d.items||[]).forEach(function(it){ if(!it||!it.source||it.source==='onboarding')return; counts[it.source]=(counts[it.source]||0)+1;
-      var body=String(it.body||'');
-      if(it.kind==='insight'){ if(body.indexOf('[sintesis]')===0)return; if(body.indexOf('[adopcion:aplicar]')===0)radar.aplica+=1; else if(body.indexOf('[adopcion:repasar]')===0)radar.aplica+=0.3; else radar.aporta+=1; }
-      else radar.aprende+=1;
-    });
-    resize(); buildLayout(counts);
-    // Alternativa accesible por teclado/lector de pantalla (el canvas no lo es): mismos cursos como enlaces reales.
+    (d&&d.items||[]).forEach(function(it){ if(!it||!it.source||it.source==='onboarding'||it.source==='ruta'||it.source==='cuenta'||it.source==='reto')return; counts[it.source]=(counts[it.source]||0)+1;
+      var body=String(it.body||''); if(it.kind==='insight'){ if(body.indexOf('[sintesis]')===0)return; if(body.indexOf('[adopcion:aplicar]')===0)radar.aplica+=1; else if(body.indexOf('[adopcion:repasar]')===0)radar.aplica+=0.3; else radar.aporta+=1; } else radar.aprende+=1; });
+    resize(); buildLayout(counts); loadAnnos(); fitView();
     var a11yLst=document.getElementById('a11yLst');
-    if(hasRoute){
-      a11yLst.innerHTML='<div class="grp">'+esc(document.querySelector('.top h1').textContent)+'</div>'+COURSES.map(function(c,i){ return '<a href="/app/curso.html?src='+encodeURIComponent(c.src)+'"><b style="color:var(--muted);font-weight:800">'+(i+1)+'.</b> '+esc(c.name)+(counts[c.src]?' · '+counts[c.src]:'')+'</a>'; }).join('');
-    } else {
-      a11yLst.innerHTML=RUTAS.map(function(rt){ return '<div class="grp">'+esc(rt)+'</div>'+COURSES.filter(function(c){return c.rt===rt;}).map(function(c){ return '<a href="/app/curso.html?src='+encodeURIComponent(c.src)+'">'+esc(c.name)+(counts[c.src]?' · '+counts[c.src]:'')+'</a>'; }).join(''); }).join('');
-    }
+    if(hasRoute){ a11yLst.innerHTML='<div class="grp">'+esc(document.querySelector('.top h1').textContent)+'</div>'+COURSES.map(function(c,i){ return '<a href="/app/curso.html?src='+encodeURIComponent(c.src)+'"><b style="color:var(--muted);font-weight:800">'+(i+1)+'.</b> '+esc(c.name)+(counts[c.src]?' · '+counts[c.src]:'')+'</a>'; }).join(''); }
+    else { a11yLst.innerHTML=RUTAS.map(function(rt){ return '<div class="grp">'+esc(rt)+'</div>'+COURSES.filter(function(c){return c.rt===rt;}).map(function(c){ return '<a href="/app/curso.html?src='+encodeURIComponent(c.src)+'">'+esc(c.name)+(counts[c.src]?' · '+counts[c.src]:'')+'</a>'; }).join(''); }).join(''); }
     document.getElementById('a11yList').hidden=false;
-    paintBrainCenter(); paintRadar(radar);
-    var bubble=document.getElementById('brainBubble'); bubble.textContent=pickInsight(radar); bubble.hidden=false;
-    bubble.addEventListener('click',function(){ bubble.classList.add('gone'); setTimeout(function(){ bubble.hidden=true; },260); });
-    loader.hidden=true; top.hidden=false; stage.hidden=false;
+    paintBrainCenter(); paintRadar(radar); setTool('move');
+    loader.hidden=true; top.hidden=false; stage.hidden=false; toolsEl.hidden=false;
     requestAnimationFrame(frame);
   });
 }).catch(function(){ loader.textContent='No se pudo cargar. Recarga la página.'; });

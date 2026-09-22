@@ -141,7 +141,25 @@
   try { SkillUp.api('/api/notes/list').then(function (d) { (d && d.items || []).forEach(function (a) { if (a.kind === 'insight' && a.body && a.source && a.source !== 'onboarding') recentLearning.push(a.body); }); }).catch(function () {}); } catch (e) {}
   // nombre para saludar humano
   try { if (SkillUp.session) SkillUp.session().then(function (s) { if (s && s.user && s.user.name) userName = String(s.user.name).split(' ')[0]; showGuide(); }).catch(function () { showGuide(); }); else showGuide(); } catch (e) { showGuide(); }
-  var voiceOn = true;           // leer TODA respuesta en voz alta por defecto (botón altavoz para silenciar)
+  var voiceOn = (function () { try { return localStorage.getItem('skillup-voice-off') !== '1'; } catch (e) { return true; } })(); // recordado entre páginas
+  // Botón de voz SIEMPRE visible en la esquina (junto a los ojos): silenciar/activar la voz de los agentes
+  // sin abrir el panel. La preferencia se recuerda entre páginas.
+  var SPK_ON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
+  var SPK_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>';
+  var muteBtn = document.createElement('button'); muteBtn.className = 'boo-mute';
+  muteBtn.style.cssText = 'position:fixed;right:30px;bottom:92px;z-index:2001;width:40px;height:40px;border-radius:50%;border:1.5px solid #37506a;background:rgba(20,28,38,.92);color:#eef3f8;cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.4)';
+  document.body.appendChild(muteBtn);
+  function setVoice(on) {
+    voiceOn = on; try { localStorage.setItem('skillup-voice-off', on ? '0' : '1'); } catch (e) {}
+    if (!on) stopAudio();
+    muteBtn.innerHTML = on ? SPK_ON : SPK_OFF;
+    muteBtn.style.color = on ? '#3FD8F0' : '#9aa9b8'; muteBtn.style.borderColor = on ? '#2a7d8c' : '#37506a';
+    muteBtn.title = on ? 'Silenciar la voz de los agentes' : 'Activar la voz de los agentes';
+    muteBtn.setAttribute('aria-label', muteBtn.title);
+    if (voiceBtn) { voiceBtn.classList.toggle('on', on); voiceBtn.title = on ? 'Silenciar la voz' : 'Que te hable en voz alta'; }
+  }
+  muteBtn.addEventListener('click', function () { setVoice(!voiceOn); });
+  setVoice(voiceOn);
   var ttsEnabled = true;        // se intenta hablar; si el servidor no puede, la respuesta 4xx corta sola
   var voiceId = 'bkcxugbRtulPFV1CinBX'; // voz de Marc por defecto desde el arranque (evita carrera con carga de voces)
   var voicesLoaded = false;
@@ -214,11 +232,7 @@
     } catch (e) {}
   }
   vsel.addEventListener('change', function () { voiceId = vsel.value; });
-  voiceBtn.addEventListener('click', function () {
-    voiceOn = !voiceOn; voiceBtn.classList.toggle('on', voiceOn);
-    voiceBtn.title = voiceOn ? 'Silenciar la voz' : 'Que te hable en voz alta';
-    if (!voiceOn) stopAudio();
-  });
+  voiceBtn.addEventListener('click', function () { setVoice(!voiceOn); }); // en sync con el botón de la esquina
 
   // --- voz de entrada: dictado (Web Speech). No es TTS, no es la voz robótica. ---
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
