@@ -962,6 +962,13 @@ app.get("/api/org/workforce", async (c) => {
   const members = await workforceSvc.orgWorkforce(svcDeps, ctx.orgId);
   return c.json({ members });
 });
+// Conocimiento acumulado por cada tutor (crece con el uso; de solo lectura, no editable). Para el panel.
+app.get("/api/analytics/knowledge", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !WORKFORCE_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ agents: await workforceSvc.agentsKnowledge(svcDeps, ctx.orgId) });
+});
 
 // El plugin organization de better-auth solo conoce sus propios roles (owner/admin/member) y
 // rechaza los nuestros al invitar (ROLE_NOT_FOUND, verificado en vivo). Se invita con role=member

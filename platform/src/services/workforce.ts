@@ -15,9 +15,31 @@ export interface WorkforceMember {
 
 // Palabras vacías para no contar "de/la/que…" como conocimiento aportado.
 const STOP = new Set("de la el los las un una unos unas y o u a ante bajo con contra desde en entre hacia hasta para por segun sin sobre tras que como cuando donde quien cual mas menos muy mucho poco este esta esto ese esa eso aquel me te se le lo nos os les mi tu su sus al del es son ser estar he ha han hay si no lo si porque pero aunque cada todo toda todos todas para".split(/\s+/));
-function conceptsFrom(body: string): string[] {
+export function conceptsFrom(body: string): string[] {
   const t = body.replace(/^\[[^\]]+\]\s*/, "").toLowerCase(); // fuera el marcador [adopcion:…]/[tema]…
   return (t.match(/[a-záéíóúñü][a-záéíóúñü-]{3,}/gi) || []).map((w) => w.toLowerCase()).filter((w) => !STOP.has(w));
+}
+
+export interface AgentKnowledge { src: string; agent: string; concepts: number; interactions: number }
+function prettyAgent(src: string): string {
+  return src.replace(/^\//, "").replace(/\.html$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase()) || src;
+}
+/** Conocimiento acumulado por cada tutor (curso) a partir de lo que el equipo le ha aportado. Crece con el uso;
+ *  no guarda las palabras tal cual, aquí solo medimos el volumen de conceptos distintos e interacciones reales. */
+export async function agentsKnowledge(deps: SvcDeps, orgId: string): Promise<AgentKnowledge[]> {
+  const rows = await deps.db.select().from(annotation).where(eq(annotation.organizationId, orgId));
+  const byAgent = new Map<string, { concepts: Set<string>; interactions: number }>();
+  const skip = new Set(["onboarding", "ruta", "cuenta", "reto"]);
+  for (const r of rows) {
+    const src = String(r.source || "");
+    if (!src || skip.has(src)) continue; // solo cursos = tutores
+    let a = byAgent.get(src); if (!a) { a = { concepts: new Set(), interactions: 0 }; byAgent.set(src, a); }
+    a.interactions += 1;
+    const body = String(r.body || "");
+    if (body.indexOf("[sintesis]") !== 0) for (const w of conceptsFrom(body)) a.concepts.add(w); // la memoria interna no cuenta como palabra
+  }
+  return [...byAgent.entries()].map(([src, a]) => ({ src, agent: prettyAgent(src), concepts: a.concepts.size, interactions: a.interactions }))
+    .sort((x, y) => y.concepts - x.concepts);
 }
 
 const ARCHETYPES: Record<WorkforceMember["archetype"], string> = {

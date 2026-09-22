@@ -42,7 +42,7 @@ details[open] summary:before{content:"▾ "}
     <div id="tiersBox" style="margin-top:12px"></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardCost">
     <h2>Coste IA <span class="hand" style="color:var(--t);font-size:15px">últimos 30 días</span></h2>
     <div class="grid" id="costStats"><span class="msg">Cargando…</span></div>
   </div>
@@ -68,12 +68,18 @@ details[open] summary:before{content:"▾ "}
     <div id="completion"><span class="msg">Cargando…</span></div>
   </div>
 
+  <div class="card" id="cardKnow">
+    <h2>Conocimiento de tus agentes <span class="hand" style="color:var(--t);font-size:15px">crece con el uso · no se edita</span></h2>
+    <p class="msg" style="margin-top:0">Cada tutor aprende de lo que tu equipo le aporta. Cuanto más lo usáis, más sabe y mejor responde: no guarda vuestras palabras tal cual, las interpreta, investiga y refuerza para sus respuestas futuras. Solo el superadministrador gestiona el conocimiento; aquí se ve, no se edita.</p>
+    <div id="knowBox"><span class="msg">Cargando…</span></div>
+  </div>
+
   <div class="card">
     <h2>Últimas preguntas al tutor <span class="hand" style="color:var(--t);font-size:15px">qué necesita saber tu gente</span></h2>
     <div id="questions" style="max-height:280px;overflow-y:auto"><span class="msg">Cargando…</span></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardCatalog">
     <details>
       <summary>Catálogo (sectores, puestos, competencias, rutas)</summary>
       <input class="inline-input" id="sectorName" placeholder="Nuevo sector"><button class="btn btn-gh" id="btnSector">Crear</button>
@@ -95,7 +101,7 @@ details[open] summary:before{content:"▾ "}
     <div id="team" style="margin-top:12px"></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardRewards">
     <details>
       <summary>Motor de recompensas</summary>
       <input class="inline-input" id="ruleEvent" placeholder="evento (n2 | referente | cobertura)">
@@ -116,7 +122,7 @@ details[open] summary:before{content:"▾ "}
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardRubrics">
     <h2>Rúbricas de validación</h2>
     <p class="msg" style="margin-top:0">Los criterios con los que un referente valida un caso de esa competencia. Uno por línea.</p>
     <div style="display:flex;flex-direction:column;gap:8px;max-width:520px">
@@ -146,6 +152,22 @@ details[open] summary:before{content:"▾ "}
 (async function () {
   var s = await SkillUp.requireSession(); if (!s) return;
   var esSuper = !!(await SkillUp.api('/api/org/me').catch(function () { return {}; })).platformAdmin;
+
+  // El conocimiento y lo técnico (coste/tokens, catálogo, recompensas, rúbricas) lo gestiona SOLO el
+  // superadministrador. Para el resto se ocultan: menos ruido, nada de datos técnicos ni IDs sueltos.
+  if (!esSuper) { ['cardCost', 'cardCatalog', 'cardRewards', 'cardRubrics'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = true; }); }
+
+  // Conocimiento de los agentes: barras que crecen con el uso (solo lectura; la memoria no se edita).
+  (async function () {
+    var box = document.getElementById('knowBox'); if (!box) return;
+    var d = await SkillUp.api('/api/analytics/knowledge').catch(function () { return null; });
+    if (!d || !d.agents || !d.agents.length) { box.innerHTML = '<p class="msg">Aún no hay conocimiento acumulado. En cuanto tu equipo use los tutores, se irá llenando solo.</p>'; return; }
+    var max = Math.max.apply(null, d.agents.map(function (a) { return a.concepts; })) || 1;
+    box.innerHTML = d.agents.map(function (a) {
+      var pct = Math.max(6, Math.round(a.concepts / max * 100));
+      return '<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px;margin-bottom:5px"><b style="color:var(--ink)">' + SkillUp.escHtml(a.agent) + '</b><span class="msg">' + a.concepts.toLocaleString('es-ES') + ' conceptos · ' + a.interactions.toLocaleString('es-ES') + ' interacciones</span></div><div style="height:11px;border-radius:999px;background:rgba(150,140,170,.16);overflow:hidden"><div style="height:100%;width:' + pct + '%;border-radius:999px;background:linear-gradient(90deg,#3FD8E0,#8a5f7c);transition:width .7s"></div></div></div>';
+    }).join('');
+  })();
 
   async function loadBilling() {
     var sub = await SkillUp.api('/api/billing/subscription').catch(function () { return null; });
@@ -182,7 +204,7 @@ details[open] summary:before{content:"▾ "}
       '</div>';
     }
   }
-  loadCost();
+  if (esSuper) loadCost();
 
   async function loadPanel() {
     var p = await SkillUp.api('/api/analytics/panel').catch(function (e) { return null; });
