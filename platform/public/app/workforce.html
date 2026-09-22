@@ -99,7 +99,7 @@ cv.addEventListener('mouseleave',function(){ mouseX=mouseY=-999; card.classList.
 function updateHover(){
   var hit=pick(mouseX,mouseY);
   if(hit){ var a=ARQ[hit.arq]; card.classList.add('on'); card.style.left=hit.x+'px'; card.style.top=(hit.y-hit.size-6)+'px';
-    card.innerHTML='<span class="rt" style="color:'+a.c1+'">'+esc(a.label)+(hit.isTop?' · Top del equipo':(hit.isArqTop?' · Top de su color':''))+'</span><b>'+esc(hit.m.name)+'</b><small>'+hit.m.xp+' XP · '+hit.m.contrib+' aportaciones · '+Math.round(hit.m.applied)+' aplicaciones</small>';
+    card.innerHTML='<span class="rt" style="color:'+a.c1+'">'+esc(a.label)+(hit.isTop?' · Top del equipo':(hit.isArqTop?' · Top de su color':''))+'</span><b>'+esc(hit.m.name)+'</b><small>'+hit.m.xp+' XP · '+hit.m.contrib+' aportaciones · '+Math.round(hit.m.applied)+' aplicaciones'+(hit.m.learned?' · '+hit.m.learned+' conceptos que sus tutores han aprendido de la persona':'')+'</small>';
   } else card.classList.remove('on');
 }
 

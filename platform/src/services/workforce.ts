@@ -9,7 +9,15 @@ import type { SvcDeps } from "./org.js";
 export interface WorkforceMember {
   userId: string; name: string; email: string; orgRole: string;
   xp: number; ann: number; contrib: number; applied: number;
+  learned: number; // conceptos distintos que la persona ha aportado a sus tutores (vocabulario real, no inventado)
   archetype: "aprende" | "aporta" | "aplica"; archetypeLabel: string;
+}
+
+// Palabras vacías para no contar "de/la/que…" como conocimiento aportado.
+const STOP = new Set("de la el los las un una unos unas y o u a ante bajo con contra desde en entre hacia hasta para por segun sin sobre tras que como cuando donde quien cual mas menos muy mucho poco este esta esto ese esa eso aquel me te se le lo nos os les mi tu su sus al del es son ser estar he ha han hay si no lo si porque pero aunque cada todo toda todos todas para".split(/\s+/));
+function conceptsFrom(body: string): string[] {
+  const t = body.replace(/^\[[^\]]+\]\s*/, "").toLowerCase(); // fuera el marcador [adopcion:…]/[tema]…
+  return (t.match(/[a-záéíóúñü][a-záéíóúñü-]{3,}/gi) || []).map((w) => w.toLowerCase()).filter((w) => !STOP.has(w));
 }
 
 const ARCHETYPES: Record<WorkforceMember["archetype"], string> = {
@@ -25,8 +33,9 @@ export async function orgWorkforce(deps: SvcDeps, orgId: string): Promise<Workfo
     .where(and(eq(annotation.organizationId, orgId)));
 
   const byUser = new Map<string, { ann: number; contrib: number; applied: number }>();
+  const wordsByUser = new Map<string, Set<string>>(); // conceptos distintos aportados por cada persona
   const seedByUser = new Map<string, WorkforceMember["archetype"]>(); // de lo que el usuario respondió en su onboarding real
-  for (const m of members) byUser.set(m.userId, { ann: 0, contrib: 0, applied: 0 });
+  for (const m of members) { byUser.set(m.userId, { ann: 0, contrib: 0, applied: 0 }); wordsByUser.set(m.userId, new Set()); }
   for (const r of rows) {
     if (r.source === "onboarding") {
       // Semilla honesta: mientras no hay comportamiento real, partimos de lo que la persona
@@ -54,6 +63,8 @@ export async function orgWorkforce(deps: SvcDeps, orgId: string): Promise<Workfo
     } else {
       agg.ann += 1;
     }
+    // Conocimiento que el tutor recoge de la persona: sus propias palabras (no el marcador ni la memoria interna).
+    const ws = wordsByUser.get(r.userId); if (ws) for (const w of conceptsFrom(body)) ws.add(w);
   }
 
   return members.map((m) => {
@@ -67,6 +78,7 @@ export async function orgWorkforce(deps: SvcDeps, orgId: string): Promise<Workfo
     return {
       userId: m.userId, name: m.name, email: m.email, orgRole: m.orgRole,
       xp, ann: a.ann, contrib: a.contrib, applied: a.applied,
+      learned: (wordsByUser.get(m.userId) || new Set()).size,
       archetype, archetypeLabel: ARCHETYPES[archetype],
     };
   });
