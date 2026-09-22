@@ -23,16 +23,18 @@ const VOICES: VoiceOpt[] = [
 // Ajuste base: enérgica, con emoción, tono profesional (aire JARVIS). speaker_boost = presencia.
 // speed 1.08 = ritmo vivo, no lento ni aburrido (ElevenLabs: 1.0 normal, >1 más rápido, rango ~0.7–1.2).
 // Marc reportó voz demasiado rápida con stability 0.3 y demasiado LENTA a 1.0 -> subimos el ritmo por defecto.
-const DEFAULT_SETTINGS = { stability: 0.45, similarity_boost: 0.85, use_speaker_boost: true, speed: 1.08 };
+// speed 1.2 = el MÁXIMO de ElevenLabs (rango 0.7–1.2); Marc reportó que a 1.08–1.14 aún sonaba lento.
+// stability más baja = más emoción/énfasis (menos monótono); subimos el ritmo casi al tope por defecto.
+const DEFAULT_SETTINGS = { stability: 0.40, similarity_boost: 0.85, use_speaker_boost: true, speed: 1.15 };
 // Ritmo + carácter POR VOZ (Marc: cada tutor con su personalidad y su ritmo; ninguno lento). El "qué esperar"
 // de cada personalidad se refuerza además en el prompt del tutor; aquí va el ritmo y el temperamento de la voz.
 const VOICE_PROFILES: Record<string, { speed?: number; stability?: number }> = {
-  "WsvUasyBVDfzPhE0B6jC": { speed: 1.14, stability: 0.40 }, // Diego (comercial): ágil, directo, con chispa
-  "fjMC3Wxp5QfFT9wNGQOI": { speed: 1.12, stability: 0.42 }, // Álvaro (m): resolutivo, al grano
-  "jQrhxsqzG6CPKo3ll0w9": { speed: 1.11, stability: 0.43 }, // Natalia (f): dinámica, motivadora
-  "bkcxugbRtulPFV1CinBX": { speed: 1.07, stability: 0.45 }, // Marc (tú): cercano, natural
-  "oHMibLgDqXK3fjgFVtJ6": { speed: 1.06, stability: 0.50 }, // Inés (f): cálida y clara
-  "iuYybvSfclFoJ9ab2Im6": { speed: 1.05, stability: 0.52 }, // Estela (f): serena pero sin arrastrar
+  "WsvUasyBVDfzPhE0B6jC": { speed: 1.2, stability: 0.35 },  // Diego (comercial): ágil, directo, con chispa
+  "fjMC3Wxp5QfFT9wNGQOI": { speed: 1.2, stability: 0.37 },  // Álvaro (m): resolutivo, al grano
+  "jQrhxsqzG6CPKo3ll0w9": { speed: 1.2, stability: 0.38 },  // Natalia (f): dinámica, motivadora
+  "bkcxugbRtulPFV1CinBX": { speed: 1.16, stability: 0.40 }, // Marc (tú): cercano, natural pero con ritmo
+  "oHMibLgDqXK3fjgFVtJ6": { speed: 1.15, stability: 0.44 }, // Inés (f): cálida y clara
+  "iuYybvSfclFoJ9ab2Im6": { speed: 1.14, stability: 0.46 }, // Estela (f): serena pero sin arrastrar
 };
 function settingsFor(voiceId: string) { return { ...DEFAULT_SETTINGS, ...(VOICE_PROFILES[voiceId] || {}) }; }
 

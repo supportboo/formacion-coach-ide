@@ -99,10 +99,10 @@
 
   function loop() {
     if (!on || !video || video.readyState < 2) { raf = requestAnimationFrame(loop); return; }
-    var t = performance.now();
+    var t = performance.now(); var r = null, f = null;
     try {
       if (gr) {
-        var r = gr.recognizeForVideo(video, t);
+        r = gr.recognizeForVideo(video, t);
         var swiped = (t > cooldown) && detectSwipe(r && r.landmarks, t);
         if (swiped) { cooldown = t + 900; }
         else {
@@ -111,13 +111,56 @@
         }
       }
       if (fd) {
-        var f = fd.detectForVideo(video, t);
+        f = fd.detectForVideo(video, t);
         var has = f && f.detections && f.detections.length > 0;
         if (has) { awayT = t; if (away) { away = false; awayOverlay(false); } }
         else if (t - awayT > 12000 && !away) { away = true; awayOverlay(true); }
       }
+      drawPreview(r, f);
     } catch (e) { }
     raf = requestAnimationFrame(loop);
+  }
+  // Cuadro de cámara (como BOO Manager): vídeo en espejo + puntos de la mano + caja de la cara. En local.
+  var HAND_CONN = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+  var pv = null; // {panel, canvas, ctx, min}
+  function mkPreview() {
+    if (pv) { pv.panel.hidden = false; return; }
+    var panel = document.createElement('div'); panel.id = 'gPv';
+    panel.style.cssText = 'position:fixed;right:16px;bottom:70px;z-index:59;width:200px;background:rgba(14,20,28,.96);border:1px solid #2a3a4d;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.5);overflow:hidden;user-select:none';
+    var head = document.createElement('div'); head.style.cssText = 'display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:grab;font:11px/1 system-ui,sans-serif;color:#9aa9b8;background:rgba(255,255,255,.04)';
+    head.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#2fbf71;box-shadow:0 0 6px #2fbf71"></span><b style="color:#eef3f8;font-weight:700;flex:1">Cámara · gestos</b><button id="gPvMin" title="Minimizar" style="border:0;background:none;color:#9aa9b8;font-size:15px;line-height:1;cursor:pointer">–</button>';
+    var cv = document.createElement('canvas'); cv.width = 200; cv.height = 150; cv.style.cssText = 'display:block;width:200px;height:150px;background:#0a0f16';
+    panel.appendChild(head); panel.appendChild(cv);
+    document.body.appendChild(panel);
+    pv = { panel: panel, canvas: cv, ctx: cv.getContext('2d'), min: false };
+    document.getElementById('gPvMin').onclick = function (e) { e.stopPropagation(); pv.min = !pv.min; cv.style.display = pv.min ? 'none' : 'block'; this.textContent = pv.min ? '+' : '–'; };
+    // arrastrar por la cabecera
+    head.addEventListener('pointerdown', function (e) {
+      if (e.target.id === 'gPvMin') return;
+      var r0 = panel.getBoundingClientRect(), sx = e.clientX, sy = e.clientY;
+      head.setPointerCapture && head.setPointerCapture(e.pointerId); head.style.cursor = 'grabbing';
+      function mv(ev) { panel.style.left = Math.max(4, r0.left + ev.clientX - sx) + 'px'; panel.style.top = Math.max(4, r0.top + ev.clientY - sy) + 'px'; panel.style.right = 'auto'; panel.style.bottom = 'auto'; }
+      function up() { head.style.cursor = 'grab'; head.removeEventListener('pointermove', mv); head.removeEventListener('pointerup', up); }
+      head.addEventListener('pointermove', mv); head.addEventListener('pointerup', up);
+    });
+  }
+  function rmPreview() { if (pv) { try { pv.panel.remove(); } catch (e) {} pv = null; } }
+  function drawPreview(r, f) {
+    if (!pv || pv.min || !video || !video.videoWidth) return;
+    var c = pv.ctx, W = pv.canvas.width, H = pv.canvas.height, vw = video.videoWidth, vh = video.videoHeight;
+    c.save(); c.clearRect(0, 0, W, H); c.translate(W, 0); c.scale(-1, 1); c.drawImage(video, 0, 0, W, H); c.restore(); // espejo
+    var mx = function (nx) { return (1 - nx) * W; }; // x en espejo
+    if (r && r.landmarks) r.landmarks.forEach(function (lm) {
+      c.strokeStyle = '#3FD8F0'; c.lineWidth = 2;
+      HAND_CONN.forEach(function (p) { var a = lm[p[0]], b = lm[p[1]]; if (!a || !b) return; c.beginPath(); c.moveTo(mx(a.x), a.y * H); c.lineTo(mx(b.x), b.y * H); c.stroke(); });
+      lm.forEach(function (pt) { c.fillStyle = '#F0C645'; c.beginPath(); c.arc(mx(pt.x), pt.y * H, 3, 0, 7); c.fill(); });
+    });
+    if (f && f.detections) f.detections.forEach(function (d) {
+      var bb = d.boundingBox; if (!bb) return;
+      var x = W - (bb.originX + bb.width) / vw * W, y = bb.originY / vh * H, w = bb.width / vw * W, h = bb.height / vh * H;
+      c.strokeStyle = '#EC6FA6'; c.lineWidth = 2; c.strokeRect(x, y, w, h);
+      c.fillStyle = '#EC6FA6'; c.font = '700 10px system-ui'; c.fillText('cara', x + 2, y - 3);
+    });
   }
   function iconFor(name) { return ({ Thumb_Up: '👍 Siguiente', Thumb_Down: '👎 Anterior', Open_Palm: '✋ Bajar', Pointing_Up: '☝️ Subir', Victory: '✌️ Pregunto al tutor' })[name] || name; }
 
@@ -141,6 +184,7 @@
       // Ayuda persistente: se muestra salvo que el usuario la cerrara antes (entonces queda el "?").
       var closed = false; try { closed = localStorage.getItem(HELP_KEY) === 'closed'; } catch (e) { }
       if (closed) mountHelpBtn(); else showHelp();
+      mkPreview(); // cuadro de cámara con puntos de mano + caja de cara
       raf = requestAnimationFrame(loop);
     } catch (e) {
       disable();
@@ -149,7 +193,7 @@
     }
   }
   function disable() {
-    on = false; if (raf) cancelAnimationFrame(raf); awayOverlay(false); trail.length = 0;
+    on = false; if (raf) cancelAnimationFrame(raf); awayOverlay(false); trail.length = 0; rmPreview();
     try { if (video && video.srcObject) video.srcObject.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { }
     if (video) { video.remove(); video = null; }
     try { if (gr && gr.close) gr.close(); } catch (e) { } try { if (fd && fd.close) fd.close(); } catch (e) { }
