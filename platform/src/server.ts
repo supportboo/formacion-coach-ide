@@ -1010,15 +1010,28 @@ app.put("/api/config/company", async (c) => {
 app.post("/api/config/reward-rules", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  if (!hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
   const parsed = z.object({
     event: z.string().min(1), params: z.record(z.unknown()).optional(),
-    reward: z.enum(["certificado", "titulo", "punto", "perk", "senal_rrhh"]),
+    reward: z.enum(["certificado", "titulo", "punto", "perk", "senal_rrhh", "insignia", "tarjeta_regalo", "bonus", "reconocimiento"]),
     rewardParams: z.record(z.unknown()).optional(), active: z.boolean().optional(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const id = await rewardsSvc.defineRule(svcDeps, { orgId: ctx.orgId, ...parsed.data });
   return c.json({ id });
+});
+app.get("/api/config/reward-rules", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "direccion", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ rules: await rewardsSvc.listRules(svcDeps, ctx.orgId) });
+});
+app.delete("/api/config/reward-rules/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  await rewardsSvc.deleteRule(svcDeps, ctx.orgId, c.req.param("id"));
+  return c.json({ ok: true });
 });
 
 app.post("/api/rewards/evaluate", async (c) => {

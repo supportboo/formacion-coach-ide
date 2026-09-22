@@ -3,7 +3,9 @@ import { certificate, pointsLedger, rewardGrant, rewardRule } from "../db/schema
 import type { SvcDeps } from "./org.js";
 import { currentSeason } from "./propagation.js";
 
-export type RewardKind = "certificado" | "titulo" | "punto" | "perk" | "senal_rrhh";
+// Tipos de recompensa configurables. Los 4 nuevos (insignia/tarjeta_regalo/bonus/reconocimiento) amplían
+// el catálogo del panel (presets "qué, cuánto, cómo"); su ENTREGA de los monetarios es un proceso humano.
+export type RewardKind = "certificado" | "titulo" | "punto" | "perk" | "senal_rrhh" | "insignia" | "tarjeta_regalo" | "bonus" | "reconocimiento";
 
 export interface RuleInput {
   orgId: string; event: string; params?: Record<string, unknown>;
@@ -17,6 +19,14 @@ export async function defineRule(deps: SvcDeps, input: RuleInput): Promise<strin
     reward: input.reward, rewardParams: input.rewardParams ?? null, active: input.active ?? true,
   });
   return id;
+}
+
+/** Reglas de recompensa de la empresa (para el panel: ver, editar, borrar). */
+export async function listRules(deps: SvcDeps, orgId: string) {
+  return deps.db.select().from(rewardRule).where(eq(rewardRule.organizationId, orgId));
+}
+export async function deleteRule(deps: SvcDeps, orgId: string, id: string) {
+  await deps.db.delete(rewardRule).where(and(eq(rewardRule.organizationId, orgId), eq(rewardRule.id, id)));
 }
 
 function certCode(newId: () => string): string {

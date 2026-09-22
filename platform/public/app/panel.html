@@ -23,6 +23,8 @@ details[open] summary:before{content:"▾ "}
 .qcard .qtext{margin:0 0 8px;color:var(--body);font-size:14px;line-height:1.45}
 .qcard .qmeta{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--mut);flex-wrap:wrap}
 .qcard .qres{font-size:11.5px;padding:5px 11px;white-space:nowrap}
+.rk{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--mut)}
+.rk .inline-input{width:100%;min-width:0;margin:0}
 </style>
 </head>
 <body>
@@ -110,12 +112,38 @@ details[open] summary:before{content:"▾ "}
   </div>
 
   <div class="card" id="cardRewards">
-    <details>
-      <summary>Motor de recompensas</summary>
-      <input class="inline-input" id="ruleEvent" placeholder="evento (n2 | referente | cobertura)">
-      <input class="inline-input" id="ruleReward" placeholder="recompensa (certificado|titulo|punto|perk|senal_rrhh)">
-      <button class="btn btn-gh" id="btnRule">Crear regla</button><div id="ruleMsg" class="msg"></div>
+    <h2>Recompensas y reconocimiento</h2>
+    <p class="msg" style="margin-top:0">Define qué gana tu equipo al progresar: qué, cuánto y cómo. Empieza por un preset y ajústalo.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn btn-gh" data-preset="conservador">Preset conservador</button>
+      <button class="btn btn-gh" data-preset="intermedio">Preset intermedio</button>
+      <button class="btn btn-gh" data-preset="avanzado">Preset avanzado</button>
+    </div>
+    <details><summary>Añadir una recompensa</summary>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:560px;margin-top:8px">
+        <label class="rk">Tipo<select class="inline-input" id="rwType">
+          <option value="punto">Puntos internos</option><option value="insignia">Insignia / badge</option>
+          <option value="reconocimiento">Reconocimiento público</option><option value="senal_rrhh">Estatus de referente</option>
+          <option value="perk">Perk (formación, tiempo, elección)</option><option value="certificado">Certificado</option>
+          <option value="tarjeta_regalo">Tarjeta regalo</option><option value="bonus">Bonus / plus</option>
+        </select></label>
+        <label class="rk">Cuándo (evento)<select class="inline-input" id="rwEvent">
+          <option value="nivel_alcanzado">Alcanza un nivel</option><option value="n2">Llega a «Aplica» (N2)</option>
+          <option value="referente">Se hace referente</option><option value="caso_validado">Caso validado</option>
+          <option value="cobertura">Cobertura de competencia</option><option value="onboarding_completado">Completa el onboarding</option>
+          <option value="mentoria_realizada">Mentoriza a alguien</option>
+        </select></label>
+        <label class="rk">Valor / cantidad<input class="inline-input" id="rwAmount" type="number" min="0" placeholder="p. ej. 50"></label>
+        <label class="rk">Unidad<select class="inline-input" id="rwUnit"><option value="puntos">puntos</option><option value="€">€</option><option value="horas">horas</option><option value="días">días</option><option value="badge">insignia</option><option value="elección">elección</option></select></label>
+        <label class="rk">Periodicidad<select class="inline-input" id="rwPeriod"><option value="por_evento">Por evento</option><option value="una_vez">Una vez</option><option value="mensual">Mensual</option><option value="trimestral">Trimestral</option><option value="anual">Anual</option></select></label>
+        <label class="rk">Quién aprueba<select class="inline-input" id="rwApprover"><option value="automático">Automático</option><option value="responsable">Responsable</option><option value="dirección">Dirección</option><option value="superadmin">Superadmin</option></select></label>
+        <label class="rk">Tope por persona/periodo<input class="inline-input" id="rwCap" type="number" min="0" placeholder="opcional"></label>
+        <label class="rk" style="align-self:end"><input type="checkbox" id="rwSalary"> Cuenta para nómina</label>
+      </div>
+      <div id="rwTax" class="msg" style="color:var(--gold,#9C7A10);margin-top:6px"></div>
+      <button class="btn btn-grad" id="rwAdd" style="margin-top:10px">Añadir recompensa</button><div id="rwMsg" class="msg"></div>
     </details>
+    <div id="rwList" style="margin-top:12px"></div>
   </div>
 
   <div class="card">
@@ -313,9 +341,44 @@ details[open] summary:before{content:"▾ "}
   wireCreate('btnPath', 'pathMsg', '/api/catalog/paths', function () {
     return { title: document.getElementById('pathTitle').value.trim(), competencyId: document.getElementById('pathComp').value.trim() || undefined };
   });
-  wireCreate('btnRule', 'ruleMsg', '/api/config/reward-rules', function () {
-    return { event: document.getElementById('ruleEvent').value.trim(), reward: document.getElementById('ruleReward').value.trim() };
-  });
+  // --- Recompensas: presets + formulario estructurado + lista ---
+  var RW_LABEL = { punto: 'Puntos', insignia: 'Insignia', reconocimiento: 'Reconocimiento', senal_rrhh: 'Estatus referente', perk: 'Perk', certificado: 'Certificado', tarjeta_regalo: 'Tarjeta regalo', bonus: 'Bonus', titulo: 'Título' };
+  var EV_LABEL = { nivel_alcanzado: 'al alcanzar nivel', n2: 'al llegar a Aplica', referente: 'al hacerse referente', caso_validado: 'por caso validado', cobertura: 'por cobertura', onboarding_completado: 'al completar onboarding', mentoria_realizada: 'por mentorizar' };
+  var TAX = { tarjeta_regalo: 'Orientativo: una tarjeta regalo suele ser retribución en especie (tributa/cotiza). Consúltalo con tu asesoría.', bonus: 'Orientativo: un bonus es salario (IRPF y cotización), regulado por convenio/contrato. Consúltalo con tu asesoría.' };
+  var PRESETS = {
+    conservador: [ {reward:'punto',event:'onboarding_completado',rewardParams:{amount:20,unit:'puntos',period:'una_vez',approver:'automático'}}, {reward:'insignia',event:'n2',rewardParams:{unit:'badge',period:'por_evento',approver:'automático'}}, {reward:'reconocimiento',event:'referente',rewardParams:{period:'por_evento',approver:'dirección',public:true}} ],
+    intermedio: [ {reward:'punto',event:'onboarding_completado',rewardParams:{amount:20,unit:'puntos',period:'una_vez'}}, {reward:'perk',event:'n2',rewardParams:{amount:1,unit:'elección',period:'trimestral',approver:'responsable'}}, {reward:'perk',event:'referente',rewardParams:{amount:1,unit:'días',period:'anual',approver:'dirección'}} ],
+    avanzado: [ {reward:'tarjeta_regalo',event:'caso_validado',rewardParams:{amount:30,unit:'€',period:'por_evento',approver:'responsable',cap:150}}, {reward:'bonus',event:'referente',rewardParams:{amount:500,unit:'€',period:'anual',approver:'dirección',salaryLinked:true}} ],
+  };
+  function taxNoteFor(t){ return TAX[t] || ''; }
+  var rwType=document.getElementById('rwType'), rwTax=document.getElementById('rwTax');
+  if(rwType) rwType.addEventListener('change', function(){ rwTax.textContent = taxNoteFor(rwType.value); });
+  async function loadRules(){
+    var box=document.getElementById('rwList'); if(!box) return;
+    var d=await SkillUp.api('/api/config/reward-rules').catch(function(){return {rules:[]};});
+    var rules=(d&&d.rules)||[];
+    if(!rules.length){ box.innerHTML='<p class="msg">Aún no hay recompensas. Elige un preset o añade una.</p>'; return; }
+    box.innerHTML=rules.map(function(r){ var rp=r.rewardParams||{}; var val=rp.amount?(' · '+rp.amount+' '+(rp.unit||'')):(rp.unit?(' · '+rp.unit):'');
+      return '<div class="row"><span><b style="color:var(--ink)">'+SkillUp.escHtml(RW_LABEL[r.reward]||r.reward)+'</b>'+SkillUp.escHtml(val)+' <span class="msg">'+SkillUp.escHtml(EV_LABEL[r.event]||r.event)+(rp.period&&rp.period!=='por_evento'?' · '+rp.period:'')+(rp.salaryLinked?' · nómina':'')+'</span></span><button class="btn btn-gh" data-del="'+r.id+'" style="padding:4px 10px">Borrar</button></div>'; }).join('');
+    box.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=async function(){ await SkillUp.api('/api/config/reward-rules/'+b.dataset.del,{method:'DELETE'}).catch(function(){}); loadRules(); }; });
+  }
+  var rwAdd=document.getElementById('rwAdd');
+  if(rwAdd) rwAdd.onclick=async function(){
+    var msg=document.getElementById('rwMsg'); var reward=rwType.value;
+    var rp={ unit:document.getElementById('rwUnit').value, period:document.getElementById('rwPeriod').value, approver:document.getElementById('rwApprover').value };
+    var amt=document.getElementById('rwAmount').value; if(amt) rp.amount=Number(amt);
+    var cap=document.getElementById('rwCap').value; if(cap) rp.cap=Number(cap);
+    if(document.getElementById('rwSalary').checked) rp.salaryLinked=true;
+    var note=taxNoteFor(reward); if(note) rp.taxNote=note;
+    try{ await SkillUp.api('/api/config/reward-rules',{method:'POST',body:{event:document.getElementById('rwEvent').value,reward:reward,rewardParams:rp}}); msg.textContent='Recompensa añadida.'; loadRules(); }
+    catch(ex){ msg.textContent=ex.message; }
+  };
+  document.querySelectorAll('#cardRewards [data-preset]').forEach(function(b){ b.onclick=async function(){
+    var pr=PRESETS[b.dataset.preset]||[]; b.disabled=true; b.textContent='Aplicando…';
+    for(var i=0;i<pr.length;i++){ try{ await SkillUp.api('/api/config/reward-rules',{method:'POST',body:{event:pr[i].event,reward:pr[i].reward,rewardParams:Object.assign({},pr[i].rewardParams, TAX[pr[i].reward]?{taxNote:TAX[pr[i].reward]}:{})}}); }catch(e){} }
+    b.disabled=false; b.textContent='Preset '+b.dataset.preset; loadRules();
+  }; });
+  if(esSuper) loadRules();
 
   // P8: ajustes de empresa (nombres de nivel + puntos-salario)
   SkillUp.api('/api/config/company').then(function (cfg) {
