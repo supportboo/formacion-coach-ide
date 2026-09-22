@@ -84,6 +84,12 @@ details[open] summary:before{content:"▾ "}
     <div id="knowBox"><span class="msg">Cargando…</span></div>
   </div>
 
+  <div class="card" id="cardVfb">
+    <h2>Qué contenido gusta y cuál no <span class="hand" style="color:var(--t);font-size:15px">semáforo de tu equipo</span></h2>
+    <p class="msg" style="margin-top:0">Lo que tu gente marca 👍 / 👎 / 🚫 en los vídeos. Verde: gusta. Rojo: no gusta u ocultado. Úsalo para quitar lo que no aporta y buscar más de lo que sí.</p>
+    <div id="vfbBox"><span class="msg">Cargando…</span></div>
+  </div>
+
   <div class="card">
     <h2>Últimas preguntas al tutor <span class="hand" style="color:var(--t);font-size:15px">qué necesita saber tu gente</span></h2>
     <div id="questions" style="max-height:280px;overflow-y:auto"><span class="msg">Cargando…</span></div>
@@ -191,7 +197,16 @@ details[open] summary:before{content:"▾ "}
 
   // El conocimiento y lo técnico (coste/tokens, catálogo, recompensas, rúbricas) lo gestiona SOLO el
   // superadministrador. Para el resto se ocultan: menos ruido, nada de datos técnicos ni IDs sueltos.
-  if (!esSuper) { ['cardCost', 'cardCatalog', 'cardRewards', 'cardRubrics'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = true; }); }
+  if (!esSuper) { ['cardCost', 'cardCatalog', 'cardRewards', 'cardRubrics', 'cardVfb'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = true; }); }
+  // Semáforo de vídeos (qué gusta y qué no) — solo superadmin
+  if (esSuper) (async function () {
+    var box = document.getElementById('vfbBox'); if (!box) return;
+    var d = await SkillUp.api('/api/analytics/video-feedback').catch(function () { return null; });
+    var vids = (d && d.videos) || [];
+    if (!vids.length) { box.innerHTML = '<p class="msg">Aún no hay valoraciones de vídeos. Aparecerán cuando tu equipo empiece a marcar 👍/👎.</p>'; return; }
+    box.innerHTML = vids.slice(0, 20).map(function (v) { var pos = v.like, neg = v.dislike + v.hide, tot = pos + neg || 1, gp = Math.round(pos / tot * 100);
+      return '<div style="margin:11px 0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;margin-bottom:4px"><b style="color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64%">' + SkillUp.escHtml(v.title || v.youtubeId) + '</b><span class="msg">👍' + v.like + ' · 👎' + v.dislike + ' · 🚫' + v.hide + '</span></div><div style="height:9px;border-radius:999px;background:rgba(220,80,80,.28);overflow:hidden"><div style="height:100%;width:' + gp + '%;background:#2E9E73"></div></div></div>'; }).join('');
+  })();
 
   // Conocimiento de los agentes: barras que crecen con el uso (solo lectura; la memoria no se edita).
   (async function () {

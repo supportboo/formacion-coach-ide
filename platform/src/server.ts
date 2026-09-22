@@ -206,18 +206,45 @@ app.get("/api/learning/videos/home", async (c) => {
   const catalogTopics = AVAILABLE_COURSES.map((x) => x.name);
   const plan = await readRutaPlan(ctx.orgId, ctx.userId).catch(() => null);
   const paraTiTopics = (plan?.modulos || []).map((m) => m.titulo).filter(Boolean);
-  const [global, paraTi, favs] = await Promise.all([
+  const [global, paraTi, favs, fb] = await Promise.all([
     videosSvc.aggregate(svcDeps, catalogTopics),
     paraTiTopics.length ? videosSvc.aggregate(svcDeps, paraTiTopics) : null,
     videosSvc.brandooersFavs(svcDeps),
+    notesSvc.list(svcDeps, ctx.orgId, ctx.userId, "video_feedback").catch(() => [] as { body: string | null }[]),
   ]);
+  // "No mostrar más": ocultamos los vídeos que el usuario marcó como hide (su valoración más reciente por vídeo).
+  const seen = new Set<string>(), hidden = new Set<string>();
+  for (const n of fb) { let o: { y?: string; k?: string }; try { o = JSON.parse(String(n.body || "")); } catch { continue; } if (!o.y || seen.has(o.y)) continue; seen.add(o.y); if (o.k === "hide") hidden.add(o.y); }
+  const flt = (list: { youtubeId: string }[]) => (list || []).filter((v) => !hidden.has(v.youtubeId));
   return c.json({
-    novedades: global.novedades,
-    masVistos: global.masVistos,
-    masValorados: global.masValorados,
-    paraTi: paraTi ? paraTi.masVistos : [],
-    brandooersFavs: favs,
+    novedades: flt(global.novedades),
+    masVistos: flt(global.masVistos),
+    masValorados: flt(global.masValorados),
+    paraTi: paraTi ? flt(paraTi.masVistos) : [],
+    brandooersFavs: flt(favs),
   });
+});
+// Like / dislike / "no mostrar más" de un vídeo (se guarda la valoración más reciente por vídeo).
+app.post("/api/learning/videos/feedback", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ youtubeId: z.string().min(3).max(32), kind: z.enum(["like", "dislike", "hide"]), title: z.string().max(300).optional(), thumbnail: z.string().max(500).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "video_feedback", kind: "insight", body: JSON.stringify({ y: parsed.data.youtubeId, k: parsed.data.kind, t: parsed.data.title || "", th: parsed.data.thumbnail || "" }) });
+  return c.json({ ok: true });
+});
+// Semáforo para el superadmin: qué contenido gusta y cuál no (valoración más reciente por usuario y vídeo).
+app.get("/api/analytics/video-feedback", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !WORKFORCE_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const rows = await db.select({ userId: annotation.userId, body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, ctx.orgId), eq(annotation.source, "video_feedback"))).orderBy(desc(annotation.createdAt));
+  const seen = new Set<string>(); const per = new Map<string, { youtubeId: string; title: string; thumbnail: string; like: number; dislike: number; hide: number }>();
+  for (const r of rows) { let o: { y?: string; k?: string; t?: string; th?: string }; try { o = JSON.parse(String(r.body || "")); } catch { continue; } if (!o.y) continue; const key = r.userId + "|" + o.y; if (seen.has(key)) continue; seen.add(key);
+    let p = per.get(o.y); if (!p) { p = { youtubeId: o.y, title: o.t || "", thumbnail: o.th || "", like: 0, dislike: 0, hide: 0 }; per.set(o.y, p); }
+    if (o.k === "like") p.like++; else if (o.k === "dislike") p.dislike++; else if (o.k === "hide") p.hide++; }
+  return c.json({ videos: [...per.values()].sort((a, b) => (b.like + b.dislike + b.hide) - (a.like + a.dislike + a.hide)) });
 });
 
 const watchBody = z.object({ youtubeId: z.string().min(3).max(32), title: z.string().max(300), thumbnail: z.string().max(500) });
