@@ -53,13 +53,17 @@ details[open] summary:before{content:"▾ "}
   </div>
 
   <div class="card">
-    <h2>ROI <span class="hand" style="color:var(--t);font-size:15px">línea base vs. hoy</span></h2>
+    <h2>ROI <span class="hand" style="color:var(--t);font-size:15px">¿mejora tu equipo con el tiempo?</span></h2>
+    <p class="msg" style="margin-top:0">Dos señales de negocio: cuánta gente formáis en casa (sin cursos externos) y cuántos días tarda alguien nuevo en ser autónomo.</p>
     <div class="grid" id="stats"></div>
     <h2 style="margin-top:20px">Cobertura por competencia</h2>
+    <p class="msg" style="margin-top:0">Qué parte de tu equipo ya domina cada habilidad clave. Se llena cuando el superadministrador da de alta las competencias y tu gente las va superando.</p>
     <div id="coverage"></div>
     <h2 style="margin-top:20px">Riesgo de dependencia</h2>
+    <p class="msg" style="margin-top:0">Habilidades que hoy sabe una sola persona: si se va, te quedas sin ella. Te dice a quién conviene formar para no depender de nadie.</p>
     <div id="risks"></div>
-    <button class="btn btn-gh" id="btnBaseline" style="margin-top:10px">Capturar línea base ahora</button>
+    <button class="btn btn-gh" id="btnBaseline" style="margin-top:14px">Guardar la foto de hoy</button>
+    <p class="msg" style="margin-top:6px">La «línea base» es la foto de hoy. Guárdala una vez para poder decir dentro de unas semanas «hemos mejorado esto desde entonces». A partir de mañana se guarda sola cada día.</p>
     <div class="msg" id="baselineMsg"></div>
   </div>
 
@@ -214,10 +218,10 @@ details[open] summary:before{content:"▾ "}
       '<div class="stat"><b>' + p.timeToAutonomyDays + '</b><span>días a autonomía</span></div>';
     document.getElementById('coverage').innerHTML = p.coverage.map(function (c) {
       return '<div class="row"><span>' + SkillUp.escHtml(c.name) + (c.critical ? ' ⚠' : '') + '</span><span>' + c.atApply + '/' + c.total + ' (' + c.pct + '%)</span></div>';
-    }).join('') || '<p class="msg">Aún sin competencias configuradas.</p>';
+    }).join('') || '<p class="msg">Aún no hay competencias dadas de alta (las configura el superadministrador). En cuanto las haya y tu equipo empiece, verás aquí qué domináis.</p>';
     document.getElementById('risks').innerHTML = p.risks.map(function (r) {
       return '<div class="row"><span class="risk">' + SkillUp.escHtml(r.name) + '</span><span>' + r.referentes + ' referente(s)</span></div>';
-    }).join('') || '<p class="msg">Sin riesgos de dependencia detectados.</p>';
+    }).join('') || '<p class="msg">De momento nadie es imprescindible en solitario. Aparecería aquí una habilidad clave que supiera una sola persona.</p>';
   }
   loadPanel();
 
