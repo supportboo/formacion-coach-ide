@@ -235,15 +235,30 @@ export interface RecentQuestion { userName: string; role: string; content: strin
  * en un lote aparte, no hace falta gastar IA para listar lo que ya se pregunto). Es la senal cruda
  * de "que necesita saber la gente" que hoy no se ve en ningun sitio.
  */
+// El primer mensaje al tutor llega con el PROMPT del tutor pegado delante (…\n\n + la pregunta real).
+// Aquí nos quedamos SOLO con la pregunta de la persona y descartamos lo que sea puro prompt interno,
+// para que el panel no muestre "Eres Diego, Tutor…" como si fuera una pregunta.
+function cleanQuestion(raw: string): string {
+  const t = String(raw || "").trim();
+  const i = t.lastIndexOf("\n\n");
+  return (i >= 0 ? t.slice(i + 2) : t).trim();
+}
+function looksLikePrompt(s: string): boolean {
+  return /^eres\s|perfil del alumno|el alumno está en el curso|espeja con|ritmo natural|haz preguntas para conocer/i.test(s);
+}
 export async function recentQuestions(deps: SvcDeps, orgId: string, limit = 30): Promise<RecentQuestion[]> {
-  return deps.db.select({
+  const rows = await deps.db.select({
     userName: user.name, role: agentThread.role, content: agentMessage.content, createdAt: agentMessage.createdAt,
   }).from(agentMessage)
     .innerJoin(agentThread, eq(agentMessage.threadId, agentThread.id))
     .innerJoin(user, eq(agentThread.userId, user.id))
     .where(and(eq(agentMessage.organizationId, orgId), eq(agentMessage.sender, "user")))
     .orderBy(desc(agentMessage.createdAt))
-    .limit(limit);
+    .limit(limit * 2); // pedimos de más porque filtramos los que son puro prompt
+  return rows
+    .map((r) => ({ ...r, content: cleanQuestion(r.content) }))
+    .filter((r) => r.content && !looksLikePrompt(r.content))
+    .slice(0, limit);
 }
 
 export interface PlatformOrgSummary {

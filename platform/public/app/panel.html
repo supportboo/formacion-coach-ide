@@ -19,6 +19,10 @@ details summary:before{content:"▸ ";display:inline-block}
 details[open] summary:before{content:"▾ "}
 .chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--body);margin-bottom:8px}
 .chk input{width:auto;margin:0}
+.qcard{background:var(--warm);border:1px solid var(--line,rgba(120,90,120,.14));border-radius:12px;padding:11px 13px;margin-bottom:9px}
+.qcard .qtext{margin:0 0 8px;color:var(--body);font-size:14px;line-height:1.45}
+.qcard .qmeta{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--mut);flex-wrap:wrap}
+.qcard .qres{font-size:11.5px;padding:5px 11px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -244,13 +248,43 @@ details[open] summary:before{content:"▾ "}
   }
   loadCompletion();
 
+  // Hiper-prompt profesional de investigación profunda: convierte una pregunta real en un dossier de
+  // conocimiento VALIDADO y CITADO (autores, libros, papers, metodologías, profesores, vídeos, creadores
+  // expertos) listo para incorporar al conocimiento del tutor y responder con más profundidad y seniority.
+  function researchPrompt(q) {
+    return 'ROL: Eres un investigador y documentalista sénior. OBJETIVO: producir un dossier de conocimiento VALIDADO y CITADO sobre el tema de esta pregunta real de un alumno, para incorporarlo al conocimiento de un tutor formativo y que responda con más profundidad y seniority.\n\n'
+      + 'PREGUNTA / TEMA:\n"' + q + '"\n\n'
+      + 'INSTRUCCIONES:\n'
+      + '1) Delimita el tema y sus subtemas clave.\n'
+      + '2) Investiga SOLO fuentes fiables y contrástalas: autores y libros de referencia, artículos y papers, metodologías y marcos consolidados, profesores y cursos reconocidos, y creadores/influencers realmente expertos (con datos, no humo). Vídeos y charlas de referencia con enlace.\n'
+      + '3) Para CADA afirmación importante, cita fuente (autor/obra/URL) y año, y marca la certeza: HECHO (fuente oficial) / INFERENCIA (con tu razonamiento) / SIN DATOS. No inventes nada.\n'
+      + '4) Recoge: definiciones precisas, los 5-10 conceptos o técnicas más importantes, ejemplos reales, errores comunes y un mini-glosario.\n'
+      + '5) Extrae 8-12 "píldoras de conocimiento" accionables (1-3 frases) listas para que el tutor las use al responder.\n'
+      + '6) Añade 5 preguntas frecuentes con respuesta corta y su fuente.\n\n'
+      + 'FORMATO DE SALIDA (para adoptar en el conocimiento del tutor):\n- Resumen ejecutivo (5 líneas)\n- Conceptos clave (con fuente)\n- Píldoras accionables\n- FAQ (pregunta → respuesta → fuente)\n- Autores / obras / vídeos de referencia (bibliografía con enlaces)\n- Certeza global y lagunas pendientes.\n\n'
+      + 'Español de España, claro y sin relleno. Prioriza rigor y fuentes verificables sobre extensión.';
+  }
   async function loadQuestions() {
     var rows = await SkillUp.api('/api/analytics/questions').catch(function () { return []; });
-    document.getElementById('questions').innerHTML = rows.map(function (q) {
+    var box = document.getElementById('questions');
+    if (!rows.length) { box.innerHTML = '<p class="msg">Nadie le ha preguntado nada al tutor todavía.</p>'; return; }
+    box.innerHTML = rows.map(function (q, i) {
       var when = new Date(q.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-      return '<div class="row" style="align-items:flex-start"><span>' + SkillUp.escHtml(q.content) + '</span>' +
-        '<span style="white-space:nowrap;color:var(--mut);font-size:11.5px">' + SkillUp.escHtml(q.userName) + ' · ' + when + '</span></div>';
-    }).join('') || '<p class="msg">Nadie le ha preguntado nada al tutor todavía.</p>';
+      return '<div class="qcard"><p class="qtext">' + SkillUp.escHtml(q.content) + '</p>' +
+        '<div class="qmeta"><span>' + SkillUp.escHtml(q.userName) + ' · ' + when + '</span>' +
+        (esSuper ? '<button class="btn btn-gh qres" data-q="' + i + '">Investigar a fondo</button>' : '') +
+        '</div></div>';
+    }).join('');
+    if (esSuper) {
+      box.querySelectorAll('.qres').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = researchPrompt(rows[Number(b.dataset.q)].content);
+          var ok = function () { var o = b.textContent; b.textContent = '¡Copiado! Pégalo en tu investigación'; setTimeout(function () { b.textContent = o; }, 2600); };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok).catch(function () { window.prompt('Copia este prompt de investigación:', text); });
+          else window.prompt('Copia este prompt de investigación:', text);
+        });
+      });
+    }
   }
   loadQuestions();
 
