@@ -132,7 +132,7 @@ function buildLayout(counts){
 function fitView(){
   var xs=[0],ys=[0];
   RUTAS.forEach(function(rt){ var c=clusters[rt]; xs.push(c.x);ys.push(c.y); });
-  nodes.forEach(function(n){ [n.baseR,n.expandR].forEach(function(rr){ xs.push(n.cx+Math.cos(n.angle)*rr+n.size); xs.push(n.cx+Math.cos(n.angle)*rr-n.size); ys.push(n.cy+Math.sin(n.angle)*rr+n.size); ys.push(n.cy+Math.sin(n.angle)*rr-n.size); }); });
+  nodes.forEach(function(n){ var rr=n.baseR; xs.push(n.cx+Math.cos(n.angle)*rr+n.size); xs.push(n.cx+Math.cos(n.angle)*rr-n.size); ys.push(n.cy+Math.sin(n.angle)*rr+n.size); ys.push(n.cy+Math.sin(n.angle)*rr-n.size); });
   var minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs),minY=Math.min.apply(null,ys),maxY=Math.max.apply(null,ys);
   var padX=70,padY=110, bw=(maxX-minX)||1, bh=(maxY-minY)||1;
   var sc=Math.min((W-padX*2)/bw,(H-padY*2)/bh); sc=Math.max(0.4,Math.min(sc,1.5));
@@ -230,7 +230,9 @@ function frame(t){
   ctx.save(); ctx.translate(cam.x,cam.y); ctx.scale(cam.scale,cam.scale);
   RUTAS.forEach(function(rt){ tHover[rt]+=((hoverRuta===rt?1:0)-tHover[rt])*0.09; });
   for(var i=0;i<RUTAS.length;i++){ for(var j=i+1;j<RUTAS.length;j++){ var a=clusters[RUTAS[i]],b=clusters[RUTAS[j]]; drawSketchLine(a.x,a.y,b.x,b.y,i*7+j,'rgba(150,140,170,.22)',1,1.1); }}
-  nodes.forEach(function(n){ var expand=tHover[n.cluster]; var targetR=n.baseR+(n.expandR-n.baseR)*expand; n.r+=(targetR-n.r)*0.14; var breathe=(n===hoverNode)?0:Math.sin(t/900+n.phase)*3*(1-expand*0.6); n.x=n.cx+Math.cos(n.angle)*(n.r+breathe); n.y=n.cy+Math.sin(n.angle)*(n.r+breathe); });
+  // Nodos QUIETOS (Marc: "se mueve mucho, la animación sobra"): sin respirar ni expandir, fáciles de clicar.
+  // El foco al pasar por encima lo da el resaltado/atenuado (tHover), no el movimiento. Tamaños por nivel intactos.
+  nodes.forEach(function(n){ n.x=n.cx+Math.cos(n.angle)*n.baseR; n.y=n.cy+Math.sin(n.angle)*n.baseR; });
   updateHover();
   RUTAS.forEach(function(rt){ var sib=nodes.filter(function(n){return n.cluster===rt;}); var op=0.14+tHover[rt]*0.55; for(var i=0;i<sib.length;i++){ drawSketchLine(clusters[rt].x,clusters[rt].y,sib[i].x,sib[i].y,i*13+1,RCOL[rt],op,1.3); for(var j=i+1;j<sib.length;j++){ drawSketchLine(sib[i].x,sib[i].y,sib[j].x,sib[j].y,i*5+j*3,RCOL[rt],op*0.7,1); } } });
   nodes.forEach(function(n){ var dim=hoverRuta&&hoverRuta!==n.cluster?0.3:1; ctx.save(); ctx.globalAlpha=dim; ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fillStyle=RCOL[n.cluster]; ctx.globalAlpha=dim*(0.16+tHover[n.cluster]*0.18); ctx.fill(); ctx.globalAlpha=dim; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*0.52,0,Math.PI*2); ctx.fillStyle=RCOL[n.cluster]; ctx.fill(); ctx.strokeStyle=tok('--panel','#221f2a'); ctx.lineWidth=2; ctx.stroke(); ctx.restore(); });
