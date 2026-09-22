@@ -131,9 +131,11 @@ function build(){
   prep.className='prep';
   scrollBottom();
   prep.innerHTML='<div class="dots"><i></i><i></i><i></i></div><p>Tus agentes están montando tu ruta a medida con lo que me has contado. Un momento…</p>';
-  SkillUp.api('/api/learning/route/build',{method:'POST',body:{temas:answers.temas||'',objetivo:answers.objetivo||'',compromiso:answers.compromiso||'',plazo:answers.plazo||''}})
+  // Recorta a los límites del servidor para que un pegado largo no rompa el envío (400).
+  var payload={ temas:String(answers.temas||'').slice(0,8000), objetivo:String(answers.objetivo||'').slice(0,2000), compromiso:String(answers.compromiso||'').slice(0,500), plazo:String(answers.plazo||'').slice(0,200) };
+  SkillUp.api('/api/learning/route/build',{method:'POST',body:payload})
     .then(function(r){ prep.hidden=true; showPlan(r&&r.plan); })
-    .catch(function(){ prep.innerHTML='<p>No he podido montar la ruta ahora mismo. <a href="#" id="retry" style="color:var(--teal2)">Reintentar</a></p>'; var rt=document.getElementById('retry'); if(rt)rt.onclick=function(e){e.preventDefault();build();}; });
+    .catch(function(err){ var msg=(err&&err.message&&!/cuerpo|error 4|error 5/.test(err.message))?err.message:'No he podido montar la ruta ahora mismo.'; prep.innerHTML='<p>'+esc(msg)+' <a href="#" id="retry" style="color:var(--teal2)">Reintentar</a></p>'; var rt=document.getElementById('retry'); if(rt)rt.onclick=function(e){e.preventDefault();build();}; });
 }
 function showPlan(plan){
   if(!plan||!plan.modulos||!plan.modulos.length){ prep.hidden=false; prep.className='prep'; prep.innerHTML='<p>No he sabido montar la ruta con eso. <a href="/app/ruta-crear.html" style="color:var(--teal2)">Prueba de nuevo</a> reformulando los temas.</p>'; return; }

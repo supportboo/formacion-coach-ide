@@ -108,8 +108,9 @@ const AVAILABLE_COURSES = [
 ];
 const COURSE_SRCS = new Set(AVAILABLE_COURSES.map((x) => x.src));
 const routeBody = z.object({
-  temas: z.string().min(2).max(1500),
-  objetivo: z.string().max(1000).optional(),
+  // temas admite pegar listas largas (p. ej. un volcado de temas): límite generoso para no dar 400.
+  temas: z.string().min(2).max(8000),
+  objetivo: z.string().max(2000).optional(),
   compromiso: z.string().max(500).optional(),
   plazo: z.string().max(200).optional(),
 });
