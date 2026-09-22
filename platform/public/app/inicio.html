@@ -205,7 +205,13 @@ var RETOS=[];                     // retos que le ha puesto su responsable (role
 var FORCE_APP=/[?&]app=1/.test(location.search); // el superadmin entra a ver la FORMACIÓN sin rebotar a la consola
 var ALLNOTES=null;               // notas del usuario cacheadas en el arranque (evita doble fetch)
 var LAST={src:'',name:''};       // ultimo curso realmente tocado, para "seguir por donde lo dejaste"
-function computeLast(){ for(var i=0;i<(ALLNOTES||[]).length;i++){ var it=ALLNOTES[i]; if(it&&it.source&&it.source!=='onboarding'&&it.source!=='ruta'){ LAST.src=it.source; LAST.name=courseName(it.source); break; } } }
+// Un "curso de verdad" es una página de curso (/algo.html) o una del catálogo; nunca fuentes internas
+// como 'cuenta', 'reto', 'onboarding' o 'ruta' (por eso salía "Seguir con cuenta" y su enlace fallaba).
+function isCourseSrc(s){ s=String(s||''); if(!s) return false; for(var i=0;i<COURSES.length;i++){ if(COURSES[i].src===s) return true; } return /^\/[\w-]+\.html$/.test(s); }
+function computeLast(){ for(var i=0;i<(ALLNOTES||[]).length;i++){ var it=ALLNOTES[i]; if(it&&isCourseSrc(it.source)){ LAST.src=it.source; LAST.name=courseName(it.source); break; } } }
+// CTA del héroe: continúa el último curso real, o empieza el primero de tu ruta, o crea tu ruta.
+function heroHref(){ if(LAST.src) return '/app/curso.html?src='+encodeURIComponent(LAST.src); var f=firstRutaSrc(); if(f) return '/app/curso.html?src='+encodeURIComponent(f); return '/app/ruta-crear.html'; }
+function heroLabel(){ if(LAST.name) return 'Continúa: '+LAST.name; if(firstRutaSrc()) return 'Empieza tu aprendizaje'; return 'Crea tu ruta'; }
 
 // Parsea los insights de onboarding (formato "[clave] valor") a datos reales. Nada inventado.
 function parseOnb(items){
@@ -422,7 +428,7 @@ function start(){
     +'<div class="main"><div class="top"><div class="hi"><h1>Hola'+(ME.name?', '+esc(ME.name.split(' ')[0]):'')+'</h1><p>La formación que se queda dentro. Sigue por donde lo dejaste.</p></div>'
       +'<div class="who" data-ov="perfil"><span class="av">'+esc(initial)+'</span><span>'+esc(ME.name||'Tu cuenta')+'</span></div></div>'
       +'<div class="content">'+approvalBanner()+'<div class="pill"><i></i>Tu experiencia</div>'
-        +'<div class="hero"><div class="herotop"><div class="herotxt"><h2>Aprender haciendo, y que se te quede.</h2><p>Cada curso te acompaña con tu tutor, te señala lo importante y te pone a practicar. <span class="fc">Empieza por tu ruta.</span></p><a class="btn" href="'+(LAST.src?('/app/curso.html?src='+LAST.src):(firstRutaSrc()?('/app/curso.html?src='+encodeURIComponent(firstRutaSrc())):'/app/ruta-crear.html'))+'">'+(LAST.name?esc('Seguir con '+LAST.name):(firstRutaSrc()?'Empezar tu ruta':'Crea tu ruta'))+'</a></div>'+rankBlock(ALLNOTES)+'</div></div>'
+        +'<div class="hero"><div class="herotop"><div class="herotxt"><h2>Aprender haciendo, y que se te quede.</h2><p>Cada curso te acompaña con tu tutor, te señala lo importante y te pone a practicar. <span class="fc">Empieza por tu ruta.</span></p><a class="btn" href="'+heroHref()+'">'+esc(heroLabel())+'</a></div>'+rankBlock(ALLNOTES)+'</div></div>'
         +'<div class="ov" id="ovRank"><div class="ov-in"><div class="ov-hd"><b>Cómo funciona tu nivel</b><button class="x" data-close>×</button></div><div class="ov-body">'
           +'<div class="ov-note">Ganas XP real por lo que haces, no por estar conectado: <b>+1</b> por cada nota o subrayado, <b>+2</b> por cada aportación al tutor, <b>+5</b> cuando marcas «lo aplicaré esta semana». Subes de rango con el uso real: Rookie → Aprendiz → Practicante → Especialista → Coach → Super Coach → Pro. Cuantas más funcionalidades desbloquees, más lejos llegarás — y se nota en tu avatar.</div></div></div></div>'
         +'<div class="excard" id="exCard" hidden><span class="fc">Así es el contenido de Brandooers</span><video id="exVideo" controls preload="none" playsinline></video><p class="excap">Ejemplo real: la intro de Outbound Sales, con el avatar del propio equipo.</p></div>'
