@@ -62,15 +62,44 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .a11y-list a{display:block;color:var(--body);text-decoration:none;padding:4px 0}
 .a11y-list a:hover,.a11y-list a:focus{color:var(--teal2)}
 .loader{position:fixed;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;background:var(--bg)}
+/* Selector de vista: Mapa · Flujo · Calendario */
+.views{display:flex;gap:3px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;flex:none;pointer-events:auto}
+.views button{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px;cursor:pointer}
+.views button.on{background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff}
+.sheet{position:fixed;left:0;right:0;bottom:0;top:54px;z-index:4;overflow-y:auto;padding:16px 16px 40px;background:var(--bg)}
+/* Flujo (pasos + flechas curvas, arrastrable) */
+.flowtip{max-width:640px;margin:0 auto 12px;color:var(--muted);font-size:13px;text-align:center}
+.flow{max-width:640px;margin:0 auto}
+.fstep{position:relative;display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px 15px;cursor:grab;transition:border-color .15s}
+.fstep.drag{opacity:.4}.fstep.over{border-color:var(--teal2);box-shadow:0 0 0 2px rgba(63,216,224,.3)}
+.fstep .fn{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff}
+.fstep .fb{flex:1;min-width:0}.fstep .fb b{color:var(--ink);font-size:14.5px;display:block}.fstep .fb small{color:var(--muted);font-size:12.5px}
+.fstep .fgo{color:var(--teal2);font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap}
+.fstep .fgrip{color:var(--muted);font-size:16px;cursor:grab;flex:none}
+.farrow{display:flex;justify-content:center;height:30px}
+.farrow svg{overflow:visible}
+/* Calendario de aprendizaje */
+.cal{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.caltip{max-width:680px;margin:0 auto 12px;color:var(--muted);font-size:13px;text-align:center}
+.cday{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.cday .cdate{flex:none;width:52px;text-align:center}
+.cday .cdate .cd{font-size:22px;font-weight:800;color:var(--ink);line-height:1}
+.cday .cdate .cm{font-size:11px;color:var(--muted);text-transform:uppercase}
+.cday .cbody{flex:1;min-width:0}.cday .cbody b{color:var(--ink);font-size:14.5px;display:block}.cday .cbody small{color:var(--muted);font-size:12.5px}
+.ctag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:999px;margin:6px 6px 0 0}
+.ctag.t{background:rgba(63,216,224,.16);color:var(--teal2)}.ctag.r{background:rgba(236,111,166,.16);color:var(--pink)}.ctag.c{background:rgba(240,198,69,.16);color:var(--gold)}
+.cadd{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:var(--teal2);text-decoration:none}
 </style>
 </head>
 <body>
 <div class="loader" id="loader">Cargando tu mapa…</div>
-<div class="top" id="top" hidden><a class="back" href="/app/inicio.html">‹ Inicio</a><h1>Mi ruta</h1><span class="hint">arrastra para mover · zoom con la rueda</span></div>
+<div class="top" id="top" hidden><a class="back" href="/app/inicio.html">‹ Inicio</a><h1>Mi ruta</h1><div class="views" id="views"><button data-v="mapa" class="on">Mapa</button><button data-v="flujo">Flujo</button><button data-v="cal">Calendario</button></div></div>
 <div id="stage" hidden><canvas id="cv"></canvas>
   <div class="brain-center" id="brainCenter" aria-hidden="true"></div>
   <div class="radar-card" id="radarCard" hidden></div>
 </div>
+<div class="sheet" id="flowSheet" hidden></div>
+<div class="sheet" id="calSheet" hidden></div>
 <nav class="tools" id="tools" hidden aria-label="Herramientas del mapa">
   <button data-tool="move" data-tip="Mover (arrastra)" class="sel" aria-label="Mover"><svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-1a8 8 0 0 1-7-4l-2.5-4.5a2 2 0 0 1 3.4-2L8 15"/></svg></button>
   <button data-tool="arrow" data-tip="Flecha" aria-label="Flecha"><svg viewBox="0 0 24 24"><path d="M4 13c6-7 10-7 16-1"/><path d="M14 5l6 6-1 7"/></svg></button>
@@ -252,10 +281,63 @@ function paintRadar(radar){ var rc=document.getElementById('radarCard'); var max
   var labels=axes.map(function(ax){ var p=pt(ax.ang,R+22); return '<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="middle" font-family="Caveat, cursive" font-size="15" fill="'+(ax.k==='aprende'?'#3FD8E0':ax.k==='aporta'?'#EC6FA6':'#F0C645')+'">'+ax.lbl+'</text>'; }).join('');
   rc.innerHTML='<b>Tu perfil real de aprendizaje</b><svg width="160" height="150" viewBox="0 0 160 150">'+grid+spokes+'<polygon points="'+poly+'" fill="rgba(63,216,224,.22)" stroke="#3FD8E0" stroke-width="1.6"/>'+labels+'</svg>'; rc.hidden=false; }
 var RPAL=['#3FD8E0','#EC6FA6','#F0C645','#8a5f7c','#54C79A','#C69CB8'];
-function applyRealRoute(plan){ if(!plan||!plan.modulos||!plan.modulos.length) return false; var mods=plan.modulos.filter(function(m){return m&&m.courseSrc;}); if(!mods.length) return false;
+var RPLAN=null; // plan completo (todos los módulos, para las vistas Flujo y Calendario)
+function applyRealRoute(plan){ RPLAN=plan||null; if(!plan||!plan.modulos||!plan.modulos.length) return false; var mods=plan.modulos.filter(function(m){return m&&m.courseSrc;}); if(!mods.length) return false;
   COURSES=mods.map(function(m){return {name:m.titulo||'Módulo',src:m.courseSrc,desc:m.resumen||'',rt:m.titulo||'Módulo'};});
   RUTAS=COURSES.map(function(c){return c.rt;}); RCOL={}; RUTAS.forEach(function(rt,i){RCOL[rt]=RPAL[i%RPAL.length];}); tHover={}; RUTAS.forEach(function(r){tHover[r]=0;});
   var h1=document.querySelector('.top h1'); if(h1&&plan.titulo){ h1.textContent=plan.titulo; ANNO_KEY='skillup-ruta-annos:'+plan.titulo; } return true; }
+
+// --- Vistas Flujo (pasos + flechas, reordenable) y Calendario de aprendizaje ---
+function courseUrl(src){ return src ? location.origin+'/app/curso.html?src='+encodeURIComponent(src) : ''; }
+function currentMods(){ return (RPLAN&&RPLAN.modulos&&RPLAN.modulos.length)?RPLAN.modulos.slice():COURSES.map(function(c){return {titulo:c.name,courseSrc:c.src,resumen:c.desc};}); }
+function saveOrder(mods){ if(!RPLAN) RPLAN={titulo:((document.querySelector('.top h1')||{}).textContent)||'Tu ruta',resumen:''}; RPLAN.modulos=mods;
+  try{ SkillUp.api('/api/notes/add',{method:'POST',body:{source:'ruta',kind:'insight',body:'[ruta-plan] '+JSON.stringify(RPLAN)}}); }catch(e){} }
+function renderFlow(){
+  var mods=currentMods(); var sh=document.getElementById('flowSheet');
+  if(!mods.length){ sh.innerHTML='<p class="flowtip">Aún no tienes ruta. <a href="/app/ruta-crear.html" style="color:var(--teal2)">Créala ›</a></p>'; return; }
+  var pal=['#3FD8E0','#EC6FA6','#F0C645','#8a5f7c','#54C79A','#C69CB8'];
+  var arrow='<div class="farrow"><svg width="40" height="30" viewBox="0 0 40 30"><path d="M20 0 C 8 10, 32 20, 20 27" fill="none" stroke="#C69CB8" stroke-width="2.2" stroke-dasharray="5 6" stroke-linecap="round"/><path d="M20 27 l-5 -6 M20 27 l5 -6" fill="none" stroke="#C69CB8" stroke-width="2.2" stroke-linecap="round"/></svg></div>';
+  var html='<p class="flowtip">Tu ruta paso a paso. Arrastra ⠿ para reordenar; se guarda solo.</p><div class="flow">';
+  mods.forEach(function(m,i){ var col=pal[i%pal.length]; if(i>0) html+=arrow;
+    var go=m.courseSrc?'<a class="fgo" href="/app/curso.html?src='+encodeURIComponent(m.courseSrc)+'">Entrar ›</a>':'<span class="fgo" style="color:var(--gold)">En preparación</span>';
+    html+='<div class="fstep" draggable="true" data-i="'+i+'"><span class="fgrip">⠿</span><span class="fn" style="background:linear-gradient(135deg,'+col+',#8a5f7c)">'+(i+1)+'</span><span class="fb"><b>'+esc(m.titulo||'Módulo')+'</b><small>'+esc(m.resumen||'')+'</small></span>'+go+'</div>'; });
+  html+='</div>'; sh.innerHTML=html;
+  var dragI=null;
+  sh.querySelectorAll('.fstep').forEach(function(el){
+    el.addEventListener('dragstart',function(){ dragI=Number(el.dataset.i); el.classList.add('drag'); });
+    el.addEventListener('dragend',function(){ el.classList.remove('drag'); sh.querySelectorAll('.fstep').forEach(function(x){x.classList.remove('over');}); });
+    el.addEventListener('dragover',function(e){ e.preventDefault(); el.classList.add('over'); });
+    el.addEventListener('dragleave',function(){ el.classList.remove('over'); });
+    el.addEventListener('drop',function(e){ e.preventDefault(); var toI=Number(el.dataset.i); if(dragI==null||dragI===toI) return;
+      var arr=currentMods(); var moved=arr.splice(dragI,1)[0]; arr.splice(toI,0,moved); saveOrder(arr); renderFlow(); });
+  });
+}
+function fmtCalDate(d){ function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+''+p(d.getMonth()+1)+''+p(d.getDate())+'T'+p(d.getHours())+p(d.getMinutes())+'00'; }
+function gcalLink(title,details,day){ var s=new Date(day); s.setHours(9,0,0,0); var e=new Date(day); e.setHours(10,0,0,0);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(title)+'&details='+encodeURIComponent(details)+'&dates='+fmtCalDate(s)+'/'+fmtCalDate(e); }
+function renderCal(){
+  var mods=currentMods(); var sh=document.getElementById('calSheet');
+  if(!mods.length){ sh.innerHTML='<p class="caltip">Aún no tienes ruta. <a href="/app/ruta-crear.html" style="color:var(--teal2)">Créala ›</a></p>'; return; }
+  var MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  var html='<p class="caltip">Un plan realista: un módulo cada pocos días, con test y práctica. Añádelo a tu calendario y entra desde el propio evento.</p><div class="cal">';
+  var today=new Date(); today.setHours(0,0,0,0);
+  mods.forEach(function(m,i){ var day=new Date(today.getTime()+i*3*86400000);
+    var title='SkillUp · '+(m.titulo||'Módulo');
+    var details=(m.resumen||'')+(m.courseSrc?('\n\nEntrar al temario: '+courseUrl(m.courseSrc)):'');
+    var go=m.courseSrc?'<a class="cadd" href="/app/curso.html?src='+encodeURIComponent(m.courseSrc)+'">Entrar al temario ›</a> &nbsp; ':'';
+    html+='<div class="cday"><div class="cdate"><div class="cd">'+day.getDate()+'</div><div class="cm">'+MES[day.getMonth()]+'</div></div>'
+      +'<div class="cbody"><b>'+(i+1)+'. '+esc(m.titulo||'Módulo')+'</b><small>'+esc(m.resumen||'')+'</small>'
+      +'<div><span class="ctag t">Test al final</span><span class="ctag c">Caso práctico</span>'+(i%2?'<span class="ctag r">Roleplay</span>':'')+'</div>'
+      +go+'<a class="cadd" target="_blank" rel="noopener" href="'+gcalLink(title,details,day)+'">Añadir a Google Calendar ›</a></div></div>'; });
+  html+='</div>'; sh.innerHTML=html;
+}
+function setView(v){
+  document.querySelectorAll('#views button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===v); });
+  stage.hidden = v!=='mapa'; toolsEl.hidden = v!=='mapa';
+  document.getElementById('flowSheet').hidden = v!=='flujo';
+  document.getElementById('calSheet').hidden = v!=='cal';
+  if(v==='flujo') renderFlow(); else if(v==='cal') renderCal();
+}
 
 SkillUp.session().then(function(s){
   if(!s||!s.user){ location.href='/app/login.html'; return; }
@@ -276,6 +358,7 @@ SkillUp.session().then(function(s){
     document.getElementById('a11yList').hidden=false;
     paintBrainCenter(); paintRadar(radar); setTool('move');
     loader.hidden=true; top.hidden=false; stage.hidden=false; toolsEl.hidden=false;
+    document.getElementById('views').addEventListener('click',function(e){ var b=e.target.closest('button'); if(b) setView(b.getAttribute('data-v')); });
     requestAnimationFrame(frame);
   });
 }).catch(function(){ loader.textContent='No se pudo cargar. Recarga la página.'; });
