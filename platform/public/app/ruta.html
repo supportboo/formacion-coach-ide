@@ -85,6 +85,14 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 /* Calendario de aprendizaje */
 .cal{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .caltip{max-width:680px;margin:0 auto 12px;color:var(--muted);font-size:13px;text-align:center}
+.planner{max-width:680px;margin:0 auto 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;color:var(--body)}
+.planner b{color:var(--ink)}
+.pl-days{display:flex;gap:4px}
+.pl-d{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:800;font-size:12px;cursor:pointer}
+.pl-d.on{background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;border-color:transparent}
+.pl-per{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.pl-per select{background:var(--soft);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:4px 8px;font:inherit}
+.pl-go{border:0;border-radius:10px;padding:7px 16px;font:inherit;font-weight:800;font-size:12.5px;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));cursor:pointer}
 .cday{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .cday .cdate{flex:none;width:52px;text-align:center}
 .cday .cdate .cd{font-size:22px;font-weight:800;color:var(--ink);line-height:1}
@@ -356,11 +364,27 @@ function monthGrid(y,mo,sessions){
     else cells+='<div class="mc"><span class="dn">'+d+'</span></div>'; }
   return '<div class="month"><div class="mtitle">'+MESL[mo]+' '+y+'</div><div class="mgrid"><div class="wd">L</div><div class="wd">M</div><div class="wd">X</div><div class="wd">J</div><div class="wd">V</div><div class="wd">S</div><div class="wd">D</div>'+cells+'</div></div>';
 }
+var CALPLAN=(function(){ try{ return JSON.parse(localStorage.getItem('skillup-calplan')||'')||{}; }catch(e){ return {}; } })();
+if(!CALPLAN.weekdays) CALPLAN={ weekdays:[1,2,3,4,5], perWeek:2 }; // por defecto L-V, 2 módulos/semana
+function scheduleDates(n){
+  var out=[], d=new Date(); d.setHours(0,0,0,0); var wd=CALPLAN.weekdays||[1,2,3,4,5], per=CALPLAN.perWeek||2;
+  function wkey(x){ var y=new Date(x); var day=(y.getDay()+6)%7; y.setDate(y.getDate()-day); return y.getFullYear()+'-'+y.getMonth()+'-'+y.getDate(); }
+  var curWk=wkey(d), used=0, guard=0;
+  while(out.length<n && guard++<400){ d.setDate(d.getDate()+1); var k=wkey(d); if(k!==curWk){curWk=k;used=0;} if(wd.indexOf(d.getDay())<0) continue; if(used>=per) continue; out.push(new Date(d)); used++; }
+  while(out.length<n){ var last=out.length?new Date(out[out.length-1]):new Date(); last.setDate(last.getDate()+3); out.push(last); } // por si acaso
+  return out;
+}
+var DOW=[['1','L'],['2','M'],['3','X'],['4','J'],['5','V'],['6','S'],['0','D']];
+function plannerHtml(){
+  return '<div class="planner"><b>Planifícate</b> <span class="pl-days">'+DOW.map(function(x){ var on=(CALPLAN.weekdays||[]).indexOf(Number(x[0]))>=0; return '<button class="pl-d'+(on?' on':'')+'" data-d="'+x[0]+'">'+x[1]+'</button>'; }).join('')+'</span>'
+    +'<label class="pl-per">módulos/semana <select id="plPer">'+[1,2,3,4,5].map(function(v){ return '<option value="'+v+'"'+((CALPLAN.perWeek||2)===v?' selected':'')+'>'+v+'</option>'; }).join('')+'</select></label>'
+    +'<button class="pl-go" id="plGo">Recalcular</button></div>';
+}
 function renderCal(){
   var mods=currentMods(); var sh=document.getElementById('calSheet');
   if(!mods.length){ sh.innerHTML='<p class="caltip">Aún no tienes ruta. <a href="/app/ruta-crear.html" style="color:var(--teal2)">Créala ›</a></p>'; return; }
-  var today=new Date(); today.setHours(0,0,0,0);
-  var sessions=mods.map(function(m,i){ return { m:m, i:i, date:new Date(today.getTime()+i*3*86400000), color:CPAL[i%CPAL.length] }; });
+  var dates=scheduleDates(mods.length);
+  var sessions=mods.map(function(m,i){ return { m:m, i:i, date:dates[i], color:CPAL[i%CPAL.length] }; });
   // Columna LISTA
   var list=sessions.map(function(s){ var m=s.m, day=s.date, i=s.i;
     var title='SkillUp · '+(m.titulo||'Módulo');
@@ -374,10 +398,20 @@ function renderCal(){
   var months='', cur=new Date(sessions[0].date.getFullYear(),sessions[0].date.getMonth(),1);
   var last=sessions[sessions.length-1].date, end=new Date(last.getFullYear(),last.getMonth(),1);
   while(cur<=end){ months+=monthGrid(cur.getFullYear(),cur.getMonth(),sessions); cur.setMonth(cur.getMonth()+1); }
-  sh.innerHTML='<p class="caltip">Un plan realista: un módulo cada pocos días, con test y práctica. Añádelo a tu calendario y entra desde el propio evento.</p>'
+  sh.innerHTML='<p class="caltip">Tu plan de aprendizaje. Ajusta abajo los días que puedes y a qué ritmo, y se recoloca solo. Añade cada sesión a tu calendario y entra desde el propio evento.</p>'
+    +plannerHtml()
     +'<div class="calwrap"><div><div class="calcol-title">Lista</div><div class="cal">'+list+'</div></div>'
     +'<div><div class="calcol-title">Mes</div>'+months+'</div></div>';
   sh.querySelectorAll('.mc.has[data-src]').forEach(function(el){ el.onclick=function(){ location.href='/app/curso.html?src='+encodeURIComponent(el.getAttribute('data-src')); }; });
+  // planificador: toggles de día + ritmo -> recalcula el calendario (determinista, sin coste)
+  sh.querySelectorAll('.pl-d').forEach(function(b){ b.onclick=function(){ b.classList.toggle('on'); }; });
+  var plGo=sh.querySelector('#plGo'); if(plGo) plGo.onclick=function(){
+    var days=[]; sh.querySelectorAll('.pl-d.on').forEach(function(b){ days.push(Number(b.dataset.d)); });
+    if(!days.length){ days=[1,2,3,4,5]; }
+    CALPLAN={ weekdays:days, perWeek:Number((sh.querySelector('#plPer')||{}).value||2) };
+    try{ localStorage.setItem('skillup-calplan', JSON.stringify(CALPLAN)); }catch(e){}
+    renderCal();
+  };
 }
 function setView(v){
   document.querySelectorAll('#views button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===v); });
