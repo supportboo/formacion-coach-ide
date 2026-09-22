@@ -57,7 +57,10 @@ button{font-family:inherit}[hidden]{display:none!important}
 .prep .dots i{width:10px;height:10px;border-radius:50%;background:var(--teal2);animation:pp 1s infinite alternate}
 .prep .dots i:nth-child(2){animation-delay:.2s;background:var(--aub2)}.prep .dots i:nth-child(3){animation-delay:.4s;background:var(--gold)}
 @keyframes pp{from{opacity:.25;transform:translateY(0)}to{opacity:1;transform:translateY(-6px)}}
-.prep p{color:var(--body);font-size:14px;margin:0;max-width:360px}
+.prep p{color:var(--body);font-size:14px;margin:0;max-width:380px}
+.game{width:100%;max-width:520px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,rgba(63,216,224,.07),transparent);touch-action:manipulation}
+.game canvas{display:block;width:100%;height:150px}
+.gtip{color:var(--muted);font-size:12px;margin-top:2px}.gtip b{color:var(--teal2)}
 @media(prefers-reduced-motion:no-preference){.mascota .ir{animation:blink 4s infinite}@keyframes blink{0%,94%,100%{opacity:1}96%{opacity:.15}98%{opacity:1}}}
 </style>
 </head>
@@ -125,17 +128,65 @@ function answer(val){
   bubble('u',val); answers[STEPS[step].key]=val;
   setTimeout(ask,300);
 }
+// Mini-juego de espera (estilo dino de Chrome, a marca): los ojos de BOO corren, un T-Rex persigue
+// y con Espacio/toque saltas los obstáculos. Solo entretiene mientras se monta la ruta; no bloquea nada.
+function loadingGame(host){
+  var css=getComputedStyle(document.documentElement);
+  function col(n,f){ return (css.getPropertyValue(n)||'').trim()||f; }
+  var C={teal:col('--teal2','#3FD8E0'),gold:col('--gold','#F0C645'),aub:col('--aub2','#C69CB8'),green:col('--green','#54C79A'),muted:col('--muted','#968EA4'),line:col('--line','#3a3340')};
+  var wrap=document.createElement('div'); wrap.className='game'; host.appendChild(wrap);
+  var cv=document.createElement('canvas'); wrap.appendChild(cv); var ctx=cv.getContext('2d');
+  var H=150,dpr=Math.min(2,window.devicePixelRatio||1),W=340,groundY=H-30;
+  function resize(){ W=wrap.clientWidth||host.clientWidth||340; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); }
+  var py=groundY,vy=0,jumping=false,obs=[],spawn=40,score=0,trex=6,shake=0,caught=0,running=true,raf=0,last=0;
+  function jump(){ if(running && !jumping){ vy=-9; jumping=true; } }
+  function onKey(e){ if(e.code==='Space'||e.key===' '||e.key==='ArrowUp'){ e.preventDefault(); jump(); } }
+  function onTap(e){ e.preventDefault(); jump(); }
+  document.addEventListener('keydown',onKey); cv.addEventListener('pointerdown',onTap);
+  function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function eyes(x,y){ [[x-11,C.aub],[x+11,C.teal]].forEach(function(p){ ctx.lineWidth=3; ctx.strokeStyle=p[1]; ctx.beginPath(); ctx.arc(p[0],y,10,0,7); ctx.stroke(); ctx.fillStyle=p[1]; ctx.beginPath(); ctx.arc(p[0],y,4.5,0,7); ctx.fill(); ctx.fillStyle='#0a0a0f'; ctx.beginPath(); ctx.arc(p[0],y,2,0,7); ctx.fill(); }); }
+  function trexDraw(x,by){ ctx.save(); ctx.translate(x,by); ctx.fillStyle=C.green; ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(0,-24); ctx.lineTo(9,-38); ctx.lineTo(27,-38); ctx.lineTo(31,-27); ctx.lineTo(20,-25); ctx.lineTo(20,-19); ctx.lineTo(14,-17); ctx.lineTo(14,0); ctx.lineTo(9,0); ctx.lineTo(9,-8); ctx.lineTo(5,-8); ctx.lineTo(5,0); ctx.closePath(); ctx.fill();
+    var m=(Math.sin(performance.now()/90)>0)?4:1; ctx.fillStyle='#0a0a0f'; ctx.fillRect(23,-32,6,m); ctx.beginPath(); ctx.arc(22,-33,1.7,0,7); ctx.fill(); ctx.restore(); }
+  function frame(now){
+    if(!running) return; if(!last)last=now; var dt=Math.min(2.2,(now-last)/16.7); last=now;
+    if(W<=1) resize();
+    if(jumping){ vy+=0.6*dt; py+=vy*dt; if(py>=groundY){ py=groundY; vy=0; jumping=false; } }
+    spawn-=dt; if(spawn<=0){ obs.push({x:W+12,w:9+Math.random()*10,h:15+Math.random()*17,hit:false}); spawn=80+Math.random()*70; }
+    var pv=6.2*dt; obs.forEach(function(o){ o.x-=pv; }); obs=obs.filter(function(o){ return o.x>-30; });
+    var clear=groundY-py; obs.forEach(function(o){ if(!o.hit && o.x<118 && o.x+o.w>84 && clear<o.h){ o.hit=true; trex+=15; shake=7; } });
+    trex-=0.06*dt; if(trex<6)trex=6; caught=0; if(trex>70){ caught=1; trex=6; } score+=pv*0.55;
+    var sx=shake?(Math.random()*shake-shake/2):0; shake*=0.82; if(shake<0.3)shake=0;
+    ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(sx,0);
+    ctx.strokeStyle=C.line; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,groundY+14); ctx.lineTo(W,groundY+14); ctx.stroke();
+    obs.forEach(function(o){ ctx.fillStyle=o.hit?C.muted:C.gold; rr(o.x,groundY+14-o.h,o.w,o.h,3); ctx.fill(); });
+    eyes(101,py); trexDraw(trex,groundY+14); ctx.restore();
+    ctx.fillStyle=C.muted; ctx.font='700 12px Inter,system-ui,sans-serif'; ctx.textAlign='right'; ctx.fillText(Math.floor(score)+' m',W-10,18);
+    if(caught){ ctx.fillStyle=C.aub; ctx.textAlign='center'; ctx.font='800 13px Inter,system-ui,sans-serif'; ctx.fillText('¡casi te pilla!',W/2,20); }
+    raf=requestAnimationFrame(frame);
+  }
+  resize(); window.addEventListener('resize',resize); raf=requestAnimationFrame(frame);
+  return { stop:function(){ running=false; if(raf)cancelAnimationFrame(raf); document.removeEventListener('keydown',onKey); window.removeEventListener('resize',resize); try{ wrap.remove(); }catch(e){} } };
+}
+var game=null;
+function stopGame(){ if(game){ try{ game.stop(); }catch(e){} game=null; } }
 function build(){
   row.hidden=true; chipsEl.hidden=true;
   prep.hidden=false;
   prep.className='prep';
   scrollBottom();
-  prep.innerHTML='<div class="dots"><i></i><i></i><i></i></div><p>Tus agentes están montando tu ruta a medida con lo que me has contado. Un momento…</p>';
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){
+    prep.innerHTML='<div class="dots"><i></i><i></i><i></i></div><p>Tus agentes están montando tu ruta a medida con lo que me has contado. Un momento…</p>';
+  } else {
+    prep.innerHTML='<div id="gameHost"></div><p>Tus agentes están montando tu ruta a medida. Mientras, entretente: los ojos de BOO huyen del T-Rex.</p><p class="gtip"><b>Espacio</b> o toca para saltar los obstáculos.</p>';
+    stopGame(); game=loadingGame(document.getElementById('gameHost'));
+  }
   // Recorta a los límites del servidor para que un pegado largo no rompa el envío (400).
   var payload={ temas:String(answers.temas||'').slice(0,8000), objetivo:String(answers.objetivo||'').slice(0,2000), compromiso:String(answers.compromiso||'').slice(0,500), plazo:String(answers.plazo||'').slice(0,200) };
   SkillUp.api('/api/learning/route/build',{method:'POST',body:payload})
-    .then(function(r){ prep.hidden=true; showPlan(r&&r.plan); })
-    .catch(function(err){ var msg=(err&&err.message&&!/cuerpo|error 4|error 5/.test(err.message))?err.message:'No he podido montar la ruta ahora mismo.'; prep.innerHTML='<p>'+esc(msg)+' <a href="#" id="retry" style="color:var(--teal2)">Reintentar</a></p>'; var rt=document.getElementById('retry'); if(rt)rt.onclick=function(e){e.preventDefault();build();}; });
+    .then(function(r){ stopGame(); prep.hidden=true; showPlan(r&&r.plan); })
+    .catch(function(err){ stopGame(); var msg=(err&&err.message&&!/cuerpo|error 4|error 5/.test(err.message))?err.message:'No he podido montar la ruta ahora mismo.'; prep.innerHTML='<p>'+esc(msg)+' <a href="#" id="retry" style="color:var(--teal2)">Reintentar</a></p>'; var rt=document.getElementById('retry'); if(rt)rt.onclick=function(e){e.preventDefault();build();}; });
 }
 function showPlan(plan){
   if(!plan||!plan.modulos||!plan.modulos.length){ prep.hidden=false; prep.className='prep'; prep.innerHTML='<p>No he sabido montar la ruta con eso. <a href="/app/ruta-crear.html" style="color:var(--teal2)">Prueba de nuevo</a> reformulando los temas.</p>'; return; }
