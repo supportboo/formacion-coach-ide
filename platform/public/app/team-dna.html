@@ -206,7 +206,14 @@ function renderCert(dna, archetype){
     </div>
     <p class="note">Es un mapa de tus fortalezas, no una etiqueta. Cambiará contigo a medida que aprendes, aportas y aplicas.</p>`;
   drawWheel(document.getElementById("wheel"), dna);
-  document.getElementById("toRoute").onclick=()=>{ location.href="/app/inicio.html"; };
+  const toRoute=document.getElementById("toRoute");
+  toRoute.onclick=()=>{ location.href="/app/inicio.html"; };  // por defecto (si ya tiene ruta o falla la comprobación)
+  // Justo tras el ADN: si aún no tiene ruta, el botón lleva directo a montarla (reutiliza lo del onboarding),
+  // así "al empezar la ruta" no vuelve a preguntar ni hace pasar por Inicio.
+  SkillUp.api("/api/learning/route").then(r=>{
+    const has = r && r.plan && r.plan.modulos && r.plan.modulos.length;
+    if(!has){ toRoute.textContent="Montar mi ruta de aprendizaje"; toRoute.onclick=()=>{ location.href="/app/ruta-crear.html"; }; }
+  }).catch(()=>{});
   document.getElementById("redo").onclick=()=>renderIntro();
 }
 
