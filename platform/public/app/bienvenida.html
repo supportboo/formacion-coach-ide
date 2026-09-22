@@ -67,7 +67,10 @@ var loader=document.getElementById('loader'), wrap=document.getElementById('wrap
 if(!window.SkillUp||!SkillUp.api){loader.textContent='No se pudo cargar. Vuelve a entrar.';return;}
 var conv=document.getElementById('conv'), chipsEl=document.getElementById('chips'), row=document.getElementById('row'), inp=document.getElementById('inp'), done=document.getElementById('done');
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
-function bubble(role,txt,cls){var d=document.createElement('div');d.className='b '+role+(cls?' '+cls:'');if(cls==='co'){d.innerHTML='<span class="lbl">Tu empresa</span>'+esc(txt);}else{d.textContent=txt;}conv.appendChild(d);conv.scrollTop=conv.scrollHeight;return d;}
+// El scroll al fondo se hace en rAF (doble) para que corra DESPUÉS del reflow y de la animación de
+// entrada de la burbuja; si no, en móvil el último mensaje se queda a veces medio tapado.
+function scrollDown(){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ conv.scrollTop=conv.scrollHeight; }); }); }
+function bubble(role,txt,cls){var d=document.createElement('div');d.className='b '+role+(cls?' '+cls:'');if(cls==='co'){d.innerHTML='<span class="lbl">Tu empresa</span>'+esc(txt);}else{d.textContent=txt;}conv.appendChild(d);scrollDown();return d;}
 
 var STEPS=[
  {ask:'Hola. Vamos a conocernos en un minuto para que todo esto se adapte a ti. ¿A qué te dedicas? Descríbeme tu puesto con detalle: qué haces, con quién y qué decides.',key:'rol'},
