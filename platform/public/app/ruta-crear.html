@@ -96,14 +96,27 @@ var STEPS=[
  {ask:'¿En cuánto tiempo te gustaría lograrlo?',key:'plazo',chips:['1 mes','3 meses','6 meses','Sin prisa']}
 ];
 var step=-1, busy=false, answers={};
+// Lo que ya nos contó en el onboarding: no se lo volvemos a preguntar.
+var ONB={};
+function loadOnb(){
+  return SkillUp.api('/api/notes/list?source=onboarding').then(function(d){
+    (d&&d.items||[]).forEach(function(a){ var m=String(a.body||'').match(/^\[(\w+)\]\s*([\s\S]+)$/); if(m && !ONB[m[1]]) ONB[m[1]]=m[2].trim(); });
+  }).catch(function(){});
+}
 
 function ask(){
   step++;
   if(step>=STEPS.length){ build(); return; }
   var s=STEPS[step];
-  bubble('a',s.ask);
+  // Reutiliza lo del onboarding en vez de repetir la pregunta.
+  if(s.key==='objetivo' && ONB.objetivo){ answers.objetivo=ONB.objetivo; ask(); return; }
+  if(s.key==='compromiso' && ONB.ritmo){ answers.compromiso=ONB.ritmo; ask(); return; }
+  var askText=s.ask;
+  if(s.key==='temas' && ONB.objetivo){ askText='En tu bienvenida me dijiste que querías «'+ONB.objetivo+'». Para montar tu ruta, dime los temas concretos que quieres dominar. Te he dejado abajo lo que contaste: edítalo o añade lo que quieras.'; }
+  bubble('a',askText);
   chipsEl.innerHTML=''; chipsEl.hidden=true;
   if(s.chips){ chipsEl.hidden=false; s.chips.forEach(function(ch){ var b=document.createElement('button'); b.textContent=ch; b.onclick=function(){ answer(ch); }; chipsEl.appendChild(b); }); }
+  if(s.key==='temas' && ONB.objetivo && !answers.temas){ inp.value=ONB.objetivo; autoGrow(); }
   inp.focus();
   scrollBottom();
 }
@@ -143,7 +156,7 @@ inp.addEventListener('input',autoGrow);
 inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();answer();}});
 
 SkillUp.requireSession('/app/login.html').then(function(sess){ if(!sess) return;
-  loader.hidden=true; wrap.hidden=false; ask();
+  loadOnb().then(function(){ loader.hidden=true; wrap.hidden=false; ask(); });
 });
 })();
 </script>
