@@ -8,11 +8,18 @@ import type { SvcDeps } from "./org.js";
 
 export interface VideoItem {
   youtubeId: string; title: string; channel: string; thumbnail: string;
-  views: number; likes: number; publishedAt: string; durationSeconds: number;
+  views: number; likes: number; publishedAt: string; durationSeconds: number; subscribers: number;
 }
 
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12h: cuota baja y predecible, datos casi siempre frescos
 const API = "https://www.googleapis.com/youtube/v3";
+// Calidad mínima para NO mostrar "reels cutres": nada de Shorts (>=2 min), con audiencia real y de canales
+// con peso. Umbrales ajustables (el estándar fino se está definiendo aparte). El "quality score" ordena.
+const MIN_DURATION = 120, MIN_VIEWS = 10000, MIN_SUBS = 3000;
+function qualityScore(v: VideoItem): number {
+  const engage = v.views > 0 ? v.likes / v.views : 0; // proporción de likes = señal de que gustó de verdad
+  return Math.log10(v.views + 1) * 1.6 + Math.log10(v.subscribers + 1) * 1.2 + Math.min(engage, 0.1) * 40;
+}
 
 function parseDuration(iso: string): number {
   const m = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso || "");
@@ -27,10 +34,22 @@ function withContext(topic: string): string {
   return /ventas|b2b|comercial|sales/.test(t) ? topic : topic + " ventas B2B";
 }
 
-async function searchAndStats(topic: string, order: "date" | "viewCount", max = 15): Promise<VideoItem[]> {
+// Suscriptores por canal (una llamada, hasta 50 canales) para exigir canales con audiencia real.
+async function channelSubs(key: string, channelIds: string[]): Promise<Record<string, number>> {
+  const uniq = [...new Set(channelIds)].filter(Boolean).slice(0, 50);
+  if (!uniq.length) return {};
+  const r = await fetch(`${API}/channels?part=statistics&id=${uniq.join(",")}&key=${key}`, { signal: AbortSignal.timeout(8000) });
+  if (!r.ok) return {};
+  const j = (await r.json()) as { items?: { id: string; statistics?: { subscriberCount?: string; hiddenSubscriberCount?: boolean } }[] };
+  const map: Record<string, number> = {};
+  (j.items || []).forEach((c) => { map[c.id] = c.statistics?.hiddenSubscriberCount ? -1 : Number(c.statistics?.subscriberCount || 0); });
+  return map;
+}
+
+async function searchAndStats(topic: string, order: "date" | "viewCount", max = 25): Promise<VideoItem[]> {
   const key = env.YOUTUBE_API_KEY;
   if (!key) return [];
-  const searchUrl = `${API}/search?part=snippet&type=video&order=${order}&maxResults=${max}` +
+  const searchUrl = `${API}/search?part=snippet&type=video&videoDuration=medium&order=${order}&maxResults=${max}` +
     `&q=${encodeURIComponent(withContext(topic))}&key=${key}`;
   const sr = await fetch(searchUrl, { signal: AbortSignal.timeout(8000) });
   if (!sr.ok) return [];
@@ -43,21 +62,31 @@ async function searchAndStats(topic: string, order: "date" | "viewCount", max = 
   const vj = (await vr.json()) as {
     items?: {
       id: string;
-      snippet: { title: string; channelTitle: string; publishedAt: string; thumbnails?: Record<string, { url: string }> };
+      snippet: { title: string; channelId: string; channelTitle: string; publishedAt: string; thumbnails?: Record<string, { url: string }> };
       statistics?: { viewCount?: string; likeCount?: string };
       contentDetails?: { duration?: string };
     }[];
   };
-  return (vj.items || []).map((v) => ({
-    youtubeId: v.id,
-    title: v.snippet.title,
-    channel: v.snippet.channelTitle,
-    thumbnail: v.snippet.thumbnails?.high?.url || v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url || "",
-    views: Number(v.statistics?.viewCount || 0),
-    likes: Number(v.statistics?.likeCount || 0),
-    publishedAt: v.snippet.publishedAt,
-    durationSeconds: parseDuration(v.contentDetails?.duration || ""),
-  }));
+  const items = vj.items || [];
+  const subs = await channelSubs(key, items.map((v) => v.snippet.channelId)).catch(() => ({} as Record<string, number>));
+  return items.map((v) => {
+    const sub = subs[v.snippet.channelId];
+    return {
+      youtubeId: v.id,
+      title: v.snippet.title,
+      channel: v.snippet.channelTitle,
+      thumbnail: v.snippet.thumbnails?.high?.url || v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url || "",
+      views: Number(v.statistics?.viewCount || 0),
+      likes: Number(v.statistics?.likeCount || 0),
+      publishedAt: v.snippet.publishedAt,
+      durationSeconds: parseDuration(v.contentDetails?.duration || ""),
+      subscribers: sub == null ? 0 : sub, // -1 = suscriptores ocultos (no descartamos por eso solo)
+    } as VideoItem;
+  }).filter((v) =>
+    v.durationSeconds >= MIN_DURATION &&           // fuera Shorts/reels
+    v.views >= MIN_VIEWS &&                         // con audiencia real
+    (v.subscribers < 0 || v.subscribers >= MIN_SUBS) // canal con peso (o subs ocultos)
+  );
 }
 
 async function readCache(deps: SvcDeps, topic: string, sortType: string): Promise<VideoItem[] | null> {
@@ -125,6 +154,6 @@ export async function brandooersFavs(deps: SvcDeps, limit = 12): Promise<(VideoI
     .orderBy(desc(sql`count(*)`)).limit(limit);
   return rows.map((r) => ({
     youtubeId: r.youtubeId, title: r.title, thumbnail: r.thumbnail, plays: Number(r.plays),
-    channel: "", views: 0, likes: 0, publishedAt: "", durationSeconds: 0,
+    channel: "", views: 0, likes: 0, publishedAt: "", durationSeconds: 0, subscribers: 0,
   }));
 }
