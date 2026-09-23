@@ -314,6 +314,8 @@ function applyRealRoute(plan){ RPLAN=plan||null; if(!plan||!plan.modulos||!plan.
 
 // --- Vistas Flujo (pasos + flechas, reordenable) y Calendario de aprendizaje ---
 function courseUrl(src){ return src ? location.origin+'/app/curso.html?src='+encodeURIComponent(src) : ''; }
+// URL directa desde el evento de calendario a la app: al temario del módulo si lo tiene, si no a Mi ruta.
+function accessUrl(m){ return (m&&m.courseSrc)?courseUrl(m.courseSrc):(location.origin+'/app/ruta.html'); }
 function currentMods(){ return (RPLAN&&RPLAN.modulos&&RPLAN.modulos.length)?RPLAN.modulos.slice():COURSES.map(function(c){return {titulo:c.name,courseSrc:c.src,resumen:c.desc};}); }
 function saveOrder(mods){ if(!RPLAN) RPLAN={titulo:((document.querySelector('.top h1')||{}).textContent)||'Tu ruta',resumen:''}; RPLAN.modulos=mods;
   try{ SkillUp.api('/api/notes/add',{method:'POST',body:{source:'ruta',kind:'insight',body:'[ruta-plan] '+JSON.stringify(RPLAN)}}); }catch(e){} }
@@ -388,7 +390,7 @@ function renderCal(){
   // Columna LISTA
   var list=sessions.map(function(s){ var m=s.m, day=s.date, i=s.i;
     var title='SkillUp · '+(m.titulo||'Módulo');
-    var details=(m.resumen||'')+(m.courseSrc?('\n\nEntrar al temario: '+courseUrl(m.courseSrc)):'');
+    var details=(m.resumen||'')+'\n\nAbrir en SkillUp: '+accessUrl(m);
     var go=m.courseSrc?'<a class="cadd" href="/app/curso.html?src='+encodeURIComponent(m.courseSrc)+'">Entrar al temario ›</a> &nbsp; ':'';
     return '<div class="cday"><div class="cdate"><div class="cd">'+day.getDate()+'</div><div class="cm">'+MES[day.getMonth()]+'</div></div>'
       +'<div class="cbody"><b>'+(i+1)+'. '+esc(m.titulo||'Módulo')+'</b><small>'+esc(m.resumen||'')+'</small>'
@@ -411,7 +413,7 @@ function renderCal(){
     if(location.search.indexOf('gcal=ok')>=0){ gc.innerHTML='<span class="msg" style="color:var(--green,#54C79A)">✓ Google Calendar conectado.</span> '; }
     if(st.connected){
       gc.innerHTML+='<button class="pl-go" id="gcSync">Sincronizar mi ruta a Google Calendar</button> <span class="msg" id="gcMsg"></span>';
-      sh.querySelector('#gcSync').onclick=function(){ var evs=sessions.map(function(s){ return { summary:'SkillUp · '+(s.m.titulo||'Módulo'), description:(s.m.resumen||'')+(s.m.courseSrc?('\n'+courseUrl(s.m.courseSrc)):''), startISO:isoAt(s.date,9), endISO:isoAt(s.date,10) }; });
+      sh.querySelector('#gcSync').onclick=function(){ var evs=sessions.map(function(s){ var u=accessUrl(s.m); var desc=((s.m.resumen||'').slice(0,900))+'\n\nAbrir en SkillUp: '+u; return { summary:'SkillUp · '+(s.m.titulo||'Módulo'), description:desc, startISO:isoAt(s.date,9), endISO:isoAt(s.date,10) }; });
         var m=sh.querySelector('#gcMsg'); m.textContent='Enviando…';
         SkillUp.api('/api/gcal/sync',{method:'POST',body:{events:evs}}).then(function(r){
           if(r.created>0){ m.style.color='var(--green,#54C79A)'; m.textContent='¡'+r.created+' sesiones añadidas a tu calendario!'; }
