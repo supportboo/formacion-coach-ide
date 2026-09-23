@@ -413,7 +413,11 @@ function renderCal(){
       gc.innerHTML+='<button class="pl-go" id="gcSync">Sincronizar mi ruta a Google Calendar</button> <span class="msg" id="gcMsg"></span>';
       sh.querySelector('#gcSync').onclick=function(){ var evs=sessions.map(function(s){ return { summary:'SkillUp · '+(s.m.titulo||'Módulo'), description:(s.m.resumen||'')+(s.m.courseSrc?('\n'+courseUrl(s.m.courseSrc)):''), startISO:isoAt(s.date,9), endISO:isoAt(s.date,10) }; });
         var m=sh.querySelector('#gcMsg'); m.textContent='Enviando…';
-        SkillUp.api('/api/gcal/sync',{method:'POST',body:{events:evs}}).then(function(r){ m.textContent='¡'+(r.created||0)+' sesiones añadidas a tu calendario!'; }).catch(function(ex){ m.textContent=(ex&&ex.message)||'No se pudo sincronizar.'; }); };
+        SkillUp.api('/api/gcal/sync',{method:'POST',body:{events:evs}}).then(function(r){
+          if(r.created>0){ m.style.color='var(--green,#54C79A)'; m.textContent='¡'+r.created+' sesiones añadidas a tu calendario!'; }
+          else if(!evs.length){ m.style.color=''; m.textContent='No hay sesiones que sincronizar; crea tu ruta primero.'; }
+          else { m.style.color='var(--amber,#E0A458)'; m.textContent=r.hint||('No se pudo crear ningún evento'+(r.error?(' ('+r.error+')'):'')+'. Vuelve a conectar Google Calendar.'); }
+        }).catch(function(ex){ m.textContent=(ex&&ex.message)||'No se pudo sincronizar.'; }); };
     } else {
       gc.innerHTML+='<a class="pl-go" href="/api/gcal/connect" style="text-decoration:none;display:inline-block">Conectar Google Calendar</a> <span class="msg">y sincroniza tu ruta con tu calendario en 2 clics.</span>';
     }

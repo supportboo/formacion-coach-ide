@@ -50,13 +50,15 @@ export async function accessFromRefresh(refresh: string): Promise<string | null>
     return (await r.json() as { access_token?: string }).access_token || null;
   } catch { return null; }
 }
-export async function insertEvent(accessToken: string, ev: { summary: string; description?: string; startISO: string; endISO: string }): Promise<boolean> {
+export async function insertEvent(accessToken: string, ev: { summary: string; description?: string; startISO: string; endISO: string }): Promise<{ ok: boolean; error?: string }> {
   try {
     const r = await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
       method: "POST", headers: { authorization: "Bearer " + accessToken, "content-type": "application/json" },
       body: JSON.stringify({ summary: ev.summary, description: ev.description || "", start: { dateTime: ev.startISO, timeZone: "Europe/Madrid" }, end: { dateTime: ev.endISO, timeZone: "Europe/Madrid" } }),
       signal: AbortSignal.timeout(10000),
     });
-    return r.ok;
-  } catch { return false; }
+    if (r.ok) return { ok: true };
+    const t = await r.text().catch(() => "");
+    return { ok: false, error: r.status + " " + t.slice(0, 240) };
+  } catch (e) { return { ok: false, error: String((e as Error).message || e).slice(0, 160) }; }
 }

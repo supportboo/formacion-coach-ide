@@ -317,9 +317,22 @@ app.post("/api/gcal/sync", async (c) => {
   if (!access) return c.json({ error: "no pude renovar el acceso; vuelve a conectar" }, 400);
   const parsed = z.object({ events: z.array(z.object({ summary: z.string().min(1).max(200), description: z.string().max(1000).optional(), startISO: z.string().min(10), endISO: z.string().min(10) })).max(60) }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
-  let created = 0;
-  for (const ev of parsed.data.events) { if (await gcal.insertEvent(access, ev)) created++; }
-  return c.json({ created });
+  let created = 0; let firstError = "";
+  for (const ev of parsed.data.events) {
+    const res = await gcal.insertEvent(access, ev);
+    if (res.ok) created++; else if (!firstError) firstError = res.error || "error desconocido";
+  }
+  let hint: string | undefined;
+  if (created === 0 && firstError) {
+    const e = firstError.toLowerCase();
+    if (e.includes("has not been used") || e.includes("accessnotconfigured") || e.includes("is disabled") || e.includes("service_disabled"))
+      hint = "La API de Google Calendar no está activada en tu proyecto de Google Cloud. Actívala en https://console.cloud.google.com/apis/library/calendar-json.googleapis.com y vuelve a sincronizar.";
+    else if (e.includes("insufficient") || e.includes("insufficientpermissions") || e.startsWith("403"))
+      hint = "Google no concedió permiso sobre tu calendario. Desconecta y vuelve a conectar aceptando el permiso de calendario.";
+    else if (e.startsWith("401") || e.includes("invalid_grant"))
+      hint = "La conexión con Google caducó. Vuelve a conectar Google Calendar.";
+  }
+  return c.json({ created, attempted: parsed.data.events.length, error: firstError || undefined, hint });
 });
 
 const chatBody = z.object({
