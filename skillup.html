@@ -253,6 +253,15 @@ html.lenis,html.lenis body{height:auto}
 
 .reveal{opacity:0;transform:perspective(1000px) translateY(24px) rotateX(4deg);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms)}
 .reveal.in{opacity:1;transform:none}
+/* Bandas a pantalla completa con foto real + texto en HTML */
+.imgband{position:relative;min-height:76vh;display:flex;align-items:center;padding:0;overflow:hidden;background:#0E0B14}
+.imgband .bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.06)}
+.imgband .ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,11,20,.95) 0%,rgba(14,11,20,.82) 42%,rgba(14,11,20,.42) 100%)}
+.imgband .wrap{position:relative;z-index:2}
+.imgband .tag,.imgband .eyebrow{color:#67E8F9}
+.imgband h2{font-size:clamp(30px,5vw,58px);font-weight:900;letter-spacing:-.03em;line-height:1.04;color:#fff;max-width:18ch;margin:0 0 16px}
+.imgband p{font-size:clamp(16px,1.6vw,20px);color:#d8d1e2;max-width:600px;line-height:1.65}
+@media(hover:hover) and (min-width:900px){.imgband .bg{background-attachment:fixed}}
 .no-motion .reveal{opacity:1;transform:none}
 @media(max-width:860px){
   .bene,.why,.incl,.split,.access .acc,.acc-main .fields{grid-template-columns:1fr}
@@ -330,6 +339,16 @@ html.lenis,html.lenis body{height:auto}
   </div></div>
 </section>
 
+<section class="imgband reveal">
+  <div class="bg" style="background-image:url('assets/cr-problema.jpg')"></div>
+  <div class="ov"></div>
+  <div class="wrap">
+    <p class="tag">El problema, en una sala</p>
+    <h2>Compras formación. Nadie la aplica.</h2>
+    <p>Cursos genéricos, gente desconectada y, a la semana, no queda nada. Pagas por asistir, no por saber hacer.</p>
+  </div>
+</section>
+
 <section class="flowsec" id="como" data-story>
   <div class="flow-sticky">
     <canvas class="net" data-net="story" data-morph="no" aria-hidden="true"></canvas>
@@ -372,6 +391,16 @@ html.lenis,html.lenis body{height:auto}
   </div></div>
 </section>
 
+<section class="imgband reveal">
+  <div class="bg" style="background-image:url('assets/cr-propaga.jpg')"></div>
+  <div class="ov"></div>
+  <div class="wrap">
+    <p class="tag">Y se multiplica</p>
+    <h2>Quien lo domina, forma al siguiente.</h2>
+    <p>El conocimiento no se queda en una sola persona: se propaga por el equipo. Cada quien que aprende, enseña — y el saber se queda dentro.</p>
+  </div>
+</section>
+
 <section id="porque" class="band">
   <div class="wrap center reveal">
     <p class="tag" style="color:#67E8F9">Por qué SkillUp</p>
@@ -384,6 +413,16 @@ html.lenis,html.lenis body{height:auto}
     <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/></svg></div><div><h4>Se aprende acompañado</h4><p>Quien domina algo forma al siguiente. El conocimiento se queda en el equipo y se multiplica.</p></div></div>
     <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13"/><path d="M8 7h6M8 11h8"/></svg></div><div><h4>Recursos de los mejores</h4><p>Libros, charlas y herramientas de referentes reales, seleccionados para cada tema.</p></div></div>
   </div></div>
+</section>
+
+<section class="imgband reveal">
+  <div class="bg" style="background-image:url('assets/cr-panel.jpg')"></div>
+  <div class="ov"></div>
+  <div class="wrap">
+    <p class="tag">Para quien dirige</p>
+    <h2>Ves quién sabe aplicar qué.</h2>
+    <p>Un panel te dice dónde tienes talento, dónde dependes de una sola persona y cuánto cuesta formar al siguiente. Decides con datos, no con intuición.</p>
+  </div>
 </section>
 
 <section id="propuesta" class="pricing">
