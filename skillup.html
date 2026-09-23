@@ -200,6 +200,17 @@ footer .cp{font-size:12.5px;color:#6b6480;margin-top:24px;border-top:1px solid r
 .inc h4{font-size:17px;font-weight:800;color:#fff;margin-bottom:7px;letter-spacing:-.01em}
 .inc p{font-size:14px;color:var(--ink-mut);line-height:1.6}
 
+/* Showcase de capacidades */
+.caps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+.cap{position:relative;background:var(--white);border:1px solid var(--line);border-radius:18px;padding:24px 22px;overflow:hidden}
+.cap .ic{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(0,212,255,.14),rgba(139,92,246,.14),rgba(236,72,153,.12));display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.cap .ic svg{width:23px;height:23px;stroke:var(--p);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cap h4{font-size:16.5px;font-weight:800;color:var(--text);margin-bottom:5px;letter-spacing:-.01em}
+.cap p{font-size:13.7px;color:var(--body);line-height:1.6}
+.cap .soon{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--p);background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:3px 9px}
+@media(min-width:861px) and (max-width:1100px){.caps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:860px){.caps{grid-template-columns:1fr}}
+
 /* Tarjetas con inclinación 3D + foco del cursor */
 .tilt{transform-style:preserve-3d;will-change:transform}
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
@@ -267,6 +278,7 @@ html.lenis,html.lenis body{height:auto}
   <a href="https://brandooers.com" title="Volver a Brandooers" style="display:flex;align-items:baseline"><span class="brandooers-logo">Brand<svg class="beyes" width="38" height="22" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g><g transform="translate(53,0)"><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g></svg>ers</span><span class="sk">SkillUp</span></a>
   <div class="nav-r">
     <a class="txt" href="#como">Cómo funciona</a>
+    <a class="txt" href="#capacidades">Capacidades</a>
     <a class="txt" href="#faq">Preguntas</a>
     <a class="txt" href="https://brandooers.com">← Brandooers</a>
     <a class="btn btn-grad" href="#acceso">Empezar</a>
@@ -274,7 +286,7 @@ html.lenis,html.lenis body{height:auto}
 </div></div></nav>
 
 <header class="hero" id="top">
-  <canvas class="net" data-net="hero" aria-hidden="true"></canvas>
+  <canvas id="wgl" class="net" aria-hidden="true"></canvas>
   <div class="hero-mascot" aria-hidden="true"><img src="assets/char/char-hero.jpg" alt="" width="2048" height="1152" fetchpriority="high" decoding="async"></div>
   <div class="ovl"></div>
   <div class="wrap">
@@ -338,6 +350,25 @@ html.lenis,html.lenis body{height:auto}
   </div>
 </section>
 
+<section id="capacidades">
+  <div class="wrap center reveal" style="margin-bottom:6px">
+    <p class="tag">Todo lo que hace</p>
+    <h2 class="h2">Mucho más que cursos. Una experiencia que engancha.</h2>
+    <p class="lead2">Un tutor que te habla con voz real, práctica de verdad, juego que motiva y un panel que te dice quién sabe aplicar qué. Todo en un mismo sitio.</p>
+  </div>
+  <div class="wrap"><div class="caps">
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M8 21h8"/></svg></div><h4>Un tutor que te habla</h4><p>Voz real que te explica y te pregunta, con el tono de tu propia empresa. Cercano, no un vídeo frío.</p></div>
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 6h6a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/></svg></div><h4>Una ruta para cada persona</h4><p>Cada uno aprende solo lo que le sirve a su puesto y su sector. Nada de curso genérico para todos.</p></div>
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M8 12h8M8 8h5"/><path d="M21 12a9 9 0 1 1-3.2-6.9L21 4v5h-5"/></svg></div><h4>Roleplays y casos reales</h4><p>Practica la conversación difícil y resuelve el caso de tu día a día. Se aprende haciendo, no memorizando.</p></div>
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></div><h4>Ranking y juego que engancha</h4><p>Pódium, niveles y un avatar que evoluciona según creces. El equipo compite sano y quiere volver.</p></div>
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 14l2 2 4-4"/></svg></div><h4>Calendario y Google Calendar</h4><p>Sus tests, casos y sesiones ordenados por fechas, y sincronizados con Google Calendar en dos clics.</p></div>
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 1 4 4c1.5.5 2.5 2 2.5 3.5a3.5 3.5 0 0 1-1 2.5 3 3 0 0 1-1 4 3 3 0 0 1-3 3 3 3 0 0 1-6 0 3 3 0 0 1-3-3 3 3 0 0 1-1-4 3.5 3.5 0 0 1-1-2.5C1.5 8 2.5 6.5 4 6a4 4 0 0 1 4-4"/></svg></div><h4>Su ADN de aprendizaje</h4><p>Descubre cómo aprende cada persona y adapta la formación a su forma de rendir mejor.</p></div>
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h4>Panel del responsable</h4><p>Quién sabe aplicar qué, dónde dependes de una sola persona y cuánto cuesta formar al siguiente.</p></div>
+    <div class="cap tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><h4>Contenido verificado</h4><p>Cero información inventada: cada dato con su fuente enlazada y su fecha de revisión a la vista.</p></div>
+    <div class="cap tilt reveal"><span class="soon">Próximamente</span><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 11V7a2 2 0 0 1 4 0v3M10 8V5a2 2 0 0 1 4 0v5M14 7a2 2 0 0 1 4 0v6a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.5L3 14a1.6 1.6 0 0 1 2.5-2L7 13.5"/></svg></div><h4>Manos libres: voz y gestos</h4><p>Navega, responde y practica sin tocar el teclado, con la voz y las manos. La formación más inmersiva que has visto.</p></div>
+  </div></div>
+</section>
+
 <section id="porque" class="band">
   <div class="wrap center reveal">
     <p class="tag" style="color:#67E8F9">Por qué SkillUp</p>
@@ -399,6 +430,8 @@ html.lenis,html.lenis body{height:auto}
           <div class="full"><label for="lemail">Email de empresa</label><input id="lemail" type="email" autocomplete="email" required placeholder="tu@empresa.com"></div>
           <div><label for="lsector">Sector</label><input id="lsector" placeholder="Logística, distribución, sanidad…"></div>
           <div><label for="lsize">Equipo a formar</label><select id="lsize"><option value="">Tamaño del equipo</option><option>5-20 personas</option><option>21-50 personas</option><option>51-200 personas</option><option>Más de 200 personas</option></select></div>
+          <div class="full"><label for="lgoal">¿Qué objetivo buscas?</label><input id="lgoal" placeholder="Que el equipo aplique X desde el primer mes, subir ventas…"></div>
+          <div class="full"><label for="lroi">¿Qué retorno esperas?</label><input id="lroi" placeholder="Menos rotación, onboarding más rápido, más cierres…"></div>
         </div>
         <button class="btn btn-grad" type="submit">Solicitar acceso</button>
         <div class="assure">
@@ -447,7 +480,9 @@ html.lenis,html.lenis body{height:auto}
 {"@type":"Question","name":"¿Cuánto cuesta?","acceptedAnswer":{"@type":"Answer","text":"Todavía no publicamos tarifa. El alcance depende del tamaño del equipo y de las competencias que quieras cubrir, y te lo damos por escrito antes de decidir nada."}}
 ]}]}
 </script>
+<script src="assets/three.min.js" defer></script>
+<script src="assets/webgl-hero.js?v=20260923a" defer></script>
 <script src="assets/lenis.min.js" defer></script>
-<script src="assets/immersive.js?v=20260903c" defer></script>
+<script src="assets/immersive.js?v=20260923a" defer></script>
 </body>
 </html>

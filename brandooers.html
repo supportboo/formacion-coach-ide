@@ -252,6 +252,13 @@ html.lenis,html.lenis body{height:auto}
 .lcard p{font-size:15px;color:var(--body);line-height:1.65;flex:1}
 .lcard .lgo{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--p)}
 @media(max-width:900px){.lgrid{grid-template-columns:1fr}.lines{padding:70px 0}}
+.topics-sec{background:var(--dark2);color:var(--ink);padding:92px 0}
+.topics-sec .eyebrow{color:#67E8F9}
+.topics-sec .h2{color:#fff}
+.topics-sec .lead2{color:var(--ink-mut)}
+.topics{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
+.topic{font-size:15px;font-weight:700;color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.14);border-radius:100px;padding:11px 20px;transition:transform .18s,border-color .18s,background .18s}
+.topic:hover{transform:translateY(-2px);border-color:rgba(139,92,246,.6);background:linear-gradient(180deg,rgba(139,92,246,.18),rgba(236,72,153,.08))}
 
 .reveal{opacity:0;transform:perspective(1000px) translateY(26px) rotateX(4deg);transition:opacity .75s cubic-bezier(.2,.8,.2,1),transform .75s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms)}
 .reveal.in{opacity:1;transform:none}
@@ -286,7 +293,7 @@ html.lenis,html.lenis body{height:auto}
 </div></div></nav>
 
 <header class="hero" id="top">
-  <canvas class="net" data-net="hero" aria-hidden="true"></canvas>
+  <canvas id="wgl" class="net" aria-hidden="true"></canvas>
   <div class="hero-mascot" aria-hidden="true"><img src="assets/char/char-hero.jpg" alt="" width="2048" height="1152" fetchpriority="high" decoding="async"></div>
   <div class="ovl"></div>
   <div class="wrap">
@@ -311,9 +318,37 @@ html.lenis,html.lenis body{height:auto}
       <p class="lead2">Brandooers tiene tres puertas. Todas llevan a lo mismo: que lo que aprende tu gente se quede, se propague y se note en los resultados.</p>
     </div>
     <div class="lgrid">
-      <a class="lcard tilt reveal" href="#acceso"><span class="lk">01 · Para empresas</span><h3>Formación para equipos</h3><p>Por sector y puesto, con validación práctica y panel de capacidad para el responsable. Empieza con un piloto de 90 días.</p><span class="lgo">Pide tu piloto →</span></a>
-      <a class="lcard live tilt reveal" href="https://skillup.brandooers.com"><span class="lk">02 · Para profesionales · en marcha</span><h3>SkillUp</h3><p>Rutas a medida de tu sector y tu puesto, con casos reales. Te formas por tu cuenta y, cuando quieras, lo llevas a tu equipo.</p><span class="lgo">Entrar a SkillUp →</span></a>
-      <a class="lcard tilt reveal" href="https://boomatik.com"><span class="lk">03 · Para ejecutar</span><h3>Con Boomatik</h3><p>Cuando toca poner en marcha lo aprendido —web, marketing, ventas, IA—, Boomatik lo ejecuta contigo.</p><span class="lgo">Ver Boomatik →</span></a>
+      <a class="lcard tilt reveal" href="#acceso"><span class="lk">01 · En tu empresa · FUNDAE</span><h3>Formación en empresa</h3><p>Multiplica el potencial de tu gente y empodera el talento oculto: formación por sector y puesto, práctica real y bonificable por FUNDAE. Empieza con un piloto de 90 días.</p><span class="lgo">Pide tu piloto →</span></a>
+      <a class="lcard live tilt reveal" href="https://skillup.brandooers.com"><span class="lk">02 · Plataforma online · en marcha</span><h3>SkillUp</h3><p>La plataforma de formación para empresas: una ruta a medida de cada persona, con casos reales, práctica y panel de capacidad. Online, desde el primer día.</p><span class="lgo">Entrar a SkillUp →</span></a>
+      <div class="lcard tilt reveal soon"><span class="lk">03 · Gratis · muy pronto</span><h3>Píldoras en YouTube</h3><p>Ideas que multiplican tu talento, en abierto: píldoras cortas para jóvenes profesionales que quieren llegar al top. Pronto también en formato podcast.</p><span class="lgo">Muy pronto</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEMÁTICAS / ACADEMIA -->
+<section class="topics-sec" id="temas">
+  <div class="wrap">
+    <div class="reveal" style="max-width:760px">
+      <span class="eyebrow">Qué desarrollas</span>
+      <h2 class="h2">Las competencias que te ponen en el top 1%.</h2>
+      <p class="lead2">Brandooers no es formación de un solo tema. Desarrollamos lo que de verdad diferencia a un profesional: cómo piensa, cómo comunica, cómo vende, cómo lidera y cómo aplica la tecnología a su trabajo.</p>
+    </div>
+    <div class="topics reveal">
+      <span class="topic tilt">Liderazgo</span>
+      <span class="topic tilt">Crecimiento empresarial</span>
+      <span class="topic tilt">Marketing</span>
+      <span class="topic tilt">Ventas</span>
+      <span class="topic tilt">Gestión de proyectos</span>
+      <span class="topic tilt">Fidelización</span>
+      <span class="topic tilt">Soft skills</span>
+      <span class="topic tilt">Metodologías y técnicas</span>
+      <span class="topic tilt">Herramientas</span>
+      <span class="topic tilt">Inteligencia artificial</span>
+      <span class="topic tilt">Innovación</span>
+      <span class="topic tilt">Coaching</span>
+      <span class="topic tilt">Psicología de la persuasión</span>
+      <span class="topic tilt">Neuromarketing</span>
+      <span class="topic tilt">Storytelling y comunicación</span>
     </div>
   </div>
 </section>
@@ -416,6 +451,8 @@ html.lenis,html.lenis body{height:auto}
         <div class="full"><label for="pEmail">Email de empresa</label><input id="pEmail" type="email" autocomplete="email" placeholder="tu@empresa.com" required></div>
         <div><label for="pSector">Sector</label><input id="pSector" placeholder="Logística, distribución, sanidad…"></div>
         <div><label for="pSize">Equipo a formar</label><select id="pSize"><option value="">Tamaño del equipo</option><option>5-20 personas</option><option>21-50 personas</option><option>51-200 personas</option><option>Más de 200 personas</option></select></div>
+        <div class="full"><label for="pGoal">¿Qué objetivo buscas?</label><input id="pGoal" placeholder="Que el equipo aplique X desde el primer mes, subir ventas…"></div>
+        <div class="full"><label for="pRoi">¿Qué retorno esperas?</label><input id="pRoi" placeholder="Menos rotación, onboarding más rápido, más cierres…"></div>
       </div>
       <div class="pf-actions">
         <button class="btn btn-grad" type="submit">Solicita tu piloto de 90 días →</button>
@@ -438,8 +475,8 @@ html.lenis,html.lenis body{height:auto}
         <a href="mailto:info@brandooers.com">Contacto</a>
       </div>
     </div>
-    <p class="partner">Formamos al equipo. Y cuando toca ejecutar, en colaboración con <a href="https://boomatik.com">Boomatik</a> lo ponemos en marcha contigo.</p>
-    <p class="partner solo">¿Te formas por tu cuenta? → <a href="https://skillup.brandooers.com">SkillUp para profesionales</a></p>
+    <p class="partner">Formamos para multiplicar el potencial de las personas y sacar el talento que no se ve — en tu empresa, en la plataforma o en abierto.</p>
+    <p class="partner solo">¿Buscas formación para tu empresa? → <a href="https://skillup.brandooers.com">SkillUp</a></p>
     <p class="cp">Brandooers · Formación por sector y puesto para empresas · © 2026.</p>
   </div>
 </footer>
@@ -457,7 +494,9 @@ html.lenis,html.lenis body{height:auto}
 {"@type":"Question","name":"¿Cuánto cuesta?","acceptedAnswer":{"@type":"Answer","text":"Todavía no publicamos tarifa. El piloto se presupuesta según el tamaño del equipo y las competencias que quieras cubrir, y lo tienes por escrito antes de decidir nada."}}
 ]}]}
 </script>
+<script src="assets/three.min.js" defer></script>
+<script src="assets/webgl-hero.js?v=20260923a" defer></script>
 <script src="assets/lenis.min.js" defer></script>
-<script src="assets/immersive.js?v=20260903c" defer></script>
+<script src="assets/immersive.js?v=20260923a" defer></script>
 </body>
 </html>
