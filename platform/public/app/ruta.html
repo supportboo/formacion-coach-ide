@@ -400,8 +400,24 @@ function renderCal(){
   while(cur<=end){ months+=monthGrid(cur.getFullYear(),cur.getMonth(),sessions); cur.setMonth(cur.getMonth()+1); }
   sh.innerHTML='<p class="caltip">Tu plan de aprendizaje. Ajusta abajo los días que puedes y a qué ritmo, y se recoloca solo. Añade cada sesión a tu calendario y entra desde el propio evento.</p>'
     +plannerHtml()
+    +'<div id="gcalBar" style="max-width:680px;margin:0 auto 12px;text-align:center"></div>'
     +'<div class="calwrap"><div><div class="calcol-title">Lista</div><div class="cal">'+list+'</div></div>'
     +'<div><div class="calcol-title">Mes</div>'+months+'</div></div>';
+  // Google Calendar: conectar (2 clics) o sincronizar toda la ruta de una vez.
+  function isoAt(d,h){ function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(h)+':00:00'; }
+  var gc=sh.querySelector('#gcalBar');
+  if(gc) SkillUp.api('/api/gcal/status').then(function(st){
+    if(!st||!st.configured){ gc.innerHTML=''; return; }
+    if(location.search.indexOf('gcal=ok')>=0){ gc.innerHTML='<span class="msg" style="color:var(--green,#54C79A)">✓ Google Calendar conectado.</span> '; }
+    if(st.connected){
+      gc.innerHTML+='<button class="pl-go" id="gcSync">Sincronizar mi ruta a Google Calendar</button> <span class="msg" id="gcMsg"></span>';
+      sh.querySelector('#gcSync').onclick=function(){ var evs=sessions.map(function(s){ return { summary:'SkillUp · '+(s.m.titulo||'Módulo'), description:(s.m.resumen||'')+(s.m.courseSrc?('\n'+courseUrl(s.m.courseSrc)):''), startISO:isoAt(s.date,9), endISO:isoAt(s.date,10) }; });
+        var m=sh.querySelector('#gcMsg'); m.textContent='Enviando…';
+        SkillUp.api('/api/gcal/sync',{method:'POST',body:{events:evs}}).then(function(r){ m.textContent='¡'+(r.created||0)+' sesiones añadidas a tu calendario!'; }).catch(function(ex){ m.textContent=(ex&&ex.message)||'No se pudo sincronizar.'; }); };
+    } else {
+      gc.innerHTML+='<a class="pl-go" href="/api/gcal/connect" style="text-decoration:none;display:inline-block">Conectar Google Calendar</a> <span class="msg">y sincroniza tu ruta con tu calendario en 2 clics.</span>';
+    }
+  }).catch(function(){});
   sh.querySelectorAll('.mc.has[data-src]').forEach(function(el){ el.onclick=function(){ location.href='/app/curso.html?src='+encodeURIComponent(el.getAttribute('data-src')); }; });
   // planificador: toggles de día + ritmo -> recalcula el calendario (determinista, sin coste)
   sh.querySelectorAll('.pl-d').forEach(function(b){ b.onclick=function(){ b.classList.toggle('on'); }; });

@@ -37,6 +37,7 @@ import * as onboardingSvc from "./services/onboarding.js";
 import * as teamdnaSvc from "./services/teamdna.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
+import * as gcal from "./services/gcal.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
@@ -278,6 +279,47 @@ app.post("/api/learning/videos/watch", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   await videosSvc.logWatch(svcDeps, ctx.orgId, ctx.userId, parsed.data);
   return c.json({ ok: true });
+});
+
+// --- Google Calendar (OAuth por usuario; token guardado en annotation source=gcal_token) ---
+async function gcalRefresh(orgId: string, userId: string): Promise<string | null> {
+  const rows = await notesSvc.list(svcDeps, orgId, userId, "gcal_token").catch(() => [] as { body: string | null }[]);
+  for (const n of rows) { try { const o = JSON.parse(String(n.body || "")); if (o && o.r) return o.r as string; } catch { /* siguiente */ } }
+  return null;
+}
+app.get("/api/gcal/status", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ configured: gcal.isConfigured(), connected: !!(await gcalRefresh(ctx.orgId, ctx.userId)) });
+});
+app.get("/api/gcal/connect", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.redirect("/app/login.html");
+  if (!gcal.isConfigured()) return c.json({ error: "Google Calendar no está configurado en el servidor" }, 400);
+  return c.redirect(gcal.authUrl(ctx.userId));
+});
+app.get("/api/gcal/callback", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.redirect("/app/login.html");
+  const code = c.req.query("code");
+  if (!code) return c.redirect("/app/ruta.html?gcal=err");
+  const tok = await gcal.exchangeCode(code);
+  if (!tok || !tok.refresh_token) return c.redirect("/app/ruta.html?gcal=err");
+  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "gcal_token", kind: "insight", body: JSON.stringify({ r: tok.refresh_token, at: Date.now() }) });
+  return c.redirect("/app/ruta.html?gcal=ok");
+});
+app.post("/api/gcal/sync", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
+  if (!refresh) return c.json({ error: "no conectado" }, 400);
+  const access = await gcal.accessFromRefresh(refresh);
+  if (!access) return c.json({ error: "no pude renovar el acceso; vuelve a conectar" }, 400);
+  const parsed = z.object({ events: z.array(z.object({ summary: z.string().min(1).max(200), description: z.string().max(1000).optional(), startISO: z.string().min(10), endISO: z.string().min(10) })).max(60) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  let created = 0;
+  for (const ev of parsed.data.events) { if (await gcal.insertEvent(access, ev)) created++; }
+  return c.json({ created });
 });
 
 const chatBody = z.object({
