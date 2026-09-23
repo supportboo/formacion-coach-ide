@@ -229,10 +229,10 @@ var NAMES={'index':'Guía del Coach','outbound-sales':'Outbound Sales','reclutam
 var COURSE=NAMES[SLUG]||(function(){var s=SLUG.replace(/-/g,' ');return s.charAt(0).toUpperCase()+s.slice(1);})();
 // Tutor especialista con nombre y personalidad (sénior 25 años en su materia).
 var PERSONAS={
-  comercial:{name:'Diego',role:'Tutor Comercial',field:'venta y prospección B2B, 25 años de calle',voice:'WsvUasyBVDfzPhE0B6jC'},
-  marketing:{name:'Marta',role:'Tutora de Marketing',field:'marketing B2B y generación de demanda, 25 años',voice:'jQrhxsqzG6CPKo3ll0w9'},
-  negociacion:{name:'Álvaro',role:'Tutor de Negociación',field:'negociación y manejo de objeciones, 25 años',voice:'fjMC3Wxp5QfFT9wNGQOI'},
-  coach:{name:'Elena',role:'Tutora de Acompañamiento',field:'coaching y onboarding de equipos, 25 años',voice:'oHMibLgDqXK3fjgFVtJ6'}
+  comercial:{name:'Diego',role:'Tutor Comercial',field:'venta y prospección B2B, 25 años de calle',voice:'bkcxugbRtulPFV1CinBX'},
+  marketing:{name:'Marta',role:'Tutora de Marketing',field:'marketing B2B y generación de demanda, 25 años',voice:'bkcxugbRtulPFV1CinBX'},
+  negociacion:{name:'Álvaro',role:'Tutor de Negociación',field:'negociación y manejo de objeciones, 25 años',voice:'bkcxugbRtulPFV1CinBX'},
+  coach:{name:'Elena',role:'Tutora de Acompañamiento',field:'coaching y onboarding de equipos, 25 años',voice:'bkcxugbRtulPFV1CinBX'}
 };
 var PMAP={'index':'coach','outbound-sales':'comercial','reclutamiento-partners':'comercial','prospeccion-social-selling':'comercial','marketing-partners':'marketing','negociacion-partner-manager':'negociacion','objeciones-partner-manager':'negociacion'};
 var PERSONA=PERSONAS[PMAP[SLUG]]||{name:'Tu tutor',role:'Tu tutor',field:'la materia del curso'};
