@@ -195,7 +195,8 @@ var COURSES=[
 var NAV=[['Inicio','on',ico('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>')],
  ['Mi ruta','',ico('<circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 6h6a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/>')],
  ['Explorar','',ico('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>')],
- ['Vídeos','',ico('<polygon points="5 3 19 12 5 21 5 3"/>')]];
+ ['Vídeos','',ico('<polygon points="5 3 19 12 5 21 5 3"/>')],
+ ['Ranking','',ico('<path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>')]];
 
 var ME={name:'',email:'',role:'',platformAdmin:false,approved:true};
 var ONB={};
@@ -472,6 +473,7 @@ function wire(){
   document.querySelectorAll('[data-nav="Explorar"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/explorar.html';}; });
   document.querySelectorAll('[data-nav="Vídeos"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/videos.html';}; });
   document.querySelectorAll('[data-nav="Mi ruta"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/ruta.html';}; });
+  document.querySelectorAll('[data-nav="Ranking"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/ranking.html';}; });
   var seg=document.getElementById('themeSeg');
   if(seg){ var cur=curTheme(); seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-th')===cur); b.onclick=function(){ var t=b.getAttribute('data-th'); applyTheme(t); seg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); }; }); }
   var mseg=document.getElementById('mirrorSeg');

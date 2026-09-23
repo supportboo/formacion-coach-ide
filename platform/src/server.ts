@@ -156,6 +156,41 @@ app.get("/api/learning/subtopics", async (c) => {
   } catch { return c.json({ subtopics: [] }); }
 });
 
+// Agente creador de cursos: propone los siguientes módulos de la ruta según el perfil y lo que ya tiene.
+app.post("/api/learning/suggest-modules", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({
+    have: z.array(z.string().max(160)).max(80).optional(),
+    profile: z.string().max(600).optional(),
+    after: z.string().max(160).optional(),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ modules: [] });
+  if (rateLimited(`sug:${ctx.orgId}:${ctx.userId}`, 12, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const have = (parsed.data.have || []).map((s) => s.trim()).filter(Boolean).slice(0, 80);
+  const profile = (parsed.data.profile || "").trim().slice(0, 600);
+  const after = (parsed.data.after || "").trim().slice(0, 160);
+  try {
+    const out = await llm.generate({
+      system: "Eres el agente creador de cursos de una plataforma de formación profesional. Propones los siguientes módulos que la persona debería aprender para progresar, en español de España, concretos y accionables, sin inventar certificaciones ni datos. NUNCA repitas un módulo que ya tenga. Devuelve SOLO un array JSON de 3 a 4 objetos con el formato {\"titulo\":\"...\",\"resumen\":\"una frase de para qué sirve\"}. Sin markdown, sin texto fuera del array.",
+      messages: [{ role: "user", content:
+        (profile ? ("Perfil y objetivo de la persona: " + profile + "\n") : "") +
+        (after ? ("El nuevo módulo va justo después de: " + after + "\n") : "") +
+        "Módulos que YA tiene en su ruta (no repetir ninguno):\n" + (have.length ? have.map((h) => "- " + h).join("\n") : "(ninguno todavía)") +
+        "\n\nPropón 3-4 módulos NUEVOS y distintos que encajen y hagan avanzar su aprendizaje." }],
+      maxTokens: 500, orgId: ctx.orgId, userId: ctx.userId, kind: "chat",
+    });
+    let arr = aiContent.firstJson<Array<{ titulo?: string; resumen?: string }>>(out);
+    if (!Array.isArray(arr)) arr = [];
+    const seen = new Set(have.map((h) => h.toLowerCase()));
+    const modules = arr
+      .map((m) => ({ titulo: String(m?.titulo || "").slice(0, 120).trim(), resumen: String(m?.resumen || "").slice(0, 240).trim() }))
+      .filter((m) => m.titulo && !seen.has(m.titulo.toLowerCase()))
+      .slice(0, 4);
+    return c.json({ modules });
+  } catch { return c.json({ modules: [] }); }
+});
+
 app.post("/api/learning/route/build", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
