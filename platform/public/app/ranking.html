@@ -20,7 +20,25 @@
 .pod1 .base{height:110px;background:linear-gradient(180deg,#F0C645,#c99a10)}
 .pod2 .base{height:82px;background:linear-gradient(180deg,#c3c8ce,#9aa0a6)}
 .pod3 .base{height:64px;background:linear-gradient(180deg,#d8a56a,#b08d57)}
-.medal{position:absolute;top:-6px;right:-6px;font-size:20px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.medal{position:absolute;top:-8px;right:-8px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.medal svg{display:block}
+/* Animaciones de gamificación (juguetón pero elegante en oscuro) */
+.pod .base{transform-origin:bottom;animation:growBase .55s cubic-bezier(.2,.9,.2,1) both}
+.pod2 .base{animation-delay:.12s}.pod1 .base{animation-delay:.24s}.pod3 .base{animation-delay:.36s}
+@keyframes growBase{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.pod .avatar-wrap{animation:popIn .5s cubic-bezier(.2,1.4,.4,1) both}
+.pod2 .avatar-wrap{animation-delay:.1s}.pod1 .avatar-wrap{animation-delay:.22s}.pod3 .avatar-wrap{animation-delay:.34s}
+@keyframes popIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.pod1 .adorn{animation:float 2.6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+.rank-row.me{animation:pulseMe 2.6s ease-in-out infinite}
+@keyframes pulseMe{0%,100%{box-shadow:inset 0 0 0 0 rgba(63,216,224,0)}50%{box-shadow:inset 0 0 0 2px rgba(63,216,224,.35)}}
+.progress{height:11px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;margin:10px 0 4px}
+.progress>i{display:block;height:100%;border-radius:99px;width:0;position:relative;background:linear-gradient(90deg,var(--t,#3FD8E0),#54C79A);transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.progress>i::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:shimmer 2.2s infinite}
+@keyframes shimmer{to{transform:translateX(100%)}}
+.neigh{font-size:12.5px;color:var(--t,#3FD8E0);font-weight:700;margin-top:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* Avatar que evoluciona por nivel */
 .avatar-wrap{position:relative;display:inline-flex;justify-content:center}
 .avatar-wrap .adorn{position:absolute;top:-20px;left:50%;transform:translateX(-50%);pointer-events:none}
@@ -58,7 +76,9 @@
   <div class="card">
     <h2>Tu progreso <span class="hand" style="color:var(--t);font-size:15px">esta temporada</span></h2>
     <div id="mine" class="rank-row" style="border:0"><span class="msg">Cargando…</span></div>
+    <div class="progress" id="mineProg" hidden><i></i></div>
     <p class="msg" id="nextTier" style="margin:6px 0 0"></p>
+    <p class="neigh" id="neigh" hidden></p>
   </div>
 
   <div class="card">
@@ -91,6 +111,29 @@ function eyesSvg(size){
 // Adornos por nivel: aura + estrella (Inspirador) o corona (Leyenda). Determinista, a marca.
 function crownSvg(){ return '<svg class="adorn" width="30" height="18" viewBox="0 0 30 18"><path d="M3 16 L5 5 L11 10 L15 2 L19 10 L25 5 L27 16 Z" fill="#F0C645" stroke="#b8860b" stroke-width="1.2" stroke-linejoin="round"/><circle cx="15" cy="2" r="1.6" fill="#EC6FA6"/></svg>'; }
 function starSvg(){ return '<svg class="adorn" width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l2.6 6.3 6.8.5-5.2 4.4 1.6 6.6L12 16.9 6.2 20.3l1.6-6.6L2.6 9.3l6.8-.5z" fill="#F0C645" stroke="#c99a10" stroke-width="1"/></svg>'; }
+// Medalla SVG por puesto (sustituye a los emoji, regla de marca: cero emojis en UI).
+function medalSvg(pos){
+  var g = pos===1?['#FBE28A','#C99A10','#7a5a00']:pos===2?['#E8ECF0','#9aa0a6','#5b6167']:['#F0C9A0','#b0895c','#6e4f32'];
+  return '<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">'
+    +'<path d="M8 1h3l1.2 5H9.2z" fill="#EC6FA6"/><path d="M13 1h3l-1.2 5H11.8z" fill="#3FD8E0"/>'
+    +'<circle cx="12" cy="15.5" r="7.5" fill="'+g[0]+'" stroke="'+g[1]+'" stroke-width="1.2"/>'
+    +'<circle cx="12" cy="15.5" r="5.4" fill="none" stroke="'+g[1]+'" stroke-width="1" opacity=".5"/>'
+    +'<circle cx="9.6" cy="13" r="2" fill="#fff" opacity=".45"/>'
+    +'<text x="12" y="18.9" text-anchor="middle" font-size="8.5" font-weight="900" fill="'+g[2]+'">'+pos+'</text></svg>';
+}
+// Confeti en canvas, solo para momentos (ser primero). Respeta reduce-motion.
+function confetti(ms){
+  try{ if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches) return; }catch(e){}
+  var c=document.createElement('canvas'),x=c.getContext('2d');
+  c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:60';document.body.appendChild(c);
+  var W=c.width=innerWidth,H=c.height=innerHeight,cols=['#3FD8E0','#54C79A','#C69CB8','#F0C645'],P=[];
+  for(var i=0;i<130;i++)P.push({x:Math.random()*W,y:-20-Math.random()*H,r:4+Math.random()*4,vy:2+Math.random()*3,vx:-1+Math.random()*2,rot:Math.random()*6,vr:-.2+Math.random()*.4,c:cols[i&3]});
+  var t0=performance.now();(function f(t){x.clearRect(0,0,W,H);
+    P.forEach(function(p){p.y+=p.vy;p.x+=p.vx;p.rot+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle=p.c;x.fillRect(-p.r,-p.r,p.r*2,p.r*1.4);x.restore();});
+    t-t0<ms?requestAnimationFrame(f):c.remove();})(t0);
+}
+// Contador ascendente (ease-out cúbico).
+function countUp(el,to,ms){ if(!el) return; var t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/ms);el.textContent=Math.round(to*(1-Math.pow(1-k,3)));k<1&&requestAnimationFrame(f);})(t0); }
 function avatarHtml(points, baseSize){
   var ti = tierIndex(points), t = TIERS[ti];
   var size = Math.round(baseSize * t.scale);
@@ -100,12 +143,12 @@ function avatarHtml(points, baseSize){
     '<div class="avatar-ring" style="width:' + size + 'px;height:' + size + 'px;box-shadow:0 0 0 3px ' + t.ring + ', ' + glow + '">' + eyesSvg(size) + '</div></div>';
 }
 function podHtml(pos, r, isMe){
-  var t = tierOf(r.points), medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : '🥉';
+  var t = tierOf(r.points);
   return '<div class="pod pod' + pos + '">' +
-    '<div class="avatar-wrap" style="position:relative">' + avatarHtml(r.points, 66) + '<span class="medal">' + medal + '</span></div>' +
+    '<div class="avatar-wrap" style="position:relative">' + avatarHtml(r.points, 66) + '<span class="medal">' + medalSvg(pos) + '</span></div>' +
     '<div class="pname">' + SkillUp.escHtml(r.name) + (isMe ? ' (tú)' : '') + '</div>' +
     '<div class="ptier">' + t.label + '</div>' +
-    '<div class="base"><div class="pos">' + pos + '</div><div class="pts">' + r.points + ' pts</div></div></div>';
+    '<div class="base"><div class="pos">' + pos + '</div><div class="pts"><span class="cnt" data-to="' + r.points + '">0</span> pts</div></div></div>';
 }
 function rowHtml(rank, name, points, isMe){
   var t = tierOf(points);
@@ -133,6 +176,10 @@ function nextTierMsg(points){
     var mine = await SkillUp.api('/api/propagation/points');
     document.getElementById('mine').outerHTML = rowHtml('', s.user.name || s.user.email, mine.points, true);
     var nt = document.getElementById('nextTier'); if (nt) nt.innerHTML = nextTierMsg(mine.points);
+    var ti = tierIndex(mine.points), curT = TIERS[ti], nxT = TIERS[ti + 1];
+    var pct = nxT ? Math.max(3, Math.min(100, Math.round((mine.points - curT.min) / (nxT.min - curT.min) * 100))) : 100;
+    var pb = document.getElementById('mineProg'); if (pb) { pb.hidden = false; requestAnimationFrame(function () { var bar = pb.querySelector('i'); if (bar) bar.style.width = pct + '%'; }); }
+    var mpts = document.querySelector('.rank-row.me .rank-pts'); if (mpts) countUp(mpts, mine.points, 900);
   } catch (ex) {
     document.getElementById('mine').innerHTML = '<span class="msg err">' + ex.message + '</span>';
   }
@@ -148,6 +195,14 @@ function nextTierMsg(points){
     var posOf = function (r) { return list.indexOf(r) + 1; };
     pod.innerHTML = '<div class="podium">' + order.map(function (r) { return podHtml(posOf(r), r, r.userId === myId); }).join('') + '</div>';
     box.innerHTML = list.slice(3).map(function (r, i) { return rowHtml(i + 4, r.name, r.points, r.userId === myId); }).join('');
+    pod.querySelectorAll('.cnt[data-to]').forEach(function (el) { countUp(el, Number(el.dataset.to) || 0, 900); });
+    var myPos = -1; for (var j = 0; j < list.length; j++) { if (list[j].userId === myId) { myPos = j; break; } }
+    var ne = document.getElementById('neigh');
+    if (ne) {
+      if (myPos === 0) { ne.hidden = false; ne.textContent = 'Estás en cabeza. Sigue enseñando para mantener el liderato.'; }
+      else if (myPos > 0) { var up = list[myPos - 1]; var d = up.points - list[myPos].points; ne.hidden = false; ne.textContent = d > 0 ? ('A ' + d + ' puntos de adelantar a ' + (up.name || 'quien va delante') + '.') : ('Empatas con ' + (up.name || 'quien va delante') + ' — un empujón y le adelantas.'); }
+    }
+    if (list[0] && list[0].userId === myId) setTimeout(function () { confetti(1600); }, 500);
   } catch (ex) {
     document.getElementById('ranking').innerHTML = '<span class="msg err">' + ex.message + '</span>';
   }
