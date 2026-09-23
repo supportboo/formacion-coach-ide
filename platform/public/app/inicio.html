@@ -78,6 +78,14 @@ button{font-family:inherit}[hidden]{display:none!important}
 .rm-body small{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;display:block;margin-top:2px}
 .rm-step.done .rm-body small{color:var(--teal2)}
 @media(max-width:900px){.bizrow{flex-direction:column}.roadmap{max-width:none;width:100%}}
+.usagebox{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--panel);margin-bottom:18px}
+.usagebox .uh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.usagebox .uh b{color:var(--ink);font-size:14px}.usagebox .uh span{color:var(--muted);font-size:12px}
+.usagebox .ug{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.usagebox .uc{background:var(--soft);border-radius:12px;padding:10px 12px}
+.usagebox .uc b{display:block;color:var(--teal2);font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15}
+.usagebox .uc small{color:var(--muted);font-size:11.5px}
+.usagebox .uc.wide b{font-size:14px;color:var(--ink)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
 .cc{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--panel);cursor:pointer;transition:.15s;text-decoration:none;display:flex;flex-direction:column;gap:6px}
 .cc:hover{transform:translateY(-2px);border-color:var(--aub2)}
@@ -435,6 +443,7 @@ function start(){
           +'<div class="ov-note">Ganas XP real por lo que haces, no por estar conectado: <b>+1</b> por cada nota o subrayado, <b>+2</b> por cada aportación al tutor, <b>+5</b> cuando marcas «lo aplicaré esta semana». Subes de rango con el uso real: Rookie → Aprendiz → Practicante → Especialista → Coach → Super Coach → Pro. Cuantas más funcionalidades desbloquees, más lejos llegarás — y se nota en tu avatar.</div></div></div></div>'
         +'<div class="excard" id="exCard" hidden><span class="fc">Así es el contenido de Brandooers</span><video id="exVideo" controls preload="none" playsinline></video><p class="excap">Ejemplo real: la intro de Outbound Sales, con el avatar del propio equipo.</p></div>'
         +'<div class="bizrow">'+bizPanel(ONB)+roadmap()+'</div>'
+        +'<div id="usageBox" class="usagebox" hidden></div>'
         +retosSection()
         +'<div id="skipHost">'+skipSection()+'</div>'
         +coursesSection()
@@ -461,6 +470,23 @@ function start(){
     +'<div class="ov" id="ovSkip"><div class="ov-in"><div class="ov-hd"><b data-skip-title>Demuéstralo</b><button class="x" data-close>×</button></div><div class="ov-body"><div data-skip-body></div><div data-skip-foot></div></div></div></div>';
   boot.hidden=true; app.hidden=false; wire(); wireSkip();
 }
+function fmtTokens(n){ n=Number(n)||0; return n>=1000000?(Math.round(n/100000)/10+'M'):n>=1000?(Math.round(n/100)/10+'k'):String(n); }
+function ucell(v,l,wide){ return '<div class="uc'+(wide?' wide':'')+'"><b>'+esc(v)+'</b><small>'+esc(l)+'</small></div>'; }
+function loadUsage(){
+  var box=document.getElementById('usageBox'); if(!box) return;
+  SkillUp.api('/api/analytics/my-usage').then(function(u){
+    if(!u) return;
+    var seat=(u.seatPriceCents!=null)?((u.seatPriceCents/100).toLocaleString('es-ES',{style:'currency',currency:u.currency||'EUR'})):null;
+    var plan=u.plan?(u.tierLabel||u.plan.tier):null;
+    box.innerHTML='<div class="uh"><b>Tu consumo</b><span>últimos 30 días</span></div><div class="ug">'
+      +ucell(fmtTokens(u.tokens),'Tokens usados')
+      +ucell(String(u.generated||0),'Contenidos generados')
+      +ucell(String(u.calls||0),'Acciones con IA')
+      +(plan?ucell(plan+(seat?(' · '+seat+'/mes'):''),'Tu plan por asiento',true):'')
+      +'</div>';
+    box.hidden=false;
+  }).catch(function(){ box.hidden=true; });
+}
 function wire(){
   // el ejemplo de vídeo solo se muestra si el fichero existe de verdad (nunca un hueco roto ni inventado)
   (function(){ var v=document.getElementById('exVideo'),card=document.getElementById('exCard'); if(!v||!card) return;
@@ -474,6 +500,7 @@ function wire(){
   document.querySelectorAll('[data-nav="Vídeos"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/videos.html';}; });
   document.querySelectorAll('[data-nav="Mi ruta"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/ruta.html';}; });
   document.querySelectorAll('[data-nav="Ranking"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/ranking.html';}; });
+  loadUsage();
   var seg=document.getElementById('themeSeg');
   if(seg){ var cur=curTheme(); seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-th')===cur); b.onclick=function(){ var t=b.getAttribute('data-th'); applyTheme(t); seg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); }; }); }
   var mseg=document.getElementById('mirrorSeg');

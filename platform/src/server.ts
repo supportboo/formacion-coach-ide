@@ -1762,6 +1762,24 @@ app.get("/api/analytics/cost", async (c) => {
   const days = Number(c.req.query("days") ?? 30);
   return c.json(await costsSvc.orgCost(svcDeps, ctx.orgId, days));
 });
+// Consumo personal: cada usuario ve su propio uso (tokens, contenidos generados) y su plan/asiento.
+app.get("/api/analytics/my-usage", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const usage = await costsSvc.userUsage(svcDeps, ctx.orgId, ctx.userId, 30);
+  const sub = await billingSvc.getSubscription(svcDeps, ctx.orgId).catch(() => null);
+  const tiers = await billingSvc.listPricingTiers(svcDeps).catch(() => [] as Awaited<ReturnType<typeof billingSvc.listPricingTiers>>);
+  const tier = sub ? tiers.find((t) => t.tier === sub.tier) : null;
+  return c.json({
+    tokens: usage.inputTokens + usage.outputTokens,
+    calls: usage.calls,
+    generated: usage.generated,
+    plan: sub ? { tier: sub.tier, seats: sub.seats, status: sub.status } : null,
+    seatPriceCents: tier ? tier.pricePerSeatCents : null,
+    currency: tier ? tier.currency : "EUR",
+    tierLabel: tier ? tier.label : null,
+  });
+});
 app.post("/api/analytics/baseline", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
