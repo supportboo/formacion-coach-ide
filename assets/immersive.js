@@ -282,7 +282,7 @@
   }
 
   /* ---------- logo eyes follow the pointer ---------- */
-  var eyes = Array.prototype.map.call(document.querySelectorAll('.beyes'), function (svg) {
+  var eyes = Array.prototype.map.call(document.querySelectorAll('.beyes:not(.hero-eyes)'), function (svg) {
     return Array.prototype.map.call(svg.querySelectorAll('g'), function (g) {
       var c = g.querySelectorAll('circle');
       return { iris: c[0], pupil: c[1], glint: c[2] || null };
