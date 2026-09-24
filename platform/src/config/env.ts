@@ -7,6 +7,10 @@ try { if (existsSync(".env.local")) process.loadEnvFile(".env.local"); } catch {
 const schema = z.object({
   DATABASE_URL: z.string().default("postgres://postgres:postgres@localhost:5432/skillup"),
   ANTHROPIC_API_KEY: z.string().optional(),
+  // Gemini (Google AI Studio). Con LLM_PROVIDER se elige el principal; el otro queda de reserva automática.
+  GEMINI_API_KEY: z.string().optional(),
+  GEMINI_MODEL: z.string().default("gemini-2.5-flash"),
+  LLM_PROVIDER: z.enum(["anthropic", "gemini"]).default("anthropic"),
   EMBEDDINGS_PROVIDER: z.enum(["dev", "openai"]).default("dev"),
   OPENAI_API_KEY: z.string().optional(),
   ELEVENLABS_API_KEY: z.string().optional(),
