@@ -99,7 +99,7 @@
     + '.boo-acts{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 4px}'
     + '.boo-act{border:0;border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(120deg,#22D3EE,#8B5CF6);font-family:inherit}'
     + '.boo-act.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#EEE9F7}'
-    + '@media(max-width:600px){.boo-panel{right:12px;left:12px;width:auto}}'
+    + '@media(max-width:600px){.boo-panel{right:0;left:0;bottom:0;width:auto;max-height:86dvh;max-height:86vh;border-radius:20px 20px 0 0;padding-bottom:env(safe-area-inset-bottom)}.boo-in input{font-size:16px}.boo-m{font-size:15px}body.boo-open .boo-fab{opacity:0!important;pointer-events:none;animation:none!important}body.boo-open .boo-mute{display:none!important}.boo-panel.open{max-height:86dvh}}'
     // ondas de voz "Jarvis": barras que laten mientras habla el asistente (reutilizadas en el panel y en la burbuja-guía)
     // barras movidas por JS con datos reales de audio (Web Audio Analyser), no por una animación enlatada
     + '.bg-wave{display:inline-flex;gap:3px;align-items:flex-end;height:15px;flex:none;opacity:.3}'
@@ -169,8 +169,25 @@
 
   // --- ritmo e intensidad REALES de la voz: Web Audio Analyser, mueve las barras y las pupilas (--lvl) ---
   var audioCtx = null, analyser = null, freqData = null, levelRaf = null;
-  function ensureAnalyser(el) {
+  var IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var sharedAudio = null, analysed = false;
+  // Móvil: el audio solo puede arrancar dentro de un toque del usuario. Aquí se 'desbloquea' un único
+  // elemento de audio (y el contexto) en el toque; luego las respuestas lo reutilizan aunque lleguen tarde.
+  function unlockAudio() {
     try {
+      if (!sharedAudio) { sharedAudio = new Audio(); sharedAudio.setAttribute('playsinline', ''); }
+      if (!sharedAudio.src) { sharedAudio.src = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YSADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='; }
+      var pr = sharedAudio.play(); if (pr && pr.then) pr.then(function () { sharedAudio.pause(); }).catch(function () {});
+      if (!IS_IOS) {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume().catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function ensureAnalyser(el) {
+    if (IS_IOS || analysed) return; // en iOS enrutar por Web Audio deja el audio mudo si el contexto se suspende
+    try {
+      analysed = true;
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume().catch(function () {});
       var src = audioCtx.createMediaElementSource(el);
@@ -208,7 +225,9 @@
       if (!r.ok) return;
       setSpeaking(true);
       var url = URL.createObjectURL(await r.blob());
-      var a = new Audio(url); curAudio = a; a.playbackRate = 1; // ritmo natural (1.12 sonaba acelerada y perdía tono)
+      if (!sharedAudio) { sharedAudio = new Audio(); sharedAudio.setAttribute('playsinline', ''); }
+      var a = sharedAudio; a.src = url; curAudio = a; a.playbackRate = 1; // ritmo natural (1.12 sonaba acelerada y perdía tono)
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(function () {});
       a.onended = function () { URL.revokeObjectURL(url); if (curAudio === a) curAudio = null; setSpeaking(false); stopLevel(); };
       ensureAnalyser(a);
       await a.play().catch(function () { setSpeaking(false); }); // si el navegador bloquea autoplay, degradamos a solo texto
@@ -239,12 +258,18 @@
   var rec = null;
   if (SR) {
     micBtn.addEventListener('click', function () {
+      unlockAudio();
       if (rec) { try { rec.stop(); } catch (e) {} return; }
       rec = new SR(); rec.lang = 'es-ES'; rec.interimResults = false; rec.maxAlternatives = 1;
       micBtn.classList.add('rec');
       rec.onresult = function (ev) { input.value = ev.results[0][0].transcript; };
       rec.onend = function () { micBtn.classList.remove('rec'); rec = null; if (input.value.trim()) send(true); };
-      rec.onerror = function () { micBtn.classList.remove('rec'); rec = null; };
+      rec.onerror = function (ev) { micBtn.classList.remove('rec'); rec = null;
+        var c = ev && ev.error;
+        if (c === 'not-allowed' || c === 'service-not-allowed') bubble('agent', 'Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador, o escríbeme aquí.');
+        else if (c === 'audio-capture') bubble('agent', 'No encuentro el micrófono de este dispositivo. Puedes escribirme aquí.');
+        else if (c && c !== 'no-speech' && c !== 'aborted') bubble('agent', 'El dictado por voz no está disponible ahora mismo en este navegador. Escríbeme y te respondo.');
+      };
       try { rec.start(); } catch (e) { micBtn.classList.remove('rec'); rec = null; }
     });
   } else { micBtn.style.display = 'none'; }
@@ -252,9 +277,11 @@
   function toggle(v) {
     open = (v == null) ? !open : v;
     panel.classList.toggle('open', open);
+    document.body.classList.toggle('boo-open', open);
     if (open) {
+      unlockAudio();
       loadVoices();
-      input.focus();
+      if (!matchMedia('(pointer:coarse)').matches) input.focus();
       if (!greeted) {
         greeted = true;
         var g = bubble('agent', 'Hola' + (userName ? ', ' + userName : '') + '…');
@@ -311,7 +338,7 @@
       addActions(r.reply || ''); // botones de acceso al curso del tutor que menciona
       // item B: si hablé por voz, me contesta por voz; o si el altavoz está activado.
       if (r.reply && (voiceOn || wasVoice)) playTTS(r.reply);
-    } catch (ex) { thinking.textContent = 'Ahora mismo no puedo responder. Inténtalo en un momento.'; chat.scrollTop = chat.scrollHeight; }
+    } catch (ex) { thinking.textContent = 'Ahora mismo no puedo responder (el servicio de IA no está disponible). Inténtalo en un momento.'; chat.scrollTop = chat.scrollHeight; }
   }
 
   // Burbuja-guía: saluda una vez por página (por pestaña) y explica qué se puede hacer aquí, en voz
@@ -388,7 +415,7 @@
   })();
   panel.querySelector('.boo-x').addEventListener('click', function () { toggle(false); });
   panel.querySelector('.boo-home').addEventListener('click', function () { location.href = '/app/inicio.html'; });
-  panel.querySelector('.boo-send').addEventListener('click', function () { send(false); });
+  panel.querySelector('.boo-send').addEventListener('click', function () { unlockAudio(); send(false); });
   input.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) toggle(false); });
 })();
