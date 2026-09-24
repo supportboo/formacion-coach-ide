@@ -205,8 +205,49 @@ form input:focus{outline:none;border-color:var(--vi)}
 form input::placeholder{color:var(--mut2)}
 form button{width:100%;justify-content:center;margin-top:16px;padding:16px;font-size:15px}
 .msg{font-size:13.5px;margin-top:12px;min-height:16px}.msg.ok{color:var(--cy)}.msg.err{color:#ff9db3}
-.assure{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:12.5px;color:var(--mut2)}
+.assure{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:12.5px;color:var(--mut)}
 @media(max-width:820px){.cta .grid{grid-template-columns:1fr}}
+/* Admisión — solicitud dinámica con agente que califica */
+.apply{max-width:660px;margin:0 auto}
+.ap-intro{text-align:center}
+.ap-intro .assure{justify-content:center;margin-top:18px}
+.ap-flow .ap-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.ap-agent{display:flex;align-items:center;gap:12px}
+.ap-eyes{width:42px;height:42px;border-radius:12px;background:var(--grad);display:grid;place-items:center;flex:0 0 42px}
+.ap-agent b{display:block;font-size:14px;color:#fff;font-weight:800}
+.ap-agent span{display:block;font-size:12.5px;color:var(--mut)}
+.ap-prog{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mut);white-space:nowrap}
+.ap-bar{width:110px;height:6px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
+.ap-bar i{display:block;height:100%;width:0;background:var(--grad);border-radius:100px;transition:width .45s cubic-bezier(.16,1,.3,1)}
+.ap-q{min-height:210px}
+.ap-q h3{font-family:var(--fb);font-weight:800;font-size:clamp(20px,2.7vw,27px);line-height:1.18;letter-spacing:-.02em;color:#fff;margin-bottom:18px}
+.ap-opts{display:grid;gap:11px}
+.ap-opts.two{grid-template-columns:1fr 1fr}
+@media(max-width:560px){.ap-opts.two{grid-template-columns:1fr}}
+.ap-opt{display:flex;flex-direction:column;gap:2px;text-align:left;padding:15px 18px;border-radius:15px;background:var(--glass);border:1px solid var(--gborder);color:var(--ink);cursor:pointer;font-family:inherit;transition:.25s;position:relative}
+.ap-opt:hover{border-color:rgba(167,139,250,.55);background:var(--glass2);transform:translateY(-1px)}
+.ap-opt.sel{border-color:transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,var(--grad) border-box;box-shadow:0 0 18px rgba(139,92,246,.32)}
+.ap-opt b{font-size:15px;font-weight:700;color:#fff}
+.ap-opt small{font-size:12.5px;color:var(--mut)}
+.ap-opt .tick{position:absolute;top:50%;right:16px;transform:translateY(-50%);color:var(--cy);opacity:0;font-weight:800;font-size:15px}
+.ap-opt.sel .tick{opacity:1}
+.ap-field label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.ap-field input{width:100%;font-family:var(--fb);font-size:15px;padding:14px 16px;border:1px solid var(--gborder);background:rgba(255,255,255,.05);color:#fff;border-radius:12px}
+.ap-field input:focus{outline:none;border-color:var(--vi)}
+.ap-field input::placeholder{color:var(--mut2)}
+.ap-field+.ap-field{margin-top:12px}
+.ap-nav{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+.ap-nav.first .ap-back{visibility:hidden}
+.ap-result{text-align:center}
+.ap-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:100px;background:rgba(0,212,255,.13);border:1px solid rgba(0,212,255,.4);color:var(--cy);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
+.ap-result h3{font-family:var(--fb);font-weight:900;font-size:clamp(26px,4vw,40px);line-height:1.05;letter-spacing:-.03em;color:#fff;margin-bottom:12px}
+.ap-result .rp{color:var(--mut);max-width:46ch;margin:0 auto 8px;line-height:1.6}
+.ap-fundae{margin:18px auto 0;max-width:48ch;padding:14px 18px;border-radius:14px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.32);color:var(--ink);font-size:13.5px;line-height:1.6}
+.ap-fundae b{color:var(--vi2)}
+.ap-summary{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 4px}
+.ap-summary span{font-size:12px;color:var(--mut);background:var(--glass);border:1px solid var(--gborder);border-radius:100px;padding:6px 13px}
+.ap-result .btn-grad{margin-top:24px;min-width:270px;justify-content:center}
+.ap-result .redo{display:block;margin:14px auto 0;background:none;border:0;color:var(--mut2);font-size:12.5px;cursor:pointer;font-family:inherit;text-decoration:underline}
 
 footer{padding:56px 0 44px;color:var(--mut2);border-top:1px solid var(--gborder);margin-top:40px}
 footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
@@ -362,27 +403,27 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
 </section>
 
 <section class="cta" id="acceso">
-  <div class="wrap"><div class="box glass reveal"><div class="grid">
-    <div>
-      <span class="ek">Empieza hoy</span>
-      <h2 style="margin-top:14px">Entra en la primera <span class="grad">hornada</span>.</h2>
-      <p class="p">Cuéntanos quién eres o cómo es tu equipo y te preparamos el plan, sin compromiso. Plazas limitadas.</p>
-      <div class="assure"><span>✓ Sin compromiso</span><span>✓ Plan a medida</span><span>✓ Contenido verificado</span></div>
-    </div>
-    <div>
-      <form id="pilotForm">
-        <div class="fields">
-          <div><label for="pName">Tu nombre</label><input id="pName" autocomplete="name" placeholder="Nombre y apellido" required></div>
-          <div><label for="pCompany">Empresa / perfil</label><input id="pCompany" autocomplete="organization" placeholder="Empresa o «por mi cuenta»"></div>
-          <div class="full"><label for="pEmail">Email</label><input id="pEmail" type="email" autocomplete="email" placeholder="tu@email.com" required></div>
-          <div><label for="pGoal">¿Qué objetivo buscas?</label><input id="pGoal" placeholder="Liderar, vender, autoridad…"></div>
-          <div><label for="pRoi">¿Qué esperas conseguir?</label><input id="pRoi" placeholder="Ascenso, sueldo, clientes…"></div>
+  <div class="wrap"><div class="box glass reveal">
+    <div class="apply" id="apply">
+      <div class="ap-intro" id="apIntro">
+        <span class="ek" style="justify-content:center">Admisión · primera hornada</span>
+        <h2 style="margin-top:12px">¿Encajas en <span class="grad">Brandooers</span>?</h2>
+        <p class="p" style="margin:14px auto 0">No admitimos a todo el mundo. Responde unas preguntas y nuestro comité valora si tu perfil — o el de tu equipo — encaja en esta hornada. Dos minutos.</p>
+        <div class="assure"><span>✓ Plazas limitadas</span><span>✓ Revisión personal</span><span>✓ Respuesta en 48&nbsp;h</span></div>
+        <button class="btn btn-grad" id="apStart" type="button">Solicitar mi admisión →</button>
+      </div>
+      <div class="ap-flow" id="apFlow" hidden>
+        <div class="ap-head">
+          <div class="ap-agent"><span class="ap-eyes"><svg width="24" height="14" viewBox="0 0 100 58" aria-hidden="true"><g><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="#fff" stroke-width="4"/><circle cx="25" cy="36" r="7" fill="#0a0a12"/></g><g><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="#fff" stroke-width="4"/><circle cx="73" cy="36" r="7" fill="#0a0a12"/></g></svg></span><div><b>Comité de admisión</b><span id="apSub">Una pregunta cada vez.</span></div></div>
+          <div class="ap-prog"><div class="ap-bar"><i id="apBarFill"></i></div><span id="apStepLbl">Paso 1</span></div>
         </div>
-        <button class="btn btn-grad" type="submit">Solicitar plaza</button>
-        <div class="msg" id="pilotMsg" aria-live="polite"></div>
-      </form>
+        <div class="ap-q" id="apQ"></div>
+        <div class="ap-nav first" id="apNav"><button class="btn btn-glass ap-back" id="apBack" type="button">← Atrás</button><button class="btn btn-grad" id="apNext" type="button">Siguiente →</button></div>
+        <div class="msg" id="apMsg" aria-live="polite"></div>
+      </div>
+      <div class="ap-result" id="apResult" hidden></div>
     </div>
-  </div></div></div>
+  </div></div>
 </section>
 
 <footer>
@@ -445,19 +486,111 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   document.querySelectorAll('.ccard').forEach(function(c){ c.addEventListener('click',function(){ openC(+c.dataset.i); }); });
   if(cm){ cm.querySelectorAll('[data-close]').forEach(function(el){ el.addEventListener('click',closeC); });
     document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&cm.classList.contains('open')) closeC(); }); }
-  // lead
-  var f=document.getElementById('pilotForm'), msg=document.getElementById('pilotMsg');
-  f.addEventListener('submit',function(ev){
-    ev.preventDefault(); msg.textContent=''; msg.className='msg';
-    var g=function(id){var el=document.getElementById(id);return el?(el.value||'').trim():'';};
-    var company=[g('pCompany'), g('pGoal')&&'Objetivo: '+g('pGoal'), g('pRoi')&&'Espera: '+g('pRoi')].filter(Boolean).join(' · ');
-    var btn=f.querySelector('button'); btn.disabled=true;
-    fetch('/auth/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:g('pName'),email:g('pEmail'),company:company})})
-      .then(function(r){return r.json().then(function(d){return{ok:r.ok&&d.ok,d:d};});})
-      .then(function(x){ if(x.ok){msg.className='msg ok';msg.textContent='Recibido. Te escribimos en breve.';f.reset();} else {msg.className='msg err';msg.textContent=(x.d&&x.d.error)||'No se pudo enviar.';} })
-      .catch(function(){ msg.className='msg err'; msg.innerHTML='No se pudo enviar. Escríbenos a <a href="mailto:info@brandooers.com" style="color:var(--cy)">info@brandooers.com</a>.'; })
-      .then(function(){ btn.disabled=false; });
-  });
+  // ===== Admisión Brandooers — solicitud dinámica + agente que califica =====
+  var apply=document.getElementById('apply');
+  if(apply){
+    var Q={
+      ind:[
+        {id:'rol',q:'¿En qué momento profesional estás?',sub:'Empecemos por ti.',type:'choice',opts:[
+          {v:'estudiante',l:'Estudiante o recién graduado'},{v:'junior',l:'Profesional junior',d:'1-3 años'},{v:'experiencia',l:'Con experiencia',d:'4-8 años'},{v:'directivo',l:'Mando intermedio o directivo'},{v:'autonomo',l:'Autónomo o emprendedor'}]},
+        {id:'focus',q:'¿Qué quieres desarrollar?',sub:'Marca todas las que quieras.',type:'multi',opts:[
+          {v:'liderazgo',l:'Liderazgo'},{v:'ventas',l:'Ventas y negociación'},{v:'comunicacion',l:'Comunicación y storytelling'},{v:'marketing',l:'Marketing y crecimiento'},{v:'ia',l:'IA aplicada'},{v:'mentalidad',l:'Mentalidad y autoridad'}]},
+        {id:'motive',q:'¿Qué te mueve ahora mismo?',sub:'Lo que de verdad te ha traído aquí.',type:'choice',opts:[
+          {v:'ascender',l:'Ascender o mejorar mi sueldo'},{v:'clientes',l:'Conseguir y cerrar clientes'},{v:'autoridad',l:'Ganar autoridad y visibilidad'},{v:'reorientar',l:'Reorientar mi carrera'},{v:'proyecto',l:'Hacer crecer mi proyecto'}]},
+        {id:'timeline',q:'¿Cuándo querrías empezar?',sub:'Para saber si entras en esta hornada.',type:'choice',opts:[
+          {v:'ya',l:'Ya, quiero plaza'},{v:'mes',l:'Este mes'},{v:'explorando',l:'Estoy explorando'}]},
+        {id:'contact',q:'¿Dónde te enviamos la respuesta?',sub:'Último paso. Revisamos cada solicitud a mano.',type:'contact'}
+      ],
+      emp:[
+        {id:'company',q:'¿Cómo se llama tu empresa?',sub:'Formar a un equipo, buena decisión.',type:'text',ph:'Nombre de la empresa'},
+        {id:'sector',q:'¿A qué sector os dedicáis?',sub:'',type:'choice',opts:[
+          {v:'tech',l:'Tecnología y software'},{v:'industria',l:'Industria y fabricación'},{v:'servicios',l:'Servicios profesionales'},{v:'retail',l:'Comercio y retail'},{v:'salud',l:'Salud'},{v:'construccion',l:'Construcción'},{v:'hosteleria',l:'Hostelería y turismo'},{v:'educacion',l:'Educación'},{v:'otro',l:'Otro'}]},
+        {id:'size',q:'¿Cuántas personas sois en plantilla?',sub:'Esto nos dice si podéis bonificar la formación.',type:'choice',opts:[
+          {v:'1-9',l:'1-9 empleados'},{v:'10-49',l:'10-49 empleados'},{v:'50-249',l:'50-249 empleados'},{v:'250+',l:'250 o más'}]},
+        {id:'seats',q:'¿A cuántas personas quieres formar?',sub:'',type:'choice',opts:[
+          {v:'1-3',l:'1-3 personas'},{v:'4-10',l:'4-10 personas'},{v:'11-25',l:'11-25 personas'},{v:'25+',l:'Más de 25'}]},
+        {id:'area',q:'¿Qué competencia prioriza tu equipo?',sub:'Marca las que quieras.',type:'multi',opts:[
+          {v:'liderazgo',l:'Liderazgo'},{v:'ventas',l:'Ventas y negociación'},{v:'comunicacion',l:'Comunicación'},{v:'marketing',l:'Marketing y crecimiento'},{v:'ia',l:'IA aplicada'},{v:'mentalidad',l:'Mentalidad y autoridad'}]},
+        {id:'role',q:'¿Cuál es tu papel en la empresa?',sub:'',type:'choice',opts:[
+          {v:'direccion',l:'Dirección o gerencia'},{v:'rrhh',l:'RRHH y personas'},{v:'responsable',l:'Responsable de equipo'},{v:'formacion',l:'Formación y desarrollo'},{v:'otro',l:'Otro'}]},
+        {id:'timeline',q:'¿Para cuándo lo necesitáis?',sub:'',type:'choice',opts:[
+          {v:'ya',l:'Ya, este mes'},{v:'trimestre',l:'Este trimestre'},{v:'explorando',l:'Explorando opciones'}]},
+        {id:'contact',q:'¿Con quién seguimos hablando?',sub:'Último paso. Te contactamos para la entrevista.',type:'contact',emailLabel:'Email corporativo'}
+      ]
+    };
+    var L={estudiante:'Estudiante',junior:'Junior',experiencia:'Con experiencia',directivo:'Directivo',autonomo:'Autónomo',liderazgo:'Liderazgo',ventas:'Ventas',comunicacion:'Comunicación',marketing:'Marketing',ia:'IA',mentalidad:'Mentalidad',ascender:'Ascender',clientes:'Clientes',autoridad:'Autoridad',reorientar:'Reorientar',proyecto:'Proyecto',ya:'Empezar ya',mes:'Este mes',trimestre:'Este trimestre',explorando:'Explorando',tech:'Tecnología',industria:'Industria',servicios:'Servicios',retail:'Retail',salud:'Salud',construccion:'Construcción',hosteleria:'Hostelería',educacion:'Educación',otro:'Otro',direccion:'Dirección',rrhh:'RRHH',responsable:'Responsable',formacion:'Formación'};
+    var el=function(id){return document.getElementById(id);};
+    var A={},seq=[],idx=0,persona=null,stage='intro';
+    var intro=el('apIntro'),flow=el('apFlow'),result=el('apResult'),qBox=el('apQ'),sub=el('apSub'),bar=el('apBarFill'),stepLbl=el('apStepLbl'),back=el('apBack'),next=el('apNext'),msg=el('apMsg');
+    var esc=function(s){return String(s==null?'':s).replace(/[<>&"]/g,function(c){return '&#'+c.charCodeAt(0)+';';});};
+    function goIntro(){ stage='intro'; flow.hidden=true; result.hidden=true; intro.hidden=false; }
+    function goPersona(){ stage='persona'; persona=null; intro.hidden=true; result.hidden=true; flow.hidden=false;
+      sub.textContent='Bienvenido al proceso de admisión.'; bar.style.width='0%'; stepLbl.textContent='Tu perfil'; next.style.display='none'; msg.textContent='';
+      qBox.innerHTML='<h3>¿Para quién quieres la plaza?</h3><div class="ap-opts two">'
+        +'<button type="button" class="ap-opt" data-p="ind"><b>Para mí</b><small>Quiero desarrollarme</small><span class="tick">✓</span></button>'
+        +'<button type="button" class="ap-opt" data-p="emp"><b>Para mi equipo</b><small>Formo a mi empresa</small><span class="tick">✓</span></button></div>';
+      qBox.querySelectorAll('.ap-opt').forEach(function(b){ b.addEventListener('click',function(){ start(b.getAttribute('data-p')); }); });
+    }
+    function start(p){ persona=p; seq=Q[p]; idx=0; A={persona:p}; stage='q'; next.style.display=''; render(); }
+    function render(){ var s=seq[idx]; msg.textContent=''; msg.className='msg';
+      sub.textContent=s.sub||'Una pregunta cada vez.'; bar.style.width=Math.round(idx/seq.length*100)+'%'; stepLbl.textContent='Paso '+(idx+1)+' de '+seq.length;
+      next.textContent = idx===seq.length-1 ? 'Ver si encajo →' : 'Siguiente →';
+      var h='<h3>'+esc(s.q)+'</h3>';
+      if(s.type==='choice'||s.type==='multi'){ h+='<div class="ap-opts'+(s.opts.length>4?' two':'')+'">';
+        var cur=A[s.id]||(s.type==='multi'?[]:null);
+        s.opts.forEach(function(o){ var on=s.type==='multi'?(cur.indexOf(o.v)>=0):(cur===o.v);
+          h+='<button type="button" class="ap-opt'+(on?' sel':'')+'" data-v="'+o.v+'"><b>'+esc(o.l)+'</b>'+(o.d?'<small>'+esc(o.d)+'</small>':'')+'<span class="tick">✓</span></button>'; });
+        h+='</div>';
+      } else if(s.type==='text'){ h+='<div class="ap-field"><label>'+esc(s.q)+'</label><input id="apInput" type="text" placeholder="'+esc(s.ph||'')+'" value="'+esc(A[s.id]||'')+'"></div>';
+      } else if(s.type==='contact'){ h+='<div class="ap-field"><label>Tu nombre</label><input id="apName" type="text" autocomplete="name" placeholder="Nombre y apellido" value="'+esc(A.name||'')+'"></div>'
+          +'<div class="ap-field"><label>'+esc(s.emailLabel||'Email')+'</label><input id="apEmail" type="email" autocomplete="email" placeholder="tu@email.com" value="'+esc(A.email||'')+'"></div>'; }
+      qBox.innerHTML=h;
+      qBox.querySelectorAll('.ap-opt').forEach(function(btn){ btn.addEventListener('click',function(){ var v=btn.getAttribute('data-v');
+        if(s.type==='multi'){ var arr=A[s.id]||[]; var i=arr.indexOf(v); if(i>=0)arr.splice(i,1); else arr.push(v); A[s.id]=arr; btn.classList.toggle('sel'); }
+        else { A[s.id]=v; qBox.querySelectorAll('.ap-opt').forEach(function(b){b.classList.remove('sel');}); btn.classList.add('sel'); setTimeout(go,240); } }); });
+      var inp=el('apInput')||el('apName'); if(inp) try{inp.focus();}catch(e){}
+    }
+    function readInputs(){ var s=seq[idx]; if(!s)return;
+      if(s.type==='text'){ var i=el('apInput'); if(i)A[s.id]=i.value.trim(); }
+      if(s.type==='contact'){ var n=el('apName'),e=el('apEmail'); if(n)A.name=n.value.trim(); if(e)A.email=e.value.trim(); } }
+    function valid(){ var s=seq[idx];
+      if(s.type==='choice')return !!A[s.id];
+      if(s.type==='multi')return (A[s.id]||[]).length>0;
+      if(s.type==='text')return (A[s.id]||'').length>1;
+      if(s.type==='contact')return (A.name||'').length>1 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(A.email||'');
+      return true; }
+    function go(){ if(stage!=='q')return; readInputs(); if(!valid()){ msg.className='msg err'; msg.textContent=seq[idx].type==='contact'?'Pon tu nombre y un email válido.':(seq[idx].type==='text'?'Escribe una respuesta para seguir.':'Elige una opción para seguir.'); return; }
+      if(idx>=seq.length-1){ finish(); return; } idx++; render(); }
+    function back_(){ if(stage==='q'){ readInputs(); if(idx>0){ idx--; render(); } else goPersona(); } else if(stage==='persona'){ goIntro(); } }
+    function tierOf(){ var s=0;
+      if(persona==='ind'){ if(A.timeline==='ya')s+=3; else if(A.timeline==='mes')s+=2; if(A.rol==='directivo'||A.rol==='autonomo')s+=2; else if(A.rol==='experiencia')s+=1; if(['ascender','clientes','proyecto'].indexOf(A.motive)>=0)s+=1; if((A.focus||[]).length>=2)s+=1; }
+      else { if(A.timeline==='ya')s+=3; else if(A.timeline==='trimestre')s+=2; s+=({'1-9':0,'10-49':1,'50-249':2,'250+':3})[A.size]||0; s+=({'1-3':0,'4-10':1,'11-25':2,'25+':3})[A.seats]||0; if(['direccion','rrhh','formacion'].indexOf(A.role)>=0)s+=2; }
+      return s>=6?'ALTA':(s>=3?'MEDIA':'EXPLORA'); }
+    function chips(){ var o=[]; if(persona==='ind'){ if(A.rol)o.push(L[A.rol]); (A.focus||[]).slice(0,3).forEach(function(f){o.push(L[f]);}); if(A.timeline)o.push(L[A.timeline]); }
+      else { if(A.sector)o.push(L[A.sector]); if(A.size)o.push(A.size+' empleados'); if(A.seats)o.push('Formar a '+A.seats); if(A.role)o.push(L[A.role]); }
+      return o.map(function(c){return '<span>'+esc(c)+'</span>';}).join(''); }
+    function finish(){ var tier=tierOf(); A.tier=tier; stage='result';
+      var head=persona==='emp'?'Tu equipo cumple el perfil.':'Encajas en la primera hornada.';
+      var line=persona==='emp'?'Por el tamaño de tu empresa y lo que quieres formar, encajáis en el programa. El siguiente paso es una entrevista corta para diseñar el plan a medida.':'Por tu momento y lo que quieres desarrollar, encajas en el perfil que buscamos. El siguiente paso es una entrevista corta de admisión.';
+      var fundae=persona==='emp'?'<div class="ap-fundae"><b>Formación bonificable.</b> Como empresa con trabajadores en España, parte de este programa puede bonificarse por FUNDAE. Lo calculamos contigo en la entrevista, sin compromiso.</div>':'';
+      result.innerHTML='<span class="ap-badge">✦ Preseleccionado · '+(tier==='ALTA'?'prioridad alta':tier==='MEDIA'?'buen encaje':'en valoración')+'</span><h3>'+head+'</h3><p class="rp">'+line+'</p><div class="ap-summary">'+chips()+'</div>'+fundae
+        +'<button class="btn btn-grad" id="apSend" type="button">Confirmar mi solicitud</button><div class="msg" id="apSendMsg" aria-live="polite"></div><button class="redo" id="apRedo" type="button">Volver a empezar</button>';
+      flow.hidden=true; result.hidden=false; bar.style.width='100%';
+      el('apSend').addEventListener('click',send); el('apRedo').addEventListener('click',goIntro);
+    }
+    function send(){ var m=el('apSendMsg'),btn=el('apSend'); m.className='msg'; m.textContent=''; btn.disabled=true;
+      var resumen=persona==='emp'?('EMPRESA · '+(A.company||'-')+' · '+(L[A.sector]||A.sector||'-')+' · '+(A.size||'-')+' empleados · formar '+(A.seats||'-')+' · rol '+(L[A.role]||A.role||'-')+' · '+(A.timeline||'-')+' · áreas: '+((A.area||[]).map(function(x){return L[x]||x;}).join('/')||'-')+' · FUNDAE posible · tier '+A.tier)
+        :('PARTICULAR · '+(L[A.rol]||A.rol||'-')+' · quiere: '+((A.focus||[]).map(function(x){return L[x]||x;}).join('/')||'-')+' · motivo '+(L[A.motive]||A.motive||'-')+' · '+(A.timeline||'-')+' · tier '+A.tier);
+      var payload={name:A.name,email:A.email,company:persona==='emp'?(A.company||'Empresa'):'Particular',persona:persona,tier:A.tier,timeline:A.timeline||'',resumen:resumen,source:'brandooers-admision',rol:A.rol||'',focus:(A.focus||[]).join(','),motive:A.motive||'',sector:A.sector||'',size:A.size||'',seats:A.seats||'',area:(A.area||[]).join(','),role:A.role||'',fundae:persona==='emp'?'posible':''};
+      fetch('/auth/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
+        .then(function(r){return r.json().then(function(d){return{ok:r.ok&&d.ok,d:d};});})
+        .then(function(x){ if(x.ok){ result.innerHTML='<span class="ap-badge">✓ Solicitud recibida</span><h3>Ya estás en la lista.</h3><p class="rp">Revisamos tu solicitud a mano y te escribimos en menos de 48&nbsp;h a <b style="color:#fff">'+esc(A.email)+'</b> con los siguientes pasos. Bienvenido al proceso.</p>'; } else { m.className='msg err'; m.textContent=(x.d&&x.d.error)||'No se pudo enviar.'; btn.disabled=false; } })
+        .catch(function(){ m.className='msg err'; m.innerHTML='No se pudo enviar. Escríbenos a <a href="mailto:info@brandooers.com" style="color:var(--cy)">info@brandooers.com</a>.'; btn.disabled=false; });
+    }
+    el('apStart').addEventListener('click',goPersona);
+    next.addEventListener('click',go);
+    back.addEventListener('click',back_);
+  }
 })();
 </script>
 </body>

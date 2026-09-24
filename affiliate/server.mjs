@@ -220,10 +220,16 @@ function notifyLeadByEmail(rec, origin) {
     from: '"Brandooers" <' + MAIL.from + '>',
     to: MAIL.to,
     replyTo: rec.email,
-    subject: 'Nueva solicitud · ' + (rec.name || rec.email) + (rec.company ? ' · ' + rec.company : ''),
+    subject: 'Nueva solicitud · ' + (rec.name || rec.email) + (rec.tier ? ' · ' + rec.tier : '') + (rec.company && rec.company !== 'Particular' ? ' · ' + rec.company : ''),
     text: 'Solicitud recibida en ' + (origin || 'brandooers.com') + '\n\n'
-      + line('Nombre', rec.name) + line('Email', rec.email) + line('Empresa / sector / equipo', rec.company)
-      + line('Fecha', rec.ts) + '\nResponde a este correo para contestarle directamente.\n',
+      + line('Nombre', rec.name) + line('Email', rec.email)
+      + line('Perfil', rec.persona === 'emp' ? 'Empresa' : (rec.persona === 'ind' ? 'Profesional (particular)' : ''))
+      + line('Prioridad (tier)', rec.tier) + line('Empresa', rec.company && rec.company !== 'Particular' ? rec.company : '')
+      + line('Sector', rec.sector) + line('Plantilla', rec.size) + line('A formar', rec.seats)
+      + line('Rol del contacto', rec.role) + line('Momento profesional', rec.rol) + line('Motivo', rec.motive)
+      + line('Áreas de interés', rec.focus || rec.area) + line('Cuándo', rec.timeline) + line('FUNDAE', rec.fundae)
+      + line('Resumen', rec.resumen) + line('Origen', rec.source) + line('Fecha', rec.ts)
+      + '\nResponde a este correo para contestarle directamente.\n',
   }).catch(e => console.log('mail error:', e.message));
 }
 
@@ -284,9 +290,18 @@ const server = http.createServer(async (req, res) => {
     const b = await body(req);
     const email = String(b.email || '').slice(0, 120).trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json(res, 400, { error: 'Email no válido' });
-    const rec = { name: String(b.name || '').slice(0, 80).trim(), email, company: String(b.company || '').slice(0, 120).trim(), ts: new Date().toISOString() };
+    const clip = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
+    const rec = {
+      name: clip(b.name, 80), email, company: clip(b.company, 120),
+      persona: clip(b.persona, 12), tier: clip(b.tier, 10), timeline: clip(b.timeline, 20),
+      sector: clip(b.sector, 30), size: clip(b.size, 12), seats: clip(b.seats, 12),
+      role: clip(b.role, 24), rol: clip(b.rol, 24), motive: clip(b.motive, 24),
+      focus: clip(b.focus, 160), area: clip(b.area, 160), fundae: clip(b.fundae, 12),
+      resumen: clip(b.resumen, 420), source: clip(b.source, 48),
+      ts: new Date().toISOString(),
+    };
     try { appendFileSync(W('leads.jsonl'), JSON.stringify(rec) + '\n'); } catch {}
-    notifyAdmins('Nuevo lead 🎯', (rec.name || '') + ' · ' + rec.email + (rec.company ? ' · ' + rec.company : ''), '/panel.html');
+    notifyAdmins('Nuevo lead 🎯', (rec.name || '') + ' · ' + rec.email + (rec.tier ? ' · ' + rec.tier : '') + (rec.resumen ? ' · ' + rec.resumen : (rec.company ? ' · ' + rec.company : '')), '/panel.html');
     notifyLeadByEmail(rec, String(req.headers.host || ''));
     return json(res, 200, { ok: true });
   }
