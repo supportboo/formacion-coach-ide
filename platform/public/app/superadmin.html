@@ -73,6 +73,7 @@ details.ag pre{white-space:pre-wrap;font-size:12.5px;color:var(--body);margin-to
   <button class="navb on" data-sec="resumen"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Resumen</button>
   <button class="navb" data-sec="empresas"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V7l6-4 6 4v14"/><path d="M10 9h.01M14 9h.01M10 13h.01M14 13h.01"/></svg>Empresas</button>
   <button class="navb" data-sec="insights"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><circle cx="9" cy="12" r="1.5"/><circle cx="14" cy="8" r="1.5"/><circle cx="19" cy="13" r="1.5"/><path d="M9 12l5-4 5 5"/></svg>Insights</button>
+  <button class="navb" data-sec="metricas"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="7"/><rect x="12" y="6" width="3" height="11"/><rect x="17" y="13" width="3" height="4"/></svg>Métricas</button>
   <div class="grp">Personas</div>
   <button class="navb" data-sec="usuarios"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 4-6 7-6s7 2 7 6"/><path d="M17 11l2 2 4-4"/></svg>Usuarios y roles</button>
   <button class="navb" data-sec="perfiles"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="15" width="7" height="7" rx="1.5"/><rect x="14" y="15" width="7" height="7" rx="1.5"/></svg>Perfiles de prueba</button>
@@ -477,8 +478,44 @@ async function perfiles(box){
   }); }; });
 }
 
-var SECTIONS={resumen:resumen,empresas:empresas,insights:insights,usuarios:usuarios,perfiles:perfiles,agentes:agentes,conocimiento:conocimiento,retos:retos,ajustes:ajustes};
-var TITLES={resumen:'Resumen',empresas:'Empresas',insights:'Insights',usuarios:'Usuarios y roles',perfiles:'Perfiles de prueba',agentes:'Agentes tutores',conocimiento:'Conocimiento',retos:'Retos y práctica',ajustes:'Ajustes'};
+var SECTIONS={resumen:resumen,empresas:empresas,insights:insights,metricas:metricas,usuarios:usuarios,perfiles:perfiles,agentes:agentes,conocimiento:conocimiento,retos:retos,ajustes:ajustes};
+var TITLES={resumen:'Resumen',empresas:'Empresas',insights:'Insights',metricas:'Métricas',usuarios:'Usuarios y roles',perfiles:'Perfiles de prueba',agentes:'Agentes tutores',conocimiento:'Conocimiento',retos:'Retos y práctica',ajustes:'Ajustes'};
+
+// Métricas: toda la data de la plataforma. null = "sin datos" (nunca un 0 que parezca resultado).
+function nz(v,suf){ return (v===null||v===undefined)?'<span style="color:var(--muted)">sin datos</span>':(E(String(v))+(suf||'')); }
+function bars(lb){
+  if(!lb||!lb.length) return '<p class="msg">Sin competencias cargadas aún.</p>';
+  return '<div style="display:flex;flex-direction:column;gap:7px">'+lb.map(function(c){
+    var t=c.total||1, seg=[['#54C79A',c.n3,'Referente'],['#3FD8E0',c.n2,'Aplica'],['#F0C645',c.n1,'En formación'],['rgba(150,140,170,.3)',c.n0,'Novato']];
+    var bar=seg.map(function(s){ var w=Math.round((s[1]/t)*100); return w>0?'<span title="'+s[2]+': '+s[1]+'" style="width:'+w+'%;background:'+s[0]+'"></span>':''; }).join('');
+    return '<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><b>'+E(c.name)+(c.critical?' <span class="pill sa" style="font-size:9px">crítica</span>':'')+'</b><span style="color:var(--muted)">'+(c.n2+c.n3)+'/'+c.total+' aplican</span></div><div style="display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--soft)">'+bar+'</div></div>';
+  }).join('')+'</div>';
+}
+async function metricas(box){
+  box.innerHTML=hdr('Métricas de plataforma','Toda la data real de todas las empresas: aprendizaje, aplicación (ROI), capacidad, coaches, industrias y puntos. Sin cifras inventadas.','Los números que venden: qué se aplica de verdad y cómo evoluciona cada empresa.')
+    +'<div class="tiles" id="mtiles"><div class="note">Cargando…</div></div>'
+    +'<div class="card" id="morgs"><h2>Por empresa</h2><p class="msg">Cargando…</p></div>';
+  var d=await SkillUp.api('/api/platform/metrics').catch(function(){return null;});
+  if(!d){ document.getElementById('mtiles').innerHTML='<p class="msg">No pude cargar las métricas.</p>'; return; }
+  var t=d.totals||{};
+  document.getElementById('mtiles').innerHTML=[
+    tile(t.orgs,'Empresas'),tile(t.members,'Personas'),tile(t.activeLearners,'Activas'),
+    tile(t.coaches,'Coaches (referentes)','teal'),tile(t.casesApproved,'Casos validados','teal'),
+    tile(t.roleplays,'Roleplays'),tile(t.applicationCheckins,'Check-ins de aplicación','gold'),
+    tile(t.bestPracticesInBrain,'Buenas prácticas en el cerebro'),tile(t.questionsAsked,'Preguntas al tutor'),
+    tile(t.totalPoints,'Puntos'),tile(t.criticalRisks,'Riesgos críticos', t.criticalRisks>0?'red':'')
+  ].join('');
+  var orgs=(d.orgs||[]);
+  document.getElementById('morgs').innerHTML='<h2>Por empresa '+tip('Cada empresa con su capacidad aplicada, coaches, ROI de aplicación e industrias. Barras = personas por nivel en cada competencia.')+'</h2>'+
+    (orgs.length?orgs.map(function(o){ var m=o.metrics;
+      return '<div style="border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px">'
+        +'<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:baseline"><b style="font-size:15px">'+E(o.orgName)+'</b>'
+        +'<span style="font-size:12px;color:var(--muted)">'+m.members+' personas · '+m.coaches+' coaches · aplica '+nz(m.coveragePct,'%')+' · autonomía '+nz(m.timeToAutonomyDays,' días')+' · ROI aplicación '+nz(m.application.tasaAplicacion,'%')+'</span></div>'
+        +'<div style="margin-top:10px">'+bars(m.levelBars)+'</div>'
+        +(m.industries&&m.industries.length?'<div style="margin-top:9px;font-size:12px;color:var(--muted)">Industrias: '+m.industries.map(function(i){return E(i.sector)+' ('+i.n+')';}).join(' · ')+'</div>':'')
+        +'</div>';
+    }).join(''):'<p class="msg">Aún no hay empresas con datos.</p>');
+}
 function setCrumb(parts){
   var el=document.getElementById('crumb'); if(!el)return;
   el.innerHTML='<a data-nav="resumen">Consola</a><span class="sep">›</span>'+parts.map(function(p,i){ var last=i===parts.length-1; return (last||!p.path)?'<span>'+E(p.label)+'</span>':'<a data-nav="'+E(p.path)+'">'+E(p.label)+'</a><span class="sep">›</span>'; }).join('');
