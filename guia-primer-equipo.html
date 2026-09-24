@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Brandooers · Tus primeros 90 días al frente de un equipo</title>
+<meta name="description" content="Guía práctica de Brandooers: qué hacer (y qué evitar) en tus primeros 90 días dirigiendo a un equipo por primera vez, sin sentirte un fraude.">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0918;--bg2:#12102a;--ink:#F3F0FB;--mut:#a99fc4;--mut2:#786e97;--cy:#00D4FF;--vi:#8B5CF6;--pk:#EC4899;--vi2:#A78BFA;--grad:linear-gradient(120deg,#00D4FF,#8B5CF6,#EC4899);--glass:rgba(255,255,255,.045);--gborder:rgba(255,255,255,.11);--fb:'Inter',system-ui,sans-serif;--fd:'Space Grotesk',var(--fb);--fc:'Caveat',cursive}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(50% 40% at 82% 6%,rgba(139,92,246,.22),transparent 70%),radial-gradient(45% 40% at 8% 24%,rgba(0,212,255,.14),transparent 70%),radial-gradient(50% 45% at 60% 100%,rgba(236,72,153,.16),transparent 70%),var(--bg)}
+.wrap{max-width:760px;margin:0 auto;padding:clamp(28px,6vw,64px) clamp(20px,5vw,40px) 80px}
+.logo{display:inline-flex;align-items:baseline;font-weight:900;font-size:22px;letter-spacing:-.02em;color:#fff}
+.logo .beyes{align-self:center;margin:0 2px}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ek{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--vi2);margin-top:30px}
+.ek:before{content:"";width:22px;height:1px;background:var(--vi2)}
+h1{font-weight:900;font-size:clamp(30px,5.6vw,52px);line-height:1.03;letter-spacing:-.03em;margin:12px 0 14px;color:#fff}
+h1 em{font-style:normal;font-family:var(--fc);font-weight:700;color:var(--pk)}
+.lead{color:var(--mut);font-size:clamp(16px,2vw,18px);max-width:56ch}
+.rule{height:1px;background:var(--gborder);margin:34px 0}
+h2{font-weight:900;font-size:clamp(20px,3vw,27px);letter-spacing:-.02em;color:#fff;margin:34px 0 4px;display:flex;gap:12px;align-items:baseline}
+h2 .n{font-family:var(--fd);font-weight:700;font-size:16px;color:var(--cy);flex:0 0 auto}
+h3{font-weight:800;font-size:16px;color:#fff;margin:18px 0 4px}
+p{color:var(--mut);margin:8px 0}
+p b,li b{color:var(--ink)}
+ul{margin:8px 0 8px 2px;list-style:none}
+li{position:relative;padding-left:26px;margin:7px 0;color:var(--mut)}
+li:before{content:"";position:absolute;left:2px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--grad)}
+.card{background:var(--glass);border:1px solid var(--gborder);border-radius:18px;padding:20px 22px;margin:16px 0;backdrop-filter:blur(10px)}
+.card.warn{border-color:rgba(236,72,153,.35);background:linear-gradient(90deg,rgba(236,72,153,.08),transparent)}
+.card h3{margin-top:0}
+.quote{font-family:var(--fc);font-size:23px;color:var(--vi2);line-height:1.3;margin:18px 0;padding-left:16px;border-left:2px solid var(--vi)}
+.cta{margin-top:44px;padding:clamp(26px,4vw,38px);border-radius:22px;background:var(--glass);border:1px solid var(--gborder);text-align:center}
+.cta h2{justify-content:center;display:block;margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:15px 30px;border-radius:100px;background:var(--grad);color:#fff;box-shadow:0 10px 30px rgba(139,92,246,.45);margin-top:14px}
+.foot{margin-top:40px;color:var(--mut2);font-size:12.5px;text-align:center;line-height:1.7}
+@media print{body:before{display:none}body{background:#fff;color:#111}.card,.cta{background:#f6f4fb;border-color:#ddd}h1,h2,h3,.logo{color:#111}p,li,.lead{color:#333}.btn{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<radialGradient id="ir1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+<radialGradient id="ir2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+</defs></svg>
+<div class="wrap">
+  <a href="https://brandooers.com" class="logo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58" aria-hidden="true"><g><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg1)" stroke-width="3"/><circle cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle cx="25" cy="36" r="3.4" fill="#0a0a12"/></g><g><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg2)" stroke-width="3"/><circle cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle cx="73" cy="36" r="3.4" fill="#0a0a12"/></g></svg>ers</a>
+
+  <span class="ek">Guía práctica · para tu primer equipo</span>
+  <h1>Tus primeros 90 días al frente de un equipo <em>(sin sentirte un fraude)</em>.</h1>
+  <p class="lead">Te acaban de ascender. O te han dado tu primer equipo, tu primer cliente grande. Y por dentro, esa voz: «me van a descubrir». Esta guía es el mapa que nos habría gustado tener el primer día — lo que funciona, lo que hunde y en qué orden hacerlo.</p>
+
+  <div class="quote">Nadie nace dirigiendo. Se entrena, como todo lo que ya dominas.</div>
+
+  <div class="rule"></div>
+
+  <h2><span class="n">01</span> La verdad sobre la voz del impostor</h2>
+  <p>Esa sensación de «no doy la talla» no es una señal de que no vales. Es la señal de que estás haciendo algo <b>nuevo y grande</b>. Le pasa a casi todo el que asume responsabilidad antes de sentirse «listo» — y sentirse listo del todo no llega nunca. La diferencia entre quien crece y quien se bloquea no es la seguridad: es el <b>método</b>.</p>
+  <div class="card warn"><h3>Evita esto</h3><p>Fingir que lo sabes todo, no preguntar por miedo a parecer novato, y decidir por impulso para «demostrar» que mandas. Es la vía rápida a perder la confianza del equipo.</p></div>
+
+  <h2><span class="n">02</span> Semanas 1-2 · Escucha antes de mover nada</h2>
+  <p>La tentación es llegar y cambiarlo todo para dejar tu huella. Haz lo contrario primero:</p>
+  <ul>
+    <li><b>Una conversación 1:1</b> con cada persona: qué le funciona, qué le frustra, qué haría distinto. Solo escuchar.</li>
+    <li><b>Pregunta «tonta» a propósito:</b> «¿cómo se hace esto aquí?». No te hace pequeño; te hace fiable.</li>
+    <li><b>Apunta patrones,</b> no promesas. Todavía no arregles nada.</li>
+  </ul>
+
+  <h2><span class="n">03</span> Semanas 3-6 · Gánate la autoridad, no la reclames</h2>
+  <p>La autoridad no se pide, se demuestra en decisiones pequeñas y consistentes.</p>
+  <ul>
+    <li><b>Decide algo visible</b> que resuelva un dolor que te contaron en los 1:1. Que vean que escuchar sirve.</li>
+    <li><b>Da feedback pronto y concreto:</b> «esto, así, por esto». El silencio se interpreta como que no te enteras.</li>
+    <li><b>Empieza por el resultado</b> cuando hables con dirección o cliente: una frase, qué ganan. Luego el contexto.</li>
+  </ul>
+  <div class="card"><h3>Cómo liderar a alguien mayor que tú</h3><p>No compitas en experiencia — no vas a ganar y no hace falta. Reconoce su recorrido en voz alta, pídele criterio en su terreno, y aporta tú lo que sí dominas (visión, datos, el porqué). El respeto llega cuando ven que <b>sumas</b>, no cuando demuestras que mandas.</p></div>
+
+  <h2><span class="n">04</span> Semanas 7-12 · De «el nuevo jefe» a referente</h2>
+  <ul>
+    <li><b>Haz visible el avance del equipo</b> hacia arriba: que tu gente reciba el crédito. Tu autoridad crece cuando ellos brillan.</li>
+    <li><b>Protege su foco:</b> di «no» a lo que no aporta. Un buen líder filtra ruido.</li>
+    <li><b>Cuida tu energía:</b> si tú te hundes, el equipo lo nota. Pedir ayuda no es debilidad, es criterio.</li>
+  </ul>
+
+  <div class="rule"></div>
+
+  <h2><span class="n">✓</span> El resumen en una frase</h2>
+  <p>Escucha primero, decide con criterio, comunica el resultado y haz brillar a tu gente. La seguridad no viene antes del método — viene <b>de</b> aplicarlo.</p>
+
+  <div class="cta">
+    <h2 style="display:block">¿Y si no lo aprendes solo?</h2>
+    <p>Esto no se aprende leyendo. Se aprende practicando, con casos reales, un tutor que te reta y gente en tu mismo punto. Eso es <span class="grad">Brandooers</span>.</p>
+    <a class="btn" href="https://brandooers.com/#acceso">Solicita tu admisión →</a>
+  </div>
+
+  <p class="foot">Brandooers · La academia que convierte talento joven en el 1%. Esta guía es orientativa y no sustituye asesoramiento profesional individual.<br>© Brandooers · brandooers.com</p>
+</div>
+</body>
+</html>

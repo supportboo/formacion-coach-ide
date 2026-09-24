@@ -181,7 +181,13 @@ section{padding:clamp(80px,12vh,140px) 0;position:relative}
 .mg img{width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
 .mg:nth-child(1){grid-row:span 2}
 .mg .go{position:absolute;right:14px;bottom:14px;width:40px;height:40px;border-radius:50%;background:rgba(11,9,24,.6);border:1px solid var(--gborder);backdrop-filter:blur(8px);color:#fff;display:grid;place-items:center}
-@media(max-width:760px){.mgrid{grid-template-columns:1fr 1fr;grid-template-rows:auto}.mg:nth-child(1){grid-row:auto}.mg{height:180px}}
+.mg video{width:100%;height:100%;object-fit:cover;display:block;background:#0a0a12}
+.mgvid{cursor:pointer}
+.mgvid .play{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;transition:opacity .35s;background:linear-gradient(180deg,rgba(11,9,24,.06),rgba(11,9,24,.34))}
+.mgvid .play i{width:66px;height:66px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 12px 34px rgba(139,92,246,.5)}
+.mgvid .play b{position:absolute;left:16px;bottom:14px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.mgvid.playing .play{opacity:0}
+@media(max-width:760px){.mgrid{grid-template-columns:1fr 1fr;grid-template-rows:auto}.mg:nth-child(1){grid-row:auto}.mg{height:180px}.mgvid{grid-column:1/-1;height:auto;aspect-ratio:16/9}}
 
 /* Puertas */
 .pgrid{margin-top:44px;display:grid;gap:16px}
@@ -385,11 +391,14 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   <div class="wrap">
     <div class="head reveal"><span class="ek">Talento real</span><h2>Gente como tú, un nivel por encima.</h2></div>
     <div class="mgrid reveal">
+      <div class="mg mgvid" id="mgvid">
+        <video src="assets/marc-brandooers-explica.mp4" poster="assets/marc-brandooers-explica-poster.jpg" controls preload="none" playsinline></video>
+        <div class="play" aria-hidden="true"><i><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></i><b>Marc te lo explica · 3 min</b></div>
+      </div>
       <div class="mg"><img src="assets/cr-autoridad.jpg" alt="Profesional presentando con autoridad"><div class="go">→</div></div>
       <div class="mg"><img src="assets/cr-impostor.jpg" alt="Joven profesional concentrada"><div class="go">→</div></div>
       <div class="mg"><img src="assets/cr-propaga.jpg" alt="Mentoría entre profesionales"><div class="go">→</div></div>
       <div class="mg"><img src="assets/cr-panel.jpg" alt="Profesional con tableta"><div class="go">→</div></div>
-      <div class="mg"><img src="assets/cr-marcha.jpg" alt="Conocimiento que se propaga"><div class="go">→</div></div>
     </div>
   </div>
 </section>
@@ -653,5 +662,6 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   }
 })();
 </script>
+<script>(function(){var w=document.getElementById('mgvid');if(!w)return;var v=w.querySelector('video');v.addEventListener('play',function(){w.classList.add('playing');});v.addEventListener('pause',function(){w.classList.remove('playing');});v.addEventListener('ended',function(){w.classList.remove('playing');});})();</script>
 </body>
 </html>
