@@ -10,7 +10,7 @@ import { env } from "./config/env.js";
 import { ACCOUNT_SOURCE, getAccountState, getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
 import { chat } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
-import { ingestDocument } from "./rag/rag.js";
+import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
 import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, auditLog } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
@@ -37,6 +37,8 @@ import * as onboardingSvc from "./services/onboarding.js";
 import * as teamdnaSvc from "./services/teamdna.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
+import * as followupSvc from "./services/followup.js";
+import * as moderationSvc from "./services/moderation.js";
 import * as gcal from "./services/gcal.js";
 
 const svcDeps = { db, newId };
@@ -743,9 +745,11 @@ app.post("/api/learning/test/generate", async (c) => {
   const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
   if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
     const exam = await aiContent.generateExam(llm, {
       competencyName: comp.name, sector: profile?.sector ?? undefined, puesto: profile?.puesto ?? undefined,
+      empresa: extras.empresa,
       orgId: ctx.orgId, userId: ctx.userId,
     });
     const { questions, correctAnswers } = aiContent.shuffleExam(exam);
@@ -816,10 +820,12 @@ app.post("/api/validation/cases/generate", async (c) => {
   const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
   if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
     const prompt = await aiContent.generateCasePrompt(llm, {
       competencyName: comp.name, sector: profile?.sector ?? undefined,
       puesto: profile?.puesto ?? undefined, motivo: profile?.motivo ?? undefined,
+      empresa: extras.empresa, freno: extras.freno,
       orgId: ctx.orgId, userId: ctx.userId,
     });
     const id = await validationSvc.createCase(svcDeps, {
@@ -938,6 +944,21 @@ app.post("/api/validation/cases/:id/decide", async (c) => {
         rewards = await rewardsSvc.evaluateRules(svcDeps, {
           orgId: ctx.orgId, event: "n2", userId: caseRow.userId, competencyId: caseRow.competencyId,
         });
+        // Cerebro que crece: destila una buena práctica anónima del caso aprobado y la ingesta al
+        // RAG de la organización, para que el tutor la reutilice con todo el equipo. Best-effort:
+        // si la IA falla, la validación ya está hecha y no se rompe.
+        try {
+          if (caseRow.submission) {
+            const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, caseRow.competencyId);
+            const bp = await aiContent.distillBestPractice(llm, {
+              competencyName: comp?.name || "competencia", prompt: caseRow.prompt,
+              submission: caseRow.submission, feedback: parsed.data.feedback, orgId: ctx.orgId, userId: ctx.userId,
+            });
+            await ingestDocument(chatDeps, ctx.orgId, {
+              title: `Buena práctica · ${bp.title}`.slice(0, 200), kind: "buena_practica", refId: caseId, text: bp.body,
+            });
+          }
+        } catch (e) {}
       }
     }
     return c.json({ ...result, cascade, rewards });
@@ -967,10 +988,11 @@ app.post("/api/roleplay/start", async (c) => {
     return c.json({ error: "indica una competencia o un tema para practicar" }, 400);
   }
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
     const turn = await roleplaySvc.startRoleplay(svcDeps, llm, {
       competencyId, competencyName, brief: parsed.data.brief,
-      sector: profile?.sector, puesto: profile?.puesto, orgId: ctx.orgId, userId: ctx.userId,
+      sector: profile?.sector, puesto: profile?.puesto, empresa: extras.empresa, orgId: ctx.orgId, userId: ctx.userId,
     });
     return c.json(turn);
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
@@ -1004,6 +1026,15 @@ app.post("/api/roleplay/:id/close", async (c) => {
     const summary = await roleplaySvc.closeRoleplay(svcDeps, llm, {
       orgId: ctx.orgId, userId: ctx.userId, sessionId: c.req.param("id"), competencyName,
     });
+    // La práctica no es un callejón sin salida: se captura a memoria del alumno (no se pierde) para
+    // que el tutor y el seguimiento la tengan en cuenta. La validación sigue siendo humana.
+    try {
+      const areas = (summary.areasDeMejora || []).slice(0, 3).join("; ");
+      await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, {
+        source: "roleplay", kind: "insight",
+        body: `[roleplay ${competencyName}] ${summary.resumen}${areas ? " · A mejorar: " + areas : ""}`,
+      });
+    } catch (e) {}
     return c.json(summary);
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
@@ -1849,6 +1880,68 @@ app.get("/api/reminders/mine", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   return c.json(await remindersSvc.myReminders(svcDeps, ctx.orgId, ctx.userId, ctx.role));
+});
+
+// Seguimiento de aplicación (R3): el alumno cuenta cómo está aplicando lo que validó.
+// Se guarda como evidencia real -> alimenta el ROI de aplicación (nunca cifras inventadas).
+app.post("/api/followup", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({
+    competencyId: z.string().min(1),
+    aplica: z.enum(["si", "parcial", "no"]),
+    impacto: z.string().max(800).optional(),
+    sensacion: z.number().min(1).max(5).optional(),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  try {
+    const id = await followupSvc.recordCheckin(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, ...parsed.data });
+    return c.json({ id, ok: true });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+
+// ROI de aplicación agregado de la organización (dirección/responsable): % que aplica lo aprendido
+// y sensación media, calculados de check-ins reales. Sin datos -> null, nunca un número falso.
+app.get("/api/followup/summary", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!["admin", "direccion", "team_leader", "inspirador"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await followupSvc.applicationRoi(svcDeps, ctx.orgId, 90));
+});
+
+// Moderación interdepartamental (R4): dirección describe dos departamentos (personas) y su conflicto;
+// el sistema los perfila por sus fortalezas reales (Team DNA) + buenas prácticas validadas del cerebro,
+// y propone consenso. Las prácticas de consenso se realimentan al cerebro (armonía que se alimenta).
+app.post("/api/moderation", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!["admin", "direccion"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  if (rateLimited(`moderation:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const grupo = z.object({ nombre: z.string().min(1).max(80), userIds: z.array(z.string()).max(500) });
+  const parsed = z.object({ grupoA: grupo, grupoB: grupo, conflicto: z.string().min(3).max(2000) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  try {
+    const hits = await retrieve(chatDeps.store, chatDeps.emb, ctx.orgId, parsed.data.conflicto, 4).catch(() => []);
+    const result = await moderationSvc.moderateBetween(svcDeps, llm, {
+      orgId: ctx.orgId, grupoA: parsed.data.grupoA, grupoB: parsed.data.grupoB,
+      conflicto: parsed.data.conflicto, contexto: hits.map((h) => h.content),
+    });
+    // Realimenta las buenas prácticas de consenso al cerebro de la organización (best-effort).
+    try {
+      if (result.buenasPracticas.length) {
+        await ingestDocument(chatDeps, ctx.orgId, {
+          title: `Consenso ${parsed.data.grupoA.nombre}–${parsed.data.grupoB.nombre}`.slice(0, 200),
+          kind: "buena_practica", text: result.buenasPracticas.join("\n"),
+        });
+      }
+    } catch (e) {}
+    await db.insert(auditLog).values({
+      id: newId(), organizationId: ctx.orgId, userId: ctx.userId,
+      action: "moderation.run", meta: { a: parsed.data.grupoA.nombre, b: parsed.data.grupoB.nombre },
+    });
+    return c.json(result);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
 
 /* ============================================================

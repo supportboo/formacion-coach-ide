@@ -54,15 +54,18 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   // 2) recuperar contexto RAG de la org + perfil (sector/puesto) para personalizar como ya hace aiContent
   const hits = await retrieve(deps.store, deps.emb, input.orgId, input.message, 5);
   const profile = await getOnboardingProfile({ db: deps.db, newId: deps.newId }, input.orgId, input.userId);
-  const [ruta, avance, estilo] = await Promise.all([
+  const [ruta, avance, estilo, freno, objetivo, empresaResumen] = await Promise.all([
     learnerRoute(deps.db, input.orgId, input.userId),
     learnerProgress(deps.db, input.orgId, input.userId),
     learnerStyle(deps.db, input.orgId, input.userId),
+    onboardingMarker(deps.db, input.orgId, input.userId, "[freno]"),
+    onboardingMarker(deps.db, input.orgId, input.userId, "[objetivo]"),
+    companySummary(deps.db, input.orgId, input.userId),
   ]);
   const ctx: AgentContext = {
     orgName: input.orgName, userName: input.userName,
     contextSnippets: hits.map((h) => h.content),
-    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo,
+    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo, freno, objetivo, empresaResumen,
   };
 
   // 3) historial reciente del hilo
@@ -108,11 +111,28 @@ async function learnerRoute(db: DB, orgId: string, userId: string): Promise<stri
 
 /** Cómo dijo el alumno que aprende mejor (nota onboarding [estilo]); guía el FORMATO, no el fondo. */
 async function learnerStyle(db: DB, orgId: string, userId: string): Promise<string | null> {
+  return onboardingMarker(db, orgId, userId, "[estilo]");
+}
+
+/** Lee un marcador del onboarding del alumno ([freno], [objetivo], [estilo]...). El más reciente gana. */
+async function onboardingMarker(db: DB, orgId: string, userId: string, marker: string): Promise<string | null> {
   const rows = await db.select({ body: annotation.body }).from(annotation)
     .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "onboarding")))
     .orderBy(desc(annotation.createdAt));
-  const r = rows.find((x) => String(x.body || "").startsWith("[estilo]"));
-  return r ? String(r.body).slice("[estilo]".length).trim() : null;
+  const r = rows.find((x) => String(x.body || "").startsWith(marker));
+  return r ? String(r.body).slice(marker.length).trim() || null : null;
+}
+
+/** Resumen real de la web de la empresa (nota onboarding "[Empresa <fuente>] <resumen>"), para ejemplos de lo suyo. */
+async function companySummary(db: DB, orgId: string, userId: string): Promise<string | null> {
+  const rows = await db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "onboarding")))
+    .orderBy(desc(annotation.createdAt));
+  const r = rows.find((x) => String(x.body || "").startsWith("[Empresa "));
+  if (!r) return null;
+  const body = String(r.body);
+  const end = body.indexOf("]");
+  return end > 0 ? body.slice(end + 1).trim().slice(0, 400) : null;
 }
 
 /** Resumen breve del nivel actual del alumno, sin exponer la mecánica de puntos. */

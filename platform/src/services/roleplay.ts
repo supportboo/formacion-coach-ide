@@ -7,7 +7,7 @@ import { firstJson } from "./aiContent.js";
 const BASE = "Español de España, natural, sin acotaciones de guion ni asteriscos -- solo lo que diría en voz alta.";
 
 export interface RoleplayArgs {
-  competencyName: string; sector?: string | null; puesto?: string | null; orgId: string; userId: string;
+  competencyName: string; sector?: string | null; puesto?: string | null; empresa?: string | null; orgId: string; userId: string;
   // Instrucciones del responsable/Team Leader al agente tutor: a quién interpreta y cómo comportarse
   // (dictadas o escritas). Si vienen, mandan sobre el personaje automático. Guardrail: es práctica,
   // la validación sigue siendo humana.
@@ -36,7 +36,11 @@ export async function startRoleplay(
   deps: SvcDeps, llm: Llm, args: RoleplayArgs & { competencyId: string },
 ): Promise<RoleplayTurn> {
   // Si el responsable ha dado un brief (instrucciones al agente), manda sobre el personaje automático.
-  const persona = (args.brief && args.brief.trim()) ? args.brief.trim().slice(0, 1500) : pickPersona(args.competencyName);
+  // Si no, el personaje automático se aterriza en la empresa real del alumno (no genérico del sector).
+  const persona = (args.brief && args.brief.trim())
+    ? args.brief.trim().slice(0, 1500)
+    : pickPersona(args.competencyName) +
+      (args.empresa ? `. Contexto real de la empresa del alumno: ${args.empresa.slice(0, 240)}. Actúa como alguien de ESE mundo (sus clientes, su producto), no un caso genérico.` : "");
   const ctx = [args.sector, args.puesto].filter(Boolean).join(", ");
   const system = personaSystem(persona, args.competencyName, ctx);
   const opening = await llm.generate({

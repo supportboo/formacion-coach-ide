@@ -50,10 +50,10 @@ export interface GeneratedExam { questions: ExamQuestion[] }
 
 /** Genera un test de opción múltiple sobre una competencia, adaptado al sector/puesto si se conocen. */
 export async function generateExam(
-  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; n?: number; orgId?: string; userId?: string },
+  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; empresa?: string; n?: number; orgId?: string; userId?: string },
 ): Promise<GeneratedExam> {
   const n = args.n ?? 5;
-  const ctx = [args.sector && `sector: ${args.sector}`, args.puesto && `puesto: ${args.puesto}`]
+  const ctx = [args.sector && `sector: ${args.sector}`, args.puesto && `puesto: ${args.puesto}`, args.empresa && `empresa: ${args.empresa}`]
     .filter(Boolean).join(", ");
   const system = `Eres examinador. Crea ${n} preguntas tipo test (4 opciones, una correcta) sobre "${args.competencyName}"${ctx ? ` para alguien de ${ctx}` : ""}. ${BASE}\nFormato: {"questions":[{"q":"...","options":["a","b","c","d"]}]} (la opción correcta va SIEMPRE en options[0]; el cliente las mezclará).`;
   const out = await llm.generate({
@@ -112,11 +112,13 @@ export function shuffleExam(exam: GeneratedExam): { questions: ExamQuestion[]; c
 
 /** Redacta el caso práctico con el contexto real del empleado (doctrina: nunca genérico). */
 export async function generateCasePrompt(
-  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; motivo?: string; orgId?: string; userId?: string },
+  llm: Llm, args: { competencyName: string; sector?: string; puesto?: string; motivo?: string; empresa?: string; freno?: string; orgId?: string; userId?: string },
 ): Promise<string> {
   const ctx = [args.sector && `sector ${args.sector}`, args.puesto && `puesto ${args.puesto}`, args.motivo && `motivo: ${args.motivo}`]
     .filter(Boolean).join(", ") || "contexto general (sin sector/puesto declarados, pídeselo en el propio enunciado)";
-  const system = `Eres diseñador de casos prácticos. Redacta UN enunciado de caso real y concreto para demostrar la competencia "${args.competencyName}", ambientado en ${ctx}. Debe ser algo que la persona pueda hacer de verdad en su trabajo esta semana, no un ejercicio abstracto. ${BASE}\nFormato: {"prompt":"..."}`;
+  const empresa = args.empresa ? ` La empresa real de la persona: ${args.empresa}. Ambienta el caso en ESO (sus clientes, su producto de verdad), no en un genérico del sector.` : "";
+  const freno = args.freno ? ` La persona ha dicho que le frena "${args.freno}": diseña el caso para que se enfrente justo a eso, en pequeño, y lo supere practicando.` : "";
+  const system = `Eres diseñador de casos prácticos. Redacta UN enunciado de caso real y concreto para demostrar la competencia "${args.competencyName}", ambientado en ${ctx}.${empresa}${freno} Debe ser algo que la persona pueda hacer de verdad en su trabajo esta semana, no un ejercicio abstracto. ${BASE}\nFormato: {"prompt":"..."}`;
   const out = await llm.generate({
     system, messages: [{ role: "user", content: "Genera el caso." }], maxTokens: 500,
     orgId: args.orgId, userId: args.userId, kind: "case",
@@ -154,7 +156,7 @@ export async function generateLessonDraft(
 ): Promise<GeneratedLesson> {
   // Estándar de calidad (guía 0→100): aplicable ya, mucha práctica, estructura fija, cero relleno, sin inventar.
   const system = `Eres diseñador instruccional sénior. Escribe UNA lección práctica y aplicable (350-600 palabras) sobre "${args.topic}" dentro de la competencia "${args.competencyName}".`
-    + ` CALIDAD OBLIGATORIA: al grano y aplicable desde la primera frase; ≥60% práctica y ≤40% teoría (solo la teoría justa para ejecutar); cero relleno (si una frase no cambia lo que la persona hará en su trabajo, bórrala).`
+    + ` CALIDAD OBLIGATORIA (doctrina "de 0 a 100 práctica"): al grano y aplicable desde la primera frase; casi todo es HACER, la teoría va incrustada dentro del paso que la usa (la mínima imprescindible para ejecutar), nunca en bloques teóricos sueltos; cero relleno (si una frase no cambia lo que la persona hará en su trabajo, bórrala).`
     + ` ESTRUCTURA: (1) para qué te sirve esto en tu trabajo, (2) concepto mínimo, (3) cómo se hace paso a paso, (4) un ejemplo real y concreto, (5) un ejercicio o acción para aplicar hoy, (6) un error común a evitar.`
     + ` Nada de cifras, estudios ni casos inventados; si citas un dato, que sea real. ${BASE}\nFormato: {"title":"...","body":"..."}`;
   const out = await llm.generate({
@@ -162,4 +164,27 @@ export async function generateLessonDraft(
     orgId: args.orgId, userId: args.userId, kind: "lesson",
   });
   return firstJson<GeneratedLesson>(out);
+}
+
+export interface BestPractice { title: string; body: string }
+
+/**
+ * Destila una BUENA PRÁCTICA reutilizable y ANÓNIMA a partir de un caso práctico que un humano
+ * aprobó (enunciado + resolución + feedback). Sin nombres, sin inventar: solo lo que funcionó y por qué.
+ * Su salida se ingesta al RAG de la organización, así el tutor aprende de la práctica real del equipo
+ * (el "cerebro que crece con el uso"). Nada se pierde: el conocimiento validado se queda en la empresa.
+ */
+export async function distillBestPractice(
+  llm: Llm,
+  args: { competencyName: string; prompt: string; submission: string; feedback?: string; orgId?: string; userId?: string },
+): Promise<BestPractice> {
+  const system = `Extrae UNA buena práctica reutilizable de un caso práctico que un validador humano aprobó, sobre la competencia "${args.competencyName}". `
+    + "Anonimiza: nada de nombres de personas ni datos identificativos. No inventes: usa solo lo que esté en el material. "
+    + `Escribe qué se hizo bien y por qué funcionó, en 3-6 frases accionables que sirvan a otra persona del equipo ante una situación parecida. ${BASE}\nFormato: {"title":"...","body":"..."}`;
+  const content = `ENUNCIADO:\n${args.prompt}\n\nRESOLUCIÓN APROBADA:\n${args.submission}${args.feedback ? `\n\nFEEDBACK DEL VALIDADOR:\n${args.feedback}` : ""}`;
+  const out = await llm.generate({
+    system, messages: [{ role: "user", content }], maxTokens: 500,
+    orgId: args.orgId, userId: args.userId, kind: "best_practice",
+  });
+  return firstJson<BestPractice>(out);
 }

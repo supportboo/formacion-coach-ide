@@ -16,6 +16,9 @@ export interface AgentContext {
   ruta?: string[]; // títulos de los módulos de SU ruta (para no decir "no sé qué estás estudiando")
   avance?: string | null; // resumen breve de su nivel actual
   estilo?: string | null; // cómo prefiere aprender (guía el formato de los ejemplos/recursos)
+  freno?: string | null; // barrera declarada en onboarding ([freno]): anticipar con tacto, nunca ignorar
+  objetivo?: string | null; // qué quiere conseguir de verdad ([objetivo]): conectar cada respuesta con ese ROI
+  empresaResumen?: string | null; // resumen real de la web de su empresa (a quién vende / qué vende)
 }
 
 export interface AgentDef {
@@ -40,6 +43,9 @@ function withContext(role: string, mission: string) {
       (ctx.ruta && ctx.ruta.length ? `Su ruta de aprendizaje: ${ctx.ruta.join(" · ")}.\n` : "") +
       (ctx.avance ? `Su avance: ${ctx.avance}.\n` : "") +
       (ctx.estilo ? `Aprende mejor "${ctx.estilo}": ajusta el FORMATO a eso (p. ej. si es con vídeos, sugiere alguno; si es practicando, propón un ejercicio), nunca el rigor.\n` : "") +
+      (ctx.empresaResumen ? `Su empresa, en real: ${ctx.empresaResumen}. Usa ESTO en los ejemplos (a quién venden, qué venden), no un caso genérico del sector.\n` : "") +
+      (ctx.objetivo ? `Lo que quiere conseguir de verdad: "${ctx.objetivo}". Conecta cada respuesta con ese resultado (dile por qué esto le acerca) para que sienta el retorno.\n` : "") +
+      (ctx.freno ? `Su freno declarado: "${ctx.freno}". Anticípalo con tacto y ofrece el siguiente paso más pequeño que lo sortee; no lo ignores ni lo sueltes como etiqueta.\n` : "") +
       `No empieces disculpándote por lo que no sabes; con lo que tienes (puesto, ruta, avance) da algo útil desde la primera frase.\n\n` +
       (ctx.contextSnippets.length
         ? `Contexto recuperado (úsalo, no lo contradigas):\n- ${ctx.contextSnippets.join("\n- ")}`
@@ -52,7 +58,8 @@ export const REGISTRY: Record<Role, AgentDef> = {
   empleado: {
     role: "empleado", title: "Asistente de aprendizaje", model: env.MODEL_SENIOR,
     system: withContext("empleado",
-      "Guías al empleado por su ruta a su puesto, resuelves dudas y le ayudas a preparar el CASO PRÁCTICO real que tendrá que demostrar. No le apruebas tú: eso lo valida una persona."),
+      "Guías al empleado por su ruta a su puesto, resuelves dudas y le ayudas a preparar el CASO PRÁCTICO real que tendrá que demostrar. No le apruebas tú: eso lo valida una persona. " +
+      "Trabajas como un mentor que quiere conocer su realidad: cuando falte contexto, haz UNA pregunta corta y estratégica para que te cuente qué está viviendo de verdad en su puesto (una situación concreta reciente, con quién, qué se le atraganta) y usa su respuesta para que la práctica sea de SU trabajo, nunca genérica. Descubre y ten presentes sus barreras; no interrogues, una pregunta útil por vez."),
   },
   coach: {
     role: "coach", title: "Asistente de coaching", model: env.MODEL_SENIOR,

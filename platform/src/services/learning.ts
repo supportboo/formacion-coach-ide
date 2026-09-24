@@ -1,5 +1,5 @@
-import { and, eq, sql } from "drizzle-orm";
-import { competency, enrollment, learningPath, levelByCompetency, onboardingProfile, testAttempt } from "../db/schema.js";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { annotation, competency, enrollment, learningPath, levelByCompetency, onboardingProfile, testAttempt } from "../db/schema.js";
 import { matchProfileToPaths, type MatchedPath } from "./catalog.js";
 import type { SvcDeps } from "./org.js";
 
@@ -90,6 +90,24 @@ export async function getOnboardingProfile(deps: SvcDeps, orgId: string, userId:
     .where(and(eq(onboardingProfile.organizationId, orgId), eq(onboardingProfile.userId, userId)))
     .orderBy(sql`${onboardingProfile.createdAt} desc`).limit(1);
   return row ?? null;
+}
+
+export interface OnboardingExtras { empresa?: string; freno?: string; objetivo?: string }
+
+/**
+ * Datos ricos del onboarding guardados como anotaciones ("[Empresa …]", "[freno]", "[objetivo]").
+ * Complementan el perfil (sector/puesto) para que casos, tests y seguimiento sean de SU vida real,
+ * no genéricos. Antes se captaban y no los leía nadie; esto los cablea.
+ */
+export async function getOnboardingExtras(deps: SvcDeps, orgId: string, userId: string): Promise<OnboardingExtras> {
+  const rows = await deps.db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "onboarding")))
+    .orderBy(desc(annotation.createdAt));
+  const bodies = rows.map((r) => String(r.body || ""));
+  const marker = (m: string) => { const b = bodies.find((x) => x.startsWith(m)); return b ? (b.slice(m.length).trim() || undefined) : undefined; };
+  const empRaw = bodies.find((x) => x.startsWith("[Empresa "));
+  const empresa = empRaw ? (empRaw.slice(empRaw.indexOf("]") + 1).trim().slice(0, 400) || undefined) : undefined;
+  return { empresa, freno: marker("[freno]"), objetivo: marker("[objetivo]") };
 }
 
 export interface KnowledgeTestInput {
