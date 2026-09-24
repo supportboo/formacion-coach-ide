@@ -185,12 +185,14 @@ section{padding:clamp(80px,12vh,140px) 0;position:relative}
 /* Vídeo destacado a 16:9 (marco completo, sin recorte) + miniaturas debajo */
 .vfeature{position:relative;margin-top:40px;border-radius:24px;overflow:hidden;border:1px solid var(--gborder);box-shadow:0 30px 80px rgba(0,0,0,.5);aspect-ratio:16/9;background:#0a0a12}
 .vfeature video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#000}
-.vfeature .play{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;transition:opacity .35s;background:radial-gradient(60% 60% at 50% 45%,rgba(11,9,24,.12),rgba(11,9,24,.42))}
-.vfeature .play i{width:84px;height:84px;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 16px 44px rgba(139,92,246,.55)}
-.vtag{position:absolute;left:18px;bottom:16px;display:inline-flex;align-items:center;gap:9px;padding:9px 15px 9px 11px;border-radius:100px;background:rgba(11,9,24,.62);border:1px solid var(--gborder);backdrop-filter:blur(10px);font-size:14px;color:#fff;transition:opacity .35s;z-index:2}
+.vfeature .veil{position:absolute;inset:0;pointer-events:none;transition:opacity .35s;background:radial-gradient(70% 70% at 50% 66%,rgba(11,9,24,.10),rgba(11,9,24,.34))}
+.vplay{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);width:84px;height:84px;border:0;border-radius:50%;background:var(--grad);display:grid;place-items:center;box-shadow:0 16px 44px rgba(139,92,246,.55);cursor:pointer;z-index:4;transition:transform .2s,opacity .35s}
+.vplay:hover{transform:translate(-50%,-50%) scale(1.07)}
+.vplay svg{margin-left:4px}
+.vtag{position:absolute;left:18px;bottom:16px;display:inline-flex;align-items:center;gap:9px;padding:9px 15px 9px 11px;border-radius:100px;background:rgba(11,9,24,.62);border:1px solid var(--gborder);backdrop-filter:blur(10px);font-size:14px;color:#fff;transition:opacity .35s;z-index:3;pointer-events:none}
 .vtag .av{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 18%;border:1px solid var(--gborder)}
 .vtag b{font-weight:800}.vtag .r{color:var(--vi2);font-weight:600}
-.vfeature.playing .play,.vfeature.playing .vtag{opacity:0}
+.vfeature.playing .veil,.vfeature.playing .vplay,.vfeature.playing .vtag{opacity:0;pointer-events:none}
 .vthumbs{margin-top:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
 .vthumbs .mg{aspect-ratio:4/3;border-radius:16px}
 @media(max-width:640px){.vthumbs{grid-template-columns:repeat(3,1fr);gap:10px}.vtag{font-size:12px;left:12px;bottom:12px}.vtag .av{width:26px;height:26px}}
@@ -397,8 +399,9 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   <div class="wrap">
     <div class="head reveal"><span class="ek">Talento real</span><h2>Gente como tú, un nivel por encima.</h2></div>
     <div class="vfeature reveal" id="mgvid">
-      <video src="assets/marc-brandooers-explica.mp4" poster="assets/marc-brandooers-explica-poster.jpg" controls preload="none" playsinline></video>
-      <div class="play" aria-hidden="true"><i><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></i></div>
+      <video src="assets/marc-brandooers-explica.mp4" poster="assets/marc-brandooers-explica-poster.jpg" preload="none" playsinline></video>
+      <div class="veil" aria-hidden="true"></div>
+      <button class="vplay" type="button" aria-label="Reproducir el vídeo"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></button>
       <div class="vtag"><img class="av" src="assets/marc-brandooers-explica-poster.jpg" alt=""><span><b>Marc Herrero</b> <span class="r">· Fundador de Brandooers</span></span></div>
     </div>
     <div class="vthumbs reveal">
@@ -670,6 +673,11 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   }
 })();
 </script>
-<script>(function(){var w=document.getElementById('mgvid');if(!w)return;var v=w.querySelector('video');v.addEventListener('play',function(){w.classList.add('playing');});v.addEventListener('pause',function(){w.classList.remove('playing');});v.addEventListener('ended',function(){w.classList.remove('playing');});})();</script>
+<script>(function(){var w=document.getElementById('mgvid');if(!w)return;var v=w.querySelector('video'),pb=w.querySelector('.vplay');
+function go(){try{v.setAttribute('controls','');w.classList.add('playing');var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});}catch(e){}}
+if(pb)pb.addEventListener('click',go);
+v.addEventListener('click',function(){if(v.paused&&!v.hasAttribute('controls'))go();});
+v.addEventListener('play',function(){w.classList.add('playing');});
+v.addEventListener('ended',function(){w.classList.remove('playing');v.removeAttribute('controls');});})();</script>
 </body>
 </html>
