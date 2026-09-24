@@ -165,6 +165,31 @@ section{padding:clamp(80px,12vh,140px) 0;position:relative}
 .tnode h4{font-size:18px;font-weight:800;color:#fff;margin-bottom:7px}
 .tnode p{font-size:13.5px;color:var(--mut);line-height:1.6}
 @media(max-width:860px){.treasure{min-height:0}.tpath{display:none}.tnodes{grid-template-columns:1fr;gap:14px}.tnode:nth-child(2),.tnode:nth-child(4){margin-top:0}}
+/* método — borde neón de puntos animado al hover + clic a modal con ojos humanizados */
+.tnode{cursor:pointer;position:relative;--sc:#8B5CF6}
+.tnodes .tnode:nth-child(1){--sc:#00D4FF}
+.tnodes .tnode:nth-child(2){--sc:#8B5CF6}
+.tnodes .tnode:nth-child(3){--sc:#C15CD6}
+.tnodes .tnode:nth-child(4){--sc:#EC4899}
+.tnode:hover{border-color:color-mix(in srgb,var(--sc) 55%,transparent)}
+.tnode:focus-visible{outline:2px solid var(--sc);outline-offset:3px}
+.tbord{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;opacity:0;transition:opacity .3s;z-index:2}
+.tbord rect{x:1px;y:1px;width:calc(100% - 2px);height:calc(100% - 2px);rx:19px;fill:none;stroke:var(--sc);stroke-width:2;stroke-dasharray:9 7}
+.tnode:hover .tbord{opacity:1;filter:drop-shadow(0 0 7px var(--sc))}
+.tnode:hover .tbord rect{animation:march .9s linear infinite}
+@keyframes march{to{stroke-dashoffset:-32}}
+.no-motion .tnode:hover .tbord rect{animation:none}
+.thint{margin-top:13px;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--sc);display:inline-flex;align-items:center;gap:6px;opacity:.9}
+.thint:before{content:"";width:14px;height:14px;border:1.5px solid var(--sc);border-radius:50%;display:inline-block}
+#mmodal{--sc:#8B5CF6}
+#mmodal .cat{color:var(--sc)}
+.mmeyes{width:190px;max-width:62%;margin:2px auto 8px}
+.mmeyes .ey{width:100%;height:auto;display:block;transform-origin:center center;animation:eywake 5.2s ease-in-out infinite}
+@keyframes eywake{0%,86%,100%{transform:scaleY(1) rotate(0deg)}90%{transform:scaleY(.16)}93%{transform:scaleY(1)}96%{transform:rotate(1.6deg)}98%{transform:rotate(-1.4deg)}}
+.no-motion .mmeyes .ey{animation:none}
+.mroi{margin-top:16px;background:linear-gradient(90deg,color-mix(in srgb,var(--sc) 13%,transparent),transparent);border:1px solid color-mix(in srgb,var(--sc) 36%,transparent);border-radius:14px;padding:13px 16px}
+.mroi b{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--sc);margin-bottom:4px;font-weight:800}
+.mroi span{color:var(--ink);font-size:14px;line-height:1.55}
 
 /* Chat tutor */
 .chat{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:center}
@@ -370,10 +395,10 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
         <circle r="6" fill="#EC4899" class="twalk"><animateMotion dur="9s" repeatCount="indefinite" path="M125,55 C250,55 250,245 375,245 C500,245 500,55 625,55 C750,55 750,245 875,245"/></circle>
       </svg>
       <div class="tnodes">
-        <div class="tnode"><span class="tdot">1</span><h4>Descubre</h4><p>Diagnóstico honesto de dónde estás y qué te frena de verdad.</p></div>
-        <div class="tnode"><span class="tdot">2</span><h4>Aprende haciendo</h4><p>Casos reales, roleplays y práctica guiada. Aplicando, no memorizando.</p></div>
-        <div class="tnode"><span class="tdot">3</span><h4>Demuéstralo</h4><p>Resuelves retos reales y ganas soltura. Tu autoridad deja de ser pose.</p></div>
-        <div class="tnode"><span class="tdot end">✕</span><h4>Multiplícate</h4><p>Lo aplicas en tu trabajo real. Se convierte en resultados y carrera.</p></div>
+        <div class="tnode" role="button" tabindex="0" data-m="0" aria-label="Descubre — ver el ROI para tu empresa"><svg class="tbord" aria-hidden="true"><rect></rect></svg><span class="tdot">1</span><h4>Descubre</h4><p>Diagnóstico honesto de dónde estás y qué te frena de verdad.</p><span class="thint">Toca · ROI para tu empresa</span></div>
+        <div class="tnode" role="button" tabindex="0" data-m="1" aria-label="Aprende haciendo — ver el ROI para tu empresa"><svg class="tbord" aria-hidden="true"><rect></rect></svg><span class="tdot">2</span><h4>Aprende haciendo</h4><p>Casos reales, roleplays y práctica guiada. Aplicando, no memorizando.</p><span class="thint">Toca · ROI para tu empresa</span></div>
+        <div class="tnode" role="button" tabindex="0" data-m="2" aria-label="Demuéstralo — ver el ROI para tu empresa"><svg class="tbord" aria-hidden="true"><rect></rect></svg><span class="tdot">3</span><h4>Demuéstralo</h4><p>Resuelves retos reales y ganas soltura. Tu autoridad deja de ser pose.</p><span class="thint">Toca · ROI para tu empresa</span></div>
+        <div class="tnode" role="button" tabindex="0" data-m="3" aria-label="Multiplícate — ver el ROI para tu empresa"><svg class="tbord" aria-hidden="true"><rect></rect></svg><span class="tdot end">✕</span><h4>Multiplícate</h4><p>Lo aplicas en tu trabajo real. Se convierte en resultados y carrera.</p><span class="thint">Toca · ROI para tu empresa</span></div>
       </div>
     </div>
   </div>
@@ -472,6 +497,19 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   </div>
 </div>
 
+<div class="cmodal" id="mmodal" role="dialog" aria-modal="true" aria-labelledby="mmTitle" aria-hidden="true">
+  <div class="back" data-mclose></div>
+  <div class="panel">
+    <button class="x" type="button" aria-label="Cerrar" data-mclose>✕</button>
+    <div class="mmeyes" id="mmEyes" aria-hidden="true"></div>
+    <span class="cat" id="mmCat">Fase 01</span>
+    <h3 id="mmTitle">—</h3>
+    <p class="cbody" id="mmBody">—</p>
+    <div class="mroi"><b>Para tu empresa</b><span id="mmRoi">—</span></div>
+    <a href="#acceso" class="btn btn-grad mcta" data-mclose>Solicita tu admisión →</a>
+  </div>
+</div>
+
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"EducationalOrganization","name":"Brandooers","url":"https://brandooers.com/","description":"Academia de alto rendimiento que desarrolla a jóvenes profesionales en liderazgo, ventas, persuasión, storytelling e IA.","sameAs":["https://skillup.brandooers.com"]}
 </script>
@@ -509,6 +547,55 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   document.querySelectorAll('.ccard').forEach(function(c){ c.addEventListener('click',function(){ openC(+c.dataset.i); }); });
   if(cm){ cm.querySelectorAll('[data-close]').forEach(function(el){ el.addEventListener('click',closeC); });
     document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&cm.classList.contains('open')) closeC(); }); }
+  // método — clic en fase → modal con ojos humanizados de marca + ROI para la empresa
+  function eye(cx,cy,ring,ir,px,py){var ex=cx+px,ey=cy+py;
+    return '<ellipse cx="'+cx+'" cy="'+cy+'" rx="30" ry="30" fill="none" stroke="url(#'+ring+')" stroke-width="4.5"/>'
+      +'<g class="ir"><circle cx="'+ex+'" cy="'+ey+'" r="13" fill="url(#'+ir+')"/><circle cx="'+ex+'" cy="'+ey+'" r="6" fill="#0a0a12"/><circle cx="'+(ex+3.5)+'" cy="'+(ey-3.5)+'" r="2.6" fill="#fff"/></g>'; }
+  function brow(cx,y,c){ return '<path d="M'+(cx-19)+','+y+' Q'+cx+','+(y-9)+' '+(cx+19)+','+y+'" fill="none" stroke="'+c+'" stroke-width="4" stroke-linecap="round"/>'; }
+  function svgW(inner){ return '<svg viewBox="0 0 220 150" class="ey" aria-hidden="true">'+inner+'</svg>'; }
+  var EYES={
+    descubre:function(c){ return svgW('<g transform="translate(0,8)">'+brow(70,26,c)+brow(150,26,c)+eye(70,66,'bg1','ir1',8,-8)+eye(150,66,'bg2','ir2',8,-8)
+      +'<circle cx="192" cy="30" r="12" fill="none" stroke="'+c+'" stroke-width="3" stroke-dasharray="4 5"/><line x1="200" y1="38" x2="209" y2="47" stroke="'+c+'" stroke-width="3.4" stroke-linecap="round"/></g>'); },
+    aprende:function(c){ return svgW('<g transform="translate(0,4)">'+eye(70,64,'bg1','ir1',0,8)+eye(150,64,'bg2','ir2',0,8)
+      +'<g stroke="'+c+'" stroke-width="3.4" stroke-linecap="round" fill="none"><path d="M92,112 l10,10 l20,-20"/></g></g>'); },
+    demuestra:function(c){ return svgW('<g transform="translate(0,4)">'+eye(70,66,'bg1','ir1',0,0)+eye(150,66,'bg2','ir2',0,0)
+      +'<g fill="'+c+'"><circle cx="30" cy="40" r="2.6"/><circle cx="205" cy="96" r="2.6"/><circle cx="196" cy="24" r="2"/></g>'
+      +'<path d="M180,60 l8,10 l17,-24" fill="none" stroke="'+c+'" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>'); },
+    multiplica:function(c){ return svgW('<g transform="translate(0,6)">'+eye(82,70,'bg1','ir1',0,0)+eye(138,70,'bg2','ir2',0,0)
+      +'<g opacity=".85" transform="translate(150,4) scale(.4)">'+eye(82,70,'bg1','ir1',0,0)+eye(138,70,'bg2','ir2',0,0)+'</g>'
+      +'<g opacity=".6" transform="translate(-30,10) scale(.3)">'+eye(82,70,'bg1','ir1',0,0)+eye(138,70,'bg2','ir2',0,0)+'</g>'
+      +'<g stroke="'+c+'" stroke-width="2.4" stroke-dasharray="3 5" fill="none" opacity=".7"><path d="M150,58 Q182,42 202,32"/><path d="M70,72 Q42,58 24,50"/></g></g>'); }
+  };
+  var METHOD=[
+    {fase:'Fase 01',title:'Descubre',eyes:'descubre',color:'#00D4FF',
+     body:'Empiezas con un diagnóstico honesto: dónde estás, qué dominas ya y qué te frena de verdad. Sin humo. Es el punto de partida desde el que se mide todo lo demás.',
+     roi:'Ves dónde se pierde tu formación antes de gastar un euro más. Partes de una foto real de tu equipo, no de una intuición.'},
+    {fase:'Fase 02',title:'Aprende haciendo',eyes:'aprende',color:'#8B5CF6',
+     body:'Nada de teoría genérica. Practicas con casos reales de tu sector, roleplays y ejercicios guiados. Aprendes aplicando, que es la única forma en la que algo se queda.',
+     roi:'Tu gente no acumula certificados: aplica lo aprendido en su trabajo real desde el primer día.'},
+    {fase:'Fase 03',title:'Demuéstralo',eyes:'demuestra',color:'#C15CD6',
+     body:'Resuelves retos reales y alguien de tu propio equipo que ya lo domina revisa tu trabajo. Tu autoridad deja de ser pose: la respaldan hechos.',
+     roi:'Mides capacidad demostrada, no horas de asistencia. Sabes quién sabe hacerlo de verdad.'},
+    {fase:'Fase 04',title:'Multiplícate',eyes:'multiplica',color:'#EC4899',
+     body:'Lo que dominas lo enseñas al siguiente. Tu aprendizaje se convierte en resultados, en carrera y en conocimiento que se queda en tu equipo.',
+     roi:'El conocimiento deja de vivir en una sola cabeza: se queda en la empresa y se multiplica de compañero a compañero.'}
+  ];
+  var mm=document.getElementById('mmodal'), lastM=null;
+  function openM(i){ var d=METHOD[i]; if(!d||!mm)return; lastM=document.activeElement;
+    mm.style.setProperty('--sc',d.color);
+    document.getElementById('mmEyes').innerHTML=EYES[d.eyes](d.color);
+    document.getElementById('mmCat').textContent=d.fase;
+    document.getElementById('mmTitle').textContent=d.title;
+    document.getElementById('mmBody').textContent=d.body;
+    document.getElementById('mmRoi').textContent=d.roi;
+    mm.classList.add('open'); mm.setAttribute('aria-hidden','false');
+    var x=mm.querySelector('.x'); if(x)x.focus(); }
+  function closeM(){ if(!mm)return; mm.classList.remove('open'); mm.setAttribute('aria-hidden','true'); if(lastM&&lastM.focus)lastM.focus(); }
+  document.querySelectorAll('.tnode').forEach(function(n){
+    n.addEventListener('click',function(){ openM(+n.dataset.m); });
+    n.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openM(+n.dataset.m); } }); });
+  if(mm){ mm.querySelectorAll('[data-mclose]').forEach(function(el){ el.addEventListener('click',closeM); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&mm.classList.contains('open')) closeM(); }); }
   // ===== Admisión Brandooers — solicitud dinámica + agente que califica =====
   var apply=document.getElementById('apply');
   if(apply){
