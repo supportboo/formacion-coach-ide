@@ -12,265 +12,309 @@
 <meta property="og:locale" content="es_ES">
 <meta property="og:url" content="https://brandooers.com/">
 <meta property="og:title" content="Brandooers · La academia que convierte talento joven en el 1%">
-<meta property="og:description" content="No compras un curso. Compras tu mejor versión. Liderazgo, ventas, persuasión, storytelling e IA para jóvenes profesionales.">
+<meta property="og:description" content="No compras un curso. Compras tu mejor versión. Liderazgo, ventas, persuasión, storytelling e IA.">
 <meta property="og:image" content="https://brandooers.com/assets/cr-autoridad.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#2a1420">
+<meta name="theme-color" content="#0d0a1a">
 <link rel="apple-touch-icon" href="/icon.svg">
 <script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --wine:#2a1420; --wine2:#3a1f2e; --wine3:#4d2a3c; --plum:#6b2b3a;
-  --gold:#d9a24a; --gold2:#e7bd6e; --gold-dk:#b07d2a;
-  --paper:#f5ece1; --paper-mut:#c8b4a6; --wine-mut:#c096a6; --line:rgba(217,162,74,.2);
-  --fb:'Inter',system-ui,sans-serif; --fh:'Playfair Display',Georgia,serif; --fc:'Caveat',cursive;
+  --bg:#0b0918; --bg2:#12102a; --ink:#F3F0FB; --mut:#a99fc4; --mut2:#786e97;
+  --cy:#00D4FF; --vi:#8B5CF6; --pk:#EC4899; --vi2:#A78BFA;
+  --grad:linear-gradient(120deg,#00D4FF,#8B5CF6,#EC4899);
+  --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.07); --gborder:rgba(255,255,255,.11);
+  --fb:'Inter',system-ui,sans-serif; --fd:'Space Grotesk',var(--fb); --fc:'Caveat',cursive;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--fb);background:var(--wine);color:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(50% 40% at 82% 8%,rgba(139,92,246,.28),transparent 70%),
+  radial-gradient(45% 40% at 10% 30%,rgba(0,212,255,.16),transparent 70%),
+  radial-gradient(50% 45% at 60% 100%,rgba(236,72,153,.18),transparent 70%),var(--bg)}
+body:after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
-.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(22px,5vw,60px)}
-.reveal{opacity:0;transform:translateY(30px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,54px)}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
 .no-motion .reveal{opacity:1;transform:none}
-body:after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.ek{font-family:var(--fb);font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);display:inline-flex;align-items:center;gap:12px}
-.ek b{font-weight:700;color:var(--wine-mut)}
+.glass{background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:26px;box-shadow:0 24px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08)}
+.ek{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--vi2)}
+.ek:before{content:"";width:22px;height:1px;background:var(--vi2)}
 
-/* Logo (los ojos) */
-.logo{display:inline-flex;align-items:baseline;font-family:var(--fb);font-weight:900;font-size:22px;letter-spacing:-.02em;color:var(--paper)}
-.logo .beyes{align-self:center;margin:0 2px;display:inline-block}
-.beyes .s,.beyes .i,.beyes .p,.beyes .g{transform-box:fill-box;transform-origin:center;animation:blink 5.6s infinite}
+/* Logo ojos */
+.logo{display:inline-flex;align-items:baseline;font-family:var(--fb);font-weight:900;font-size:21px;letter-spacing:-.02em;color:#fff}
+.logo .beyes{align-self:center;margin:0 2px}
+.beyes .b{transform-box:fill-box;transform-origin:center;animation:blink 5.6s infinite}
 @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}98%{transform:scaleY(1)}}
 
-/* Nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .4s,padding .4s;border-bottom:1px solid transparent}
-nav .row{display:flex;align-items:center;justify-content:space-between;padding:24px 0}
-nav.solid{background:rgba(42,20,32,.92);backdrop-filter:blur(14px);border-bottom-color:var(--line)}
-nav.solid .row{padding:14px 0}
-.nav-r{display:flex;align-items:center;gap:26px}
-.nav-r a.t{font-size:13.5px;font-weight:500;color:var(--paper-mut)}
-.nav-r a.t:hover{color:var(--paper)}
-.btn{font-family:var(--fb);font-size:13px;font-weight:700;letter-spacing:.02em;padding:13px 24px;display:inline-flex;align-items:center;gap:9px;border-radius:2px;transition:transform .3s,background .3s,color .3s,box-shadow .3s}
-.btn-gold{background:var(--gold);color:#2a1a08}
-.btn-gold:hover{background:var(--gold2);transform:translateY(-2px)}
-.btn-line{border:1px solid rgba(245,236,225,.28);color:var(--paper)}
-.btn-line:hover{border-color:var(--gold2);color:var(--gold2)}
+/* Nav — píldora glass */
+nav{position:fixed;top:16px;left:0;right:0;z-index:50;transition:top .3s}
+nav .bar{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:11px 12px 11px 22px;border-radius:100px;background:rgba(18,16,42,.55);border:1px solid var(--gborder);backdrop-filter:blur(18px)}
+.nav-r{display:flex;align-items:center;gap:8px}
+.nav-r a.t{font-size:13.5px;font-weight:500;color:var(--mut);padding:8px 14px;border-radius:100px}
+.nav-r a.t:hover{color:#fff;background:rgba(255,255,255,.06)}
+.btn{font-family:var(--fb);font-size:13px;font-weight:700;padding:12px 22px;border-radius:100px;display:inline-flex;align-items:center;gap:8px;transition:transform .3s,box-shadow .3s,background .3s;cursor:pointer;border:0}
+.btn-grad{background:var(--grad);color:#fff;box-shadow:0 8px 26px rgba(139,92,246,.45)}
+.btn-grad:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(139,92,246,.6)}
+.btn-glass{background:var(--glass2);border:1px solid var(--gborder);color:#fff}
+.btn-glass:hover{background:rgba(255,255,255,.12)}
 @media(max-width:760px){.nav-r a.t{display:none}}
 
-/* Hero — estilo diapositiva */
-.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding:130px 0 70px;
-  background:radial-gradient(120% 120% at 78% 18%,var(--plum) 0%,var(--wine2) 42%,var(--wine) 100%)}
-.hero .art{position:absolute;right:0;top:0;width:42%;height:100%;background:url('assets/cr-autoridad.jpg') center/cover;-webkit-mask-image:linear-gradient(90deg,transparent,#000 72%);mask-image:linear-gradient(90deg,transparent,#000 72%);opacity:.5;filter:saturate(.6) sepia(.2)}
-.hero .ovl{position:absolute;inset:0;z-index:1;background:linear-gradient(96deg,var(--wine) 50%,rgba(42,20,32,.92) 66%,rgba(42,20,32,.45) 85%,transparent 100%)}
-.hero .wrap{position:relative;z-index:2;width:100%}
-.hero .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:clamp(40px,10vh,110px)}
-.hero .pag{font-family:var(--fb);font-weight:700;font-size:14px;color:var(--wine-mut);letter-spacing:.1em}
-.hero h1{font-family:var(--fb);font-weight:900;font-size:clamp(44px,8.2vw,104px);line-height:.98;letter-spacing:-.035em;max-width:11ch;margin:22px 0 26px;color:#fdf9f3;text-shadow:0 2px 30px rgba(42,20,32,.6)}
-.hero h1 em{font-style:italic;font-family:var(--fh);font-weight:800;color:var(--gold2)}
-.hero p.lead{font-size:clamp(16px,1.5vw,19px);color:var(--paper-mut);max-width:46ch;margin-bottom:38px;line-height:1.7}
-.hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.hero .cue{position:absolute;bottom:30px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;z-index:2;font-family:var(--fc);font-size:22px;color:var(--gold2)}
-.hero .cue .ln{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin-right:20px}
-@media(max-width:820px){.hero .art{width:100%;opacity:.32}}
+/* Hero */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:150px 0 70px;overflow:hidden}
+.hero .vert{position:absolute;right:-6px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;font-family:var(--fd);font-weight:700;font-size:clamp(40px,7vw,90px);letter-spacing:.04em;color:transparent;-webkit-text-stroke:1px rgba(167,139,250,.28);pointer-events:none;user-select:none}
+.hero .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;position:relative;z-index:2}
+.hero h1{font-family:var(--fb);font-weight:900;font-size:clamp(44px,7.4vw,92px);line-height:.98;letter-spacing:-.035em;margin:18px 0 22px;color:#fff}
+.hero h1 span{font-family:var(--fc);font-weight:700;display:inline-block}
+.hero p.lead{font-size:clamp(16px,1.5vw,19px);color:var(--mut);max-width:46ch;margin-bottom:34px;line-height:1.7}
+.hero-cta{display:flex;gap:13px;flex-wrap:wrap}
+/* tarjeta flotante con ojos + burbuja */
+.orb{position:relative;padding:34px;text-align:center}
+.orb .eyewrap{width:min(60%,220px);margin:6px auto 20px;animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.orb .halo{position:absolute;inset:0;border-radius:26px;background:radial-gradient(60% 50% at 50% 30%,rgba(139,92,246,.35),transparent 70%);pointer-events:none}
+.orb h3{font-size:17px;font-weight:800;color:#fff;position:relative}
+.orb p{font-size:13.5px;color:var(--mut);position:relative;margin-top:4px}
+.bubble{position:absolute;left:-26px;bottom:34px;background:var(--grad);color:#fff;font-size:13px;font-weight:600;padding:10px 15px;border-radius:16px 16px 16px 4px;box-shadow:0 12px 30px rgba(236,72,153,.4);animation:float 6s ease-in-out infinite .8s}
+.bubble2{position:absolute;right:-18px;top:40px;background:rgba(18,16,42,.85);border:1px solid var(--gborder);color:var(--ink);font-size:13px;font-weight:500;padding:9px 14px;border-radius:16px 16px 4px 16px;backdrop-filter:blur(10px);animation:float 6.4s ease-in-out infinite .3s}
+@media(max-width:860px){.hero .grid{grid-template-columns:1fr}.hero .vert{display:none}.orb{max-width:360px;margin:0 auto}}
 
-/* Diapositiva-manifiesto */
-.slide{background:var(--wine2);padding:clamp(80px,13vh,150px) 0;position:relative}
-.slide .num{position:absolute;top:clamp(30px,6vh,60px);right:0;font-family:var(--fb);font-weight:800;font-size:14px;color:var(--wine-mut);letter-spacing:.12em}
-.slide .big{font-family:var(--fb);font-weight:900;font-size:clamp(34px,6.4vw,86px);line-height:1.02;letter-spacing:-.035em;color:var(--paper);max-width:16ch}
-.slide .big em{font-style:normal;color:var(--gold2)}
-.slide .by{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);font-size:14px;color:var(--gold);font-weight:600}
-
-/* Bandas cinemáticas */
-.band{position:relative;min-height:96vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--wine)}
-.band .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(.72) sepia(.12)}
-.band .ov{position:absolute;inset:0;background:linear-gradient(0deg,var(--wine) 3%,rgba(42,20,32,.72) 34%,rgba(42,20,32,.2) 100%)}
-.band .wrap{position:relative;z-index:2;padding-bottom:clamp(56px,9vh,110px)}
-.band .no{font-family:var(--fb);font-weight:800;font-size:clamp(56px,11vw,140px);line-height:.8;color:transparent;-webkit-text-stroke:1.4px rgba(231,189,110,.55);margin-bottom:14px}
-.band h2{font-family:var(--fb);font-weight:900;font-size:clamp(32px,5.4vw,68px);line-height:1.01;letter-spacing:-.03em;max-width:16ch;margin-bottom:16px}
-.band h2 em{font-style:italic;font-family:var(--fh);font-weight:800;color:var(--gold2)}
-.band p{max-width:46ch;font-size:clamp(15.5px,1.4vw,18px);color:var(--paper-mut);line-height:1.7}
-
-/* Marquesina */
-.marq{background:var(--gold);color:#2a1408;padding:16px 0;overflow:hidden;white-space:nowrap}
-.marq .t{display:inline-block;font-family:var(--fb);font-weight:900;font-size:clamp(20px,3vw,34px);letter-spacing:.02em;animation:scrollx 22s linear infinite}
-.marq .t span{margin:0 26px}.marq .t .o{-webkit-text-stroke:1.4px #2a1408;color:transparent}
+/* Cinta diagonal */
+.ribbon{position:relative;height:0;z-index:3}
+.ribbon .r{position:absolute;left:-8%;right:-8%;top:-30px;transform:rotate(-3.5deg);background:var(--grad);padding:14px 0;overflow:hidden;white-space:nowrap;box-shadow:0 14px 40px rgba(139,92,246,.35)}
+.ribbon .t{display:inline-block;font-family:var(--fd);font-weight:700;font-size:clamp(16px,2.2vw,26px);color:#fff;animation:scrollx 20s linear infinite}
+.ribbon .t span{margin:0 22px}
 @keyframes scrollx{to{transform:translateX(-50%)}}
-.no-motion .marq .t{animation:none}
+.no-motion .ribbon .t{animation:none}
 
-/* Temáticas — lista editorial */
-.temas{background:var(--wine2);padding:clamp(80px,13vh,150px) 0}
-.temas .head h2{font-family:var(--fb);font-weight:900;font-size:clamp(30px,4.8vw,60px);line-height:1.03;letter-spacing:-.03em;margin:14px 0;max-width:22ch}
-.temas .head p{color:var(--paper-mut);max-width:52ch}
-.tlist{margin-top:34px;border-top:1px solid var(--line)}
-.trow{display:grid;grid-template-columns:64px 1fr auto;gap:22px;align-items:center;padding:22px 12px;border-bottom:1px solid var(--line);transition:background .35s,transform .35s cubic-bezier(.16,1,.3,1)}
-.trow:hover{background:rgba(217,162,74,.06);transform:translateX(10px)}
-.trow .tn{font-family:var(--fb);font-weight:800;font-size:15px;color:var(--gold)}
-.trow .tt{font-family:var(--fb);font-weight:700;font-size:clamp(19px,2.5vw,30px);letter-spacing:-.01em}
-.trow .td{font-size:13.5px;color:var(--wine-mut);text-align:right;max-width:34ch}
-@media(max-width:720px){.trow{grid-template-columns:44px 1fr}.trow .td{display:none}}
+section{padding:clamp(80px,12vh,140px) 0;position:relative}
+.head{max-width:26ch}
+.head h2{font-family:var(--fb);font-weight:900;font-size:clamp(30px,4.8vw,58px);line-height:1.03;letter-spacing:-.03em;margin:14px 0}
+.head p{color:var(--mut);max-width:52ch}
 
-/* Método */
-.metodo{background:var(--wine);padding:clamp(80px,13vh,150px) 0}
-.metodo .head h2{font-family:var(--fb);font-weight:900;font-size:clamp(30px,4.8vw,58px);letter-spacing:-.03em;max-width:18ch}
-.msteps{margin-top:52px;display:grid;grid-template-columns:repeat(2,1fr);gap:2px 60px}
-.mstep{padding:34px 0;border-top:1px solid var(--line)}
-.mstep .mn{font-family:var(--fh);font-style:italic;font-weight:600;font-size:26px;color:var(--gold);margin-bottom:12px}
-.mstep h3{font-family:var(--fb);font-weight:700;font-size:clamp(21px,2.2vw,27px);letter-spacing:-.01em;margin-bottom:8px}
-.mstep p{color:var(--paper-mut);font-size:15.5px;line-height:1.7;max-width:42ch}
-@media(max-width:720px){.msteps{grid-template-columns:1fr;gap:0}}
+/* Carrusel de competencias */
+.caro{margin-top:44px}
+.caro-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{font-size:13px;font-weight:600;color:var(--mut);padding:9px 16px;border-radius:100px;border:1px solid var(--gborder);background:var(--glass);cursor:pointer;transition:.3s}
+.tab.on{color:#fff;background:var(--grad);border-color:transparent}
+.arrows{display:flex;gap:8px}
+.arrow{width:44px;height:44px;border-radius:50%;border:1px solid var(--gborder);background:var(--glass);color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center;transition:.3s}
+.arrow:hover{background:var(--glass2);transform:translateY(-2px)}
+.track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 2px 10px}
+.track::-webkit-scrollbar{display:none}
+.ccard{flex:0 0 clamp(240px,32%,320px);scroll-snap-align:start;padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(16px);transition:transform .35s,border-color .35s}
+.ccard:hover{transform:translateY(-6px);border-color:rgba(167,139,250,.5)}
+.ccard .ic{width:50px;height:50px;border-radius:15px;background:var(--grad);display:grid;place-items:center;margin-bottom:16px;color:#fff;font-weight:800;font-family:var(--fd)}
+.ccard h4{font-size:19px;font-weight:800;color:#fff;margin-bottom:7px}
+.ccard p{font-size:14px;color:var(--mut);line-height:1.6}
+
+/* Statement gigante sobre imagen */
+.state{min-height:88vh;display:flex;align-items:center;overflow:hidden}
+.state .bg{position:absolute;inset:0;background:url('assets/cr-autoridad.jpg') center/cover;filter:saturate(.7) hue-rotate(-8deg) brightness(.5)}
+.state .bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,var(--bg),rgba(11,9,24,.4) 40%,var(--bg))}
+.state .wrap{position:relative;z-index:2;text-align:center}
+.state .huge{font-family:var(--fb);font-weight:900;font-size:clamp(48px,12vw,170px);line-height:.9;letter-spacing:-.04em;color:#fff;text-shadow:0 8px 60px rgba(0,0,0,.6)}
+.state .huge em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.state p{max-width:44ch;margin:26px auto 0;color:var(--mut);font-size:17px}
+
+/* Método — flujo conectado */
+.flow{margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
+.flow:before{content:"";position:absolute;top:38px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,var(--cy),var(--vi),var(--pk));opacity:.4;z-index:0}
+.fstep{position:relative;z-index:1;padding:26px 22px;border-radius:22px;background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(16px)}
+.fstep .fn{width:52px;height:52px;border-radius:50%;background:var(--bg2);border:2px solid var(--vi);color:#fff;font-family:var(--fd);font-weight:700;font-size:20px;display:grid;place-items:center;margin-bottom:16px;box-shadow:0 0 0 6px rgba(139,92,246,.1)}
+.fstep h4{font-size:17px;font-weight:800;color:#fff;margin-bottom:7px}
+.fstep p{font-size:13.5px;color:var(--mut);line-height:1.6}
+@media(max-width:860px){.flow{grid-template-columns:1fr;gap:14px}.flow:before{display:none}}
+
+/* Chat tutor */
+.chat{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:center}
+.chatbox{padding:26px;display:flex;flex-direction:column;gap:12px}
+.msg-u,.msg-t{max-width:78%;padding:12px 16px;border-radius:18px;font-size:14.5px;line-height:1.5}
+.msg-u{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:5px}
+.msg-t{align-self:flex-start;background:rgba(255,255,255,.06);border:1px solid var(--gborder);color:var(--ink);border-bottom-left-radius:5px}
+.msg-t b{color:var(--vi2)}
+@media(max-width:860px){.chat{grid-template-columns:1fr;gap:28px}}
+
+/* Rejilla creativos */
+.mgrid{margin-top:44px;display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:180px 180px;gap:16px}
+.mg{border-radius:22px;overflow:hidden;position:relative;border:1px solid var(--gborder)}
+.mg img{width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
+.mg:nth-child(1){grid-row:span 2}
+.mg .go{position:absolute;right:14px;bottom:14px;width:40px;height:40px;border-radius:50%;background:rgba(11,9,24,.6);border:1px solid var(--gborder);backdrop-filter:blur(8px);color:#fff;display:grid;place-items:center}
+@media(max-width:760px){.mgrid{grid-template-columns:1fr 1fr;grid-template-rows:auto}.mg:nth-child(1){grid-row:auto}.mg{height:180px}}
 
 /* Puertas */
-.puertas{background:var(--wine2);padding:clamp(80px,13vh,150px) 0}
-.puertas .head h2{font-family:var(--fb);font-weight:900;font-size:clamp(30px,4.8vw,56px);letter-spacing:-.03em;max-width:16ch}
-.pgrid{margin-top:48px;display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
-.pcard{background:var(--wine2);padding:clamp(28px,4vw,44px);display:flex;flex-direction:column;gap:12px;transition:background .4s}
-.pcard:hover{background:var(--wine3)}
-.pcard .pk{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}
-.pcard h3{font-family:var(--fb);font-weight:800;font-size:clamp(24px,3vw,34px)}
-.pcard p{color:var(--paper-mut);font-size:15px;line-height:1.65;flex:1}
-.pcard .pgo{color:var(--gold2);font-size:14px;font-weight:700}
-.pcard.soon{opacity:.72}
+.pgrid{margin-top:44px;display:grid;gap:16px}
+.pcard{padding:clamp(26px,3.4vw,38px);border-radius:24px;background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:11px;transition:.35s}
+.pcard:hover{transform:translateY(-5px);border-color:rgba(167,139,250,.5)}
+.pcard .pk{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vi2);font-weight:700}
+.pcard h3{font-size:clamp(22px,2.6vw,30px);font-weight:800;color:#fff}
+.pcard p{color:var(--mut);font-size:14.5px;line-height:1.6;flex:1}
+.pcard .pgo{color:var(--cy);font-weight:700;font-size:14px}
+.pcard.soon{opacity:.7}
 @media(min-width:760px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 
-/* CTA + form */
-.cta{background:radial-gradient(120% 120% at 22% 20%,var(--plum),var(--wine2) 55%,var(--wine));padding:clamp(80px,13vh,150px) 0}
-.cta .grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(40px,6vw,80px);align-items:center}
-.cta h2{font-family:var(--fb);font-weight:900;font-size:clamp(34px,5.4vw,66px);line-height:1.01;letter-spacing:-.035em;max-width:14ch}
-.cta h2 em{font-style:italic;font-family:var(--fh);font-weight:800;color:var(--gold2)}
-.cta .p{margin-top:20px;color:var(--paper-mut);max-width:42ch;line-height:1.7}
-.assure{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:18px;font-size:12.5px;color:var(--wine-mut)}
-form .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* CTA */
+.cta .box{padding:clamp(34px,5vw,60px);border-radius:30px}
+.cta .grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(32px,5vw,64px);align-items:center}
+.cta h2{font-family:var(--fb);font-weight:900;font-size:clamp(32px,4.6vw,58px);line-height:1.02;letter-spacing:-.03em;max-width:13ch;color:#fff}
+.cta .p{margin-top:18px;color:var(--mut);max-width:40ch}
+form .fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}
 form .full{grid-column:1/-1}
-form label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wine-mut);margin-bottom:6px}
-form input{width:100%;font-family:var(--fb);font-size:15px;padding:13px 14px;border:1px solid var(--line);background:rgba(245,236,225,.05);color:var(--paper);border-radius:2px}
-form input:focus{outline:none;border-color:var(--gold)}
-form input::placeholder{color:var(--wine-mut)}
-form button{width:100%;justify-content:center;margin-top:18px;font-size:15px;padding:16px}
-.msg{font-size:13.5px;margin-top:12px;min-height:16px}.msg.ok{color:var(--gold2)}.msg.err{color:#e6997f}
+form label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut2);margin-bottom:6px}
+form input{width:100%;font-family:var(--fb);font-size:15px;padding:13px 15px;border:1px solid var(--gborder);background:rgba(255,255,255,.05);color:#fff;border-radius:12px}
+form input:focus{outline:none;border-color:var(--vi)}
+form input::placeholder{color:var(--mut2)}
+form button{width:100%;justify-content:center;margin-top:16px;padding:16px;font-size:15px}
+.msg{font-size:13.5px;margin-top:12px;min-height:16px}.msg.ok{color:var(--cy)}.msg.err{color:#ff9db3}
+.assure{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:12.5px;color:var(--mut2)}
 @media(max-width:820px){.cta .grid{grid-template-columns:1fr}}
 
-footer{background:var(--wine);padding:56px 0 44px;color:var(--wine-mut)}
-footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
-footer a:hover{color:var(--paper)}
+footer{padding:56px 0 44px;color:var(--mut2);border-top:1px solid var(--gborder);margin-top:40px}
+footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+footer a:hover{color:#fff}
 footer .fl{display:flex;gap:22px;flex-wrap:wrap;font-size:14px}
-footer .cp{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:#8a6a78;max-width:74ch;line-height:1.7}
+footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-height:1.7}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}.reveal{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<linearGradient id="eg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e7bd6e"/><stop offset="100%" stop-color="#8a5f7c"/></linearGradient>
-<linearGradient id="eg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#3FD8E0"/></linearGradient>
-<radialGradient id="ir1"><stop offset="0%" stop-color="#f0d79a"/><stop offset="100%" stop-color="#b07d2a"/></radialGradient>
-<radialGradient id="ir2"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#6b2b3a"/></radialGradient>
+<linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
+<radialGradient id="ir1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
+<radialGradient id="ir2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
 </defs></svg>
 
-<nav id="nav"><div class="wrap"><div class="row">
-  <a href="#top" class="logo">Brand<svg class="beyes" width="40" height="23" viewBox="0 0 100 58" aria-hidden="true"><g class="s"><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#eg1)" stroke-width="3"/><circle class="i" cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle class="p" cx="25" cy="36" r="3.4" fill="#20101a"/><circle class="g" cx="28" cy="33" r="1.8" fill="#fff"/></g><g class="s"><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#eg2)" stroke-width="3"/><circle class="i" cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle class="p" cx="73" cy="36" r="3.4" fill="#20101a"/><circle class="g" cx="76" cy="33" r="1.8" fill="#fff"/></g></svg>ers</a>
+<nav id="nav"><div class="bar">
+  <a href="#top" class="logo">Brand<svg class="beyes" width="38" height="22" viewBox="0 0 100 58" aria-hidden="true"><g class="b"><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg1)" stroke-width="3"/><circle cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle cx="25" cy="36" r="3.4" fill="#0a0a12"/><circle cx="28" cy="33" r="1.8" fill="#fff"/></g><g class="b"><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg2)" stroke-width="3"/><circle cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle cx="73" cy="36" r="3.4" fill="#0a0a12"/><circle cx="76" cy="33" r="1.8" fill="#fff"/></g></svg>ers</a>
   <div class="nav-r">
-    <a class="t" href="#temas">Qué desarrollas</a>
+    <a class="t" href="#competencias">Qué desarrollas</a>
     <a class="t" href="#metodo">El método</a>
     <a class="t" href="https://skillup.brandooers.com">SkillUp</a>
-    <a class="btn btn-gold" href="#acceso">Entra a la academia</a>
+    <a class="btn btn-grad" href="#acceso">Entra a la academia</a>
   </div>
-</div></div></nav>
+</div></nav>
 
 <header class="hero" id="top">
-  <div class="art" aria-hidden="true"></div>
-  <div class="ovl" aria-hidden="true"></div>
-  <div class="wrap">
-    <div class="top">
-      <span class="ek">Academia de alto rendimiento</span>
-      <span class="pag">01 / 06</span>
+  <span class="vert" aria-hidden="true">TOP 1%</span>
+  <div class="wrap"><div class="grid">
+    <div>
+      <span class="ek reveal">Academia de alto rendimiento</span>
+      <h1 class="reveal">No compras un curso. Compras tu <span class="grad">mejor versión</span>.</h1>
+      <p class="lead reveal">Convertimos el talento joven en el 1%. Liderazgo, ventas, persuasión, storytelling e IA — para que hables con propiedad, ganes autoridad y lo demuestres.</p>
+      <div class="hero-cta reveal">
+        <a href="#acceso" class="btn btn-grad">Empieza tu evolución →</a>
+        <a href="#metodo" class="btn btn-glass">El método</a>
+      </div>
     </div>
-    <span class="ek reveal">Para jóvenes profesionales</span>
-    <h1 class="reveal">No compras un curso. Compras tu <em>mejor versión</em>.</h1>
-    <p class="lead reveal">Convertimos el talento joven en el 1%. Liderazgo, ventas, persuasión, storytelling e IA — para que hables con propiedad, ganes autoridad y lo demuestres.</p>
-    <div class="hero-cta reveal">
-      <a href="#acceso" class="btn btn-gold">Empieza tu evolución →</a>
-      <a href="#metodo" class="btn btn-line">El método</a>
+    <div class="orb glass reveal" style="position:relative">
+      <div class="halo"></div>
+      <div class="eyewrap"><svg viewBox="0 0 100 58" aria-hidden="true" style="width:100%"><g><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg1)" stroke-width="3"/><circle cx="25" cy="36" r="9" fill="url(#ir1)"/><circle cx="25" cy="36" r="4" fill="#0a0a12"/><circle cx="28.5" cy="32.5" r="2.2" fill="#fff"/></g><g><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg2)" stroke-width="3"/><circle cx="73" cy="36" r="9" fill="url(#ir2)"/><circle cx="73" cy="36" r="4" fill="#0a0a12"/><circle cx="76.5" cy="32.5" r="2.2" fill="#fff"/></g></svg></div>
+      <h3>Tu potencial, despierto</h3>
+      <p>De impostor a referente</p>
+      <div class="bubble">¿Cómo gano autoridad?</div>
+      <div class="bubble2">Con método. Empezamos hoy.</div>
     </div>
-  </div>
-  <div class="wrap cue" aria-hidden="true"><span class="ln"></span><span>desliza →</span></div>
+  </div></div>
 </header>
 
-<section class="slide">
-  <div class="wrap" style="position:relative">
-    <span class="num">02 / 06 · El valor</span>
-    <span class="ek reveal">Comunicar el valor</span>
-    <p class="big reveal" style="margin-top:16px">Nadie asciende por saber más. Asciende quien sabe <em>aplicarlo y contarlo</em>.</p>
-    <p class="by reveal">Marc Herrero · Brandooers · academia de talento</p>
-  </div>
-</section>
+<div class="ribbon" aria-hidden="true"><div class="r"><div class="t"><span>TOP 1%</span><span>·</span><span>TALENTO IMPARABLE</span><span>·</span><span>BRANDOOERS</span><span>·</span><span>TOP 1%</span><span>·</span><span>TALENTO IMPARABLE</span><span>·</span><span>BRANDOOERS</span><span>·</span></div></div></div>
 
-<section class="band reveal">
-  <div class="bg" data-par style="background-image:url('assets/cr-impostor.jpg')"></div>
-  <div class="ov"></div>
-  <div class="wrap">
-    <div class="no">01</div>
-    <h2>Bueno, sí. Pero <em>sin despegar</em>.</h2>
-    <p>Profesionales con potencial que se sienten un impostor, se estancan y no saben venderse. El talento está — falta quien lo despierte.</p>
-  </div>
-</section>
-
-<div class="marq" aria-hidden="true"><div class="t"><span>LIDERAZGO</span><span class="o">VENTAS</span><span>PERSUASIÓN</span><span class="o">STORYTELLING</span><span>IA</span><span class="o">AUTORIDAD</span><span>LIDERAZGO</span><span class="o">VENTAS</span><span>PERSUASIÓN</span><span class="o">STORYTELLING</span><span>IA</span><span class="o">AUTORIDAD</span></div></div>
-
-<section class="temas" id="temas">
+<section id="competencias">
   <div class="wrap">
     <div class="head reveal">
-      <span class="ek">Qué desarrollas · 03 / 06</span>
+      <span class="ek">Qué desarrollas</span>
       <h2>Las competencias que te separan del montón.</h2>
-      <p>No es un curso de un tema. Es el sistema completo de un profesional de élite: cómo piensa, cómo comunica, cómo vende y cómo lidera.</p>
+      <p>No es un curso de un tema. Es el sistema completo de un profesional de élite.</p>
     </div>
-    <div class="tlist reveal">
-      <div class="trow"><span class="tn">01</span><span class="tt">Liderazgo y estrategia</span><span class="td">Dirigir, decidir y hacer crecer un negocio.</span></div>
-      <div class="trow"><span class="tn">02</span><span class="tt">Ventas y negociación</span><span class="td">Cerrar, rebatir objeciones y crear valor.</span></div>
-      <div class="trow"><span class="tn">03</span><span class="tt">Persuasión y neuromarketing</span><span class="td">La psicología de por qué la gente dice que sí.</span></div>
-      <div class="trow"><span class="tn">04</span><span class="tt">Storytelling y comunicación</span><span class="td">Hablar con propiedad y que se te escuche.</span></div>
-      <div class="trow"><span class="tn">05</span><span class="tt">Marketing y crecimiento</span><span class="td">Atraer, convertir y fidelizar.</span></div>
-      <div class="trow"><span class="tn">06</span><span class="tt">IA, innovación y herramientas</span><span class="td">Multiplicarte con la tecnología, no temerla.</span></div>
-      <div class="trow"><span class="tn">07</span><span class="tt">Soft skills y coaching</span><span class="td">Autoridad, mentalidad y tu mejor versión.</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="metodo" id="metodo">
-  <div class="wrap">
-    <div class="head reveal">
-      <span class="ek">El método · 04 / 06</span>
-      <h2 style="margin-top:14px">De cero al 1%, paso a paso. Sin humo.</h2>
-    </div>
-    <div class="msteps">
-      <div class="mstep reveal"><div class="mn">i.</div><h3>Descubre tu punto de partida</h3><p>Un diagnóstico honesto de dónde estás y qué te frena de verdad — no un test de revista.</p></div>
-      <div class="mstep reveal"><div class="mn">ii.</div><h3>Aprende haciendo</h3><p>Casos reales, roleplays y práctica guiada. Se aprende aplicando, no memorizando teoría que se olvida.</p></div>
-      <div class="mstep reveal"><div class="mn">iii.</div><h3>Demuéstralo</h3><p>Resuelves retos reales y ganas soltura hablando con propiedad. Tu autoridad deja de ser una pose.</p></div>
-      <div class="mstep reveal"><div class="mn">iv.</div><h3>Multiplícate</h3><p>Lo que dominas, lo aplicas en tu trabajo real. El conocimiento se convierte en resultados y en carrera.</p></div>
+    <div class="caro">
+      <div class="caro-top reveal">
+        <div class="tabs" id="tabs">
+          <button class="tab on" data-k="todas">Todas</button>
+          <button class="tab" data-k="comunicar">Comunicar</button>
+          <button class="tab" data-k="vender">Vender</button>
+          <button class="tab" data-k="liderar">Liderar</button>
+        </div>
+        <div class="arrows"><button class="arrow" id="prev" aria-label="Anterior">‹</button><button class="arrow" id="next" aria-label="Siguiente">›</button></div>
+      </div>
+      <div class="track reveal" id="track">
+        <div class="ccard" data-k="liderar"><div class="ic">01</div><h4>Liderazgo y estrategia</h4><p>Dirigir, decidir y hacer crecer un negocio con criterio.</p></div>
+        <div class="ccard" data-k="vender"><div class="ic">02</div><h4>Ventas y negociación</h4><p>Cerrar, rebatir objeciones y crear valor real.</p></div>
+        <div class="ccard" data-k="comunicar"><div class="ic">03</div><h4>Persuasión y neuromarketing</h4><p>La psicología de por qué la gente dice que sí.</p></div>
+        <div class="ccard" data-k="comunicar"><div class="ic">04</div><h4>Storytelling y comunicación</h4><p>Hablar con propiedad y que se te escuche.</p></div>
+        <div class="ccard" data-k="vender"><div class="ic">05</div><h4>Marketing y crecimiento</h4><p>Atraer, convertir y fidelizar.</p></div>
+        <div class="ccard" data-k="liderar"><div class="ic">06</div><h4>IA e innovación</h4><p>Multiplicarte con la tecnología, no temerla.</p></div>
+        <div class="ccard" data-k="liderar"><div class="ic">07</div><h4>Soft skills y coaching</h4><p>Autoridad, mentalidad y tu mejor versión.</p></div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="band reveal">
-  <div class="bg" data-par style="background-image:url('assets/cr-autoridad.jpg')"></div>
-  <div class="ov"></div>
-  <div class="wrap">
-    <div class="no">02</div>
-    <h2>Habla con propiedad. <em>Manda en la sala</em>.</h2>
+<section class="state">
+  <div class="bg" data-par aria-hidden="true"></div>
+  <div class="wrap reveal">
+    <div class="huge">TALENTO <em>IMPARABLE</em></div>
     <p>Cuando dominas el tema y sabes contarlo, la autoridad llega sola — y con ella, mejores compensaciones basadas en lo que sabes hacer.</p>
   </div>
 </section>
 
-<section class="puertas">
+<section id="metodo">
   <div class="wrap">
     <div class="head reveal">
-      <span class="ek">Por dónde entrar · 05 / 06</span>
-      <h2 style="margin-top:14px">Tres formas de subir de nivel.</h2>
+      <span class="ek">El método</span>
+      <h2>De cero al 1%, paso a paso.</h2>
     </div>
+    <div class="flow">
+      <div class="fstep reveal"><div class="fn">1</div><h4>Descubre</h4><p>Diagnóstico honesto de dónde estás y qué te frena de verdad.</p></div>
+      <div class="fstep reveal"><div class="fn">2</div><h4>Aprende haciendo</h4><p>Casos reales, roleplays y práctica guiada. Aplicando, no memorizando.</p></div>
+      <div class="fstep reveal"><div class="fn">3</div><h4>Demuéstralo</h4><p>Resuelves retos reales y ganas soltura. Tu autoridad deja de ser pose.</p></div>
+      <div class="fstep reveal"><div class="fn">4</div><h4>Multiplícate</h4><p>Lo aplicas en tu trabajo real. Se convierte en resultados y carrera.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tutor">
+  <div class="wrap"><div class="chat">
+    <div class="reveal">
+      <span class="ek">Nunca solo</span>
+      <h2 class="head" style="font-size:clamp(28px,4vw,46px);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin:14px 0;color:#fff">Un tutor que te reta y te acompaña.</h2>
+      <p style="color:var(--mut);max-width:44ch">Pregunta lo que sea, cuando sea. Un mentor que te devuelve la pregunta, te pone el ejemplo y te empuja a aplicarlo — no una FAQ.</p>
+    </div>
+    <div class="chatbox glass reveal">
+      <div class="msg-u">¿Cómo hago que me escuchen en la reunión?</div>
+      <div class="msg-t">Empieza por el <b>resultado</b>, no por el contexto. Una frase: qué gana quien te escucha. ¿Me la escribes para tu caso?</div>
+      <div class="msg-u">«Con esto cerramos 3 semanas antes.»</div>
+      <div class="msg-t">Eso engancha. Ahora quítale el «con esto» y ve directo. Pruébalo mañana y me cuentas.</div>
+    </div>
+  </div></div>
+</section>
+
+<section id="galeria">
+  <div class="wrap">
+    <div class="head reveal"><span class="ek">Talento real</span><h2>Gente como tú, un nivel por encima.</h2></div>
+    <div class="mgrid reveal">
+      <div class="mg"><img src="assets/cr-autoridad.jpg" alt="Profesional presentando con autoridad"><div class="go">→</div></div>
+      <div class="mg"><img src="assets/cr-impostor.jpg" alt="Joven profesional concentrada"><div class="go">→</div></div>
+      <div class="mg"><img src="assets/cr-propaga.jpg" alt="Mentoría entre profesionales"><div class="go">→</div></div>
+      <div class="mg"><img src="assets/cr-panel.jpg" alt="Profesional con tableta"><div class="go">→</div></div>
+      <div class="mg"><img src="assets/cr-marcha.jpg" alt="Conocimiento que se propaga"><div class="go">→</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="puertas">
+  <div class="wrap">
+    <div class="head reveal"><span class="ek">Por dónde entrar</span><h2>Tres formas de subir de nivel.</h2></div>
     <div class="pgrid reveal">
       <a class="pcard" href="#acceso"><span class="pk">En tu empresa · FUNDAE</span><h3>Formación en empresa</h3><p>Multiplica el potencial de tu equipo y empodera el talento oculto. Bonificable por FUNDAE. Piloto de 90 días.</p><span class="pgo">Pide tu piloto →</span></a>
       <a class="pcard" href="https://skillup.brandooers.com"><span class="pk">Plataforma · en marcha</span><h3>SkillUp</h3><p>La plataforma online de formación a medida de cada persona: casos reales, práctica y panel de capacidad.</p><span class="pgo">Entrar a SkillUp →</span></a>
@@ -280,34 +324,34 @@ footer .cp{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);fon
 </section>
 
 <section class="cta" id="acceso">
-  <div class="wrap"><div class="grid">
-    <div class="reveal">
-      <span class="ek">Empieza hoy · 06 / 06</span>
-      <h2 style="margin-top:14px">Entra en la primera <em>hornada</em>.</h2>
-      <p class="p">Cuéntanos quién eres o cómo es tu equipo y te preparamos el plan, sin compromiso. Plazas limitadas en el arranque.</p>
+  <div class="wrap"><div class="box glass reveal"><div class="grid">
+    <div>
+      <span class="ek">Empieza hoy</span>
+      <h2 style="margin-top:14px">Entra en la primera <span class="grad">hornada</span>.</h2>
+      <p class="p">Cuéntanos quién eres o cómo es tu equipo y te preparamos el plan, sin compromiso. Plazas limitadas.</p>
       <div class="assure"><span>✓ Sin compromiso</span><span>✓ Plan a medida</span><span>✓ Contenido verificado</span></div>
     </div>
-    <div class="reveal">
+    <div>
       <form id="pilotForm">
         <div class="fields">
           <div><label for="pName">Tu nombre</label><input id="pName" autocomplete="name" placeholder="Nombre y apellido" required></div>
-          <div><label for="pCompany">Empresa / perfil</label><input id="pCompany" autocomplete="organization" placeholder="Empresa o «voy por mi cuenta»"></div>
+          <div><label for="pCompany">Empresa / perfil</label><input id="pCompany" autocomplete="organization" placeholder="Empresa o «por mi cuenta»"></div>
           <div class="full"><label for="pEmail">Email</label><input id="pEmail" type="email" autocomplete="email" placeholder="tu@email.com" required></div>
-          <div><label for="pGoal">¿Qué objetivo buscas?</label><input id="pGoal" placeholder="Liderar, vender más, ganar autoridad…"></div>
-          <div><label for="pRoi">¿Qué esperas conseguir?</label><input id="pRoi" placeholder="Ascenso, mejor sueldo, más clientes…"></div>
+          <div><label for="pGoal">¿Qué objetivo buscas?</label><input id="pGoal" placeholder="Liderar, vender, autoridad…"></div>
+          <div><label for="pRoi">¿Qué esperas conseguir?</label><input id="pRoi" placeholder="Ascenso, sueldo, clientes…"></div>
         </div>
-        <button class="btn btn-gold" type="submit">Solicitar plaza</button>
+        <button class="btn btn-grad" type="submit">Solicitar plaza</button>
         <div class="msg" id="pilotMsg" aria-live="polite"></div>
       </form>
     </div>
-  </div></div>
+  </div></div></div>
 </section>
 
 <footer>
   <div class="wrap">
     <div class="row">
-      <a href="#top" class="logo" style="font-size:19px">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58" aria-hidden="true"><g><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#eg1)" stroke-width="3"/><circle cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle cx="25" cy="36" r="3.4" fill="#20101a"/></g><g><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#eg2)" stroke-width="3"/><circle cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle cx="73" cy="36" r="3.4" fill="#20101a"/></g></svg>ers</a>
-      <div class="fl"><a href="#temas">Qué desarrollas</a><a href="#metodo">El método</a><a href="#acceso">Entrar</a><a href="https://skillup.brandooers.com">SkillUp</a></div>
+      <a href="#top" class="logo" style="font-size:18px">Brand<svg class="beyes" width="32" height="19" viewBox="0 0 100 58" aria-hidden="true"><g><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg1)" stroke-width="3"/><circle cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle cx="25" cy="36" r="3.4" fill="#0a0a12"/></g><g><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg2)" stroke-width="3"/><circle cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle cx="73" cy="36" r="3.4" fill="#0a0a12"/></g></svg>ers</a>
+      <div class="fl"><a href="#competencias">Qué desarrollas</a><a href="#metodo">El método</a><a href="#acceso">Entrar</a><a href="https://skillup.brandooers.com">SkillUp</a></div>
     </div>
     <p class="cp">Brandooers desarrolla a jóvenes profesionales hasta su mejor versión — en tu empresa, en la plataforma o en abierto. Producto en desarrollo · primeras plazas abiertas.</p>
   </div>
@@ -318,18 +362,24 @@ footer .cp{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);fon
 </script>
 <script>
 (function(){
-  var nav=document.getElementById('nav');
-  var onScroll=function(){ nav.classList.toggle('solid', window.scrollY>40); };
-  addEventListener('scroll',onScroll,{passive:true}); onScroll();
   var RM=false; try{RM=matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){}
   if(RM){document.documentElement.className='no-motion';}
   else{
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
     document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
     var pars=[].slice.call(document.querySelectorAll('[data-par]'));
-    var tick=function(){ pars.forEach(function(el){ var r=el.parentElement.getBoundingClientRect(); var v=(r.top+r.height/2-innerHeight/2)/innerHeight; el.style.transform='translateY('+(v*-7)+'%) scale(1.14)'; }); requestAnimationFrame(tick); };
+    var tick=function(){ pars.forEach(function(el){ var r=el.parentElement.getBoundingClientRect(); var v=(r.top+r.height/2-innerHeight/2)/innerHeight; el.style.transform='translateY('+(v*-8)+'%) scale(1.12)'; }); requestAnimationFrame(tick); };
     requestAnimationFrame(tick);
   }
+  // carrusel
+  var track=document.getElementById('track');
+  document.getElementById('next').onclick=function(){ track.scrollBy({left:340,behavior:'smooth'}); };
+  document.getElementById('prev').onclick=function(){ track.scrollBy({left:-340,behavior:'smooth'}); };
+  // tabs (filtra tarjetas)
+  var tabs=document.querySelectorAll('.tab'), cards=track.querySelectorAll('.ccard');
+  tabs.forEach(function(t){ t.onclick=function(){ tabs.forEach(function(x){x.classList.remove('on');}); t.classList.add('on');
+    var k=t.dataset.k; cards.forEach(function(c){ c.style.display=(k==='todas'||c.dataset.k===k)?'':'none'; }); track.scrollTo({left:0,behavior:'smooth'}); }; });
+  // lead
   var f=document.getElementById('pilotForm'), msg=document.getElementById('pilotMsg');
   f.addEventListener('submit',function(ev){
     ev.preventDefault(); msg.textContent=''; msg.className='msg';
@@ -339,7 +389,7 @@ footer .cp{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);fon
     fetch('/auth/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:g('pName'),email:g('pEmail'),company:company})})
       .then(function(r){return r.json().then(function(d){return{ok:r.ok&&d.ok,d:d};});})
       .then(function(x){ if(x.ok){msg.className='msg ok';msg.textContent='Recibido. Te escribimos en breve.';f.reset();} else {msg.className='msg err';msg.textContent=(x.d&&x.d.error)||'No se pudo enviar.';} })
-      .catch(function(){ msg.className='msg err'; msg.innerHTML='No se pudo enviar. Escríbenos a <a href="mailto:info@brandooers.com" style="color:var(--gold2)">info@brandooers.com</a>.'; })
+      .catch(function(){ msg.className='msg err'; msg.innerHTML='No se pudo enviar. Escríbenos a <a href="mailto:info@brandooers.com" style="color:var(--cy)">info@brandooers.com</a>.'; })
       .then(function(){ btn.disabled=false; });
   });
 })();
