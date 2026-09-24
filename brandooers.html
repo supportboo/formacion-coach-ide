@@ -219,7 +219,15 @@ section{padding:clamp(80px,12vh,140px) 0;position:relative}
 .vtag b{font-weight:800}.vtag .r{color:var(--vi2);font-weight:600}
 .vfeature.playing .veil,.vfeature.playing .vplay,.vfeature.playing .vtag{opacity:0;pointer-events:none}
 .vthumbs{margin-top:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.vthumbs .mg{aspect-ratio:16/9;border-radius:14px}
+.vthumbs .mg{aspect-ratio:16/9;border-radius:14px;position:relative;z-index:1;transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s;cursor:zoom-in}
+.vthumbs .mg img{filter:none}
+@media(hover:hover) and (min-width:641px){
+  .vthumbs .mg:hover{transform:scale(1.95);z-index:6;box-shadow:0 30px 80px rgba(0,0,0,.65)}
+  .vthumbs .mg:first-child{transform-origin:left center}
+  .vthumbs .mg:last-child{transform-origin:right center}
+  .vthumbs .mg:hover .go{opacity:0}
+}
+.vthumbs .mg .go{display:none}
 @media(max-width:640px){.vthumbs{grid-template-columns:repeat(2,1fr);gap:10px}.vtag{font-size:12px;left:12px;bottom:12px}.vtag .av{width:26px;height:26px}}
 
 /* Puertas */
