@@ -101,22 +101,41 @@ section{padding:clamp(80px,12vh,140px) 0;position:relative}
 .head p{color:var(--mut);max-width:52ch}
 
 /* Carrusel de competencias */
-.caro{margin-top:44px}
-.caro-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-.tabs{display:flex;gap:8px;flex-wrap:wrap}
-.tab{font-size:13px;font-weight:600;color:var(--mut);padding:9px 16px;border-radius:100px;border:1px solid var(--gborder);background:var(--glass);cursor:pointer;transition:.3s}
-.tab.on{color:#fff;background:var(--grad);border-color:transparent}
-.arrows{display:flex;gap:8px}
-.arrow{width:44px;height:44px;border-radius:50%;border:1px solid var(--gborder);background:var(--glass);color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center;transition:.3s}
-.arrow:hover{background:var(--glass2);transform:translateY(-2px)}
-.track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 2px 14px;scroll-padding-left:2px;-webkit-mask-image:linear-gradient(90deg,#000 0,#000 90%,transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 90%,transparent 100%)}
-.track.atend{-webkit-mask-image:none;mask-image:none}
-.track::-webkit-scrollbar{display:none}
-.ccard{flex:0 0 clamp(240px,32%,320px);scroll-snap-align:start;padding:28px;border-radius:24px;background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(16px);transition:transform .35s,border-color .35s}
-.ccard:hover{transform:translateY(-6px);border-color:rgba(167,139,250,.5)}
+.caro{margin-top:40px;position:relative}
+.marquee{overflow:hidden;padding:38px 0 42px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.mtrack{display:flex;width:max-content;animation:marq 48s linear infinite;will-change:transform}
+@keyframes marq{to{transform:translateX(-50%)}}
+.marquee:hover .mtrack,.marquee:focus-within .mtrack{animation-play-state:paused}
+.chint{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--mut)}
+.chint b{color:var(--vi2);font-weight:700}
+.ccard{flex:0 0 clamp(240px,30vw,306px);margin-right:18px;text-align:left;padding:26px;border-radius:24px;background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(16px);cursor:pointer;position:relative;font-family:inherit;color:inherit;transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s,border-color .4s}
+.ccard::before{content:"";position:absolute;inset:-1.5px;border-radius:25px;padding:1.5px;background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
+.ccard:hover,.ccard:focus-visible{transform:scale(1.07);border-color:transparent;outline:none;z-index:3;box-shadow:0 0 22px rgba(0,212,255,.35),0 0 48px rgba(139,92,246,.32),0 22px 52px rgba(0,0,0,.45)}
+.ccard:hover::before,.ccard:focus-visible::before{opacity:1}
 .ccard .ic{width:50px;height:50px;border-radius:15px;background:var(--grad);display:grid;place-items:center;margin-bottom:16px;color:#fff;font-weight:800;font-family:var(--fd)}
 .ccard h4{font-size:19px;font-weight:800;color:#fff;margin-bottom:7px}
 .ccard p{font-size:14px;color:var(--mut);line-height:1.6}
+.ccard .more{display:inline-block;margin-top:14px;font-size:12.5px;font-weight:700;color:var(--cy);opacity:0;transform:translateY(4px);transition:.4s}
+.ccard:hover .more,.ccard:focus-visible .more{opacity:1;transform:none}
+.no-motion .mtrack{animation:none;width:max-content}
+.no-motion .marquee{overflow-x:auto;scrollbar-width:none}
+.no-motion .marquee::-webkit-scrollbar{display:none}
+.no-motion .ccard.dup{display:none}
+/* Popup competencia */
+.cmodal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.cmodal.open{display:flex}
+.cmodal .back{position:absolute;inset:0;background:rgba(6,5,14,.74);backdrop-filter:blur(6px)}
+.cmodal .panel{position:relative;max-width:520px;width:100%;padding:clamp(26px,4vw,40px);border-radius:26px;background:linear-gradient(180deg,rgba(24,22,52,.97),rgba(14,12,30,.97));border:1px solid var(--gborder);box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 46px rgba(139,92,246,.28);opacity:0;transform:translateY(16px) scale(.98);transition:opacity .4s,transform .4s cubic-bezier(.16,1,.3,1)}
+.cmodal.open .panel{opacity:1;transform:none}
+.cmodal .x{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;border:1px solid var(--gborder);background:var(--glass);color:#fff;font-size:17px;cursor:pointer;display:grid;place-items:center;transition:.3s}
+.cmodal .x:hover{background:var(--glass2)}
+.cmodal .mic{width:56px;height:56px;border-radius:16px;background:var(--grad);display:grid;place-items:center;color:#fff;font-weight:800;font-family:var(--fd);font-size:20px;margin-bottom:16px}
+.cmodal .cat{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--vi2);font-weight:700}
+.cmodal h3{font-family:var(--fb);font-weight:900;font-size:clamp(23px,3.4vw,32px);line-height:1.06;letter-spacing:-.02em;color:#fff;margin:8px 0 14px}
+.cmodal .cbody{color:var(--mut);font-size:15px;line-height:1.7}
+.cmodal .cline{margin-top:16px;color:var(--ink);font-size:14.5px;line-height:1.6;border-left:2px solid var(--vi);padding-left:14px}
+.cmodal .mcta{margin-top:22px;width:100%;justify-content:center;padding:15px;font-size:15px}
+@media(prefers-reduced-motion:reduce){.cmodal .panel{transition:none}}
 
 /* Statement gigante sobre imagen */
 .state{min-height:88vh;display:flex;align-items:center;overflow:hidden}
@@ -248,25 +267,26 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
       <h2>Las competencias que te separan del montón.</h2>
       <p>No es un curso de un tema. Es el sistema completo de un profesional de élite.</p>
     </div>
-    <div class="caro">
-      <div class="caro-top reveal">
-        <div class="tabs" id="tabs">
-          <button class="tab on" data-k="todas">Todas</button>
-          <button class="tab" data-k="comunicar">Comunicar</button>
-          <button class="tab" data-k="vender">Vender</button>
-          <button class="tab" data-k="liderar">Liderar</button>
+    <div class="caro reveal">
+      <div class="marquee">
+        <div class="mtrack" id="mtrack">
+          <button class="ccard" type="button" data-i="0"><span class="ic">01</span><h4>Liderazgo y estrategia</h4><p>Dirigir, decidir y hacer crecer un negocio con criterio.</p><span class="more">Ver más →</span></button>
+          <button class="ccard" type="button" data-i="1"><span class="ic">02</span><h4>Ventas y negociación</h4><p>Cerrar, rebatir objeciones y crear valor real.</p><span class="more">Ver más →</span></button>
+          <button class="ccard" type="button" data-i="2"><span class="ic">03</span><h4>Persuasión y neuromarketing</h4><p>La psicología de por qué la gente dice que sí.</p><span class="more">Ver más →</span></button>
+          <button class="ccard" type="button" data-i="3"><span class="ic">04</span><h4>Storytelling y comunicación</h4><p>Hablar con propiedad y que se te escuche.</p><span class="more">Ver más →</span></button>
+          <button class="ccard" type="button" data-i="4"><span class="ic">05</span><h4>Marketing y crecimiento</h4><p>Atraer, convertir y fidelizar.</p><span class="more">Ver más →</span></button>
+          <button class="ccard" type="button" data-i="5"><span class="ic">06</span><h4>IA e innovación</h4><p>Multiplicarte con la tecnología, no temerla.</p><span class="more">Ver más →</span></button>
+          <button class="ccard" type="button" data-i="6"><span class="ic">07</span><h4>Soft skills y coaching</h4><p>Autoridad, mentalidad y tu mejor versión.</p><span class="more">Ver más →</span></button>
+          <button class="ccard dup" type="button" data-i="0" aria-hidden="true" tabindex="-1"><span class="ic">01</span><h4>Liderazgo y estrategia</h4><p>Dirigir, decidir y hacer crecer un negocio con criterio.</p><span class="more">Ver más →</span></button>
+          <button class="ccard dup" type="button" data-i="1" aria-hidden="true" tabindex="-1"><span class="ic">02</span><h4>Ventas y negociación</h4><p>Cerrar, rebatir objeciones y crear valor real.</p><span class="more">Ver más →</span></button>
+          <button class="ccard dup" type="button" data-i="2" aria-hidden="true" tabindex="-1"><span class="ic">03</span><h4>Persuasión y neuromarketing</h4><p>La psicología de por qué la gente dice que sí.</p><span class="more">Ver más →</span></button>
+          <button class="ccard dup" type="button" data-i="3" aria-hidden="true" tabindex="-1"><span class="ic">04</span><h4>Storytelling y comunicación</h4><p>Hablar con propiedad y que se te escuche.</p><span class="more">Ver más →</span></button>
+          <button class="ccard dup" type="button" data-i="4" aria-hidden="true" tabindex="-1"><span class="ic">05</span><h4>Marketing y crecimiento</h4><p>Atraer, convertir y fidelizar.</p><span class="more">Ver más →</span></button>
+          <button class="ccard dup" type="button" data-i="5" aria-hidden="true" tabindex="-1"><span class="ic">06</span><h4>IA e innovación</h4><p>Multiplicarte con la tecnología, no temerla.</p><span class="more">Ver más →</span></button>
+          <button class="ccard dup" type="button" data-i="6" aria-hidden="true" tabindex="-1"><span class="ic">07</span><h4>Soft skills y coaching</h4><p>Autoridad, mentalidad y tu mejor versión.</p><span class="more">Ver más →</span></button>
         </div>
-        <div class="arrows"><button class="arrow" id="prev" aria-label="Anterior">‹</button><button class="arrow" id="next" aria-label="Siguiente">›</button></div>
       </div>
-      <div class="track reveal" id="track">
-        <div class="ccard" data-k="liderar"><div class="ic">01</div><h4>Liderazgo y estrategia</h4><p>Dirigir, decidir y hacer crecer un negocio con criterio.</p></div>
-        <div class="ccard" data-k="vender"><div class="ic">02</div><h4>Ventas y negociación</h4><p>Cerrar, rebatir objeciones y crear valor real.</p></div>
-        <div class="ccard" data-k="comunicar"><div class="ic">03</div><h4>Persuasión y neuromarketing</h4><p>La psicología de por qué la gente dice que sí.</p></div>
-        <div class="ccard" data-k="comunicar"><div class="ic">04</div><h4>Storytelling y comunicación</h4><p>Hablar con propiedad y que se te escuche.</p></div>
-        <div class="ccard" data-k="vender"><div class="ic">05</div><h4>Marketing y crecimiento</h4><p>Atraer, convertir y fidelizar.</p></div>
-        <div class="ccard" data-k="liderar"><div class="ic">06</div><h4>IA e innovación</h4><p>Multiplicarte con la tecnología, no temerla.</p></div>
-        <div class="ccard" data-k="liderar"><div class="ic">07</div><h4>Soft skills y coaching</h4><p>Autoridad, mentalidad y tu mejor versión.</p></div>
-      </div>
+      <p class="chint">Pasa el ratón para pararlo · <b>pulsa una tarjeta</b> para saber más</p>
     </div>
   </div>
 </section>
@@ -375,6 +395,19 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
   </div>
 </footer>
 
+<div class="cmodal" id="cmodal" role="dialog" aria-modal="true" aria-labelledby="cmTitle" aria-hidden="true">
+  <div class="back" data-close></div>
+  <div class="panel">
+    <button class="x" type="button" aria-label="Cerrar" data-close>✕</button>
+    <div class="mic" id="cmIc">01</div>
+    <span class="cat" id="cmCat">Competencia</span>
+    <h3 id="cmTitle">—</h3>
+    <p class="cbody" id="cmBody">—</p>
+    <p class="cline">Esto no se aprende leyendo. Se aprende practicando, con método y con alguien que te reta — y esa es la diferencia. Tu mejor versión te está esperando.</p>
+    <a href="#acceso" class="btn btn-grad mcta" id="cmCta" data-close>Empieza tu evolución →</a>
+  </div>
+</div>
+
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"EducationalOrganization","name":"Brandooers","url":"https://brandooers.com/","description":"Academia de alto rendimiento que desarrolla a jóvenes profesionales en liderazgo, ventas, persuasión, storytelling e IA.","sameAs":["https://skillup.brandooers.com"]}
 </script>
@@ -389,17 +422,29 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
     var tick=function(){ pars.forEach(function(el){ var r=el.parentElement.getBoundingClientRect(); var v=(r.top+r.height/2-innerHeight/2)/innerHeight; el.style.transform='translateY('+(v*-8)+'%) scale(1.12)'; }); requestAnimationFrame(tick); };
     requestAnimationFrame(tick);
   }
-  // carrusel
-  var track=document.getElementById('track');
-  var cardW=function(){ var c=track.querySelector('.ccard'); return c?c.offsetWidth+18:340; };
-  var atend=function(){ track.classList.toggle('atend', track.scrollLeft+track.clientWidth>=track.scrollWidth-6); };
-  track.addEventListener('scroll',atend,{passive:true}); setTimeout(atend,200);
-  document.getElementById('next').onclick=function(){ track.scrollBy({left:cardW(),behavior:'smooth'}); };
-  document.getElementById('prev').onclick=function(){ track.scrollBy({left:-cardW(),behavior:'smooth'}); };
-  // tabs (filtra tarjetas)
-  var tabs=document.querySelectorAll('.tab'), cards=track.querySelectorAll('.ccard');
-  tabs.forEach(function(t){ t.onclick=function(){ tabs.forEach(function(x){x.classList.remove('on');}); t.classList.add('on');
-    var k=t.dataset.k; cards.forEach(function(c){ c.style.display=(k==='todas'||c.dataset.k===k)?'':'none'; }); track.scrollTo({left:0,behavior:'smooth'}); }; });
+  // competencias — marquee continuo + popup persuasivo al pulsar una tarjeta
+  var CDATA=[
+    {cat:'Liderar',title:'Liderazgo y estrategia',body:'Dejas de ir a remolque de las tareas y empiezas a leer el tablero completo. Aprendes a decidir con criterio cuando nadie te da la respuesta y a marcar el rumbo que otros siguen. El día que pasas de ejecutar a dirigir, tu carrera cambia de liga.'},
+    {cat:'Vender',title:'Ventas y negociación',body:'El «no» deja de dolerte y el «cuéntame más» deja de darte vértigo. Entiendes qué mueve de verdad una decisión, rebates sin sonar a vendedor y cierras creando valor, no presión. Vender con criterio es la habilidad que nunca se queda sin trabajo.'},
+    {cat:'Comunicar',title:'Persuasión y neuromarketing',body:'Descubres los resortes reales por los que la gente dice que sí, y aprendes a usarlos con ética. Cuando entiendes la mente de quien te escucha, dejas de convencer a la fuerza: convences porque tiene sentido.'},
+    {cat:'Comunicar',title:'Storytelling y comunicación',body:'Aprendes a contar las cosas de forma que nadie mire el móvil. Una idea bien contada abre puertas, cierra tratos y se queda grabada. Cuando dominas el relato, tu mensaje llega — y tú llegas con él.'},
+    {cat:'Vender',title:'Marketing y crecimiento',body:'Dejas de esperar a que te descubran. Aprendes a que te encuentren, te elijan y te recomienden: atraer, convertir y fidelizar con cabeza. El crecimiento deja de depender de la suerte y pasa a ser método.'},
+    {cat:'Liderar',title:'IA e innovación',body:'La IA deja de ser una amenaza y se convierte en tu palanca. Aprendes a multiplicar lo que haces en vez de temer que te sustituya. Quien sabe usarla no compite con la máquina: juega en otra división.'},
+    {cat:'Liderar',title:'Soft skills y coaching',body:'Tu «mejor versión» deja de ser un cliché y se convierte en método: autoridad, mentalidad y la seguridad de quien sabe lo que vale. Es el pegamento que hace funcionar todo lo demás — y lo que hace que la gente quiera seguirte.'}
+  ];
+  var cm=document.getElementById('cmodal'), lastFocus=null;
+  var openC=function(i){ var d=CDATA[i]; if(!d||!cm)return; lastFocus=document.activeElement;
+    document.getElementById('cmIc').textContent=('0'+(i+1)).slice(-2);
+    document.getElementById('cmCat').textContent=d.cat;
+    document.getElementById('cmTitle').textContent=d.title;
+    document.getElementById('cmBody').textContent=d.body;
+    cm.classList.add('open'); cm.setAttribute('aria-hidden','false');
+    var x=cm.querySelector('.x'); if(x) x.focus();
+  };
+  var closeC=function(){ if(!cm)return; cm.classList.remove('open'); cm.setAttribute('aria-hidden','true'); if(lastFocus&&lastFocus.focus)lastFocus.focus(); };
+  document.querySelectorAll('.ccard').forEach(function(c){ c.addEventListener('click',function(){ openC(+c.dataset.i); }); });
+  if(cm){ cm.querySelectorAll('[data-close]').forEach(function(el){ el.addEventListener('click',closeC); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&cm.classList.contains('open')) closeC(); }); }
   // lead
   var f=document.getElementById('pilotForm'), msg=document.getElementById('pilotMsg');
   f.addEventListener('submit',function(ev){
