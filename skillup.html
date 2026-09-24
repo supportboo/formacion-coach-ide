@@ -96,13 +96,31 @@ nav .bar{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-
 .no-motion .float{animation:none}
 
 /* Anotaciones handwriting + flechas */
-.note{position:absolute;font-family:var(--fc);font-weight:700;font-size:clamp(18px,1.8vw,23px);color:#C0344A;line-height:1.15;z-index:5;pointer-events:none;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+.note{position:absolute;font-family:var(--fc);font-weight:700;font-size:clamp(34px,3.6vw,46px);color:#C0344A;line-height:1.12;z-index:5;pointer-events:none;text-shadow:0 1px 0 rgba(255,255,255,.85)}
 .note.te{color:#0A6E86}.note.vi{color:#6D28D9}.note.gd{color:#9A6E08}.note.gr{color:#127c65}
 .arw{position:absolute;z-index:5;pointer-events:none;overflow:visible}
 .arw path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .arw .hd{stroke-width:2.4}
+/* Anotación FUERA del marco: fluye encima y apunta hacia abajo, nunca solapa */
+.noteout{display:flex;align-items:flex-end;gap:0;width:max-content;max-width:94%;margin:0 0 -8px 5%;position:relative;z-index:4;pointer-events:none;color:#C0344A}
+.noteout.te{color:#0A6E86}.noteout.vi{color:#6D28D9}.noteout.gd{color:#9A6E08}.noteout.gr{color:#127c65}
+.noteout .note{position:static;color:inherit;font-size:clamp(30px,3.2vw,42px)}
+.arwd{flex:0 0 auto;width:48px;height:44px;overflow:visible;color:inherit;margin:0 0 6px 2px}
+.arwd path{fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+@media(max-width:760px){.noteout{max-width:100%;margin-left:2%}}
 .chip-flow{display:inline-flex;align-items:center;gap:7px;background:var(--white);border:1px solid var(--line);border-radius:100px;padding:6px 13px;font-size:12.5px;font-weight:700;color:var(--ink);box-shadow:var(--sh2)}
 .chip-flow .dot{width:9px;height:9px;border-radius:50%}
+/* Lightbox — ampliar la captura al pulsar */
+.browser .shot,.jframe .shot,.scard .shot{cursor:zoom-in}
+.lightbox{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:clamp(14px,3vw,40px)}
+.lightbox.open{display:flex}
+.lightbox .lb-back{position:absolute;inset:0;background:rgba(20,14,24,.86);backdrop-filter:blur(6px)}
+.lightbox figure{position:relative;margin:0;max-width:1120px;width:100%;opacity:0;transform:scale(.97);transition:opacity .3s,transform .3s}
+.lightbox.open figure{opacity:1;transform:none}
+.lightbox img{display:block;width:100%;height:auto;max-height:86vh;object-fit:contain;border-radius:14px;border:1px solid rgba(255,255,255,.14);box-shadow:0 40px 120px rgba(0,0,0,.6);background:#0f0d14}
+.lightbox figcaption{margin-top:12px;text-align:center;font-family:var(--fc);font-weight:700;font-size:clamp(24px,3.2vw,36px);color:#fff}
+.lightbox .lb-x{position:absolute;top:-16px;right:-10px;width:46px;height:46px;border-radius:50%;background:#fff;border:0;color:#211E28;font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+@media(max-width:640px){.lightbox .lb-x{top:-6px;right:0}}
 
 section{padding:clamp(72px,11vh,128px) 0;position:relative}
 .head{max-width:760px}
@@ -122,7 +140,7 @@ section{padding:clamp(72px,11vh,128px) 0;position:relative}
 @media(max-width:720px){.states .row{grid-template-columns:1fr 1fr;gap:18px}}
 
 /* Recorrido — mapa del tesoro (como las rutas de la app) */
-.mapnote{font-family:var(--fc);font-size:24px;color:#C0344A;margin-top:12px;transform:rotate(-2deg);display:inline-block}
+.mapnote{font-family:var(--fc);font-size:clamp(34px,4vw,48px);line-height:1.1;color:#C0344A;margin-top:12px;transform:rotate(-2deg);display:inline-block}
 @keyframes dash{to{stroke-dashoffset:-460}}
 /* Recorrido — camino curvo descendente interconectado */
 .journey{position:relative;margin-top:34px}
@@ -153,13 +171,13 @@ section{padding:clamp(72px,11vh,128px) 0;position:relative}
 .jmeta p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:3px}
 /* Nota manuscrita + flecha FUERA de la captura */
 .jaside{position:relative;min-height:1px}
-.jnote{display:inline-block;font-family:var(--fc);font-weight:700;font-size:clamp(18px,1.9vw,23px);line-height:1.15;color:#0A6E86;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+.jnote{display:inline-block;font-family:var(--fc);font-weight:700;font-size:clamp(34px,3.4vw,46px);line-height:1.12;color:#0A6E86;text-shadow:0 1px 0 rgba(255,255,255,.8)}
 .jstep[data-side="r"] .jnote{color:#C0344A}
 .jarrow{display:block;margin-top:2px;color:#0A6E86;overflow:visible}
 .jstep[data-side="r"] .jarrow{color:#C0344A;margin-left:auto}
 .jarrow path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 /* Bocadillo de cómic (hover) */
-.jbubble{position:absolute;left:50%;bottom:calc(100% + 14px);transform:translate(-50%,8px);width:max-content;max-width:240px;background:var(--white);border:2px solid var(--ink);border-radius:16px;padding:12px 16px;font-family:var(--fc);font-weight:700;font-size:17px;line-height:1.25;color:var(--ink);box-shadow:5px 5px 0 rgba(45,32,46,.13);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:6}
+.jbubble{position:absolute;left:50%;bottom:calc(100% + 14px);transform:translate(-50%,8px);width:max-content;max-width:340px;background:var(--white);border:2px solid var(--ink);border-radius:16px;padding:14px 20px;font-family:var(--fc);font-weight:700;font-size:30px;line-height:1.18;color:var(--ink);box-shadow:5px 5px 0 rgba(45,32,46,.13);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:6}
 .jbubble:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:9px solid transparent;border-top-color:var(--ink)}
 .jbubble:before{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%) translateY(-2.5px);border:8px solid transparent;border-top-color:var(--white);z-index:1}
 .jcard:hover .jbubble,.jstep.on .jbubble{opacity:1;transform:translate(-50%,0)}
@@ -282,12 +300,11 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
         </div>
       </div>
       <div class="media reveal" style="position:relative">
+        <div class="noteout"><span class="note">aquí empiezas</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
         <div class="browser float">
           <div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup.brandooers.com</span></div>
           <div class="shot"><span class="ph">Tu inicio</span><img src="assets/su-inicio.png" alt="Pantalla de inicio de SkillUp: la ruta del alumno al entrar" loading="eager" onerror="this.style.display='none'"></div>
         </div>
-        <span class="note" style="top:-14px;right:6%">aquí empiezas</span>
-        <svg class="arw" style="top:6px;right:12%;width:80px;height:60px;color:var(--coral)" viewBox="0 0 80 60"><path d="M70 6 C40 4 20 20 16 48"/><path class="hd" d="M16 48 L8 38 M16 48 L28 44"/></svg>
         <span class="chip-flow" style="position:absolute;bottom:-16px;left:-10px"><span class="dot" style="background:var(--coral)"></span>Aprendiendo → <span class="dot" style="background:var(--green)"></span>Dominado</span>
       </div>
     </div>
@@ -393,10 +410,9 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
     </div>
 
     <div class="show reveal">
-      <div class="media" style="position:relative">
+      <div class="media">
+        <div class="noteout vi"><span class="note">pregúntale lo que sea</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
         <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · tutor</span></div><div class="shot"><span class="ph">su-tutor</span><img src="assets/su-tutor.png" alt="Chat con el tutor de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-        <span class="note vi" style="bottom:2px;left:-6px">pregúntale lo que sea</span>
-        <svg class="arw" style="bottom:24px;left:24%;width:70px;height:50px;color:var(--vi)" viewBox="0 0 70 50"><path d="M4 44 C20 40 44 34 60 12"/><path class="hd" d="M60 12 L50 12 M60 12 L58 22"/></svg>
       </div>
       <div class="txt">
         <span class="ek">Tutor 24/7</span>
@@ -419,18 +435,16 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
           <li><svg viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Feedback inmediato</b> sobre qué mejorar.</span></li>
         </ul>
       </div>
-      <div class="media" style="position:relative">
+      <div class="media">
+        <div class="noteout te"><span class="note">ensaya sin miedo</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
         <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · roleplay</span></div><div class="shot"><span class="ph">su-roleplay</span><img src="assets/su-roleplay.png" alt="Roleplay conversacional en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-        <span class="note te" style="top:-12px;left:8%">ensaya sin miedo</span>
-        <svg class="arw" style="top:4px;left:34%;width:66px;height:48px;color:var(--te)" viewBox="0 0 66 48"><path d="M6 6 C22 10 44 18 58 40"/><path class="hd" d="M58 40 L48 38 M58 40 L58 30"/></svg>
       </div>
     </div>
 
     <div class="show reveal">
-      <div class="media" style="position:relative">
+      <div class="media">
+        <div class="noteout gr"><span class="note">esto sí cuenta</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
         <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · test</span></div><div class="shot"><span class="ph">su-test</span><img src="assets/su-test.png" alt="Test de evaluación con resultado en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-        <span class="note gr" style="bottom:0;right:2%">esto sí cuenta</span>
-        <svg class="arw" style="bottom:22px;right:22%;width:64px;height:48px;color:var(--green)" viewBox="0 0 64 48"><path d="M60 6 C46 12 28 20 8 40"/><path class="hd" d="M8 40 L18 40 M8 40 L10 30"/></svg>
       </div>
       <div class="txt">
         <span class="ek">Evaluación honesta</span>
@@ -453,10 +467,9 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
           <li><svg viewBox="0 0 24 24" fill="none" stroke="#B9860B" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Progreso</b> visible que motiva a seguir.</span></li>
         </ul>
       </div>
-      <div class="media" style="position:relative">
+      <div class="media">
+        <div class="noteout gd"><span class="note">tu progreso, a la vista</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
         <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · panel</span></div><div class="shot"><span class="ph">su-panel</span><img src="assets/su-panel.png" alt="Panel de capacidad de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-        <span class="note gd" style="top:-12px;right:6%">tu progreso, a la vista</span>
-        <svg class="arw" style="top:2px;right:20%;width:62px;height:46px;color:#B9860B" viewBox="0 0 62 46"><path d="M56 6 C44 12 26 18 8 38"/><path class="hd" d="M8 38 L18 38 M8 38 L10 28"/></svg>
       </div>
     </div>
   </div>
@@ -485,19 +498,18 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
       <div class="huge">Del último<br>al <em>número&nbsp;1</em>.</div>
       <p>El ranking no es vanidad: es la prueba de que estás mejorando de verdad. Y cuando llegas arriba, SkillUp te convierte en coach — enseñar es el último nivel.</p>
     </div>
-    <div class="media reveal" style="position:relative">
+    <div class="media reveal">
+      <div class="noteout" style="color:#F5C64A"><span class="note" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">tú, aquí arriba</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
       <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · ranking</span></div><div class="shot"><span class="ph">su-ranking</span><img src="assets/su-ranking.png" alt="Ranking del top de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-      <span class="note gd" style="top:-14px;left:6%">tú, aquí arriba</span>
-      <svg class="arw" style="top:2px;left:30%;width:60px;height:46px;color:#E4A900" viewBox="0 0 60 46"><path d="M6 40 C18 22 34 12 54 8"/><path class="hd" d="M54 8 L44 8 M54 8 L52 18"/></svg>
     </div>
   </div></div>
 </section>
 
 <section class="teams">
   <div class="wrap"><div class="grid">
-    <div class="media reveal" style="position:relative">
+    <div class="media reveal">
+      <div class="noteout te"><span class="note">todo tu equipo, de un vistazo</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
       <div class="browser float"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · equipo</span></div><div class="shot"><span class="ph">su-equipo</span><img src="assets/su-equipo.png" alt="Panel de equipo / workforce en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-      <span class="note te" style="bottom:-6px;right:4%">todo tu equipo, de un vistazo</span>
     </div>
     <div class="reveal">
       <span class="ek">Para empresas · FUNDAE</span>
@@ -584,13 +596,19 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
     var hi=function(i){ jconn.querySelectorAll('.jseg').forEach(function(p){ var d=+p.getAttribute('data-i'); if(d===i-1||d===i)p.classList.add('lit'); else p.classList.remove('lit'); }); };
     var unhi=function(){ jconn.querySelectorAll('.jseg.lit').forEach(function(p){p.classList.remove('lit');}); };
     jst.forEach(function(s,i){ s.addEventListener('mouseenter',function(){hi(i);}); s.addEventListener('mouseleave',unhi);
-      s.querySelector('.jcard').addEventListener('click',function(){ var was=s.classList.contains('on'); jst.forEach(function(o){o.classList.remove('on');}); if(!was){s.classList.add('on');hi(i);} else unhi(); }); });
+      s.querySelector('.jcard').addEventListener('click',function(){ var im=s.querySelector('.jframe img'); if(im) openLB(im.getAttribute('src'), im.getAttribute('alt')||''); }); });
     var drawJ=function(){ if(window.innerWidth>760) buildJ(); else jconn.innerHTML=''; };
     setTimeout(drawJ,300);
     try{ var jio=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting){ setTimeout(drawJ,60); setTimeout(drawJ,1000); } });},{threshold:.05}); jio.observe(document.getElementById('journey')); }catch(e){}
     window.addEventListener('load',function(){ setTimeout(drawJ,50); });
     var jt; window.addEventListener('resize',function(){ clearTimeout(jt); jt=setTimeout(drawJ,200); },{passive:true});
   }
+  // lightbox — pulsar una captura la amplía (búsqueda diferida: el nodo va tras el script)
+  function openLB(src,alt){ var lb=document.getElementById('lightbox'); if(!lb||!src)return; var im=document.getElementById('lbImg'), cap=document.getElementById('lbCap'); im.setAttribute('src',src); im.setAttribute('alt',alt||''); cap.textContent=alt||''; lb.classList.add('open'); lb.setAttribute('aria-hidden','false'); }
+  function closeLB(){ var lb=document.getElementById('lightbox'); if(!lb)return; lb.classList.remove('open'); lb.setAttribute('aria-hidden','true'); }
+  document.addEventListener('click',function(e){ if(e.target && e.target.closest && e.target.closest('[data-lbclose]')) closeLB(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLB(); });
+  document.querySelectorAll('.browser .shot, .scard .shot').forEach(function(sh){ sh.addEventListener('click',function(){ var im=sh.querySelector('img'); if(im) openLB(im.getAttribute('src'), im.getAttribute('alt')||''); }); });
   // lead → mismo endpoint que Brandooers
   var f=document.getElementById('pilotForm'), msg=document.getElementById('pilotMsg');
   f.addEventListener('submit',function(ev){
@@ -606,5 +624,9 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
   });
 })();
 </script>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="lb-back" data-lbclose></div>
+  <figure><button class="lb-x" type="button" aria-label="Cerrar" data-lbclose>✕</button><img id="lbImg" src="" alt=""><figcaption id="lbCap"></figcaption></figure>
+</div>
 </body>
 </html>
