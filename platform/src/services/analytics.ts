@@ -1,13 +1,25 @@
 import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import {
   agentMessage, agentThread, analyticsSnapshot, appliedCase, baselineSnapshot, coaching, competency,
-  enrollment, learningPath, levelByCompetency, member, organization, user, validation,
+  enrollment, evidence, learningPath, levelByCompetency, member, onboardingProfile, pointsLedger,
+  roleplaySession, testAttempt, organization, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
+/** Cuenta simple con filtro; helper para las muchas métricas. */
+async function count(deps: SvcDeps, table: any, where: any): Promise<number> {
+  const [r] = await deps.db.select({ n: sql<number>`count(*)::int` }).from(table).where(where);
+  return r?.n ?? 0;
+}
+async function countDistinct(deps: SvcDeps, table: any, col: any, where: any): Promise<number> {
+  const [r] = await deps.db.select({ n: sql<number>`count(distinct ${col})::int` }).from(table).where(where);
+  return r?.n ?? 0;
+}
+const pctOrNull = (num: number, den: number): number | null => (den > 0 ? Math.round((num / den) * 100) : null);
+
 export interface Coverage {
   competencyId: string; name: string; critical: boolean;
-  total: number; atApply: number; pct: number; // atApply = nivel >= 2 (Aplica)
+  total: number; atApply: number; pct: number | null; // null = aún sin equipo que medir
 }
 
 export interface DependencyRisk {
@@ -40,7 +52,7 @@ export async function coverage(deps: SvcDeps, orgId: string): Promise<Coverage[]
     const atApply = await usersAtLevel(deps, orgId, c.id, 2);
     out.push({
       competencyId: c.id, name: c.name, critical: c.critical,
-      total, atApply, pct: total > 0 ? Math.round((atApply / total) * 100) : 0,
+      total, atApply, pct: total > 0 ? Math.round((atApply / total) * 100) : null,
     });
   }
   return out;
@@ -63,12 +75,12 @@ export async function dependencyRisks(deps: SvcDeps, orgId: string): Promise<Dep
  * con un coach interno (coaching "logrado"). Sube = cada vez formamos más de casa =
  * el coste de formar al siguiente baja. Proxy honesto, no cifra inventada.
  */
-export async function internalTransferRate(deps: SvcDeps, orgId: string): Promise<number> {
+export async function internalTransferRate(deps: SvcDeps, orgId: string): Promise<number | null> {
   const [apply] = await deps.db.select({ n: sql<number>`count(distinct ${levelByCompetency.userId})::int` })
     .from(levelByCompetency)
     .where(and(eq(levelByCompetency.organizationId, orgId), gte(levelByCompetency.level, 2)));
   const total = apply?.n ?? 0;
-  if (total === 0) return 0;
+  if (total === 0) return null; // sin nadie que aplique todavía: no es 0%, es sin datos
   const [coached] = await deps.db.select({ n: sql<number>`count(distinct ${coaching.learnerId})::int` })
     .from(coaching)
     .where(and(eq(coaching.organizationId, orgId), eq(coaching.status, "logrado")));
@@ -78,14 +90,14 @@ export async function internalTransferRate(deps: SvcDeps, orgId: string): Promis
 export interface PanelSummary {
   coverage: Coverage[];
   risks: DependencyRisk[];
-  internalTransfer: number; // 0..1
+  internalTransfer: number | null; // 0..1, o null si aún no hay datos
 }
 
 /**
  * Tiempo medio (días) desde la matrícula hasta la primera validación aprobada.
  * "Cuánto tarda alguien nuevo en ser autónomo". 0 si aún no hay aprobados.
  */
-export async function timeToAutonomyDays(deps: SvcDeps, orgId: string): Promise<number> {
+export async function timeToAutonomyDays(deps: SvcDeps, orgId: string): Promise<number | null> {
   const enrolls = await deps.db.select({
     userId: enrollment.userId, competencyId: enrollment.competencyId, at: enrollment.createdAt,
   }).from(enrollment).where(eq(enrollment.organizationId, orgId));
@@ -110,7 +122,7 @@ export async function timeToAutonomyDays(deps: SvcDeps, orgId: string): Promise<
     const enrolledAt = eMap.get(k);
     if (enrolledAt !== undefined && approvedAt >= enrolledAt) diffs.push((approvedAt - enrolledAt) / 86_400_000);
   }
-  if (diffs.length === 0) return 0;
+  if (diffs.length === 0) return null; // aún nadie ha llegado a autónomo: sin datos, no 0 días
   return Math.round((diffs.reduce((a, b) => a + b, 0) / diffs.length) * 10) / 10;
 }
 
@@ -135,7 +147,7 @@ export async function latestBaseline(deps: SvcDeps, orgId: string) {
 }
 
 /** El salpicadero del responsable. Todo son datos medidos, nunca inventados. */
-export async function panelSummary(deps: SvcDeps, orgId: string): Promise<PanelSummary & { timeToAutonomyDays: number }> {
+export async function panelSummary(deps: SvcDeps, orgId: string): Promise<PanelSummary & { timeToAutonomyDays: number | null }> {
   return {
     coverage: await coverage(deps, orgId),
     risks: await dependencyRisks(deps, orgId),
@@ -174,7 +186,7 @@ export async function captureSnapshotIfNeeded(deps: SvcDeps, orgId: string): Pro
   // choca contra snap_org_day_uidx -- se ignora, no hace falta un lock a mano.
   await deps.db.insert(analyticsSnapshot).values({
     id: deps.newId(), organizationId: orgId, day, memberCount: members,
-    avgCoveragePct, criticalRisks: risks.length, internalTransfer: transfer, timeToAutonomyDays: autonomy,
+    avgCoveragePct, criticalRisks: risks.length, internalTransfer: transfer ?? 0, timeToAutonomyDays: autonomy ?? 0,
   }).onConflictDoNothing();
 }
 
@@ -261,9 +273,137 @@ export async function recentQuestions(deps: SvcDeps, orgId: string, limit = 30):
     .slice(0, limit);
 }
 
+/* ============================================================================
+ * MÉTRICAS RICAS (null-aware): "sin datos" cuando no hay medida, nunca un 0 que parezca resultado.
+ * Un único agregado para los paneles de responsable/dirección/superadmin. LEY #0: todo medido.
+ * ========================================================================== */
+
+export interface LevelBars { competencyId: string; name: string; critical: boolean; n0: number; n1: number; n2: number; n3: number; total: number }
+export interface IndustryRow { sector: string; n: number }
+export interface OrgMetrics {
+  // Personas y actividad
+  members: number;
+  activeLearners: number;           // con alguna actividad (mensaje, test, caso o roleplay)
+  byRole: Record<string, number>;
+  // Aprender
+  enrollments: number; completions: number; completionPct: number | null;
+  testsTaken: number; testsPassed: number; testPassPct: number | null;
+  // Aplicar (lo que de verdad importa para ROI)
+  casesSubmitted: number; casesApproved: number; caseApprovalPct: number | null;
+  avgDaysToValidation: number | null;
+  roleplays: number;
+  // Capacidad y conocimiento
+  levelBars: LevelBars[];           // barras de nivel por competencia (N0..N3)
+  coaches: number;                  // personas nivel 3+ (referentes)
+  atApply: number;                  // personas nivel 2+ en alguna competencia
+  coveragePct: number | null;       // % del equipo que aplica alguna competencia
+  criticalRisks: DependencyRisk[];  // competencias críticas con <=1 referente
+  timeToAutonomyDays: number | null;
+  internalTransfer: number | null;
+  // ROI de aplicación real (del seguimiento) + coste
+  application: { checkins: number; tasaAplicacion: number | null; sensacionMedia: number | null };
+  // Gamificación / puntos
+  totalPoints: number;
+  // Contexto
+  industries: IndustryRow[];        // sectores reales del equipo (del onboarding)
+  questionsAsked: number;           // volumen de preguntas reales al tutor
+  bestPracticesInBrain: number;     // conocimiento del equipo destilado al cerebro
+}
+
+/** Barras de nivel (N0..N3) por competencia: cuántas personas hay en cada nivel. "Barras de conocimiento". */
+export async function levelBars(deps: SvcDeps, orgId: string): Promise<LevelBars[]> {
+  const comps = await deps.db.select().from(competency).where(eq(competency.organizationId, orgId));
+  const total = await memberCount(deps, orgId);
+  const out: LevelBars[] = [];
+  for (const c of comps) {
+    const rows = await deps.db.select({ level: levelByCompetency.level, n: sql<number>`count(distinct ${levelByCompetency.userId})::int` })
+      .from(levelByCompetency)
+      .where(and(eq(levelByCompetency.organizationId, orgId), eq(levelByCompetency.competencyId, c.id)))
+      .groupBy(levelByCompetency.level);
+    const by = new Map(rows.map((r) => [r.level, r.n]));
+    const n1 = by.get(1) ?? 0, n2 = by.get(2) ?? 0, n3 = by.get(3) ?? 0;
+    out.push({ competencyId: c.id, name: c.name, critical: c.critical, n0: Math.max(0, total - (n1 + n2 + n3)), n1, n2, n3, total });
+  }
+  return out;
+}
+
+/** Sectores reales del equipo (del onboarding), para segmentar por industria/temática. */
+export async function industries(deps: SvcDeps, orgId: string): Promise<IndustryRow[]> {
+  const rows = await deps.db.select({ sector: onboardingProfile.sector, n: sql<number>`count(distinct ${onboardingProfile.userId})::int` })
+    .from(onboardingProfile)
+    .where(and(eq(onboardingProfile.organizationId, orgId), sql`${onboardingProfile.sector} is not null and ${onboardingProfile.sector} <> ''`))
+    .groupBy(onboardingProfile.sector).orderBy(desc(sql`count(distinct ${onboardingProfile.userId})`));
+  return rows.map((r) => ({ sector: r.sector ?? "—", n: r.n }));
+}
+
+/** Tiempo medio (días) del caso ENTREGADO a su validación aprobada. null si no hay. */
+async function avgDaysToValidation(deps: SvcDeps, orgId: string): Promise<number | null> {
+  const rows = await deps.db.select({ submitted: appliedCase.submittedAt, decided: validation.createdAt })
+    .from(validation).innerJoin(appliedCase, eq(validation.caseId, appliedCase.id))
+    .where(and(eq(validation.organizationId, orgId), eq(validation.decision, "aprobado")));
+  const diffs = rows.filter((r) => r.submitted && r.decided && r.decided >= r.submitted)
+    .map((r) => (r.decided!.getTime() - r.submitted!.getTime()) / 86_400_000);
+  if (!diffs.length) return null;
+  return Math.round((diffs.reduce((a, b) => a + b, 0) / diffs.length) * 10) / 10;
+}
+
+/** Agregado rico de una organización, null-aware. Alimenta paneles y el informe de ROI. */
+export async function orgMetrics(deps: SvcDeps, orgId: string): Promise<OrgMetrics> {
+  const [members, cov, risks, transfer, autonomy, bars, inds, appRoi] = await Promise.all([
+    memberCount(deps, orgId), coverage(deps, orgId), dependencyRisks(deps, orgId),
+    internalTransferRate(deps, orgId), timeToAutonomyDays(deps, orgId), levelBars(deps, orgId),
+    industries(deps, orgId), applicationRoiSafe(deps, orgId),
+  ]);
+  const roleRows = await deps.db.select({ role: member.orgRole, n: sql<number>`count(*)::int` })
+    .from(member).where(eq(member.organizationId, orgId)).groupBy(member.orgRole);
+  const byRole: Record<string, number> = {}; for (const r of roleRows) byRole[r.role] = r.n;
+
+  const [enrollments, completions, testsTaken, testsPassed, casesSubmitted, casesApproved, roleplays,
+    coaches, atApply, questionsAsked, bestPractices, pts, activeLearners, avgVal] = await Promise.all([
+    count(deps, enrollment, eq(enrollment.organizationId, orgId)),
+    count(deps, enrollment, and(eq(enrollment.organizationId, orgId), eq(enrollment.status, "completado"))),
+    count(deps, testAttempt, eq(testAttempt.organizationId, orgId)),
+    count(deps, testAttempt, and(eq(testAttempt.organizationId, orgId), eq(testAttempt.passed, true))),
+    count(deps, appliedCase, and(eq(appliedCase.organizationId, orgId), sql`${appliedCase.status} in ('entregado','aprobado','rechazado')`)),
+    count(deps, validation, and(eq(validation.organizationId, orgId), eq(validation.decision, "aprobado"))),
+    count(deps, roleplaySession, eq(roleplaySession.organizationId, orgId)),
+    countDistinct(deps, levelByCompetency, levelByCompetency.userId, and(eq(levelByCompetency.organizationId, orgId), gte(levelByCompetency.level, 3))),
+    countDistinct(deps, levelByCompetency, levelByCompetency.userId, and(eq(levelByCompetency.organizationId, orgId), gte(levelByCompetency.level, 2))),
+    count(deps, agentMessage, and(eq(agentMessage.organizationId, orgId), eq(agentMessage.sender, "user"))),
+    count(deps, evidence, and(eq(evidence.organizationId, orgId), eq(evidence.ownerType, "buena_practica"))).catch(() => 0),
+    deps.db.select({ s: sql<number>`coalesce(sum(${pointsLedger.points}),0)::int` }).from(pointsLedger).where(eq(pointsLedger.organizationId, orgId)).then((r) => r[0]?.s ?? 0).catch(() => 0),
+    countDistinct(deps, agentMessage, agentMessage.threadId, and(eq(agentMessage.organizationId, orgId), eq(agentMessage.sender, "user"))),
+    avgDaysToValidation(deps, orgId),
+  ]);
+
+  const totalAll = cov.reduce((a, c) => a + c.total, 0), applyAll = cov.reduce((a, c) => a + c.atApply, 0);
+  return {
+    members, activeLearners, byRole,
+    enrollments, completions, completionPct: pctOrNull(completions, enrollments),
+    testsTaken, testsPassed, testPassPct: pctOrNull(testsPassed, testsTaken),
+    casesSubmitted, casesApproved, caseApprovalPct: pctOrNull(casesApproved, casesSubmitted),
+    avgDaysToValidation: avgVal, roleplays,
+    levelBars: bars, coaches, atApply, coveragePct: pctOrNull(applyAll, totalAll),
+    criticalRisks: risks, timeToAutonomyDays: autonomy, internalTransfer: transfer,
+    application: appRoi, totalPoints: pts, industries: inds, questionsAsked, bestPracticesInBrain: bestPractices,
+  };
+}
+
+/** ROI de aplicación (del seguimiento) sin acoplar el import; devuelve 0/null seguro. */
+async function applicationRoiSafe(deps: SvcDeps, orgId: string): Promise<{ checkins: number; tasaAplicacion: number | null; sensacionMedia: number | null }> {
+  try {
+    const rows = await deps.db.select({ note: evidence.note }).from(evidence)
+      .where(and(eq(evidence.organizationId, orgId), eq(evidence.ownerType, "seguimiento"), eq(evidence.kind, "kpi")));
+    let apl = 0, par = 0, no = 0, ss = 0, sn = 0;
+    for (const r of rows) { let d: any = {}; try { d = JSON.parse(String(r.note || "{}")); } catch {} if (d.aplica === "si") apl++; else if (d.aplica === "parcial") par++; else if (d.aplica === "no") no++; if (typeof d.sensacion === "number") { ss += d.sensacion; sn++; } }
+    const t = apl + par + no;
+    return { checkins: rows.length, tasaAplicacion: t ? Math.round(((apl + par) / t) * 100) : null, sensacionMedia: sn ? Math.round((ss / sn) * 10) / 10 : null };
+  } catch { return { checkins: 0, tasaAplicacion: null, sensacionMedia: null }; }
+}
+
 export interface PlatformOrgSummary {
   orgId: string; orgName: string; memberCount: number;
-  competencyCount: number; criticalRisks: number; internalTransfer: number; timeToAutonomyDays: number;
+  competencyCount: number; criticalRisks: number; internalTransfer: number | null; timeToAutonomyDays: number | null;
 }
 
 /**

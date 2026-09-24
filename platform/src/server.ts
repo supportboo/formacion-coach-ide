@@ -1283,6 +1283,23 @@ app.get("/api/platform/history", async (c) => {
   const days = Number(c.req.query("days") ?? 90);
   return c.json(await analyticsSvc.platformSnapshotHistory(svcDeps, days));
 });
+// Métricas ricas: de TODA la plataforma (totales) o de una empresa concreta (?orgId=). Toda la data para el superadmin.
+app.get("/api/platform/metrics", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const orgId = c.req.query("orgId");
+  if (orgId) return c.json({ orgId, metrics: await analyticsSvc.orgMetrics(svcDeps, orgId) });
+  const orgs = await db.select({ id: organization.id, name: organization.name }).from(organization);
+  const per = await Promise.all(orgs.map(async (o) => ({ orgId: o.id, orgName: o.name, metrics: await analyticsSvc.orgMetrics(svcDeps, o.id) })));
+  const totals = per.reduce((a, x) => ({
+    orgs: a.orgs + 1, members: a.members + x.metrics.members, activeLearners: a.activeLearners + x.metrics.activeLearners,
+    casesApproved: a.casesApproved + x.metrics.casesApproved, roleplays: a.roleplays + x.metrics.roleplays,
+    coaches: a.coaches + x.metrics.coaches, totalPoints: a.totalPoints + x.metrics.totalPoints,
+    questionsAsked: a.questionsAsked + x.metrics.questionsAsked, applicationCheckins: a.applicationCheckins + x.metrics.application.checkins,
+    bestPracticesInBrain: a.bestPracticesInBrain + x.metrics.bestPracticesInBrain, criticalRisks: a.criticalRisks + x.metrics.criticalRisks.length,
+  }), { orgs: 0, members: 0, activeLearners: 0, casesApproved: 0, roleplays: 0, coaches: 0, totalPoints: 0, questionsAsked: 0, applicationCheckins: 0, bestPracticesInBrain: 0, criticalRisks: 0 });
+  return c.json({ totals, orgs: per });
+});
 app.get("/api/platform/cost", async (c) => {
   const admin = await getPlatformAdminSession(c);
   if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
@@ -1773,6 +1790,14 @@ app.get("/api/analytics/history", async (c) => {
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   const days = Number(c.req.query("days") ?? 90);
   return c.json(await analyticsSvc.snapshotHistory(svcDeps, ctx.orgId, days));
+});
+// Métricas ricas de la empresa (barras de conocimiento, aplicación, coaches, industrias, ROI…). Null = sin datos.
+app.get("/api/analytics/metrics", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  await analyticsSvc.captureSnapshotIfNeeded(svcDeps, ctx.orgId).catch(() => {});
+  return c.json(await analyticsSvc.orgMetrics(svcDeps, ctx.orgId));
 });
 app.get("/api/analytics/completion", async (c) => {
   const ctx = await getAuthContext(c);
