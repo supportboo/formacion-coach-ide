@@ -39,6 +39,7 @@ import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as followupSvc from "./services/followup.js";
 import * as moderationSvc from "./services/moderation.js";
+import * as curationSvc from "./services/curation.js";
 import * as gcal from "./services/gcal.js";
 
 const svcDeps = { db, newId };
@@ -954,8 +955,11 @@ app.post("/api/validation/cases/:id/decide", async (c) => {
               competencyName: comp?.name || "competencia", prompt: caseRow.prompt,
               submission: caseRow.submission, feedback: parsed.data.feedback, orgId: ctx.orgId, userId: ctx.userId,
             });
+            // Curador de datos: escrub de nombres/emails antes de que entre al cerebro compartido.
+            const cnames = await curationSvc.orgMemberNames(svcDeps, ctx.orgId).catch(() => [] as string[]);
             await ingestDocument(chatDeps, ctx.orgId, {
-              title: `Buena práctica · ${bp.title}`.slice(0, 200), kind: "buena_practica", refId: caseId, text: bp.body,
+              title: curationSvc.scrubPII(`Buena práctica · ${bp.title}`, cnames).text.slice(0, 200),
+              kind: "buena_practica", refId: caseId, text: curationSvc.scrubPII(bp.body, cnames).text,
             });
           }
         } catch (e) {}
@@ -1955,9 +1959,10 @@ app.post("/api/moderation", async (c) => {
     // Realimenta las buenas prácticas de consenso al cerebro de la organización (best-effort).
     try {
       if (result.buenasPracticas.length) {
+        const modNames = await curationSvc.orgMemberNames(svcDeps, ctx.orgId).catch(() => [] as string[]);
         await ingestDocument(chatDeps, ctx.orgId, {
           title: `Consenso ${parsed.data.grupoA.nombre}–${parsed.data.grupoB.nombre}`.slice(0, 200),
-          kind: "buena_practica", text: result.buenasPracticas.join("\n"),
+          kind: "buena_practica", text: curationSvc.scrubPII(result.buenasPracticas.join("\n"), modNames).text,
         });
       }
     } catch (e) {}
