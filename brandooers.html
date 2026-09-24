@@ -72,7 +72,7 @@ nav .bar{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:150px 0 70px;overflow:hidden}
 .hero .vert{position:absolute;right:-6px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;font-family:var(--fd);font-weight:700;font-size:clamp(40px,7vw,90px);letter-spacing:.04em;color:transparent;-webkit-text-stroke:1px rgba(167,139,250,.28);pointer-events:none;user-select:none}
 .hero .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;position:relative;z-index:2}
-.hero h1{font-family:var(--fb);font-weight:900;font-size:clamp(44px,7.4vw,92px);line-height:.98;letter-spacing:-.035em;margin:18px 0 22px;color:#fff}
+.hero h1{font-family:var(--fb);font-weight:900;font-size:clamp(48px,8.8vw,116px);line-height:.95;letter-spacing:-.04em;margin:16px 0 40px;color:#fff;max-width:20ch}
 .hero h1 span{font-family:var(--fc);font-weight:700;display:inline-block}
 .hero p.lead{font-size:clamp(16px,1.5vw,19px);color:var(--mut);max-width:46ch;margin-bottom:34px;line-height:1.7}
 .hero-cta{display:flex;gap:13px;flex-wrap:wrap}
@@ -127,13 +127,22 @@ section{padding:clamp(80px,12vh,140px) 0;position:relative}
 .state p{max-width:44ch;margin:26px auto 0;color:var(--mut);font-size:17px}
 
 /* Método — flujo conectado */
-.flow{margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
-.flow:before{content:"";position:absolute;top:38px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,var(--cy),var(--vi),var(--pk));opacity:.4;z-index:0}
-.fstep{position:relative;z-index:1;padding:26px 22px;border-radius:22px;background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(16px)}
-.fstep .fn{width:52px;height:52px;border-radius:50%;background:var(--bg2);border:2px solid var(--vi);color:#fff;font-family:var(--fd);font-weight:700;font-size:20px;display:grid;place-items:center;margin-bottom:16px;box-shadow:0 0 0 6px rgba(139,92,246,.1)}
-.fstep h4{font-size:17px;font-weight:800;color:#fff;margin-bottom:7px}
-.fstep p{font-size:13.5px;color:var(--mut);line-height:1.6}
-@media(max-width:860px){.flow{grid-template-columns:1fr;gap:14px}.flow:before{display:none}}
+.mapnote{font-family:var(--fc);font-size:22px;color:var(--vi2);margin-top:26px;transform:rotate(-2deg);display:inline-block}
+.treasure{position:relative;margin-top:20px;min-height:360px}
+.tpath{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:0}
+.tline{animation:dash 26s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-420}}
+.twalk{filter:drop-shadow(0 0 8px rgba(236,72,153,.9))}
+.no-motion .tline,.no-motion .twalk{animation:none;display:initial}
+.tnodes{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:22px;align-items:start}
+.tnode{padding:24px 22px;border-radius:20px;background:var(--glass);border:1px solid var(--gborder);backdrop-filter:blur(14px);transition:transform .35s,border-color .35s}
+.tnode:hover{transform:translateY(-6px);border-color:rgba(167,139,250,.5)}
+.tnode:nth-child(2),.tnode:nth-child(4){margin-top:150px}
+.tnode .tdot{width:48px;height:48px;border-radius:50%;background:var(--grad);color:#fff;font-family:var(--fd);font-weight:700;font-size:20px;display:grid;place-items:center;margin-bottom:14px;box-shadow:0 0 0 6px rgba(139,92,246,.14)}
+.tnode .tdot.end{background:transparent;border:2px dashed var(--pk);color:var(--pk)}
+.tnode h4{font-size:18px;font-weight:800;color:#fff;margin-bottom:7px}
+.tnode p{font-size:13.5px;color:var(--mut);line-height:1.6}
+@media(max-width:860px){.treasure{min-height:0}.tpath{display:none}.tnodes{grid-template-columns:1fr;gap:14px}.tnode:nth-child(2),.tnode:nth-child(4){margin-top:0}}
 
 /* Chat tutor */
 .chat{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:center}
@@ -207,10 +216,11 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
 
 <header class="hero" id="top">
   <span class="vert" aria-hidden="true">TOP 1%</span>
-  <div class="wrap"><div class="grid">
-    <div>
-      <span class="ek reveal">Academia de alto rendimiento</span>
-      <h1 class="reveal">No compras un curso. Compras tu <span class="grad">mejor versión</span>.</h1>
+  <div class="wrap">
+    <span class="ek reveal">Academia de alto rendimiento</span>
+    <h1 class="reveal">No compras un curso.<br>Compras tu <span class="grad">mejor versión</span>.</h1>
+    <div class="grid">
+      <div>
       <p class="lead reveal">Convertimos el talento joven en el 1%. Liderazgo, ventas, persuasión, storytelling e IA — para que hables con propiedad, ganes autoridad y lo demuestres.</p>
       <div class="hero-cta reveal">
         <a href="#acceso" class="btn btn-grad">Empieza tu evolución →</a>
@@ -274,11 +284,18 @@ footer .cp{margin-top:26px;font-size:12.5px;color:#6a6088;max-width:74ch;line-he
       <span class="ek">El método</span>
       <h2>De cero al 1%, paso a paso.</h2>
     </div>
-    <div class="flow">
-      <div class="fstep reveal"><div class="fn">1</div><h4>Descubre</h4><p>Diagnóstico honesto de dónde estás y qué te frena de verdad.</p></div>
-      <div class="fstep reveal"><div class="fn">2</div><h4>Aprende haciendo</h4><p>Casos reales, roleplays y práctica guiada. Aplicando, no memorizando.</p></div>
-      <div class="fstep reveal"><div class="fn">3</div><h4>Demuéstralo</h4><p>Resuelves retos reales y ganas soltura. Tu autoridad deja de ser pose.</p></div>
-      <div class="fstep reveal"><div class="fn">4</div><h4>Multiplícate</h4><p>Lo aplicas en tu trabajo real. Se convierte en resultados y carrera.</p></div>
+    <p class="mapnote" aria-hidden="true">Tu ruta, como el mapa de la app</p>
+    <div class="treasure reveal">
+      <svg class="tpath" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M125,55 C250,55 250,245 375,245 C500,245 500,55 625,55 C750,55 750,245 875,245" fill="none" stroke="url(#bg1)" stroke-width="2.5" stroke-dasharray="3 11" stroke-linecap="round" class="tline"/>
+        <circle r="6" fill="#EC4899" class="twalk"><animateMotion dur="9s" repeatCount="indefinite" path="M125,55 C250,55 250,245 375,245 C500,245 500,55 625,55 C750,55 750,245 875,245"/></circle>
+      </svg>
+      <div class="tnodes">
+        <div class="tnode"><span class="tdot">1</span><h4>Descubre</h4><p>Diagnóstico honesto de dónde estás y qué te frena de verdad.</p></div>
+        <div class="tnode"><span class="tdot">2</span><h4>Aprende haciendo</h4><p>Casos reales, roleplays y práctica guiada. Aplicando, no memorizando.</p></div>
+        <div class="tnode"><span class="tdot">3</span><h4>Demuéstralo</h4><p>Resuelves retos reales y ganas soltura. Tu autoridad deja de ser pose.</p></div>
+        <div class="tnode"><span class="tdot end">✕</span><h4>Multiplícate</h4><p>Lo aplicas en tu trabajo real. Se convierte en resultados y carrera.</p></div>
+      </div>
     </div>
   </div>
 </section>
