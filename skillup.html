@@ -123,25 +123,58 @@ section{padding:clamp(72px,11vh,128px) 0;position:relative}
 
 /* Recorrido — mapa del tesoro (como las rutas de la app) */
 .mapnote{font-family:var(--fc);font-size:24px;color:#C0344A;margin-top:12px;transform:rotate(-2deg);display:inline-block}
-.treasure{position:relative;margin-top:26px;min-height:520px}
-.tpath{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:0}
-.tline{animation:dash 28s linear infinite}
 @keyframes dash{to{stroke-dashoffset:-460}}
-.twalk{filter:drop-shadow(0 0 7px rgba(228,110,120,.8))}
-.no-motion .tline,.no-motion .twalk{animation:none}
-.tnodes{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:start}
-.tnode{background:var(--white);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--sh2);transition:transform .35s,box-shadow .35s}
-.tnode:hover{transform:translateY(-6px);box-shadow:var(--sh)}
-.tnode:nth-child(2),.tnode:nth-child(4){margin-top:210px}
-.tnode .tn-top{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
-.tnode .tdot{width:34px;height:34px;flex:0 0 34px;border-radius:50%;color:#fff;font-family:var(--fd);font-weight:700;font-size:15px;display:grid;place-items:center}
-.tnode h4{font-size:15.5px;font-weight:800;color:var(--ink);line-height:1.15}
-.tnode .tshot{aspect-ratio:16/11;background:linear-gradient(135deg,#efe9ee,#e7eef1);position:relative}
-.tnode .tshot img{width:100%;height:100%;object-fit:cover;object-position:top center}
-.tnode .tshot .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fc);font-size:16px;color:var(--silver);opacity:.7}
-.tnode p{font-size:12.5px;color:var(--body);line-height:1.5;padding:11px 16px 16px}
-.tnode.end{border:2px dashed var(--gold);background:linear-gradient(180deg,#FFFBF0,#fff)}
-@media(max-width:900px){.treasure{min-height:0}.tpath{display:none}.tnodes{grid-template-columns:1fr 1fr;gap:14px}.tnode:nth-child(2),.tnode:nth-child(4){margin-top:0}}
+/* Recorrido — camino curvo descendente interconectado */
+.journey{position:relative;margin-top:34px}
+.jconn{position:absolute;inset:0;width:100%;height:100%;z-index:0;overflow:visible;pointer-events:none}
+.jconn .jseg{fill:none;stroke:#C9AFC4;stroke-width:2.4;stroke-dasharray:2 11;stroke-linecap:round;transition:stroke .35s,stroke-width .35s;filter:none}
+.jconn .jseg.lit{stroke:var(--vi);stroke-width:3.4;filter:drop-shadow(0 0 6px rgba(139,92,246,.6))}
+.jconn .jwalk{fill:var(--coral);filter:drop-shadow(0 0 7px rgba(228,110,120,.85))}
+.no-motion .jconn .jwalk{animation:none}
+.jsteps{position:relative;z-index:1;display:flex;flex-direction:column;gap:clamp(30px,6vh,72px)}
+.jstep{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(16px,3vw,40px);position:relative}
+.jstep[data-side="l"] .jcard{grid-column:1;margin-right:auto}
+.jstep[data-side="l"] .jaside{grid-column:2}
+.jstep[data-side="r"] .jcard{grid-column:2;margin-left:auto}
+.jstep[data-side="r"] .jaside{grid-column:1;order:-1;text-align:right}
+.jcard{position:relative;width:100%;max-width:420px;background:var(--white);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh2);transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s;cursor:pointer}
+.jcard:hover{transform:translateY(-6px) scale(1.015);box-shadow:var(--sh)}
+.jstep.end .jcard{border:2px dashed var(--gold);background:linear-gradient(180deg,#FFFBF0,#fff)}
+.jbadge{position:absolute;top:-17px;left:22px;width:40px;height:40px;border-radius:50%;color:#fff;font-family:var(--fd);font-weight:700;font-size:16px;display:grid;place-items:center;z-index:4;border:3px solid var(--white);box-shadow:0 6px 16px rgba(45,32,46,.28)}
+.jframe{border-radius:16px 16px 0 0;overflow:hidden}
+.jframe .bbar{display:flex;align-items:center;gap:7px;padding:9px 12px;background:var(--warm);border-bottom:1px solid var(--line2)}
+.jframe .dots{display:flex;gap:5px}.jframe .dots i{width:9px;height:9px;border-radius:50%;background:#D9CEd4}
+.jframe .dots i:nth-child(1){background:#E46E78}.jframe .dots i:nth-child(2){background:#E4A900}.jframe .dots i:nth-child(3){background:#21B799}
+.jframe .shot{aspect-ratio:16/10;background:linear-gradient(135deg,#efe9ee,#e7eef1);position:relative}
+.jframe .shot img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.jframe .shot .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fc);font-size:16px;color:var(--silver);opacity:.7}
+.jmeta{padding:13px 18px 16px}
+.jmeta h4{font-size:16px;font-weight:800;color:var(--ink)}
+.jmeta p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:3px}
+/* Nota manuscrita + flecha FUERA de la captura */
+.jaside{position:relative;min-height:1px}
+.jnote{display:inline-block;font-family:var(--fc);font-weight:700;font-size:clamp(18px,1.9vw,23px);line-height:1.15;color:#0A6E86;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+.jstep[data-side="r"] .jnote{color:#C0344A}
+.jarrow{display:block;margin-top:2px;color:#0A6E86;overflow:visible}
+.jstep[data-side="r"] .jarrow{color:#C0344A;margin-left:auto}
+.jarrow path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+/* Bocadillo de cómic (hover) */
+.jbubble{position:absolute;left:50%;bottom:calc(100% + 14px);transform:translate(-50%,8px);width:max-content;max-width:240px;background:var(--white);border:2px solid var(--ink);border-radius:16px;padding:12px 16px;font-family:var(--fc);font-weight:700;font-size:17px;line-height:1.25;color:var(--ink);box-shadow:5px 5px 0 rgba(45,32,46,.13);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:6}
+.jbubble:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:9px solid transparent;border-top-color:var(--ink)}
+.jbubble:before{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%) translateY(-2.5px);border:8px solid transparent;border-top-color:var(--white);z-index:1}
+.jcard:hover .jbubble,.jstep.on .jbubble{opacity:1;transform:translate(-50%,0)}
+@media(max-width:760px){
+  .jconn{display:none}
+  .journey:before{content:"";position:absolute;left:19px;top:10px;bottom:10px;width:0;border-left:2px dashed #C9AFC4;z-index:0}
+  .jsteps{gap:26px}
+  .jstep{grid-template-columns:1fr;gap:8px;padding-left:6px}
+  .jstep .jcard{grid-column:1;max-width:100%;margin:0}
+  .jstep .jaside{grid-column:1;order:2;text-align:left!important}
+  .jstep[data-side="r"] .jnote,.jstep[data-side="r"] .jarrow{color:#0A6E86;margin-left:0}
+  .jarrow{display:none}
+  .jbubble{position:static;left:auto;transform:none;opacity:1;max-width:100%;width:auto;margin-top:8px;box-shadow:3px 3px 0 rgba(45,32,46,.12)}
+  .jbubble:after,.jbubble:before{display:none}
+}
 @media(max-width:520px){.tnodes{grid-template-columns:1fr}}
 
 /* Showcase — composiciones variadas alternas (estilo bloque tutor) */
@@ -288,19 +321,65 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
       <p>Ninguna pantalla es de mentira: esto es SkillUp por dentro, paso a paso, desde que entras hasta que llegas arriba.</p>
     </div>
     <span class="mapnote reveal" aria-hidden="true">sigue la línea… el tesoro es el nº 1 del ranking ✕</span>
-    <div class="treasure reveal">
-      <svg class="tpath" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M120,90 C260,90 250,300 375,300 C500,300 500,90 625,90 C760,90 745,300 875,300" fill="none" stroke="#C9AFC4" stroke-width="2.5" stroke-dasharray="2 12" stroke-linecap="round" class="tline"/>
-        <circle r="7" fill="#E46E78" class="twalk"><animateMotion dur="10s" repeatCount="indefinite" path="M120,90 C260,90 250,300 375,300 C500,300 500,90 625,90 C760,90 745,300 875,300"/></circle>
-      </svg>
-      <div class="tnodes">
-        <div class="tnode"><div class="tn-top"><span class="tdot" style="background:var(--coral)">1</span><h4>Onboarding</h4></div><div class="tshot"><span class="ph">su-onboarding</span><img src="assets/su-onboarding.png" alt="Onboarding de SkillUp" loading="lazy" onerror="this.style.display='none'"></div><p>Nos cuentas quién eres y qué quieres conseguir. En 2 minutos.</p></div>
-        <div class="tnode"><div class="tn-top"><span class="tdot" style="background:var(--vi)">2</span><h4>Tu ADN</h4></div><div class="tshot"><span class="ph">su-dna</span><img src="assets/su-dna.png" alt="Perfil de capacidades / Team DNA en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><p>La plataforma mapea tus fortalezas y tus huecos reales.</p></div>
-        <div class="tnode"><div class="tn-top"><span class="tdot" style="background:var(--te)">3</span><h4>Tu ruta</h4></div><div class="tshot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Ruta de aprendizaje a medida en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><p>Un camino a tu medida, no un catálogo infinito de cursos.</p></div>
-        <div class="tnode"><div class="tn-top"><span class="tdot" style="background:var(--te)">4</span><h4>Lecciones</h4></div><div class="tshot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en curso en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><p>Cortas, aplicables, con el tutor al lado por si atascas.</p></div>
-        <div class="tnode"><div class="tn-top"><span class="tdot" style="background:var(--te)">5</span><h4>Roleplays</h4></div><div class="tshot"><span class="ph">su-roleplay</span><img src="assets/su-roleplay.png" alt="Roleplay / reto conversacional en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><p>Practicas la conversación difícil antes de tenerla de verdad.</p></div>
-        <div class="tnode"><div class="tn-top"><span class="tdot" style="background:var(--green)">6</span><h4>Tests</h4></div><div class="tshot"><span class="ph">su-test</span><img src="assets/su-test.png" alt="Test / evaluación con resultado en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><p>Demuestras lo que sabes. Queda registrado en tu panel.</p></div>
-        <div class="tnode end"><div class="tn-top"><span class="tdot" style="background:var(--gold)">✕</span><h4>Ranking</h4></div><div class="tshot"><span class="ph">su-ranking</span><img src="assets/su-ranking.png" alt="Ranking / leaderboard de SkillUp" loading="lazy" onerror="this.style.display='none'"></div><p>El tesoro: del último al primero. Y de primero, a coach.</p></div>
+    <div class="journey reveal" id="journey">
+      <svg class="jconn" id="jconn" aria-hidden="true"></svg>
+      <div class="jsteps" id="jsteps">
+        <div class="jstep" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--coral)">1</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-onboarding</span><img src="assets/su-onboarding.png" alt="Onboarding de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Onboarding</h4><p>Nos cuentas quién eres y qué quieres conseguir. En 2 minutos.</p></div>
+            <div class="jbubble">Cuéntanos quién eres y qué quieres. Sin exámenes, sin humo.</div>
+          </div>
+          <div class="jaside"><span class="jnote">aquí empiezas</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="r">
+          <div class="jcard"><span class="jbadge" style="background:var(--vi)">2</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-dna</span><img src="assets/su-dna.png" alt="Perfil de capacidades / Team DNA en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Tu ADN</h4><p>La plataforma mapea tus fortalezas y tus huecos reales.</p></div>
+            <div class="jbubble">Vemos lo que se te da bien y lo que no — no un test de personalidad.</div>
+          </div>
+          <div class="jaside"><span class="jnote">tu mapa real</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--te)">3</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Ruta de aprendizaje a medida en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Tu ruta</h4><p>Un camino a tu medida, no un catálogo infinito de cursos.</p></div>
+            <div class="jbubble">Solo lo que tú necesitas, en el orden correcto.</div>
+          </div>
+          <div class="jaside"><span class="jnote">solo lo tuyo</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="r">
+          <div class="jcard"><span class="jbadge" style="background:var(--te)">4</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en curso en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Lecciones</h4><p>Cortas y aplicables, con el tutor al lado por si atascas.</p></div>
+            <div class="jbubble">Al grano, y con el tutor pegado por si te trabas.</div>
+          </div>
+          <div class="jaside"><span class="jnote">al grano</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--te)">5</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-roleplay</span><img src="assets/su-roleplay.png" alt="Roleplay / reto conversacional en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Roleplays</h4><p>Practicas la conversación difícil antes de tenerla de verdad.</p></div>
+            <div class="jbubble">Ensaya la reunión que temes hasta que te salga sola.</div>
+          </div>
+          <div class="jaside"><span class="jnote">ensaya sin miedo</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="r">
+          <div class="jcard"><span class="jbadge" style="background:var(--green)">6</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-test</span><img src="assets/su-test.png" alt="Test / evaluación con resultado en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Tests</h4><p>Demuestras lo que sabes. Queda registrado en tu panel.</p></div>
+            <div class="jbubble">Se pone en verde solo cuando lo demuestras. Eso sí cuenta.</div>
+          </div>
+          <div class="jaside"><span class="jnote">esto sí cuenta</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
+        </div>
+        <div class="jstep end" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--gold)">✕</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ranking</span><img src="assets/su-ranking.png" alt="Ranking / leaderboard de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Ranking</h4><p>El tesoro: del último al primero. Y de primero, a coach.</p></div>
+            <div class="jbubble">Del último al número 1. Y de primero, a coach.</div>
+          </div>
+          <div class="jaside"><span class="jnote">el tesoro ✕</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
       </div>
     </div>
   </div>
@@ -485,6 +564,32 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
     var cw=function(){ var c=st.querySelector('.scard'); return c?c.offsetWidth+22:560; };
     document.getElementById('snext').onclick=function(){ st.scrollBy({left:cw(),behavior:'smooth'}); };
     document.getElementById('sprev').onclick=function(){ st.scrollBy({left:-cw(),behavior:'smooth'}); };
+  }
+  // recorrido — camino curvo interconectado + hover ilumina segmentos + toque abre bocadillo
+  var jsteps=document.getElementById('jsteps'), jconn=document.getElementById('jconn');
+  if(jsteps && jconn){
+    var jst=[].slice.call(jsteps.querySelectorAll('.jstep'));
+    var buildJ=function(){
+      var wr=jsteps.getBoundingClientRect(); if(!wr.width) return;
+      jconn.setAttribute('viewBox','0 0 '+wr.width+' '+wr.height); jconn.setAttribute('width',wr.width); jconn.setAttribute('height',wr.height);
+      var pts=jst.map(function(s){ var b=s.querySelector('.jbadge').getBoundingClientRect(); return {x:b.left+b.width/2-wr.left, y:b.top+b.height/2-wr.top}; });
+      var segs=[], full='M'+pts[0].x.toFixed(1)+','+pts[0].y.toFixed(1);
+      for(var i=1;i<pts.length;i++){ var a=pts[i-1],b=pts[i], my=((a.y+b.y)/2).toFixed(1);
+        var c=' C'+a.x.toFixed(1)+','+my+' '+b.x.toFixed(1)+','+my+' '+b.x.toFixed(1)+','+b.y.toFixed(1);
+        segs.push('M'+a.x.toFixed(1)+','+a.y.toFixed(1)+c); full+=c; }
+      var html=segs.map(function(d,i){return '<path class="jseg" data-i="'+i+'" d="'+d+'"/>';}).join('');
+      if(!RM) html+='<circle class="jwalk" r="6"><animateMotion dur="18s" repeatCount="indefinite" path="'+full+'"/></circle>';
+      jconn.innerHTML=html;
+    };
+    var hi=function(i){ jconn.querySelectorAll('.jseg').forEach(function(p){ var d=+p.getAttribute('data-i'); if(d===i-1||d===i)p.classList.add('lit'); else p.classList.remove('lit'); }); };
+    var unhi=function(){ jconn.querySelectorAll('.jseg.lit').forEach(function(p){p.classList.remove('lit');}); };
+    jst.forEach(function(s,i){ s.addEventListener('mouseenter',function(){hi(i);}); s.addEventListener('mouseleave',unhi);
+      s.querySelector('.jcard').addEventListener('click',function(){ var was=s.classList.contains('on'); jst.forEach(function(o){o.classList.remove('on');}); if(!was){s.classList.add('on');hi(i);} else unhi(); }); });
+    var drawJ=function(){ if(window.innerWidth>760) buildJ(); else jconn.innerHTML=''; };
+    setTimeout(drawJ,300);
+    try{ var jio=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting){ setTimeout(drawJ,60); setTimeout(drawJ,1000); } });},{threshold:.05}); jio.observe(document.getElementById('journey')); }catch(e){}
+    window.addEventListener('load',function(){ setTimeout(drawJ,50); });
+    var jt; window.addEventListener('resize',function(){ clearTimeout(jt); jt=setTimeout(drawJ,200); },{passive:true});
   }
   // lead → mismo endpoint que Brandooers
   var f=document.getElementById('pilotForm'), msg=document.getElementById('pilotMsg');
