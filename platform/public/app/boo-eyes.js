@@ -255,22 +255,37 @@
 
   // --- voz de entrada: dictado (Web Speech). No es TTS, no es la voz robótica. ---
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var rec = null;
+  var rec = null, micSilence = null, micFinal = '';
+  // Margen de silencio antes de cerrar el micro: tiempo para pensar, no cortar al primer silencio.
+  var MIC_START_MS = 8000; // desde que se abre el micro hasta empezar a hablar
+  var MIC_PAUSE_MS = 5000; // pausa tras hablar antes de dar por terminado
+  function armMicSilence(ms) { clearTimeout(micSilence); micSilence = setTimeout(function () { try { rec && rec.stop(); } catch (e) {} }, ms); }
   if (SR) {
     micBtn.addEventListener('click', function () {
       unlockAudio();
-      if (rec) { try { rec.stop(); } catch (e) {} return; }
-      rec = new SR(); rec.lang = 'es-ES'; rec.interimResults = false; rec.maxAlternatives = 1;
+      if (rec) { clearTimeout(micSilence); try { rec.stop(); } catch (e) {} return; }
+      micFinal = '';
+      rec = new SR(); rec.lang = 'es-ES'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
       micBtn.classList.add('rec');
-      rec.onresult = function (ev) { input.value = ev.results[0][0].transcript; };
-      rec.onend = function () { micBtn.classList.remove('rec'); rec = null; if (input.value.trim()) send(true); };
-      rec.onerror = function (ev) { micBtn.classList.remove('rec'); rec = null;
+      rec.onresult = function (ev) {
+        var interim = '';
+        for (var i = ev.resultIndex; i < ev.results.length; i++) {
+          var r = ev.results[i];
+          if (r.isFinal) micFinal += r[0].transcript + ' '; else interim += r[0].transcript;
+        }
+        input.value = (micFinal + interim).trim();
+        armMicSilence(MIC_PAUSE_MS); // cada trozo de voz reinicia el margen: no cortamos mientras habla o duda
+      };
+      rec.onspeechstart = function () { clearTimeout(micSilence); }; // hablando: sin límite hasta que pare
+      rec.onspeechend = function () { armMicSilence(MIC_PAUSE_MS); };
+      rec.onend = function () { clearTimeout(micSilence); micBtn.classList.remove('rec'); var had = input.value.trim(); rec = null; if (had) send(true); };
+      rec.onerror = function (ev) { clearTimeout(micSilence); micBtn.classList.remove('rec'); rec = null;
         var c = ev && ev.error;
         if (c === 'not-allowed' || c === 'service-not-allowed') bubble('agent', 'Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador, o escríbeme aquí.');
         else if (c === 'audio-capture') bubble('agent', 'No encuentro el micrófono de este dispositivo. Puedes escribirme aquí.');
         else if (c && c !== 'no-speech' && c !== 'aborted') bubble('agent', 'El dictado por voz no está disponible ahora mismo en este navegador. Escríbeme y te respondo.');
       };
-      try { rec.start(); } catch (e) { micBtn.classList.remove('rec'); rec = null; }
+      try { rec.start(); armMicSilence(MIC_START_MS); } catch (e) { clearTimeout(micSilence); micBtn.classList.remove('rec'); rec = null; }
     });
   } else { micBtn.style.display = 'none'; }
 
