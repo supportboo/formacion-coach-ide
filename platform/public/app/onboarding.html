@@ -9,21 +9,53 @@
 <link rel="stylesheet" href="/app/theme.css">
 <style>
 body{min-height:100vh;display:flex;align-items:center;justify-content:center;
-  background-image:radial-gradient(circle at 15% 10%,rgba(0,212,255,.05),transparent 40%),radial-gradient(circle at 85% 90%,rgba(236,72,153,.05),transparent 40%)}
+  background-image:radial-gradient(circle at 15% 10%,rgba(63,216,224,.05),transparent 40%),radial-gradient(circle at 85% 90%,rgba(138,95,124,.05),transparent 40%)}
 .card{width:100%;max-width:520px;padding:36px}
 .logohead{display:flex;justify-content:center;margin-bottom:8px}
 .kx{font-family:'Caveat',cursive;font-size:16px;color:var(--t);text-align:center;margin-bottom:18px}
 h1{font-size:23px;color:var(--text);margin-bottom:6px;text-align:center;letter-spacing:-.02em}
 p.sub{font-size:14px;color:var(--mut);margin-bottom:24px;text-align:center}
+.wv-ov{position:fixed;inset:0;z-index:2000;background:rgba(10,8,14,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.wv-card{width:100%;max-width:760px;background:var(--panel);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.wv-vidwrap{position:relative;background:#000;aspect-ratio:16/9}
+.wv-vidwrap video{width:100%;height:100%;display:block;object-fit:cover}
+.wv-body{padding:18px 20px 20px;text-align:center}
+.wv-body h3{margin:0 0 4px;color:var(--ink);font-size:19px;letter-spacing:-.02em}
+.wv-body p{margin:0 0 16px;color:var(--body);font-size:14px}
+.wv-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center}
+.wv-skip{background:none;border:none;color:var(--mut);font-weight:600;cursor:pointer;font-size:13px}
 </style>
 </head>
 <body>
+<div class="wv-ov" id="welcomeVideo" style="display:none">
+  <div class="wv-card">
+    <div class="wv-vidwrap"><video id="wvVid" src="https://brandooers.com/assets/marc-brandooers-explica.mp4?v=5" poster="https://brandooers.com/assets/marc-brandooers-explica-poster.jpg" controls playsinline preload="metadata"></video></div>
+    <div class="wv-body">
+      <h3>Bienvenido a SkillUp</h3>
+      <p>En tres minutos, Marc te cuenta cómo vas a aprender aquí y por qué esta formación sí se te queda dentro. Cuando quieras, empezamos tu perfil.</p>
+      <div class="wv-actions"><button class="btn btn-grad" id="wvStart">Empezar mi perfil</button><button class="wv-skip" id="wvSkip">Saltar el vídeo</button></div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY='skillup-welcome-video-seen';
+  var seen=false; try{ seen=localStorage.getItem(KEY)==='1'; }catch(e){}
+  var ov=document.getElementById('welcomeVideo'), v=document.getElementById('wvVid');
+  if(seen){ return; } // ya lo vio (p. ej. en bienvenida): no reabrir
+  ov.style.display='flex';
+  function done(){ try{ v.pause(); }catch(e){} ov.style.display='none'; try{ localStorage.setItem(KEY,'1'); }catch(e){} }
+  document.getElementById('wvStart').onclick=done;
+  document.getElementById('wvSkip').onclick=done;
+  ov.addEventListener('click',function(e){ if(e.target===ov) done(); });
+})();
+</script>
 <div class="card">
   <div class="logohead"><span class="blogo">Brand<svg class="beyes" width="38" height="22" viewBox="0 0 100 58"><defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
     </defs>
     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
@@ -72,7 +104,7 @@ p.sub{font-size:14px;color:var(--mut);margin-bottom:24px;text-align:center}
       document.getElementById('f').style.display = 'none';
       document.getElementById('result').style.display = '';
       document.getElementById('btnContinue').addEventListener('click', function () {
-        window.location.href = '/hub.html';
+        window.location.href = '/app/inicio.html';
       });
     } catch (ex) { err.textContent = ex.message; }
   });

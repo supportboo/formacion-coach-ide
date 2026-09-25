@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Tu equipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--pink:#EC6FA6;--green:#54C79A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--pink:#C24E86;--green:#2E9E73;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);overflow:hidden;background:var(--bg)}
+button{font-family:inherit}[hidden]{display:none!important}
+.top{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:14px;padding:14px 20px;background:linear-gradient(var(--bg),transparent)}
+.top a.back{color:var(--muted);text-decoration:none;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.top a.back:hover{color:var(--ink)}
+.top h1{font-family:var(--fh);color:var(--ink);font-size:20px;margin:0;letter-spacing:-.01em}
+.top .sub{color:var(--muted);font-size:12.5px;margin-left:2px}
+.legend{position:fixed;top:16px;right:20px;z-index:5;display:flex;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-size:12px}
+.legend b{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+#stage{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%}
+.card{position:fixed;z-index:6;pointer-events:none;max-width:230px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--sh);opacity:0;transition:opacity .15s;transform:translate(-50%,-115%)}
+.card.on{opacity:1}
+.card .rt{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.card b{display:block;color:var(--ink);font-family:var(--fh);font-size:15px;margin:2px 0 4px}
+.card small{color:var(--muted);font-size:12px;line-height:1.5;display:block}
+.a11y-list{position:fixed;left:20px;bottom:16px;z-index:5;font-size:12.5px}
+.a11y-list summary{color:var(--muted);cursor:pointer;font-weight:700;list-style:none}
+.a11y-list summary::-webkit-details-marker{display:none}
+.a11y-list .lst{margin-top:8px;max-height:50vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:230px}
+.a11y-list .row{padding:5px 0;border-top:1px solid var(--line);color:var(--body)}
+.a11y-list .row:first-child{border-top:0}
+.loader{position:fixed;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;background:var(--bg);text-align:center;padding:20px}
+</style>
+</head>
+<body>
+<div class="loader" id="loader">Cargando el mapa de tu equipo…</div>
+<div class="top" id="top" hidden><a class="back" href="/app/inicio.html">‹ Inicio</a><h1>Tu equipo</h1><span class="sub">comportamiento real, no un test de personalidad</span></div>
+<div class="legend" id="legend" hidden></div>
+<div id="stage" hidden><canvas id="cv"></canvas></div>
+<div class="card" id="card"></div>
+<details class="a11y-list" id="a11yList" hidden><summary>Ver como lista</summary><div class="lst" id="a11yLst"></div></details>
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var loader=document.getElementById('loader'),top=document.getElementById('top'),legend=document.getElementById('legend'),stage=document.getElementById('stage'),cv=document.getElementById('cv'),card=document.getElementById('card');
+if(!window.SkillUp||!SkillUp.api){loader.textContent='No se pudo cargar. Vuelve a entrar.';return;}
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+// 3 arquetipos medidos con comportamiento REAL de la plataforma (nunca un test de personalidad tipo
+// MBTI/DISC: eso es pseudociencia). "Enseñar/liderazgo" se añadirá cuando exista una función real de
+// compartir con compañeros — no se inventa mientras tanto.
+var ARQ={
+ aprende:{label:'El Analítico',c1:'#3FD8E0',c2:'#1a9aa0',desc:'Estudia, subraya, hace preguntas.'},
+ aporta:{label:'El Conector',c1:'#EC6FA6',c2:'#b0347a',desc:'Comparte casos y contexto real con el tutor.'},
+ aplica:{label:'El Ejecutor',c1:'#F0C645',c2:'#9c7a10',desc:'Se compromete y aplica en el trabajo real.'}
+};
+var ARQS=['aprende','aporta','aplica'];
+function hash(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return Math.abs(h);}
+function firstName(n){return String(n||'').trim().split(/\s+/)[0]||'—';}
+
+var W=0,H=0,DPR=Math.max(1,window.devicePixelRatio||1),ctx=cv.getContext('2d');
+function resize(){W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',resize);
+
+var nodes=[],clusters={},topOverall=null,topByArq={};
+function buildLayout(members){
+  var cx=innerWidth/2,cy=innerHeight/2,R=Math.min(innerWidth,innerHeight)*0.27;
+  ARQS.forEach(function(a,i){ var ang=(-90+i*(360/ARQS.length))*Math.PI/180; clusters[a]={x:cx+Math.cos(ang)*R,y:cy+Math.sin(ang)*R,angle:ang}; });
+  var maxXp=1; members.forEach(function(m){ if(m.xp>maxXp)maxXp=m.xp; });
+  topOverall=members.reduce(function(a,b){return (!a||b.xp>a.xp)?b:a;},null);
+  ARQS.forEach(function(a){ var of=members.filter(function(m){return m.archetype===a;}); topByArq[a]=of.reduce(function(x,y){return (!x||y.xp>x.xp)?y:x;},null); });
+  var perArq={}; ARQS.forEach(function(a){perArq[a]=members.filter(function(m){return m.archetype===a;});});
+  nodes=members.map(function(m){
+    var cl=clusters[m.archetype]; var sib=perArq[m.archetype]; var pos=sib.indexOf(m);
+    var spread=(pos-(sib.length-1)/2)*0.55; var h=hash(m.userId||m.email||m.name);
+    var baseA=cl.angle+spread+((h%100)/100-0.5)*0.22;
+    var baseR=58+((h>>3)%20);
+    var size=11+Math.round((m.xp/maxXp)*15);
+    return {m:m,arq:m.archetype,angle:baseA,baseR:baseR,r:baseR,size:size,phase:Math.random()*Math.PI*2,cx:cl.x,cy:cl.y,
+      x:cl.x+Math.cos(baseA)*baseR,y:cl.y+Math.sin(baseA)*baseR,
+      isTop:m===topOverall,isArqTop:m===topByArq[m.archetype]};
+  });
+}
+
+var mouseX=-999,mouseY=-999;
+function pick(x,y){ var best=null,bestD=1e9; nodes.forEach(function(n){ var tol=30+n.size; var dx=x-n.x,dy=y-n.y,d=dx*dx+dy*dy; if(d<tol*tol&&d<bestD){best=n;bestD=d;} }); return best; }
+cv.addEventListener('mousemove',function(e){ mouseX=e.clientX; mouseY=e.clientY; });
+cv.addEventListener('mouseleave',function(){ mouseX=mouseY=-999; card.classList.remove('on'); });
+function updateHover(){
+  var hit=pick(mouseX,mouseY);
+  if(hit){ var a=ARQ[hit.arq]; card.classList.add('on'); card.style.left=hit.x+'px'; card.style.top=(hit.y-hit.size-6)+'px';
+    card.innerHTML='<span class="rt" style="color:'+a.c1+'">'+esc(a.label)+(hit.isTop?' · Top del equipo':(hit.isArqTop?' · Top de su color':''))+'</span><b>'+esc(hit.m.name)+'</b><small>'+hit.m.xp+' XP · '+hit.m.contrib+' aportaciones · '+Math.round(hit.m.applied)+' aplicaciones'+(hit.m.learned?' · '+hit.m.learned+' conceptos que sus tutores han aprendido de la persona':'')+'</small>';
+  } else card.classList.remove('on');
+}
+
+function jitterCurve(x1,y1,x2,y2,seed){ var mx=(x1+x2)/2,my=(y1+y2)/2; var dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1; var nx=-dy/len,ny=dx/len; var amt=((seed%17)-8)*2.1; return {mx:mx+nx*amt,my:my+ny*amt}; }
+function drawSketchLine(x1,y1,x2,y2,seed,color,alpha,width){
+  ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash([5,7]); ctx.lineCap='round';
+  var j=jitterCurve(x1,y1,x2,y2,seed); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.quadraticCurveTo(j.mx,j.my,x2,y2); ctx.stroke(); ctx.restore();
+}
+function drawStar(cx,cy,r,color){ ctx.save(); ctx.fillStyle=color; ctx.beginPath();
+  for(var i=0;i<5;i++){ var a1=-Math.PI/2+i*2*Math.PI/5, a2=a1+Math.PI/5;
+    ctx.lineTo(cx+Math.cos(a1)*r,cy+Math.sin(a1)*r); ctx.lineTo(cx+Math.cos(a2)*r*0.42,cy+Math.sin(a2)*r*0.42); }
+  ctx.closePath(); ctx.fill(); ctx.restore(); }
+var panelTok=getComputedStyle(document.documentElement).getPropertyValue('--panel')||'#221f2a';
+
+function frame(t){
+  ctx.clearRect(0,0,innerWidth,innerHeight);
+  for(var i=0;i<ARQS.length;i++){ for(var j=i+1;j<ARQS.length;j++){
+    var a=clusters[ARQS[i]],b=clusters[ARQS[j]]; drawSketchLine(a.x,a.y,b.x,b.y,i*7+j,'rgba(150,140,170,.2)',1,1.1);
+  }}
+  nodes.forEach(function(n){ var breathe=Math.sin(t/900+n.phase)*2.5; n.x=n.cx+Math.cos(n.angle)*(n.r+breathe); n.y=n.cy+Math.sin(n.angle)*(n.r+breathe); });
+  updateHover();
+  ARQS.forEach(function(arq){ var sib=nodes.filter(function(n){return n.arq===arq;});
+    for(var i=0;i<sib.length;i++){ drawSketchLine(clusters[arq].x,clusters[arq].y,sib[i].x,sib[i].y,i*13+1,ARQ[arq].c1,0.16,1.2); }
+  });
+  nodes.forEach(function(n){
+    ctx.beginPath(); ctx.arc(n.x,n.y,n.size,0,Math.PI*2); ctx.fillStyle=ARQ[n.arq].c1; ctx.globalAlpha=0.18; ctx.fill();
+    ctx.globalAlpha=1; ctx.beginPath(); ctx.arc(n.x,n.y,n.size*0.55,0,Math.PI*2); ctx.fillStyle=ARQ[n.arq].c1; ctx.fill();
+    ctx.strokeStyle=panelTok.trim()||'#221f2a'; ctx.lineWidth=2; ctx.stroke();
+    // Etiqueta manuscrita con el nombre — Marc: "etiquetas en handwriting"
+    ctx.font='16px Caveat, cursive'; ctx.fillStyle=ARQ[n.arq].c2; ctx.textAlign='center';
+    ctx.fillText(firstName(n.m.name), n.x, n.y+n.size+18);
+    // Símbolo de "lo mejor para un profesional": corona en el top del equipo, estrella en el top de su color.
+    if(n.isTop){ drawStar(n.x,n.y-n.size-11,7,'#FFD700'); }
+    else if(n.isArqTop){ drawStar(n.x,n.y-n.size-9,5,ARQ[n.arq].c1); }
+  });
+  requestAnimationFrame(frame);
+}
+
+SkillUp.session().then(function(s){
+  if(!s||!s.user){ location.href='/app/login.html'; return; }
+  return SkillUp.api('/api/org/workforce').then(function(d){
+    var members=(d&&d.members)||[];
+    if(!members.length){ loader.textContent='Aún no hay actividad de equipo que mostrar.'; return; }
+    resize(); buildLayout(members);
+    legend.innerHTML=ARQS.map(function(a){return '<span><b style="background:'+ARQ[a].c1+'"></b>'+esc(ARQ[a].label)+'</span>';}).join('');
+    var a11yLst=document.getElementById('a11yLst');
+    a11yLst.innerHTML=members.slice().sort(function(x,y){return y.xp-x.xp;}).map(function(m){ return '<div class="row"><b>'+esc(m.name)+'</b> · '+esc(ARQ[m.archetype].label)+' · '+m.xp+' XP</div>'; }).join('');
+    document.getElementById('a11yList').hidden=false;
+    loader.hidden=true; top.hidden=false; legend.hidden=false; stage.hidden=false;
+    requestAnimationFrame(frame);
+  });
+}).catch(function(e){
+  loader.textContent=(e&&e.status===403)?'Esta vista es solo para responsables del equipo.':'No se pudo cargar. Recarga la página.';
+});
+})();
+</script>
+<script src="/app/boo-eyes.js?v=20260915k"></script>
+<script src="/app/breadcrumbs.js" defer></script>
+<script src="/app/gestures.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Inicio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{color-scheme:dark;
+  --bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--pink:#EC6FA6;--green:#54C79A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.03);--herog:linear-gradient(160deg,rgba(138,95,124,.16),rgba(26,154,160,.08));
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;
+  --bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#443E4E;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--pink:#C24E86;--green:#2E9E73;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);--herog:linear-gradient(160deg,rgba(138,95,124,.1),rgba(26,154,160,.07));}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);overflow:hidden;background:var(--bg)}
+button{font-family:inherit}[hidden]{display:none!important}
+.app{display:flex;height:100dvh;position:relative}
+.rail{display:none;flex:none;width:82px;flex-direction:column;align-items:center;gap:4px;padding:14px 0;border-right:1px solid var(--line);background:rgba(255,255,255,.02)}
+.rail .rlogo{width:40px;height:24px;margin-bottom:8px}
+.rail a,.rail button{width:60px;height:58px;border:0;background:none;border-radius:14px;color:var(--muted);cursor:pointer;display:grid;place-items:center;gap:2px;position:relative;text-decoration:none;transition:.15s}
+.rail a svg,.rail button svg{width:20px;height:20px}.rail a small,.rail button small{font-size:8.5px}
+.rail a:hover,.rail button:hover{color:var(--body);background:rgba(255,255,255,.04)}
+.rail .on{color:var(--ink);background:linear-gradient(160deg,rgba(138,95,124,.5),rgba(26,154,160,.26))}
+.rail .on::before{content:"";position:absolute;left:-1px;top:12px;bottom:12px;width:3px;border-radius:3px;background:linear-gradient(var(--teal2),var(--aub2))}
+.rail .gated{opacity:.5}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.top{display:flex;align-items:center;gap:12px;padding:16px 22px 12px}
+.top .hi{flex:1;min-width:0}
+.top .hi h1{font-family:var(--fh);font-weight:800;color:var(--ink);font-size:clamp(20px,3vw,28px);margin:0;letter-spacing:-.01em;line-height:1.1}
+.top .hi p{margin:3px 0 0;font-size:13px;color:var(--muted)}
+.top .who{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 6px;background:var(--soft);cursor:pointer}
+.top .who .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(120deg,var(--teal),var(--aub));display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}
+.top .who span{font-size:12.5px;color:var(--body)}
+.content{flex:1;overflow-y:auto;padding:6px 22px 26px}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;padding:5px 11px;border-radius:999px;background:rgba(63,216,224,.14);color:var(--teal2);margin-bottom:12px}
+.pill i{width:6px;height:6px;border-radius:50%;background:var(--teal2)}
+.hero{border:1px solid var(--line);border-radius:20px;padding:22px 24px;background:var(--herog);box-shadow:var(--sh);margin-bottom:18px}
+.herotop{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.herotxt{flex:1;min-width:220px}
+.rankcard{flex:none;width:min(230px,100%);display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--soft)}
+.rankav{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center}
+.rankav svg{width:34px;height:20px}
+.rankinfo{flex:1;min-width:0}
+.rankname{display:flex;align-items:center;gap:6px;color:var(--ink);font-family:var(--fh);font-weight:700;font-size:15px;margin-bottom:5px}
+.rankq{width:17px;height:17px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--muted);font-size:10.5px;font-weight:800;cursor:pointer;display:grid;place-items:center;line-height:1}
+.rankq:hover{border-color:var(--aub2);color:var(--ink)}
+.rankbar{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-bottom:5px}
+.rankfill{height:100%;border-radius:6px}
+.ranklbl{font-size:11px;color:var(--muted)}
+.hero h2{font-family:var(--fh);color:var(--ink);font-size:clamp(20px,2.6vw,26px);margin:0 0 6px;letter-spacing:-.01em}
+.hero p{margin:0 0 14px;font-size:14.5px;line-height:1.55;color:var(--body);max-width:60ch}
+.hero .fc{font-family:var(--fc);color:var(--teal2)}
+.btn{border:0;border-radius:12px;padding:11px 18px;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:inline-block}
+.sec-t{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:6px 0 12px}
+.excard{border:1px solid var(--line);border-radius:18px;padding:18px 20px 20px;background:var(--panel);box-shadow:var(--sh);margin-bottom:18px}
+.excard .fc{font-family:var(--fc);color:var(--teal2);font-size:clamp(22px,3vw,27px);font-weight:700;display:block;margin-bottom:12px}
+.excard video{width:100%;border-radius:12px;background:#000;display:block}
+.excard .excap{margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+/* fila: empresa de un vistazo + hoja de ruta de niveles, lado a lado en pantallas anchas */
+.bizrow{display:flex;gap:16px;align-items:flex-start}
+.bizrow .biz{flex:1 1 58%;margin-bottom:0}
+.roadmap{flex:1 1 300px;max-width:330px;border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:var(--panel);box-shadow:var(--sh)}
+.roadmap .rm-t{font-family:var(--fc);color:var(--teal2);font-size:clamp(20px,2.6vw,24px);font-weight:700;display:block;margin-bottom:2px}
+.roadmap .rm-sub{font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.rm-track{display:flex;flex-direction:column}
+.rm-step{display:flex;gap:12px;position:relative;padding-bottom:4px}
+.rm-step:not(:last-child)::before{content:"";position:absolute;left:19px;top:40px;width:0;height:calc(100% - 28px);border-left:2px dashed var(--line)}
+.rm-dot{flex:none;width:40px;height:40px;border-radius:50%;background:var(--soft);border:2px dashed var(--line);display:grid;place-items:center;font-family:var(--fh);font-weight:800;font-size:14px;color:var(--muted);z-index:1}
+.rm-step.done .rm-dot{background:linear-gradient(140deg,var(--teal),var(--aub));border:2px solid transparent;color:#fff}
+.rm-body{padding:2px 0 18px}
+.rm-step:last-child .rm-body{padding-bottom:0}
+.rm-body .rt{font-family:var(--fc);color:var(--ink);font-size:19px;font-weight:700;line-height:1.1;display:block}
+.rm-body small{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;display:block;margin-top:2px}
+.rm-step.done .rm-body small{color:var(--teal2)}
+@media(max-width:900px){.bizrow{flex-direction:column}.roadmap{max-width:none;width:100%}}
+.usagebox{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:var(--panel);margin-bottom:18px}
+.usagebox .uh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.usagebox .uh b{color:var(--ink);font-size:14px}.usagebox .uh span{color:var(--muted);font-size:12px}
+.usagebox .ug{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.usagebox .uc{background:var(--soft);border-radius:12px;padding:10px 12px}
+.usagebox .uc b{display:block;color:var(--teal2);font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.15}
+.usagebox .uc small{color:var(--muted);font-size:11.5px}
+.usagebox .uc.wide b{font-size:14px;color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.cc{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--panel);cursor:pointer;transition:.15s;text-decoration:none;display:flex;flex-direction:column;gap:6px}
+.cc:hover{transform:translateY(-2px);border-color:var(--aub2)}
+.cc .rt{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--aub2)}
+.cc b{color:var(--ink);font-size:16px;font-family:var(--fh);font-weight:700;letter-spacing:-.01em}
+.cc small{color:var(--muted);font-size:12.5px;line-height:1.4}
+.cc .go{margin-top:auto;color:var(--teal2);font-size:12.5px;font-weight:700}
+/* panel "tu empresa de un vistazo" (datos reales del onboarding) */
+.biz{border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:var(--panel);margin-bottom:18px}
+.biz .bt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.biz .bt b{font-family:var(--fh);color:var(--ink);font-size:17px;letter-spacing:-.01em}
+.biz .bt small{color:var(--muted);font-size:11.5px}
+.biz .sum{font-size:14px;line-height:1.55;color:var(--body);margin:0 0 6px;max-width:70ch}
+.biz .src{font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.biz .src a{color:var(--teal2);text-decoration:none}
+.biz .row2{margin:2px 0 10px}
+.biz .lbl{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--aub2);margin-bottom:2px}
+.biz .val{color:var(--body);font-size:13.5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.biz .facts{display:flex;flex-wrap:wrap;gap:8px}
+.biz .fact{border:1px solid var(--line);border-radius:11px;padding:7px 12px;background:var(--soft)}
+.biz .fact i{display:block;font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--aub2);margin-bottom:2px;font-style:normal}
+.biz .fact b{color:var(--ink);font-weight:600;font-size:13px}
+.biz .foot{margin-top:12px;font-size:12.5px;color:var(--muted);line-height:1.5}
+.biz .foot a{color:var(--teal2);text-decoration:none;font-weight:700}
+/* actividad real dentro del perfil */
+.acthd{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px}
+.actbox{display:flex;flex-direction:column;gap:10px}
+.actmut{color:var(--muted);font-size:13px;line-height:1.5}
+.actrow{display:flex;align-items:center;gap:16px}
+.actring{width:76px;height:76px;flex:none}
+.actstats{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.aststat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--body)}
+.aststat b{color:var(--ink);font-family:var(--fh);font-size:16px;min-width:20px}
+.aststat.applygood{color:var(--green)}.aststat.applygood b{color:var(--green)}
+.aic{width:16px;height:16px;flex:none;color:var(--aub2)}
+.applygood .aic{color:var(--green)}
+.coursebars{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.cbar{display:block;text-decoration:none;border:1px solid var(--line);border-radius:11px;padding:9px 12px;background:var(--soft);transition:.15s}
+.cbar:hover{border-color:var(--aub2);transform:translateY(-1px)}
+.cbtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:8px}
+.cbname{color:var(--ink);font-size:13px;font-weight:700}
+.cbcount{color:var(--teal2);font-size:12px;font-weight:800;flex:none}
+.cbtrack{height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.cbfill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--aub))}
+/* overlay panels (perfil / ajustes) */
+.ov{position:absolute;inset:0;z-index:30;background:rgba(8,5,12,.72);backdrop-filter:blur(4px);display:none}
+.ov.open{display:block}
+.ov-in{position:absolute;right:0;top:0;bottom:0;width:min(420px,92vw);background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column}
+.ov-hd{display:flex;align-items:center;gap:8px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.ov-hd b{flex:1;color:var(--ink);font-size:15px}.ov-hd .x{border:0;background:none;color:var(--muted);font-size:24px;cursor:pointer}
+.ov-body{flex:1;overflow-y:auto;padding:18px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.kv:first-child{border-top:0}.kv b{color:var(--ink)}
+.ov-note{font-size:13px;color:var(--muted);line-height:1.5;margin-top:14px}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-top:1px solid var(--line)}
+.set-row:first-child{border-top:0}.set-row b{color:var(--ink);font-size:14px;display:block}.set-row small{color:var(--muted);font-size:12px}
+.themeseg{display:inline-flex;gap:4px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:3px;flex:none}
+.themeseg button{border:0;background:none;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer}
+.themeseg button.on{background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff}
+.logout{margin-top:18px;width:100%;border:1px solid rgba(224,121,140,.4);background:rgba(224,121,140,.1);color:#E88;border-radius:12px;padding:12px;font:inherit;font-weight:700;cursor:pointer}
+/* tabbar móvil */
+.tabbar{display:flex;border-top:1px solid var(--line);background:rgba(26,24,32,.9);padding-bottom:env(safe-area-inset-bottom)}
+.tabbar a,.tabbar button{flex:1;border:0;background:none;color:var(--muted);cursor:pointer;padding:9px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;text-decoration:none}
+.tabbar svg{width:20px;height:20px}.tabbar .on{color:var(--teal2)}
+/* boot */
+.boot{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:26px;text-align:center;
+  background:radial-gradient(700px 420px at 50% 34%,rgba(113,75,103,.28),transparent 60%),var(--bg)}
+.boot-mark{display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:900;color:var(--ink);font-size:clamp(34px,7vw,46px);letter-spacing:-.02em}
+.boot-mark svg{width:clamp(64px,14vw,88px);height:auto;margin:0 -2px}
+.boot-mark .booiris{animation:bootblink 3.2s infinite}@keyframes bootblink{0%,92%,100%{opacity:1}95%{opacity:.15}97%{opacity:1}}
+.boot-sub{font-family:var(--fc);font-size:19px;color:var(--teal2);margin-top:-8px}
+.boot-bar{width:min(300px,72vw);height:7px;border-radius:7px;background:rgba(255,255,255,.09);overflow:hidden}
+.boot-bar span{display:block;height:100%;width:8%;border-radius:7px;background:linear-gradient(90deg,var(--teal2),var(--aub2),var(--gold));transition:width .45s}
+.boot-status{font-size:13px;color:var(--muted);min-height:18px}
+.boot-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:none}
+@media(min-width:760px){.rail{display:flex}.tabbar{display:none}}
+@media(prefers-reduced-motion:reduce){.boot-mark .booiris{animation:none}}
+</style>
+</head>
+<body>
+<div class="boot" id="boot">
+  <div class="boot-mark">Brand<svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="3"/><circle class="booiris" cx="20" cy="36" r="7.5" fill="#C69CB8"/><circle cx="20" cy="36" r="3.4" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="3"/><circle class="booiris" cx="20" cy="36" r="7.5" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.4" fill="#0a0a0f"/></g></svg>ers</div>
+  <div class="boot-sub">SkillUp</div>
+  <div class="boot-bar"><span id="bootFill"></span></div>
+  <div class="boot-status" id="bootStatus">Comprobando tu sesión…</div>
+  <a class="boot-btn" id="bootBtn" href="/app/login.html">Iniciar sesión</a>
+</div>
+<div class="app" id="app" hidden></div>
+
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+(function(){
+"use strict";
+// tema (oscuro por defecto / claro tipo papel), recordado y compartido en toda la app
+function curTheme(){ try{ return localStorage.getItem('skillup-theme')==='light'?'light':'dark'; }catch(e){ return 'dark'; } }
+function applyTheme(t){ if(t==='light') document.documentElement.setAttribute('data-theme','light'); else document.documentElement.removeAttribute('data-theme'); try{ localStorage.setItem('skillup-theme',t); }catch(e){} }
+applyTheme(curTheme());
+var boot=document.getElementById('boot'),bootFill=document.getElementById('bootFill'),bootStatus=document.getElementById('bootStatus'),bootBtn=document.getElementById('bootBtn');
+function setBoot(m,p){if(bootStatus)bootStatus.textContent=m;if(bootFill&&p!=null)bootFill.style.width=p+'%';}
+if(!window.SkillUp||!SkillUp.api){setBoot('No se pudo cargar. Vuelve a entrar.',100);return;}
+var app=document.getElementById('app');
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function ico(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
+function eyes(){return '<g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="3"/><circle cx="20" cy="36" r="7" fill="#C69CB8"/><circle cx="20" cy="36" r="3.2" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="3"/><circle cx="20" cy="36" r="7" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.2" fill="#0a0a0f"/></g>';}
+
+var COURSES=[
+ {name:'Guía del Coach',src:'/index.html',desc:'Acompañar a quien llega en sus primeros meses.',rt:'Ruta A'},
+ {name:'Prospección con IA',src:'/prospeccion-social-selling.html',desc:'Encontrar y abrir con criterio.',rt:'Ruta A'},
+ {name:'Outbound Sales',src:'/outbound-sales.html',desc:'Vender en frío sin sonar a vendedor.',rt:'Ruta B'},
+ {name:'Reclutamiento de Partners',src:'/reclutamiento-partners.html',desc:'Captar partners de 0 a 100.',rt:'Ruta B'},
+ {name:'Marketing para Partners',src:'/marketing-partners.html',desc:'Generar demanda B2B.',rt:'Ruta C'},
+ {name:'Negociación',src:'/negociacion-partner-manager.html',desc:'Cerrar sin perder margen.',rt:'Ruta D'},
+ {name:'Objeciones',src:'/objeciones-partner-manager.html',desc:'Manejar el no y darle la vuelta.',rt:'Ruta D'}
+];
+var NAV=[['Inicio','on',ico('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>')],
+ ['Mi ruta','',ico('<circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 6h6a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/>')],
+ ['Explorar','',ico('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>')],
+ ['Vídeos','',ico('<polygon points="5 3 19 12 5 21 5 3"/>')],
+ ['Ranking','',ico('<path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>')]];
+
+var ME={name:'',email:'',role:'',platformAdmin:false,approved:true};
+var ONB={};
+var RUTA=null;                    // ruta de aprendizaje del usuario (Onboarding-2); si existe, solo se muestran sus modulos
+var ENROLL=[];                    // inscripciones en competencias del catalogo (P16: demuestra y salta)
+var RETOS=[];                     // retos que le ha puesto su responsable (roleplays/casos dirigidos)
+var FORCE_APP=/[?&]app=1/.test(location.search); // el superadmin entra a ver la FORMACIÓN sin rebotar a la consola
+var ALLNOTES=null;               // notas del usuario cacheadas en el arranque (evita doble fetch)
+var LAST={src:'',name:''};       // ultimo curso realmente tocado, para "seguir por donde lo dejaste"
+// Un "curso de verdad" es una página de curso (/algo.html) o una del catálogo; nunca fuentes internas
+// como 'cuenta', 'reto', 'onboarding' o 'ruta' (por eso salía "Seguir con cuenta" y su enlace fallaba).
+function isCourseSrc(s){ s=String(s||''); if(!s) return false; for(var i=0;i<COURSES.length;i++){ if(COURSES[i].src===s) return true; } return /^\/[\w-]+\.html$/.test(s); }
+function computeLast(){ for(var i=0;i<(ALLNOTES||[]).length;i++){ var it=ALLNOTES[i]; if(it&&isCourseSrc(it.source)){ LAST.src=it.source; LAST.name=courseName(it.source); break; } } }
+// CTA del héroe: continúa el último curso real, o empieza el primero de tu ruta, o crea tu ruta.
+function heroHref(){ if(LAST.src) return '/app/curso.html?src='+encodeURIComponent(LAST.src); var f=firstRutaSrc(); if(f) return '/app/curso.html?src='+encodeURIComponent(f); return '/app/ruta-crear.html'; }
+function heroLabel(){ if(LAST.name) return 'Continúa: '+LAST.name; if(firstRutaSrc()) return 'Empieza tu aprendizaje'; return 'Crea tu ruta'; }
+
+// Parsea los insights de onboarding (formato "[clave] valor") a datos reales. Nada inventado.
+function parseOnb(items){
+  var o={rol:'',objetivo:'',nivel:'',estilo:'',empresaUrl:'',empresaSummary:''};
+  (items||[]).forEach(function(it){
+    var b=String(it&&it.body||'').trim();
+    var m=b.match(/^\[([^\]]+)\]\s*([\s\S]*)$/); if(!m) return;
+    var tag=m[1].trim(), val=m[2].trim();
+    var em=tag.match(/^Empresa\s+(.+)$/i);
+    if(em){ o.empresaUrl=em[1].trim(); o.empresaSummary=val; return; }
+    var k=tag.toLowerCase();
+    if(k==='empresa'){ if(val) o.empresaUrl=val; return; }
+    if(k in o && val) o[k]=val;
+  });
+  return o;
+}
+function bizPanel(o){
+  var rows=[]; if(o.rol) rows.push(['Tu rol',o.rol]); if(o.objetivo) rows.push(['Tu objetivo',o.objetivo]);
+  var chips=[]; if(o.nivel) chips.push(['Nivel',o.nivel]); if(o.estilo) chips.push(['Aprendes',o.estilo]);
+  if(!o.empresaSummary && !rows.length && !chips.length) return '';
+  var dom='',href='';
+  if(o.empresaUrl){ href=/^https?:\/\//.test(o.empresaUrl)?o.empresaUrl:'https://'+o.empresaUrl; dom=href.replace(/^https?:\/\//,'').replace(/\/.*$/,''); }
+  return '<div class="biz"><div class="bt"><b>Tu empresa de un vistazo</b><small>lo que preparamos para tus tutores</small></div>'
+    +(o.empresaSummary?'<p class="sum">'+esc(o.empresaSummary)+'</p>':'')
+    +(dom?'<div class="src">Leído de <a href="'+esc(href)+'" target="_blank" rel="noopener">'+esc(dom)+'</a></div>':'')
+    +rows.map(function(r){return '<div class="row2"><div class="lbl">'+esc(r[0])+'</div><div class="val">'+esc(r[1])+'</div></div>';}).join('')
+    +(chips.length?'<div class="facts">'+chips.map(function(f){return '<div class="fact"><i>'+esc(f[0])+'</i><b>'+esc(f[1])+'</b></div>';}).join('')+'</div>':'')
+    +'<div class="foot">Tus tutores ya lo tienen presente y te hablarán con ejemplos de lo tuyo. <a href="/app/bienvenida.html">Actualizar</a> · <a href="/app/team-dna.html">Tu ADN de aprendizaje</a></div></div>';
+}
+// Hoja de ruta real de formatos de contenido: solo marcamos "activo" lo que ya funciona hoy.
+var RM=[
+ {t:'Texto',d:true},
+ {t:'+ Recursos',d:false},
+ {t:'Tools',d:true},
+ {t:'Diagramas',d:true},
+ {t:'Podcasts',d:false},
+ {t:'Presentaciones',d:false},
+ {t:'Vídeos',d:false},
+ {t:'Tu avatar',d:false}
+];
+function roadmap(){
+  return '<div class="roadmap"><span class="rm-t">Cómo evoluciona el contenido</span><p class="rm-sub">De leer a escuchar, ver y crear con tu propio avatar. Vas desbloqueando niveles según usas la plataforma.</p>'
+    +'<div class="rm-track">'+RM.map(function(s,i){
+      return '<div class="rm-step'+(s.d?' done':'')+'"><div class="rm-dot">'+(i+1)+'</div><div class="rm-body"><span class="rt">'+esc(s.t)+'</span><small>'+(s.d?'Activo ya':'Próximamente')+'</small></div></div>';
+    }).join('')+'</div></div>';
+}
+// Onboarding-2: si el usuario tiene ruta, mostramos SOLO sus modulos (no el catalogo completo).
+// Sin ruta, un CTA claro para crearla. "no muestres otros cursos aunque esten en la base de datos".
+function coursesSection(){
+  if(RUTA && RUTA.modulos && RUTA.modulos.length){
+    var mods=RUTA.modulos.map(function(m,i){
+      var inner='<span class="rt">Módulo '+(i+1)+'</span><b>'+esc(m.titulo)+'</b><small>'+esc(m.resumen||'')+'</small>';
+      if(m.courseSrc){ return '<a class="cc" href="/app/curso.html?src='+encodeURIComponent(m.courseSrc)+'">'+inner+'<span class="go">Entrar ›</span></a>'; }
+      return '<div class="cc" style="opacity:.72;cursor:default">'+inner+'<span class="go" style="color:var(--gold)">En preparación</span></div>';
+    }).join('');
+    return '<div class="sec-t">'+esc(RUTA.titulo||'Tu ruta de aprendizaje')+' <a href="/app/ruta-crear.html" style="font:inherit;font-size:12px;color:var(--muted);text-decoration:none">· Rehacer</a></div><div class="grid">'+mods+'</div>';
+  }
+  return '<div class="sec-t">Tu ruta de aprendizaje</div>'
+    +'<div style="background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;margin-top:8px">'
+    +'<b style="color:var(--ink);font-size:16px;display:block;margin-bottom:6px">Aún no has creado tu ruta.</b>'
+    +'<p style="color:var(--muted);font-size:13.5px;margin:0 0 14px">Dime qué quieres dominar, tu objetivo y tu compromiso. Tus agentes te preparan los cursos a medida y solo verás lo tuyo.</p>'
+    +'<a href="/app/ruta-crear.html" style="border:0;border-radius:12px;padding:12px 22px;font-weight:800;font-size:14px;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:inline-block">Crea tu ruta de aprendizaje</a></div>';
+}
+function firstRutaSrc(){ if(RUTA&&RUTA.modulos){ for(var i=0;i<RUTA.modulos.length;i++){ if(RUTA.modulos[i].courseSrc) return RUTA.modulos[i].courseSrc; } } return ''; }
+// Retos que le ha puesto su responsable: roleplays/casos dirigidos con instrucciones al tutor.
+function approvalBanner(){ if(ME.approved!==false) return ''; return '<div style="background:linear-gradient(90deg,rgba(240,198,69,.14),transparent);border:1px solid rgba(240,198,69,.45);border-radius:14px;padding:14px 16px;margin-bottom:14px;color:var(--ink,#F2EFF5);font-size:14px;line-height:1.5"><b>Tu cuenta está pendiente de aprobación.</b> Puedes preparar tu ruta y conocer la plataforma; los cursos se abrirán en cuanto el administrador te dé el visto bueno.</div>'; }
+function retosSection(){
+  if(!RETOS||!RETOS.length) return '';
+  var pend=RETOS.filter(function(r){return r&&r.estado!=='hecho';}).length;
+  var items=RETOS.slice().sort(function(a,b){return (a.estado==='hecho'?1:0)-(b.estado==='hecho'?1:0);}).map(function(r){
+    var done=r.estado==='hecho', tag=r.tipo==='caso'?'Caso práctico':'Roleplay';
+    return '<a class="cc" href="/app/reto.html?id='+encodeURIComponent(r.id)+'"'+(done?' style="opacity:.6"':'')+'><span class="rt">'+esc(tag)+(r.dificultad?' · '+esc(r.dificultad):'')+'</span><b>'+esc(r.titulo||'Reto')+'</b><small>'+esc('De '+(r.by||'tu responsable'))+(r.tema?' · '+esc(r.tema):'')+'</small><span class="go" style="color:'+(done?'var(--muted,#968EA4)':'#F0C645')+'">'+(done?'Hecho ✓':'Empezar ›')+'</span></a>';
+  }).join('');
+  return '<div class="sec-t">Retos de tu responsable'+(pend?' <span style="font:inherit;font-size:12px;color:#F0C645">· '+pend+' pendiente'+(pend>1?'s':'')+'</span>':'')+'</div><div class="grid">'+items+'</div>';
+}
+// P16 "demuéstralo y salta": si el alumno está inscrito en competencias del catálogo y aún a nivel 0,
+// puede probar un test rápido; si lo supera, sube a Nivel 1 y se salta la formación básica de esa competencia.
+// Solo aparece con competencias reales del catálogo (honesto: no se puede testear lo que no existe).
+function skippable(){ return (ENROLL||[]).filter(function(e){ return e && e.competencyId && e.competencyName && (e.level||0)<1 && e.status!=='test_ok'; }); }
+function skipSection(){
+  var xs=skippable(); if(!xs.length) return '';
+  var items=xs.map(function(e){
+    return '<div class="cc" style="cursor:default"><span class="rt">Ya lo dominas</span><b>'+esc(e.competencyName)+'</b><small>Haz un test rápido y, si lo superas, saltas directo a Nivel 1.</small>'
+      +'<button class="go" data-skip="'+esc(e.competencyId)+'" data-path="'+esc(e.pathId)+'" data-name="'+esc(e.competencyName)+'" style="border:0;background:none;color:#F0C645;font:inherit;font-weight:800;cursor:pointer;padding:0;text-align:left">Demuéstralo ›</button></div>';
+  }).join('');
+  return '<div class="sec-t">¿Ya lo dominas? Sáltatelo</div><div class="grid">'+items+'</div>';
+}
+function openSkipTest(compId,pathId,name){
+  var ov=document.getElementById('ovSkip'); if(!ov) return;
+  ov.querySelector('[data-skip-title]').textContent='Demuestra: '+name;
+  var body=ov.querySelector('[data-skip-body]'); body.innerHTML='<div class="ov-note">Generando tu test…</div>';
+  var foot=ov.querySelector('[data-skip-foot]'); foot.innerHTML='';
+  ov.classList.add('open');
+  var examId=null, qs=[];
+  SkillUp.api('/api/learning/test/generate',{method:'POST',body:{competencyId:compId}}).then(function(r){
+    examId=r.examId; qs=r.questions||[];
+    body.innerHTML=qs.map(function(q,qi){
+      return '<div style="margin-bottom:14px"><b style="font-size:13.5px;display:block;margin-bottom:6px">'+(qi+1)+'. '+esc(q.q)+'</b>'
+        +q.options.map(function(o,oi){ return '<label style="display:block;padding:7px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:5px;cursor:pointer;font-size:13.5px"><input type="radio" name="sq'+qi+'" value="'+oi+'" style="margin-right:8px">'+esc(o)+'</label>'; }).join('')+'</div>';
+    }).join('');
+    foot.innerHTML='<button id="skipSubmit" style="border:0;border-radius:10px;padding:11px 20px;font:inherit;font-weight:800;font-size:14px;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));cursor:pointer">Corregir y ver si salto</button><div id="skipMsg" style="font-size:13.5px;margin-top:10px;min-height:16px"></div>';
+    document.getElementById('skipSubmit').onclick=function(){
+      var answers=qs.map(function(q,qi){ var s=document.querySelector('input[name="sq'+qi+'"]:checked'); return s?q.options[Number(s.value)]:''; });
+      var msg=document.getElementById('skipMsg'); msg.textContent='Corrigiendo…';
+      SkillUp.api('/api/learning/test/submit',{method:'POST',body:{examId:examId,pathId:pathId,competencyId:compId,answers:answers}}).then(function(r){
+        if(r.passed){ msg.innerHTML='<b style="color:#3DBE8B">¡'+r.score+'/100! Saltas a Nivel 1 en '+esc(name)+'.</b>';
+          ENROLL=ENROLL.map(function(e){ return (e.competencyId===compId)?Object.assign({},e,{level:Math.max(e.level||0,1),status:'test_ok'}):e; });
+          setTimeout(function(){ ov.classList.remove('open'); var host=document.getElementById('skipHost'); if(host) host.innerHTML=skipSection(); wireSkip(); },1600);
+        } else { msg.innerHTML='<b style="color:var(--gold,#F0C645)">'+r.score+'/100 — aún no. Repasa el curso y reinténtalo cuando quieras.</b>'; }
+      }).catch(function(ex){ msg.textContent=(ex&&ex.message)||'No se pudo corregir.'; });
+    };
+  }).catch(function(ex){ body.innerHTML='<div class="ov-note">'+esc((ex&&ex.message)||'No se pudo generar el test ahora.')+'</div>'; });
+}
+function wireSkip(){ document.querySelectorAll('[data-skip]').forEach(function(b){ b.onclick=function(){ openSkipTest(b.getAttribute('data-skip'),b.getAttribute('data-path'),b.getAttribute('data-name')); }; }); }
+function maybeRutaPopup(){
+  if(RUTA) return;
+  var ov=document.createElement('div'); ov.className='ov open'; ov.id='ovRuta';
+  ov.innerHTML='<div class="ov-in"><div class="ov-hd"><b>Crea tu ruta de aprendizaje</b><button class="x" data-close>×</button></div><div class="ov-body"><div class="ov-note">Cuéntanos qué quieres dominar, tu objetivo y tu compromiso. Tus agentes te preparan los cursos a medida y solo verás lo tuyo.</div><div style="text-align:center;margin-top:12px"><a href="/app/ruta-crear.html" style="border:0;border-radius:12px;padding:12px 22px;font-weight:800;font-size:14px;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:inline-block">Empezar</a></div></div></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('[data-close]').onclick=function(){ov.classList.remove('open');};
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('open');});
+}
+function profileFacts(o){
+  var out='';
+  if(o.objetivo) out+='<div class="kv"><span>Tu objetivo</span><b>'+esc(o.objetivo)+'</b></div>';
+  if(o.nivel) out+='<div class="kv"><span>Nivel</span><b>'+esc(o.nivel)+'</b></div>';
+  if(o.estilo) out+='<div class="kv"><span>Aprendes</span><b>'+esc(o.estilo)+'</b></div>';
+  return out;
+}
+function courseName(src){ for(var i=0;i<COURSES.length;i++){ if(COURSES[i].src===src) return COURSES[i].name; } return String(src||'').replace(/^\//,'').replace(/\.html$/,'').replace(/-/g,' '); }
+// Gamificación (Marc: "curva de aprendizaje, avatar, nivel, rookie -> pro"). XP = REAL, calculado de tu actividad
+// (nunca inventado): notas 1pt, aportaciones 2pt, aplicaciones 5pt (aplicar vale más que solo hablar).
+// Rangos con umbrales transparentes; el avatar reutiliza los ojos de marca, coloreados por rango.
+var RANKS=[
+ {name:'Rookie',min:0,c1:'#968EA4',c2:'#6b6478'},
+ {name:'Aprendiz',min:10,c1:'#3FD8E0',c2:'#1a9aa0'},
+ {name:'Practicante',min:30,c1:'#54C79A',c2:'#2f8a68'},
+ {name:'Especialista',min:60,c1:'#F0C645',c2:'#b8860b'},
+ {name:'Coach',min:100,c1:'#EC6FA6',c2:'#b0347a'},
+ {name:'Super Coach',min:150,c1:'#8a5f7c',c2:'#C69CB8'},
+ {name:'Pro',min:250,c1:'#FFD700',c2:'#8a5f7c'}
+];
+function computeXP(items){ var xp=0; (items||[]).forEach(function(it){ if(!it||it.source==='onboarding'||it.source==='ruta')return; xp+= it.kind==='insight'?(String(it.body||'').indexOf('[adopcion:aplicar]')===0?5:2):1; }); return xp; }
+function rankFor(xp){ var cur=RANKS[0]; for(var i=0;i<RANKS.length;i++){ if(xp>=RANKS[i].min) cur=RANKS[i]; } var next=RANKS[RANKS.indexOf(cur)+1]||null; return {cur:cur,next:next,xp:xp}; }
+function rankAvatar(r){ return '<svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="'+r.c1+'" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="'+r.c2+'"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="'+r.c2+'" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="'+r.c1+'"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>'; }
+function checkRankUp(name){ var prev=null; try{prev=localStorage.getItem('skillup-lastrank');}catch(e){} try{localStorage.setItem('skillup-lastrank',name);}catch(e){} return !!(prev&&prev!==name); }
+function rankBlock(items){
+  var xp=computeXP(items), R=rankFor(xp), cur=R.cur, next=R.next;
+  var pct=next?Math.round((xp-cur.min)/(next.min-cur.min)*100):100;
+  var up=checkRankUp(cur.name);
+  return '<div class="rankcard'+(up?' rankup':'')+'"><div class="rankav" style="background:linear-gradient(160deg,'+cur.c1+'22,'+cur.c2+'22)">'+rankAvatar(cur)+'</div>'
+    +'<div class="rankinfo"><div class="rankname">'+esc(cur.name)+'<button class="rankq" id="rankHelp" type="button" aria-label="Cómo funciona">?</button></div>'
+    +'<div class="rankbar"><div class="rankfill" style="width:'+pct+'%;background:linear-gradient(90deg,'+cur.c1+','+cur.c2+')"></div></div>'
+    +'<div class="ranklbl">'+(up?'¡Has subido de rango! · ':'')+xp+' XP'+(next?(' · '+(next.min-xp)+' para llegar a '+esc(next.name)):' · nivel máximo')+'</div>'
+    +'<a href="/app/ranking.html" style="display:inline-block;margin-top:7px;font-size:12px;font-weight:800;color:var(--teal2,#3FD8E0);text-decoration:none">Ver el pódium ›</a></div></div>';
+}
+// Recordatorios reales (Notification API del navegador; sin backend de push/email todavía — ver blueprint).
+// Apagado por defecto. Usa la fecha real de tu última actividad, nunca inventada.
+function notifPref(){ try{return localStorage.getItem('skillup-notif')||'off';}catch(e){return 'off';} }
+function lastActivityDate(items){ var max=0; (items||[]).forEach(function(it){ if(!it||it.source==='onboarding'||it.source==='ruta'||!it.createdAt)return; var t=Date.parse(it.createdAt); if(t>max)max=t; }); return max||null; }
+function maybeNudge(items){
+  var pref=notifPref(); if(pref==='off'||!('Notification' in window)||Notification.permission!=='granted')return;
+  var last=lastActivityDate(items); if(!last)return;
+  var days=(Date.now()-last)/86400000, threshold=pref==='daily'?1:6; if(days<threshold)return;
+  var lastNudge=0; try{lastNudge=+localStorage.getItem('skillup-lastnudge')||0;}catch(e){}
+  if(Date.now()-lastNudge<threshold*86400000*0.9)return;
+  try{ new Notification('Brandooers SkillUp',{body:'Llevas '+Math.floor(days)+' día'+(Math.floor(days)===1?'':'s')+' sin practicar. Retoma tu ruta y sigue subiendo de nivel.'}); localStorage.setItem('skillup-lastnudge',String(Date.now())); }catch(e){}
+}
+function aggAll(items){ var s={},ann=0,work=0,applied=0; (items||[]).forEach(function(it){ if(!it||it.source==='onboarding'||it.source==='ruta')return; if(it.source)s[it.source]=(s[it.source]||0)+1; var b=String(it.body||''); if(it.kind==='insight'){ if(b.indexOf('[adopcion:aplicar]')===0) applied++; work++; } else ann++; }); return {courseCounts:s,courses:Object.keys(s),ann:ann,work:work,applied:applied}; }
+var actLoaded=false;
+function aic(p){return '<svg class="aic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
+var AI_COURSE='<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>';
+var AI_NOTE='<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>';
+var AI_WORK='<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>';
+var AI_APPLY='<circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>';
+// Actividad real, VISUAL y CLICABLE (Marc: "accionables, muy gráficos"): anillo de tasa de aplicación
+// real (aplicado/aportado, nunca inventado) + barras por curso que llevan directamente a ese curso.
+function renderActivity(box,items){
+  var a=aggAll(items);
+  if(!a.courses.length && !a.ann && !a.work){ box.innerHTML='<div class="actmut">Aún no has empezado. Abre un curso y empieza a dejar tu huella.</div>'; return; }
+  var pct=a.work?Math.round(a.applied/a.work*100):0, circ=2*Math.PI*32, off=circ*(1-pct/100);
+  var ring=a.work?('<svg class="actring" viewBox="0 0 76 76" aria-label="'+pct+'% de tus aportaciones las vas a aplicar">'
+    +'<circle cx="38" cy="38" r="32" fill="none" style="stroke:var(--line)" stroke-width="7"/>'
+    +'<circle cx="38" cy="38" r="32" fill="none" style="stroke:url(#actgrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 38 38)"/>'
+    +'<defs><linearGradient id="actgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient></defs>'
+    +'<text x="38" y="35" text-anchor="middle" style="font-family:var(--fh);fill:var(--ink)" font-size="19" font-weight="700">'+pct+'%</text>'
+    +'<text x="38" y="49" text-anchor="middle" style="font-family:var(--ff);fill:var(--muted)" font-size="8">aplicas</text></svg>'):'';
+  var stats='<div class="actstats">'
+    +'<div class="aststat">'+aic(AI_COURSE)+'<b>'+a.courses.length+'</b> cursos abiertos</div>'
+    +'<div class="aststat">'+aic(AI_NOTE)+'<b>'+a.ann+'</b> notas y subrayados</div>'
+    +'<div class="aststat">'+aic(AI_WORK)+'<b>'+a.work+'</b> aportaciones</div>'
+    +(a.applied?'<div class="aststat applygood">'+aic(AI_APPLY)+'<b>'+a.applied+'</b> vas a aplicar</div>':'')+'</div>';
+  var max=0; a.courses.forEach(function(c){ if(a.courseCounts[c]>max)max=a.courseCounts[c]; });
+  var bars=a.courses.length?('<div class="coursebars">'+a.courses.map(function(c){ var n=a.courseCounts[c],w=max?Math.max(12,Math.round(n/max*100)):12;
+    return '<a class="cbar" href="/app/curso.html?src='+encodeURIComponent(c)+'"><div class="cbtop"><span class="cbname">'+esc(courseName(c))+'</span><span class="cbcount">'+n+'</span></div><div class="cbtrack"><div class="cbfill" style="width:'+w+'%"></div></div></a>';
+  }).join('')+'</div>'):'';
+  box.innerHTML='<div class="actrow">'+ring+stats+'</div>'+bars;
+}
+function loadActivity(){
+  if(actLoaded) return; actLoaded=true;
+  var box=document.getElementById('actBox'); if(!box) return;
+  if(ALLNOTES){ renderActivity(box,ALLNOTES); return; }
+  SkillUp.api('/api/notes/list').then(function(d){ renderActivity(box,d&&d.items); }).catch(function(){ box.innerHTML='<div class="actmut">No pude cargar tu actividad ahora.</div>'; });
+}
+
+function start(){
+  var initial=(ME.name||'?').trim().charAt(0).toUpperCase();
+  app.innerHTML=
+    '<aside class="rail"><svg class="rlogo" viewBox="0 0 100 58">'+eyes()+'</svg>'
+      +NAV.map(function(x){return '<a href="#" class="'+x[1]+'" data-nav="'+x[0]+'">'+x[2]+'<small>'+x[0]+'</small></a>';}).join('')
+      +'<button data-ov="perfil">'+ico('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>')+'<small>Perfil</small></button>'
+      +(ME.platformAdmin?'<a href="/app/superadmin.html" class="gated">'+ico('<path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/>')+'<small>Consola</small></a>':(['admin','direccion','team_leader','inspirador'].indexOf(ME.role)>=0?'<a href="/app/panel.html" class="gated">'+ico('<path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/>')+'<small>Panel</small></a>':''))
+      +'<button data-ov="ajustes" style="margin-top:auto">'+ico('<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 0 0-1.7-1L14.5 2h-4l-.4 2.9a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.4 2.9h4l.4-2.9a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z"/>')+'<small>Ajustes</small></button>'
+    +'</aside>'
+    +'<div class="main"><div class="top"><div class="hi"><h1>Hola'+(ME.name?', '+esc(ME.name.split(' ')[0]):'')+'</h1><p>La formación que se queda dentro. Sigue por donde lo dejaste.</p></div>'
+      +'<div class="who" data-ov="perfil"><span class="av">'+esc(initial)+'</span><span>'+esc(ME.name||'Tu cuenta')+'</span></div></div>'
+      +'<div class="content">'+approvalBanner()+'<div class="pill"><i></i>Tu experiencia</div>'
+        +'<div class="hero"><div class="herotop"><div class="herotxt"><h2>Aprender haciendo, y que se te quede.</h2><p>Cada curso te acompaña con tu tutor, te señala lo importante y te pone a practicar. <span class="fc">Empieza por tu ruta.</span></p><a class="btn" href="'+heroHref()+'">'+esc(heroLabel())+'</a></div>'+rankBlock(ALLNOTES)+'</div></div>'
+        +'<div class="ov" id="ovRank"><div class="ov-in"><div class="ov-hd"><b>Cómo funciona tu nivel</b><button class="x" data-close>×</button></div><div class="ov-body">'
+          +'<div class="ov-note">Ganas XP real por lo que haces, no por estar conectado: <b>+1</b> por cada nota o subrayado, <b>+2</b> por cada aportación al tutor, <b>+5</b> cuando marcas «lo aplicaré esta semana». Subes de rango con el uso real: Rookie → Aprendiz → Practicante → Especialista → Coach → Super Coach → Pro. Cuantas más funcionalidades desbloquees, más lejos llegarás — y se nota en tu avatar.</div></div></div></div>'
+        +'<div class="excard" id="exCard" hidden><span class="fc">Así es el contenido de Brandooers</span><video id="exVideo" controls preload="none" playsinline></video><p class="excap">Ejemplo real: la intro de Outbound Sales, con el avatar del propio equipo.</p></div>'
+        +'<div class="bizrow">'+bizPanel(ONB)+roadmap()+'</div>'
+        +'<div id="usageBox" class="usagebox" hidden></div>'
+        +retosSection()
+        +'<div id="skipHost">'+skipSection()+'</div>'
+        +coursesSection()
+      +'</div>'
+      +'<nav class="tabbar"><a href="#" class="on">'+ico('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>')+'<span>Inicio</span></a><button data-ov="perfil">'+ico('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>')+'<span>Perfil</span></button><button data-ov="ajustes">'+ico('<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 0 0-1.7-1L14.5 2h-4l-.4 2.9a7 7 0 0 0-1.7 1l-2.3-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.4 2.9h4l.4-2.9a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z"/>')+'<span>Ajustes</span></button></nav>'
+    +'</div>'
+    +'<div class="ov" id="ovPerfil"><div class="ov-in"><div class="ov-hd"><b>Tu perfil</b><button class="x" data-close>×</button></div><div class="ov-body">'
+      +'<div class="kv"><span>Nombre</span><b>'+esc(ME.name||'—')+'</b></div><div class="kv"><span>Email</span><b>'+esc(ME.email||'—')+'</b></div><div class="kv"><span>Rol</span><b>'+esc(({empleado:'Empleado',coach:'Coach',team_leader:'Team leader',inspirador:'Inspirador',admin:'Administrador',direccion:'Dirección'})[ME.role]||ME.role||'—')+'</b></div>'
+      +profileFacts(ONB)
+      +'<div class="acthd">Tu actividad</div><div class="actbox" id="actBox"><div class="actmut">Cargando tu actividad…</div></div>'
+      +'<div class="ov-note">Se va construyendo a medida que aprendes. Cuanto más practicas y compartes con tus tutores, mejor te conocen.</div></div></div></div>'
+    +'<div class="ov" id="ovAjustes"><div class="ov-in"><div class="ov-hd"><b>Ajustes</b><button class="x" data-close>×</button></div><div class="ov-body">'
+      +'<div class="set-row"><div><b>Voz del asistente</b><small>La eliges en el propio asistente de los ojos.</small></div></div>'
+      +'<div class="set-row"><div><b>Recordatorios</b><small>Avisos si llevas días sin practicar. Desactivado por defecto.</small></div><div class="themeseg" id="notifSeg"><button data-nt="off">Apagado</button><button data-nt="daily">Diario</button><button data-nt="weekly">Semanal</button></div></div>'
+      +'<div class="set-row"><div><b>Tema</b><small>Oscuro cómodo, o claro tipo papel.</small></div><div class="themeseg" id="themeSeg"><button data-th="dark">Oscuro</button><button data-th="light">Claro</button></div></div>'
+      +'<div class="set-row"><div><b>Adaptación a tu estilo</b><small>Cuánto imita tu tutor tu forma de hablar.</small></div><div class="themeseg" id="mirrorSeg"><button data-mir="baja">Baja</button><button data-mir="natural">Natural</button><button data-mir="alta">Alta</button></div></div>'
+      +'<div class="set-row" style="display:block"><div style="margin-bottom:10px"><b>Cambiar contraseña</b><small>Necesitas tu contraseña actual. Si no la recuerdas, usa «He olvidado mi contraseña» al entrar.</small></div>'
+        +'<input id="pwCur" type="password" autocomplete="current-password" placeholder="Contraseña actual" style="width:100%;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);margin-bottom:8px">'
+        +'<input id="pwNew" type="password" autocomplete="new-password" placeholder="Nueva (mín. 8)" style="width:100%;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);margin-bottom:8px">'
+        +'<input id="pwNew2" type="password" autocomplete="new-password" placeholder="Repite la nueva" style="width:100%;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);margin-bottom:8px">'
+        +'<button id="pwSave" style="border:0;border-radius:10px;padding:10px 18px;font:inherit;font-weight:800;font-size:13px;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));cursor:pointer">Actualizar contraseña</button>'
+        +'<div id="pwMsg" style="font-size:13px;margin-top:8px;min-height:16px"></div></div>'
+      +'<button class="logout" id="logout">Cerrar sesión</button></div></div></div>'
+    +'<div class="ov" id="ovSkip"><div class="ov-in"><div class="ov-hd"><b data-skip-title>Demuéstralo</b><button class="x" data-close>×</button></div><div class="ov-body"><div data-skip-body></div><div data-skip-foot></div></div></div></div>';
+  boot.hidden=true; app.hidden=false; wire(); wireSkip();
+}
+function fmtTokens(n){ n=Number(n)||0; return n>=1000000?(Math.round(n/100000)/10+'M'):n>=1000?(Math.round(n/100)/10+'k'):String(n); }
+function ucell(v,l,wide){ return '<div class="uc'+(wide?' wide':'')+'"><b>'+esc(v)+'</b><small>'+esc(l)+'</small></div>'; }
+function loadUsage(){
+  var box=document.getElementById('usageBox'); if(!box) return;
+  SkillUp.api('/api/analytics/my-usage').then(function(u){
+    if(!u) return;
+    var seat=(u.seatPriceCents!=null)?((u.seatPriceCents/100).toLocaleString('es-ES',{style:'currency',currency:u.currency||'EUR'})):null;
+    var plan=u.plan?(u.tierLabel||u.plan.tier):null;
+    box.innerHTML='<div class="uh"><b>Tu consumo</b><span>últimos 30 días</span></div><div class="ug">'
+      +ucell(fmtTokens(u.tokens),'Tokens usados')
+      +ucell(String(u.generated||0),'Contenidos generados')
+      +ucell(String(u.calls||0),'Acciones con IA')
+      +(plan?ucell(plan+(seat?(' · '+seat+'/mes'):''),'Tu plan por asiento',true):'')
+      +'</div>';
+    box.hidden=false;
+  }).catch(function(){ box.hidden=true; });
+}
+function wire(){
+  // el ejemplo de vídeo solo se muestra si el fichero existe de verdad (nunca un hueco roto ni inventado)
+  (function(){ var v=document.getElementById('exVideo'),card=document.getElementById('exCard'); if(!v||!card) return;
+    var src='/app/media/marc-pildora-outbound.mp4';
+    fetch(src,{method:'HEAD'}).then(function(r){ if(r.ok){ v.src=src; card.hidden=false; } }).catch(function(){});
+  })();
+  document.querySelectorAll('[data-ov]').forEach(function(b){ b.onclick=function(e){e.preventDefault();var per=b.getAttribute('data-ov')==='perfil';document.getElementById(per?'ovPerfil':'ovAjustes').classList.add('open');if(per)loadActivity();}; });
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.onclick=function(){var ov=b.closest('.ov');if(ov)ov.classList.remove('open');}; });
+  document.querySelectorAll('.ov').forEach(function(ov){ ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('open');}); });
+  document.querySelectorAll('[data-nav="Explorar"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/explorar.html';}; });
+  document.querySelectorAll('[data-nav="Vídeos"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/videos.html';}; });
+  document.querySelectorAll('[data-nav="Mi ruta"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/ruta.html';}; });
+  document.querySelectorAll('[data-nav="Ranking"]').forEach(function(a){ a.onclick=function(e){e.preventDefault();location.href='/app/ranking.html';}; });
+  loadUsage();
+  var seg=document.getElementById('themeSeg');
+  if(seg){ var cur=curTheme(); seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-th')===cur); b.onclick=function(){ var t=b.getAttribute('data-th'); applyTheme(t); seg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); }; }); }
+  var mseg=document.getElementById('mirrorSeg');
+  if(mseg){ var mcur=(function(){try{return localStorage.getItem('skillup-mirror')||'natural';}catch(e){return 'natural';}})(); mseg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-mir')===mcur); b.onclick=function(){ try{localStorage.setItem('skillup-mirror',b.getAttribute('data-mir'));}catch(e){} mseg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); }; }); }
+  var rh=document.getElementById('rankHelp'); if(rh) rh.onclick=function(){ document.getElementById('ovRank').classList.add('open'); };
+  var nseg=document.getElementById('notifSeg');
+  if(nseg){ var ncur=notifPref(); nseg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-nt')===ncur); b.onclick=function(){ var v=b.getAttribute('data-nt'); if(v!=='off'&&'Notification' in window&&Notification.permission==='default'){ Notification.requestPermission(); } try{localStorage.setItem('skillup-notif',v);}catch(e){} nseg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); }; }); }
+  var pwBtn=document.getElementById('pwSave');
+  if(pwBtn) pwBtn.onclick=async function(){
+    var msg=document.getElementById('pwMsg'); msg.textContent='';
+    var cur=document.getElementById('pwCur').value, n1=document.getElementById('pwNew').value, n2=document.getElementById('pwNew2').value;
+    if(n1.length<8){ msg.style.color='var(--red,#E2506A)'; msg.textContent='La nueva debe tener al menos 8 caracteres.'; return; }
+    if(n1!==n2){ msg.style.color='var(--red,#E2506A)'; msg.textContent='Las dos contraseñas nuevas no coinciden.'; return; }
+    pwBtn.disabled=true;
+    try{ await SkillUp.api('/api/auth/change-password',{method:'POST',body:{currentPassword:cur,newPassword:n1}});
+      msg.style.color='var(--green,#54C79A)'; msg.textContent='Contraseña actualizada.';
+      document.getElementById('pwCur').value='';document.getElementById('pwNew').value='';document.getElementById('pwNew2').value='';
+    }catch(ex){ msg.style.color='var(--red,#E2506A)'; msg.textContent=(ex&&/invalid|incorrect|current|credential/i.test(ex.message||''))?'La contraseña actual no es correcta.':(ex.message||'No se pudo cambiar.'); }
+    pwBtn.disabled=false;
+  };
+  var lo=document.getElementById('logout'); if(lo) lo.onclick=async function(){ try{await SkillUp.api('/api/auth/sign-out',{method:'POST'});}catch(e){} location.href='/app/login.html'; };
+}
+
+setBoot('Comprobando tu sesión…',22);
+SkillUp.session().then(function(s){
+  if(!s||!s.user){ setBoot('Inicia sesión para entrar',100); if(bootBtn)bootBtn.style.display='inline-block'; return; }
+  ME.name=s.user.name||''; ME.email=s.user.email||'';
+  setBoot('Preparando tu inicio…',65);
+  return SkillUp.api('/api/org/me').then(function(d){ if(d){ME.role=d.role||'';ME.platformAdmin=!!d.platformAdmin;ME.approved=(d.approved!==false);} }).catch(function(){})
+    .then(function(){ if(ME.platformAdmin && !FORCE_APP){ setBoot('Entrando como superadmin…',90); location.href='/app/superadmin.html'; return {__sa:true}; } return SkillUp.api('/api/notes/list?source=onboarding').catch(function(){return {items:[]};}); })
+    .then(function(onb){ if(onb && onb.__sa) return; if(onb && (!onb.items || !onb.items.length)){ location.href='/app/bienvenida.html'+(FORCE_APP?'?app=1':''); return; }
+      try{ ONB=parseOnb(onb&&onb.items); }catch(e){ ONB={}; }
+      return SkillUp.api('/api/notes/list').catch(function(){return {items:[]};})
+        .then(function(all){ ALLNOTES=(all&&all.items)||[]; try{ computeLast(); }catch(e){}
+          return SkillUp.api('/api/learning/route').catch(function(){return {plan:null};}); })
+        .then(function(rt){ RUTA=(rt&&rt.plan)||null;
+          return SkillUp.api('/api/learning/challenges/mine').catch(function(){return {retos:[]};}); })
+        .then(function(rc){ RETOS=(rc&&rc.retos)||[];
+          return SkillUp.api('/api/learning/mine').catch(function(){return [];}); })
+        .then(function(en){ ENROLL=(Array.isArray(en)?en:[]);
+          try{ start(); }catch(e){ setBoot('No se pudo cargar. Recarga la página.',100); return; }
+          try{ maybeRutaPopup(); }catch(e){}
+          try{ maybeNudge(ALLNOTES); }catch(e){}
+          setBoot('Listo',100);
+        });
+    });
+}).catch(function(){ setBoot('No se pudo cargar. Recarga la página.',100); });
+})();
+</script>
+<script src="/app/boo-eyes.js?v=20260915k"></script>
+<script src="/app/gestures.js" defer></script>
+</body>
+</html>

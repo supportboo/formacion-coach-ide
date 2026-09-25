@@ -71,6 +71,26 @@ function rateOk(ip) {
   w.n++; hits.set(ip, w); return w.n <= 10;
 }
 
+// P11 — unificación de login: si no hay cookie legacy (bd_sess), aceptamos una sesión válida del
+// login moderno (better-auth, 8080). Así quien entra por /app no vuelve a loguearse al abrir las
+// páginas antiguas. Fallo CERRADO: sin cookie moderna, cualquier error, timeout o sesión no válida
+// => null (el gate responde 401). No sustituye al login legacy, lo complementa.
+const MODERN_URL = process.env.MODERN_URL || 'http://127.0.0.1:8080';
+async function verifyModernSession(req) {
+  const cookie = req.headers.cookie || '';
+  if (typeof fetch !== 'function' || cookie.indexOf('better-auth') < 0) return null; // sin sesión moderna posible
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 1500);
+  try {
+    const r = await fetch(MODERN_URL + '/api/org/me', { headers: { cookie }, signal: ctl.signal });
+    if (!r.ok) return null;
+    const d = await r.json().catch(() => null);
+    if (!d || d.error || d.approved === false) return null;         // no autenticado o pendiente de aprobar
+    // admin Brandooers (páginas revisiones/usuarios/aff…) = superadmin de plataforma
+    return { user: 'app', admin: d.platformAdmin === true, role: d.platformAdmin ? 'admin' : 'member' };
+  } catch { return null; } finally { clearTimeout(t); }
+}
+
 /* ---------------- AFILIACIÓN ---------------- */
 function reload() {
   return {
@@ -200,10 +220,16 @@ function notifyLeadByEmail(rec, origin) {
     from: '"Brandooers" <' + MAIL.from + '>',
     to: MAIL.to,
     replyTo: rec.email,
-    subject: 'Nueva solicitud · ' + (rec.name || rec.email) + (rec.company ? ' · ' + rec.company : ''),
+    subject: 'Nueva solicitud · ' + (rec.name || rec.email) + (rec.tier ? ' · ' + rec.tier : '') + (rec.company && rec.company !== 'Particular' ? ' · ' + rec.company : ''),
     text: 'Solicitud recibida en ' + (origin || 'brandooers.com') + '\n\n'
-      + line('Nombre', rec.name) + line('Email', rec.email) + line('Empresa / sector / equipo', rec.company)
-      + line('Fecha', rec.ts) + '\nResponde a este correo para contestarle directamente.\n',
+      + line('Nombre', rec.name) + line('Email', rec.email)
+      + line('Perfil', rec.persona === 'emp' ? 'Empresa' : (rec.persona === 'ind' ? 'Profesional (particular)' : ''))
+      + line('Prioridad (tier)', rec.tier) + line('Empresa', rec.company && rec.company !== 'Particular' ? rec.company : '')
+      + line('Sector', rec.sector) + line('Plantilla', rec.size) + line('A formar', rec.seats)
+      + line('Rol del contacto', rec.role) + line('Momento profesional', rec.rol) + line('Motivo', rec.motive)
+      + line('Áreas de interés', rec.focus || rec.area) + line('Cuándo', rec.timeline) + line('FUNDAE', rec.fundae)
+      + line('Resumen', rec.resumen) + line('Origen', rec.source) + line('Fecha', rec.ts)
+      + '\nResponde a este correo para contestarle directamente.\n',
   }).catch(e => console.log('mail error:', e.message));
 }
 
@@ -226,14 +252,24 @@ const server = http.createServer(async (req, res) => {
 
   /* ----- AUTH ----- */
   if (path === '/auth/verify') {
+    const needAdmin = url.searchParams.get('admin') === '1';
     const s = session(req);
-    if (!s) { res.writeHead(401); return res.end('no'); }
-    if (url.searchParams.get('admin') === '1' && s.role !== 'admin') { res.writeHead(403); return res.end('no admin'); }
-    res.writeHead(200, { 'x-auth-user': s.u }); return res.end('ok');
+    if (s) {
+      if (needAdmin && s.role !== 'admin') { res.writeHead(403); return res.end('no admin'); }
+      res.writeHead(200, { 'x-auth-user': s.u }); return res.end('ok');
+    }
+    // P11: sin cookie legacy, aceptamos la sesión del login moderno (fallo cerrado dentro del helper).
+    const m = await verifyModernSession(req);
+    if (!m) { res.writeHead(401); return res.end('no'); }
+    if (needAdmin && !m.admin) { res.writeHead(403); return res.end('no admin'); }
+    res.writeHead(200, { 'x-auth-user': m.user }); return res.end('ok');
   }
   if (path === '/auth/me') {
-    const s = session(req); if (!s) return json(res, 401, { error: 'no autenticado' });
-    return json(res, 200, { user: s.u, role: s.role });
+    const s = session(req); if (s) return json(res, 200, { user: s.u, role: s.role });
+    // P11: reconoce también la sesión del login moderno (better-auth) para no forzar un 2º login.
+    const m = await verifyModernSession(req);
+    if (!m) return json(res, 401, { error: 'no autenticado' });
+    return json(res, 200, { user: m.user, role: m.role });
   }
   if (path === '/auth/login' && req.method === 'POST') {
     const ip = String(req.headers['x-real-ip'] || req.socket.remoteAddress || '');
@@ -254,9 +290,18 @@ const server = http.createServer(async (req, res) => {
     const b = await body(req);
     const email = String(b.email || '').slice(0, 120).trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json(res, 400, { error: 'Email no válido' });
-    const rec = { name: String(b.name || '').slice(0, 80).trim(), email, company: String(b.company || '').slice(0, 120).trim(), ts: new Date().toISOString() };
+    const clip = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
+    const rec = {
+      name: clip(b.name, 80), email, company: clip(b.company, 120),
+      persona: clip(b.persona, 12), tier: clip(b.tier, 10), timeline: clip(b.timeline, 20),
+      sector: clip(b.sector, 30), size: clip(b.size, 12), seats: clip(b.seats, 12),
+      role: clip(b.role, 24), rol: clip(b.rol, 24), motive: clip(b.motive, 24),
+      focus: clip(b.focus, 160), area: clip(b.area, 160), fundae: clip(b.fundae, 12),
+      resumen: clip(b.resumen, 420), source: clip(b.source, 48),
+      ts: new Date().toISOString(),
+    };
     try { appendFileSync(W('leads.jsonl'), JSON.stringify(rec) + '\n'); } catch {}
-    notifyAdmins('Nuevo lead 🎯', (rec.name || '') + ' · ' + rec.email + (rec.company ? ' · ' + rec.company : ''), '/panel.html');
+    notifyAdmins('Nuevo lead 🎯', (rec.name || '') + ' · ' + rec.email + (rec.tier ? ' · ' + rec.tier : '') + (rec.resumen ? ' · ' + rec.resumen : (rec.company ? ' · ' + rec.company : '')), '/panel.html');
     notifyLeadByEmail(rec, String(req.headers.host || ''));
     return json(res, 200, { ok: true });
   }
@@ -274,6 +319,7 @@ const server = http.createServer(async (req, res) => {
   // recuperación de contraseña (self-service): crea un token; el email se envía si hay SMTP,
   // si no, el admin ve la petición en Usuarios y pasa el enlace. Respuesta genérica (no revela si existe).
   if (path === '/auth/forgot' && req.method === 'POST') {
+    if (!rateOk(String(req.headers['x-real-ip'] || req.socket.remoteAddress || ''))) return json(res, 429, { error: 'Demasiadas solicitudes, prueba en un rato' });
     const b = await body(req); const u = String(b.u || '').slice(0, 60);
     if (users()[u]) {
       const token = crypto.randomBytes(24).toString('base64url');
@@ -418,7 +464,7 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, {
       usuarios: Object.keys(users()).length,
       onboardings: ob.length,
-      peticiones: { total: rq.length, estados: byStatus(rq), ultimas: rq.slice(0, 6).map(x => ({ topic: (x.data || {}).topic, status: x.status, ts: x.ts })) },
+      peticiones: { total: rq.length, estados: byStatus(rq), ultimas: rq.slice(0, 6).map(x => ({ topic: (x.data || {}).topic, reason: (x.data || {}).reason || "", status: x.status, ts: x.ts })) },
       feedback: { total: fb.length, tipos: fbType, estados: byStatus(fb) },
       leads: countLines(W('leads.jsonl')),
       vistas: countLines(W('views.jsonl')),

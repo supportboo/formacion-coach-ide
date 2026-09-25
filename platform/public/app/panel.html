@@ -19,15 +19,21 @@ details summary:before{content:"▸ ";display:inline-block}
 details[open] summary:before{content:"▾ "}
 .chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--body);margin-bottom:8px}
 .chk input{width:auto;margin:0}
+.qcard{background:var(--warm);border:1px solid var(--line,rgba(120,90,120,.14));border-radius:12px;padding:11px 13px;margin-bottom:9px}
+.qcard .qtext{margin:0 0 8px;color:var(--body);font-size:14px;line-height:1.45}
+.qcard .qmeta{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--mut);flex-wrap:wrap}
+.qcard .qres{font-size:11.5px;padding:5px 11px;white-space:nowrap}
+.rk{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--mut)}
+.rk .inline-input{width:100%;min-width:0;margin:0}
 </style>
 </head>
 <body>
 <div class="topbar">
   <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
     </defs>
     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
@@ -36,13 +42,18 @@ details[open] summary:before{content:"▾ "}
 </div>
 <div class="wrap">
 
+  <a href="/app/informe-roi.html" class="card" style="display:block;text-decoration:none;background:var(--grad);color:#fff">
+    <h2 style="color:#fff;margin:0 0 4px">Informe de ROI para dirección →</h2>
+    <p style="margin:0;opacity:.95;font-size:14px">Lo que SkillUp aporta a tu empresa en euros: ahorro de formación, eficiencia y conocimiento que se queda dentro. Con marco FUNDAE y el análisis del agente de ROI.</p>
+  </a>
+
   <div class="card">
     <h2>Facturación</h2>
     <div id="subInfo" class="msg">Cargando…</div>
     <div id="tiersBox" style="margin-top:12px"></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardCost">
     <h2>Coste IA <span class="hand" style="color:var(--t);font-size:15px">últimos 30 días</span></h2>
     <div class="grid" id="costStats"><span class="msg">Cargando…</span></div>
   </div>
@@ -53,13 +64,17 @@ details[open] summary:before{content:"▾ "}
   </div>
 
   <div class="card">
-    <h2>ROI <span class="hand" style="color:var(--t);font-size:15px">línea base vs. hoy</span></h2>
+    <h2>ROI <span class="hand" style="color:var(--t);font-size:15px">¿mejora tu equipo con el tiempo?</span></h2>
+    <p class="msg" style="margin-top:0">Dos señales de negocio: cuánta gente formáis en casa (sin cursos externos) y cuántos días tarda alguien nuevo en ser autónomo.</p>
     <div class="grid" id="stats"></div>
     <h2 style="margin-top:20px">Cobertura por competencia</h2>
+    <p class="msg" style="margin-top:0">Qué parte de tu equipo ya domina cada habilidad clave. Se llena cuando el superadministrador da de alta las competencias y tu gente las va superando.</p>
     <div id="coverage"></div>
     <h2 style="margin-top:20px">Riesgo de dependencia</h2>
+    <p class="msg" style="margin-top:0">Habilidades que hoy sabe una sola persona: si se va, te quedas sin ella. Te dice a quién conviene formar para no depender de nadie.</p>
     <div id="risks"></div>
-    <button class="btn btn-gh" id="btnBaseline" style="margin-top:10px">Capturar línea base ahora</button>
+    <button class="btn btn-gh" id="btnBaseline" style="margin-top:14px">Guardar la foto de hoy</button>
+    <p class="msg" style="margin-top:6px">La «línea base» es la foto de hoy. Guárdala una vez para poder decir dentro de unas semanas «hemos mejorado esto desde entonces». A partir de mañana se guarda sola cada día.</p>
     <div class="msg" id="baselineMsg"></div>
   </div>
 
@@ -68,12 +83,24 @@ details[open] summary:before{content:"▾ "}
     <div id="completion"><span class="msg">Cargando…</span></div>
   </div>
 
+  <div class="card" id="cardKnow">
+    <h2>Conocimiento de tus agentes <span class="hand" style="color:var(--t);font-size:15px">crece con el uso · no se edita</span></h2>
+    <p class="msg" style="margin-top:0">Cada tutor aprende de lo que tu equipo le aporta. Cuanto más lo usáis, más sabe y mejor responde: no guarda vuestras palabras tal cual, las interpreta, investiga y refuerza para sus respuestas futuras. Solo el superadministrador gestiona el conocimiento; aquí se ve, no se edita.</p>
+    <div id="knowBox"><span class="msg">Cargando…</span></div>
+  </div>
+
+  <div class="card" id="cardVfb">
+    <h2>Qué contenido gusta y cuál no <span class="hand" style="color:var(--t);font-size:15px">semáforo de tu equipo</span></h2>
+    <p class="msg" style="margin-top:0">Lo que tu gente marca 👍 / 👎 / 🚫 en los vídeos. Verde: gusta. Rojo: no gusta u ocultado. Úsalo para quitar lo que no aporta y buscar más de lo que sí.</p>
+    <div id="vfbBox"><span class="msg">Cargando…</span></div>
+  </div>
+
   <div class="card">
     <h2>Últimas preguntas al tutor <span class="hand" style="color:var(--t);font-size:15px">qué necesita saber tu gente</span></h2>
     <div id="questions" style="max-height:280px;overflow-y:auto"><span class="msg">Cargando…</span></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="cardCatalog">
     <details>
       <summary>Catálogo (sectores, puestos, competencias, rutas)</summary>
       <input class="inline-input" id="sectorName" placeholder="Nuevo sector"><button class="btn btn-gh" id="btnSector">Crear</button>
@@ -95,20 +122,109 @@ details[open] summary:before{content:"▾ "}
     <div id="team" style="margin-top:12px"></div>
   </div>
 
-  <div class="card">
-    <details>
-      <summary>Motor de recompensas</summary>
-      <input class="inline-input" id="ruleEvent" placeholder="evento (n2 | referente | cobertura)">
-      <input class="inline-input" id="ruleReward" placeholder="recompensa (certificado|titulo|punto|perk|senal_rrhh)">
-      <button class="btn btn-gh" id="btnRule">Crear regla</button><div id="ruleMsg" class="msg"></div>
+  <div class="card" id="cardRewards">
+    <h2>Recompensas y reconocimiento</h2>
+    <p class="msg" style="margin-top:0">Define qué gana tu equipo al progresar: qué, cuánto y cómo. Empieza por un preset y ajústalo.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn btn-gh" data-preset="conservador">Preset conservador</button>
+      <button class="btn btn-gh" data-preset="intermedio">Preset intermedio</button>
+      <button class="btn btn-gh" data-preset="avanzado">Preset avanzado</button>
+    </div>
+    <details><summary>Añadir una recompensa</summary>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:560px;margin-top:8px">
+        <label class="rk">Tipo<select class="inline-input" id="rwType">
+          <option value="punto">Puntos internos</option><option value="insignia">Insignia / badge</option>
+          <option value="reconocimiento">Reconocimiento público</option><option value="senal_rrhh">Estatus de referente</option>
+          <option value="perk">Perk (formación, tiempo, elección)</option><option value="certificado">Certificado</option>
+          <option value="tarjeta_regalo">Tarjeta regalo</option><option value="bonus">Bonus / plus</option>
+        </select></label>
+        <label class="rk">Cuándo (evento)<select class="inline-input" id="rwEvent">
+          <option value="nivel_alcanzado">Alcanza un nivel</option><option value="n2">Llega a «Aplica» (N2)</option>
+          <option value="referente">Se hace referente</option><option value="caso_validado">Caso validado</option>
+          <option value="cobertura">Cobertura de competencia</option><option value="onboarding_completado">Completa el onboarding</option>
+          <option value="mentoria_realizada">Mentoriza a alguien</option>
+        </select></label>
+        <label class="rk">Valor / cantidad<input class="inline-input" id="rwAmount" type="number" min="0" placeholder="p. ej. 50"></label>
+        <label class="rk">Unidad<select class="inline-input" id="rwUnit"><option value="puntos">puntos</option><option value="€">€</option><option value="horas">horas</option><option value="días">días</option><option value="badge">insignia</option><option value="elección">elección</option></select></label>
+        <label class="rk">Periodicidad<select class="inline-input" id="rwPeriod"><option value="por_evento">Por evento</option><option value="una_vez">Una vez</option><option value="mensual">Mensual</option><option value="trimestral">Trimestral</option><option value="anual">Anual</option></select></label>
+        <label class="rk">Quién aprueba<select class="inline-input" id="rwApprover"><option value="automático">Automático</option><option value="responsable">Responsable</option><option value="dirección">Dirección</option><option value="superadmin">Superadmin</option></select></label>
+        <label class="rk">Tope por persona/periodo<input class="inline-input" id="rwCap" type="number" min="0" placeholder="opcional"></label>
+        <label class="rk" style="align-self:end"><input type="checkbox" id="rwSalary"> Cuenta para nómina</label>
+      </div>
+      <div id="rwTax" class="msg" style="color:var(--gold,#9C7A10);margin-top:6px"></div>
+      <button class="btn btn-grad" id="rwAdd" style="margin-top:10px">Añadir recompensa</button><div id="rwMsg" class="msg"></div>
     </details>
+    <div id="rwList" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Ajustes de empresa</h2>
+    <p class="msg" style="margin-top:0">Nombres de los niveles (como los verá tu equipo) y si los puntos cuentan para nómina.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:420px">
+      <input class="inline-input" id="lvl1" placeholder="Nivel 1 (p. ej. «Conoce»)">
+      <input class="inline-input" id="lvl2" placeholder="Nivel 2 (p. ej. «Aplica»)">
+      <input class="inline-input" id="lvl3" placeholder="Nivel 3 (p. ej. «Referente»)">
+      <label style="display:flex;gap:9px;align-items:flex-start;font-size:14px;margin-top:4px"><input type="checkbox" id="salaryLinked" style="margin-top:3px"><span>Los puntos cuentan para nómina o incentivos.<br><small class="msg">Recomendación: no atarlos a nómina el primer año.</small></span></label>
+      <button class="btn btn-grad" id="btnCfg" style="align-self:flex-start">Guardar ajustes</button><div id="cfgMsg" class="msg"></div>
+    </div>
+  </div>
+
+  <div class="card" id="cardRubrics">
+    <h2>Rúbricas de validación</h2>
+    <p class="msg" style="margin-top:0">Los criterios con los que un referente valida un caso de esa competencia. Uno por línea.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:520px">
+      <select class="inline-input" id="rubComp"><option value="">Elige competencia…</option></select>
+      <textarea id="rubCrit" placeholder="Un criterio por línea&#10;p. ej. Aplica el descuento correcto&#10;Justifica la decisión con datos" style="min-height:90px;width:100%;padding:11px 13px;border-radius:10px"></textarea>
+      <button class="btn btn-grad" id="btnRub" style="align-self:flex-start">Guardar rúbrica</button><div id="rubMsg" class="msg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>FUNDAE</h2>
+    <p class="msg" style="margin-top:0">Crea la acción formativa bonificable y descarga su justificante.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:520px">
+      <input class="inline-input" id="fdTitle" placeholder="Título de la acción formativa">
+      <input class="inline-input" id="fdHoras" type="number" min="1" placeholder="Horas (mínimo 2 para bonificar)">
+      <select class="inline-input" id="fdTutor"><option value="">Tutor-formador…</option></select>
+      <select class="inline-input" id="fdComp"><option value="">Competencia (opcional)…</option></select>
+      <label style="display:flex;gap:9px;align-items:center;font-size:14px"><input type="checkbox" id="fdCert"><span>Conduce a certificado de profesionalidad</span></label>
+      <button class="btn btn-grad" id="btnFd" style="align-self:flex-start">Crear acción</button><div id="fdMsg" class="msg"></div>
+      <div id="fdResult" style="margin-top:6px"></div>
+    </div>
   </div>
 
 </div>
 <script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
 <script>
 (async function () {
   var s = await SkillUp.requireSession(); if (!s) return;
+  var esSuper = !!(await SkillUp.api('/api/org/me').catch(function () { return {}; })).platformAdmin;
+
+  // El conocimiento y lo técnico (coste/tokens, catálogo, recompensas, rúbricas) lo gestiona SOLO el
+  // superadministrador. Para el resto se ocultan: menos ruido, nada de datos técnicos ni IDs sueltos.
+  if (!esSuper) { ['cardCost', 'cardCatalog', 'cardRewards', 'cardRubrics', 'cardVfb'].forEach(function (id) { var e = document.getElementById(id); if (e) e.hidden = true; }); }
+  // Semáforo de vídeos (qué gusta y qué no) — solo superadmin
+  if (esSuper) (async function () {
+    var box = document.getElementById('vfbBox'); if (!box) return;
+    var d = await SkillUp.api('/api/analytics/video-feedback').catch(function () { return null; });
+    var vids = (d && d.videos) || [];
+    if (!vids.length) { box.innerHTML = '<p class="msg">Aún no hay valoraciones de vídeos. Aparecerán cuando tu equipo empiece a marcar 👍/👎.</p>'; return; }
+    box.innerHTML = vids.slice(0, 20).map(function (v) { var pos = v.like, neg = v.dislike + v.hide, tot = pos + neg || 1, gp = Math.round(pos / tot * 100);
+      return '<div style="margin:11px 0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;margin-bottom:4px"><b style="color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64%">' + SkillUp.escHtml(v.title || v.youtubeId) + '</b><span class="msg">👍' + v.like + ' · 👎' + v.dislike + ' · 🚫' + v.hide + '</span></div><div style="height:9px;border-radius:999px;background:rgba(220,80,80,.28);overflow:hidden"><div style="height:100%;width:' + gp + '%;background:#2E9E73"></div></div></div>'; }).join('');
+  })();
+
+  // Conocimiento de los agentes: barras que crecen con el uso (solo lectura; la memoria no se edita).
+  (async function () {
+    var box = document.getElementById('knowBox'); if (!box) return;
+    var d = await SkillUp.api('/api/analytics/knowledge').catch(function () { return null; });
+    if (!d || !d.agents || !d.agents.length) { box.innerHTML = '<p class="msg">Aún no hay conocimiento acumulado. En cuanto tu equipo use los tutores, se irá llenando solo.</p>'; return; }
+    var max = Math.max.apply(null, d.agents.map(function (a) { return a.concepts; })) || 1;
+    box.innerHTML = d.agents.map(function (a) {
+      var pct = Math.max(6, Math.round(a.concepts / max * 100));
+      return '<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px;margin-bottom:5px"><b style="color:var(--ink)">' + SkillUp.escHtml(a.agent) + '</b><span class="msg">' + a.concepts.toLocaleString('es-ES') + ' conceptos · ' + a.interactions.toLocaleString('es-ES') + ' interacciones</span></div><div style="height:11px;border-radius:999px;background:rgba(150,140,170,.16);overflow:hidden"><div style="height:100%;width:' + pct + '%;border-radius:999px;background:linear-gradient(90deg,#3FD8E0,#8a5f7c);transition:width .7s"></div></div></div>';
+    }).join('');
+  })();
 
   async function loadBilling() {
     var sub = await SkillUp.api('/api/billing/subscription').catch(function () { return null; });
@@ -145,7 +261,7 @@ details[open] summary:before{content:"▾ "}
       '</div>';
     }
   }
-  loadCost();
+  if (esSuper) loadCost();
 
   async function loadPanel() {
     var p = await SkillUp.api('/api/analytics/panel').catch(function (e) { return null; });
@@ -155,10 +271,10 @@ details[open] summary:before{content:"▾ "}
       '<div class="stat"><b>' + p.timeToAutonomyDays + '</b><span>días a autonomía</span></div>';
     document.getElementById('coverage').innerHTML = p.coverage.map(function (c) {
       return '<div class="row"><span>' + SkillUp.escHtml(c.name) + (c.critical ? ' ⚠' : '') + '</span><span>' + c.atApply + '/' + c.total + ' (' + c.pct + '%)</span></div>';
-    }).join('') || '<p class="msg">Aún sin competencias configuradas.</p>';
+    }).join('') || '<p class="msg">Aún no hay competencias dadas de alta (las configura el superadministrador). En cuanto las haya y tu equipo empiece, verás aquí qué domináis.</p>';
     document.getElementById('risks').innerHTML = p.risks.map(function (r) {
       return '<div class="row"><span class="risk">' + SkillUp.escHtml(r.name) + '</span><span>' + r.referentes + ' referente(s)</span></div>';
-    }).join('') || '<p class="msg">Sin riesgos de dependencia detectados.</p>';
+    }).join('') || '<p class="msg">De momento nadie es imprescindible en solitario. Aparecería aquí una habilidad clave que supiera una sola persona.</p>';
   }
   loadPanel();
 
@@ -167,9 +283,9 @@ details[open] summary:before{content:"▾ "}
     var rows = await SkillUp.api('/api/analytics/history').catch(function () { return []; });
     if (!rows.length) { box.innerHTML = '<p class="msg">Sin histórico todavía — vuelve mañana, se captura solo cada día.</p>'; return; }
     box.innerHTML =
-      '<p class="msg" style="margin-bottom:6px">Cobertura media</p>' + SkillUp.lineChart(rows, 'avgCoveragePct', { color: '#8B5CF6', format: function (v) { return v + '%'; } }) +
+      '<p class="msg" style="margin-bottom:6px">Cobertura media</p>' + SkillUp.lineChart(rows, 'avgCoveragePct', { color: '#8a5f7c', format: function (v) { return v + '%'; } }) +
       '<p class="msg" style="margin:16px 0 6px">Riesgos críticos</p>' + SkillUp.lineChart(rows, 'criticalRisks', { color: '#DC2626', format: function (v) { return String(Math.round(v)); } }) +
-      '<p class="msg" style="margin:16px 0 6px">Días a autonomía</p>' + SkillUp.lineChart(rows, 'timeToAutonomyDays', { color: '#0891B2', format: function (v) { return v.toFixed(1); } });
+      '<p class="msg" style="margin:16px 0 6px">Días a autonomía</p>' + SkillUp.lineChart(rows, 'timeToAutonomyDays', { color: '#1a9aa0', format: function (v) { return v.toFixed(1); } });
   }
   loadHistory();
 
@@ -181,13 +297,43 @@ details[open] summary:before{content:"▾ "}
   }
   loadCompletion();
 
+  // Hiper-prompt profesional de investigación profunda: convierte una pregunta real en un dossier de
+  // conocimiento VALIDADO y CITADO (autores, libros, papers, metodologías, profesores, vídeos, creadores
+  // expertos) listo para incorporar al conocimiento del tutor y responder con más profundidad y seniority.
+  function researchPrompt(q) {
+    return 'ROL: Eres un investigador y documentalista sénior. OBJETIVO: producir un dossier de conocimiento VALIDADO y CITADO sobre el tema de esta pregunta real de un alumno, para incorporarlo al conocimiento de un tutor formativo y que responda con más profundidad y seniority.\n\n'
+      + 'PREGUNTA / TEMA:\n"' + q + '"\n\n'
+      + 'INSTRUCCIONES:\n'
+      + '1) Delimita el tema y sus subtemas clave.\n'
+      + '2) Investiga SOLO fuentes fiables y contrástalas: autores y libros de referencia, artículos y papers, metodologías y marcos consolidados, profesores y cursos reconocidos, y creadores/influencers realmente expertos (con datos, no humo). Vídeos y charlas de referencia con enlace.\n'
+      + '3) Para CADA afirmación importante, cita fuente (autor/obra/URL) y año, y marca la certeza: HECHO (fuente oficial) / INFERENCIA (con tu razonamiento) / SIN DATOS. No inventes nada.\n'
+      + '4) Recoge: definiciones precisas, los 5-10 conceptos o técnicas más importantes, ejemplos reales, errores comunes y un mini-glosario.\n'
+      + '5) Extrae 8-12 "píldoras de conocimiento" accionables (1-3 frases) listas para que el tutor las use al responder.\n'
+      + '6) Añade 5 preguntas frecuentes con respuesta corta y su fuente.\n\n'
+      + 'FORMATO DE SALIDA (para adoptar en el conocimiento del tutor):\n- Resumen ejecutivo (5 líneas)\n- Conceptos clave (con fuente)\n- Píldoras accionables\n- FAQ (pregunta → respuesta → fuente)\n- Autores / obras / vídeos de referencia (bibliografía con enlaces)\n- Certeza global y lagunas pendientes.\n\n'
+      + 'Español de España, claro y sin relleno. Prioriza rigor y fuentes verificables sobre extensión.';
+  }
   async function loadQuestions() {
     var rows = await SkillUp.api('/api/analytics/questions').catch(function () { return []; });
-    document.getElementById('questions').innerHTML = rows.map(function (q) {
+    var box = document.getElementById('questions');
+    if (!rows.length) { box.innerHTML = '<p class="msg">Nadie le ha preguntado nada al tutor todavía.</p>'; return; }
+    box.innerHTML = rows.map(function (q, i) {
       var when = new Date(q.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-      return '<div class="row" style="align-items:flex-start"><span>' + SkillUp.escHtml(q.content) + '</span>' +
-        '<span style="white-space:nowrap;color:var(--mut);font-size:11.5px">' + SkillUp.escHtml(q.userName) + ' · ' + when + '</span></div>';
-    }).join('') || '<p class="msg">Nadie le ha preguntado nada al tutor todavía.</p>';
+      return '<div class="qcard"><p class="qtext">' + SkillUp.escHtml(q.content) + '</p>' +
+        '<div class="qmeta"><span>' + SkillUp.escHtml(q.userName) + ' · ' + when + '</span>' +
+        (esSuper ? '<button class="btn btn-gh qres" data-q="' + i + '">Investigar a fondo</button>' : '') +
+        '</div></div>';
+    }).join('');
+    if (esSuper) {
+      box.querySelectorAll('.qres').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = researchPrompt(rows[Number(b.dataset.q)].content);
+          var ok = function () { var o = b.textContent; b.textContent = '¡Copiado! Pégalo en tu investigación'; setTimeout(function () { b.textContent = o; }, 2600); };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok).catch(function () { window.prompt('Copia este prompt de investigación:', text); });
+          else window.prompt('Copia este prompt de investigación:', text);
+        });
+      });
+    }
   }
   loadQuestions();
 
@@ -216,8 +362,102 @@ details[open] summary:before{content:"▾ "}
   wireCreate('btnPath', 'pathMsg', '/api/catalog/paths', function () {
     return { title: document.getElementById('pathTitle').value.trim(), competencyId: document.getElementById('pathComp').value.trim() || undefined };
   });
-  wireCreate('btnRule', 'ruleMsg', '/api/config/reward-rules', function () {
-    return { event: document.getElementById('ruleEvent').value.trim(), reward: document.getElementById('ruleReward').value.trim() };
+  // --- Recompensas: presets + formulario estructurado + lista ---
+  var RW_LABEL = { punto: 'Puntos', insignia: 'Insignia', reconocimiento: 'Reconocimiento', senal_rrhh: 'Estatus referente', perk: 'Perk', certificado: 'Certificado', tarjeta_regalo: 'Tarjeta regalo', bonus: 'Bonus', titulo: 'Título' };
+  var EV_LABEL = { nivel_alcanzado: 'al alcanzar nivel', n2: 'al llegar a Aplica', referente: 'al hacerse referente', caso_validado: 'por caso validado', cobertura: 'por cobertura', onboarding_completado: 'al completar onboarding', mentoria_realizada: 'por mentorizar' };
+  var TAX = { tarjeta_regalo: 'Orientativo: una tarjeta regalo suele ser retribución en especie (tributa/cotiza). Consúltalo con tu asesoría.', bonus: 'Orientativo: un bonus es salario (IRPF y cotización), regulado por convenio/contrato. Consúltalo con tu asesoría.' };
+  var PRESETS = {
+    conservador: [ {reward:'punto',event:'onboarding_completado',rewardParams:{amount:20,unit:'puntos',period:'una_vez',approver:'automático'}}, {reward:'insignia',event:'n2',rewardParams:{unit:'badge',period:'por_evento',approver:'automático'}}, {reward:'reconocimiento',event:'referente',rewardParams:{period:'por_evento',approver:'dirección',public:true}} ],
+    intermedio: [ {reward:'punto',event:'onboarding_completado',rewardParams:{amount:20,unit:'puntos',period:'una_vez'}}, {reward:'perk',event:'n2',rewardParams:{amount:1,unit:'elección',period:'trimestral',approver:'responsable'}}, {reward:'perk',event:'referente',rewardParams:{amount:1,unit:'días',period:'anual',approver:'dirección'}} ],
+    avanzado: [ {reward:'tarjeta_regalo',event:'caso_validado',rewardParams:{amount:30,unit:'€',period:'por_evento',approver:'responsable',cap:150}}, {reward:'bonus',event:'referente',rewardParams:{amount:500,unit:'€',period:'anual',approver:'dirección',salaryLinked:true}} ],
+  };
+  function taxNoteFor(t){ return TAX[t] || ''; }
+  var rwType=document.getElementById('rwType'), rwTax=document.getElementById('rwTax');
+  if(rwType) rwType.addEventListener('change', function(){ rwTax.textContent = taxNoteFor(rwType.value); });
+  async function loadRules(){
+    var box=document.getElementById('rwList'); if(!box) return;
+    var d=await SkillUp.api('/api/config/reward-rules').catch(function(){return {rules:[]};});
+    var rules=(d&&d.rules)||[];
+    if(!rules.length){ box.innerHTML='<p class="msg">Aún no hay recompensas. Elige un preset o añade una.</p>'; return; }
+    box.innerHTML=rules.map(function(r){ var rp=r.rewardParams||{}; var val=rp.amount?(' · '+rp.amount+' '+(rp.unit||'')):(rp.unit?(' · '+rp.unit):'');
+      return '<div class="row"><span><b style="color:var(--ink)">'+SkillUp.escHtml(RW_LABEL[r.reward]||r.reward)+'</b>'+SkillUp.escHtml(val)+' <span class="msg">'+SkillUp.escHtml(EV_LABEL[r.event]||r.event)+(rp.period&&rp.period!=='por_evento'?' · '+rp.period:'')+(rp.salaryLinked?' · nómina':'')+'</span></span><button class="btn btn-gh" data-del="'+r.id+'" style="padding:4px 10px">Borrar</button></div>'; }).join('');
+    box.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=async function(){ await SkillUp.api('/api/config/reward-rules/'+b.dataset.del,{method:'DELETE'}).catch(function(){}); loadRules(); }; });
+  }
+  var rwAdd=document.getElementById('rwAdd');
+  if(rwAdd) rwAdd.onclick=async function(){
+    var msg=document.getElementById('rwMsg'); var reward=rwType.value;
+    var rp={ unit:document.getElementById('rwUnit').value, period:document.getElementById('rwPeriod').value, approver:document.getElementById('rwApprover').value };
+    var amt=document.getElementById('rwAmount').value; if(amt) rp.amount=Number(amt);
+    var cap=document.getElementById('rwCap').value; if(cap) rp.cap=Number(cap);
+    if(document.getElementById('rwSalary').checked) rp.salaryLinked=true;
+    var note=taxNoteFor(reward); if(note) rp.taxNote=note;
+    try{ await SkillUp.api('/api/config/reward-rules',{method:'POST',body:{event:document.getElementById('rwEvent').value,reward:reward,rewardParams:rp}}); msg.textContent='Recompensa añadida.'; loadRules(); }
+    catch(ex){ msg.textContent=ex.message; }
+  };
+  document.querySelectorAll('#cardRewards [data-preset]').forEach(function(b){ b.onclick=async function(){
+    var pr=PRESETS[b.dataset.preset]||[]; b.disabled=true; b.textContent='Aplicando…';
+    for(var i=0;i<pr.length;i++){ try{ await SkillUp.api('/api/config/reward-rules',{method:'POST',body:{event:pr[i].event,reward:pr[i].reward,rewardParams:Object.assign({},pr[i].rewardParams, TAX[pr[i].reward]?{taxNote:TAX[pr[i].reward]}:{})}}); }catch(e){} }
+    b.disabled=false; b.textContent='Preset '+b.dataset.preset; loadRules();
+  }; });
+  if(esSuper) loadRules();
+
+  // P8: ajustes de empresa (nombres de nivel + puntos-salario)
+  SkillUp.api('/api/config/company').then(function (cfg) {
+    if (!cfg) return; var l = cfg.levelLabels || {};
+    if (l['1']) document.getElementById('lvl1').value = l['1'];
+    if (l['2']) document.getElementById('lvl2').value = l['2'];
+    if (l['3']) document.getElementById('lvl3').value = l['3'];
+    document.getElementById('salaryLinked').checked = !!cfg.salaryLinked;
+  }).catch(function () {});
+  document.getElementById('btnCfg').addEventListener('click', async function () {
+    var m = document.getElementById('cfgMsg'); var labels = {};
+    ['1', '2', '3'].forEach(function (n) { var v = document.getElementById('lvl' + n).value.trim(); if (v) labels[n] = v; });
+    try { await SkillUp.api('/api/config/company', { method: 'PUT', body: { levelLabels: labels, salaryLinked: document.getElementById('salaryLinked').checked } }); m.textContent = 'Ajustes guardados.'; }
+    catch (ex) { m.textContent = ex.message; }
+  });
+
+  // P7: rúbricas — cargar competencias en el selector
+  SkillUp.api('/api/catalog/competencies').then(function (cs) {
+    var sel = document.getElementById('rubComp'); if (!sel || !Array.isArray(cs)) return;
+    cs.forEach(function (c) { var o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+  }).catch(function () {});
+  document.getElementById('btnRub').addEventListener('click', async function () {
+    var m = document.getElementById('rubMsg'); var cid = document.getElementById('rubComp').value;
+    var crit = document.getElementById('rubCrit').value.split('\n').map(function (l) { return l.trim(); }).filter(Boolean).map(function (l) { return { label: l }; });
+    if (!cid) { m.textContent = 'Elige una competencia.'; return; }
+    if (!crit.length) { m.textContent = 'Escribe al menos un criterio.'; return; }
+    try { await SkillUp.api('/api/validation/rubrics', { method: 'POST', body: { competencyId: cid, criteria: crit } }); m.textContent = 'Rúbrica guardada (' + crit.length + ' criterios).'; }
+    catch (ex) { m.textContent = ex.message; }
+  });
+
+  // P9: FUNDAE — poblar tutor (equipo) y competencia; crear acción + descargar justificante
+  SkillUp.api('/api/org/team').then(function (t) {
+    var sel = document.getElementById('fdTutor'); if (!sel || !Array.isArray(t)) return;
+    t.forEach(function (mm) { var o = document.createElement('option'); o.value = mm.userId || mm.id; o.textContent = (mm.name || mm.email || mm.userId); sel.appendChild(o); });
+  }).catch(function () {});
+  SkillUp.api('/api/catalog/competencies').then(function (cs) {
+    var sel = document.getElementById('fdComp'); if (!sel || !Array.isArray(cs)) return;
+    cs.forEach(function (c) { var o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+  }).catch(function () {});
+  document.getElementById('btnFd').addEventListener('click', async function () {
+    var m = document.getElementById('fdMsg'), res = document.getElementById('fdResult');
+    var title = document.getElementById('fdTitle').value.trim();
+    var horas = parseInt(document.getElementById('fdHoras').value, 10);
+    var tutorId = document.getElementById('fdTutor').value;
+    if (!title || !horas || !tutorId) { m.textContent = 'Rellena título, horas y tutor.'; return; }
+    m.textContent = 'Creando…';
+    try {
+      var r = await SkillUp.api('/api/fundae/actions', { method: 'POST', body: { title: title, horas: horas, tutorId: tutorId, competencyId: document.getElementById('fdComp').value || undefined, esCertProfesionalidad: document.getElementById('fdCert').checked } });
+      var just = await SkillUp.api('/api/fundae/actions/' + r.id + '/justification');
+      m.textContent = just && just.bonificable ? 'Acción creada y BONIFICABLE.' : ('Acción creada, NO bonificable' + (just && just.motivoNoBonificable ? ': ' + just.motivoNoBonificable : '') + '.');
+      res.innerHTML = '';
+      var btn = document.createElement('button'); btn.className = 'btn btn-gh'; btn.textContent = 'Descargar justificante';
+      btn.onclick = function () {
+        var blob = new Blob([JSON.stringify(just, null, 2)], { type: 'application/json' });
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fundae-' + r.id + '.json'; a.click(); URL.revokeObjectURL(a.href);
+      };
+      res.appendChild(btn);
+    } catch (ex) { m.textContent = ex.message; res.innerHTML = ''; }
   });
 
   var ROLES = ['empleado', 'coach', 'team_leader', 'inspirador', 'admin', 'direccion'];
@@ -229,8 +469,18 @@ details[open] summary:before{content:"▾ "}
     if (!email) return;
     try {
       // better-auth solo conoce sus propios roles al invitar; el rol real se fija después de aceptar.
-      await SkillUp.api('/api/auth/organization/invite-member', { method: 'POST', body: { email: email, role: 'member', organizationId: orgId } });
-      m.textContent = 'Invitación enviada. Cuando la acepte, asígnale su rol abajo.';
+      var inv = await SkillUp.api('/api/auth/organization/invite-member', { method: 'POST', body: { email: email, role: 'member', organizationId: orgId } });
+      var invId = inv && (inv.id || (inv.invitation && inv.invitation.id) || (inv.data && inv.data.id));
+      m.textContent = 'Invitación enviada a ' + email + '. Cuando la acepte, asígnale su rol abajo.';
+      if (invId) {
+        // Copyable link in case the mail does not arrive; only someone signed in with that email can accept it.
+        var link = location.origin + '/app/aceptar-invitacion.html?invitation=' + encodeURIComponent(invId);
+        var row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;margin-top:6px';
+        var i = document.createElement('input'); i.className = 'inline-input'; i.readOnly = true; i.value = link; i.style.flex = '1'; i.onclick = function () { i.select(); };
+        var cp = document.createElement('button'); cp.className = 'btn btn-grad'; cp.textContent = 'Copiar enlace';
+        cp.onclick = function () { (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { cp.textContent = 'Copiado'; }, function () { i.select(); }); };
+        row.appendChild(i); row.appendChild(cp); m.appendChild(row);
+      }
       document.getElementById('inviteEmail').value = '';
     } catch (ex) { m.textContent = ex.message; }
   });
@@ -238,9 +488,15 @@ details[open] summary:before{content:"▾ "}
   async function renderTeam() {
     var team = await SkillUp.api('/api/org/team').catch(function () { return []; });
     document.getElementById('team').innerHTML = team.map(function (m) {
-      var opts = ROLES.map(function (r) { return '<option value="' + r + '"' + (r === m.role ? ' selected' : '') + '>' + r + '</option>'; }).join('');
+      var roleCell;
+      if (esSuper) {
+        var opts = ROLES.map(function (r) { return '<option value="' + r + '"' + (r === m.role ? ' selected' : '') + '>' + r + '</option>'; }).join('');
+        roleCell = '<select data-u="' + m.userId + '" class="roleSel" style="margin:0;width:auto">' + opts + '</select>';
+      } else {
+        roleCell = '<span class="badge">' + SkillUp.escHtml(m.role) + '</span>';
+      }
       return '<div class="row"><span>' + SkillUp.escHtml(m.name) + ' · ' + SkillUp.escHtml(m.email) + '</span>' +
-        '<span style="display:flex;align-items:center;gap:10px"><select data-u="' + m.userId + '" class="roleSel" style="margin:0;width:auto">' + opts + '</select>' +
+        '<span style="display:flex;align-items:center;gap:10px">' + roleCell +
         ' <a href="#" data-u="' + m.userId + '" class="erase" style="color:var(--red);font-size:12.5px">borrar (RGPD)</a></span></div>';
     }).join('') || '<p class="msg">Sin miembros todavía.</p>';
 
@@ -262,5 +518,8 @@ details[open] summary:before{content:"▾ "}
   renderTeam();
 })();
 </script>
+<script src="/app/boo-eyes.js"></script>
+<script src="/app/breadcrumbs.js" defer></script>
+<script src="/app/gestures.js" defer></script>
 </body>
 </html>

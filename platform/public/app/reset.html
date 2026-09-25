@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Nueva contraseña</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--green:#54C79A;--red:#E2506A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.05);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--green:#2E9E73;--red:#C23A54;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);display:flex;align-items:center;justify-content:center;padding:22px;
+  background:radial-gradient(760px 460px at 50% 20%,rgba(113,75,103,.28),transparent 60%),var(--bg)}
+button{font-family:inherit}[hidden]{display:none!important}
+.card{width:min(420px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh);padding:30px 28px}
+.mascota{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:18px}
+.mascota svg{width:80px;height:auto}.mascota .nm{font-family:var(--fc);color:var(--teal2);font-size:18px}
+h1{font-family:var(--fh);font-size:21px;color:var(--ink);text-align:center;margin:0 0 6px}
+.sub{color:var(--muted);font-size:13.5px;text-align:center;margin:0 0 18px}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+input{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--soft);color:var(--ink);margin-bottom:12px;outline:none}
+input:focus{border-color:var(--teal2);box-shadow:0 0 0 3px rgba(63,216,224,.14)}
+.btn{width:100%;border:0;border-radius:12px;padding:13px;font-weight:800;font-size:14px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub))}
+.btn:disabled{opacity:.5;cursor:default}
+.msg{font-size:13px;margin-top:10px;min-height:16px}
+.msg.err{color:var(--red)}.msg.ok{color:var(--green)}
+.swap{text-align:center;margin-top:16px;font-size:13px;color:var(--muted)}
+.swap a{color:var(--teal2);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="mascota"><svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="3.5"/><circle cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="3.5"/><circle cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g></svg><span class="nm">SkillUp</span></div>
+  <div id="formWrap">
+    <h1>Nueva contraseña</h1>
+    <p class="sub">Elige una contraseña nueva para tu cuenta.</p>
+    <form id="f">
+      <label>Contraseña nueva</label>
+      <input id="p1" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres" required>
+      <label>Repite la contraseña</label>
+      <input id="p2" type="password" autocomplete="new-password" minlength="8" placeholder="Otra vez" required>
+      <button class="btn" id="submit" type="submit">Guardar contraseña</button>
+      <div class="msg err" id="err"></div>
+    </form>
+  </div>
+  <div id="okWrap" hidden>
+    <h1>Listo</h1>
+    <p class="sub">Tu contraseña se ha cambiado. Ya puedes entrar con ella.</p>
+    <a class="btn" href="/app/login.html" style="display:block;text-align:center;text-decoration:none">Ir a entrar</a>
+  </div>
+  <div class="swap"><a href="/app/login.html">Volver a entrar</a></div>
+</div>
+<script src="/app/api.js"></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var token=new URLSearchParams(location.search).get('token')||'';
+var err=document.getElementById('err');
+if(!token){ err.textContent='Enlace no válido o incompleto. Pide uno nuevo desde «He olvidado mi contraseña».'; document.getElementById('submit').disabled=true; }
+document.getElementById('f').addEventListener('submit',async function(e){
+  e.preventDefault(); err.textContent='';
+  var p1=document.getElementById('p1').value, p2=document.getElementById('p2').value;
+  if(p1.length<8){ err.textContent='La contraseña debe tener al menos 8 caracteres.'; return; }
+  if(p1!==p2){ err.textContent='Las dos contraseñas no coinciden.'; return; }
+  var btn=document.getElementById('submit'); btn.disabled=true;
+  try{
+    await SkillUp.api('/api/auth/reset-password',{method:'POST',body:{token:token,newPassword:p1}});
+    document.getElementById('formWrap').hidden=true;
+    document.getElementById('okWrap').hidden=false;
+  }catch(ex){
+    err.textContent=(ex&&ex.message&&/invalid|expired|token/i.test(ex.message))?'El enlace ha caducado o ya se usó. Pide uno nuevo.':(ex.message||'No se pudo cambiar la contraseña.');
+    btn.disabled=false;
+  }
+});
+})();
+</script>
+</body>
+</html>

@@ -113,6 +113,20 @@
       "when": 1789297401123,
       "tag": "0015_dark_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1789983667578,
+      "tag": "0016_melted_freak",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790011239592,
+      "tag": "0017_same_forge",
+      "breakpoints": true
     }
   ]
 }

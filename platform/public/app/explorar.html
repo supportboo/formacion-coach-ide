@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Explorar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--pink:#EC6FA6;--green:#54C79A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.03);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#443E4E;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--pink:#C24E86;--green:#2E9E73;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);background:var(--bg)}
+button{font-family:inherit}[hidden]{display:none!important}
+.top{display:flex;align-items:center;gap:14px;padding:16px 22px}
+.top a.back{color:var(--muted);text-decoration:none;font-size:13px;font-weight:700}
+.top a.back:hover{color:var(--ink)}
+.stage{max-width:1180px;margin:0 auto}
+.wrap{max-width:720px;margin:0 auto;padding:6vh 20px 20px}
+:root{--lvl:0}
+/* pizarra de notas sueltas: nada de columna rígida, se arrastran y se expanden */
+.board{display:flex;flex-wrap:wrap;justify-content:center;gap:26px 30px;padding:8px 24px 60px;max-width:1080px;margin:0 auto}
+.note{position:relative;width:min(300px,82vw);background:var(--panel);border:1px solid var(--line);border-radius:3px 16px 16px 16px;padding:20px 20px 16px;box-shadow:0 14px 34px rgba(0,0,0,.26);cursor:grab;touch-action:none;user-select:none}
+.note.drag{cursor:grabbing;box-shadow:0 30px 66px rgba(0,0,0,.42);z-index:5}
+.note::before{content:"";position:absolute;top:-10px;left:28px;width:28px;height:17px;background:linear-gradient(160deg,var(--gold),#B8860B);border-radius:3px;box-shadow:0 3px 7px rgba(0,0,0,.3);transform:rotate(-9deg)}
+.note .rt{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--aub2)}
+.note h3{font-family:var(--fc);font-weight:700;color:var(--ink);font-size:clamp(28px,4.4vw,36px);margin:5px 0 3px;line-height:1.05}
+.note p{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 14px}
+.note .nact{display:flex;gap:8px}
+.note .nexp{flex:1;border:1px solid var(--line);background:var(--soft);color:var(--body);border-radius:9px;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;font:inherit}
+.note .nopen{border:0;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;white-space:nowrap}
+.board-t{font-family:var(--fc);color:var(--teal2);font-size:clamp(28px,4.4vw,36px);font-weight:700;text-align:center;margin:6px 0 2px}
+/* vista grande al expandir: aquí sí se ve el contenido de verdad */
+.lb{position:fixed;inset:0;z-index:3000;background:rgba(10,8,14,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.lb.show{opacity:1;pointer-events:auto}
+.lb-card{width:min(940px,94vw);height:min(720px,86vh);background:var(--panel);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 100px rgba(0,0,0,.5);transform:scale(.96);transition:transform .25s}
+.lb.show .lb-card{transform:none}
+.lb-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.lb-head b{flex:1;font-family:var(--fh);color:var(--ink);font-size:16px;min-width:0}
+.lb-open{border:0;border-radius:9px;padding:9px 15px;font-size:12.5px;font-weight:800;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;white-space:nowrap}
+.lb-x{background:none;border:0;color:var(--muted);font-size:26px;cursor:pointer;line-height:1;width:34px;height:34px;border-radius:8px;flex:none}
+.lb-x:hover{background:var(--soft);color:var(--ink)}
+.lb-card iframe{flex:1;border:0;width:100%;background:#fff}
+.hero{text-align:center;margin-bottom:26px}
+.hero h1{font-family:var(--fh);color:var(--ink);font-size:clamp(24px,4vw,34px);margin:0 0 8px;letter-spacing:-.01em}
+.hero p{color:var(--muted);font-size:14px;margin:0}
+.hero .fc{font-family:var(--fc);color:var(--teal2)}
+.searchbox{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:8px 8px 8px 18px;box-shadow:var(--sh)}
+.searchbox svg{flex:none;color:var(--muted)}
+.searchbox input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);font:inherit;font-size:15.5px;padding:10px 0}
+.searchbox button{flex:none;border:0;border-radius:12px;padding:11px 20px;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub))}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.chips button{border:1px solid var(--line);background:var(--soft);color:var(--body);border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;cursor:pointer}
+.chips button:hover{border-color:var(--aub2);color:var(--ink)}
+.section-t{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 0 12px}
+.courses{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.cc{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel);text-decoration:none;display:flex;flex-direction:column;gap:5px;transition:.15s}
+.cc:hover{transform:translateY(-2px);border-color:var(--aub2)}
+.cc .rt{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--aub2)}
+.cc b{color:var(--ink);font-family:var(--fh);font-size:15px}
+.cc small{color:var(--muted);font-size:12.5px;line-height:1.4}
+.answer{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:16px;padding:18px 20px;background:var(--panel);margin-top:6px;font-size:14.5px;line-height:1.6;color:var(--body)}
+.answer span#ansText{white-space:pre-wrap;flex:1}
+.answer.think span#ansText{color:var(--muted);font-style:italic}
+.empty{color:var(--muted);font-size:13.5px;text-align:center;padding:20px 0}
+</style>
+</head>
+<body>
+<div class="top"><a class="back" href="/app/inicio.html">‹ Inicio</a></div>
+<div class="stage">
+<div class="wrap">
+  <div class="hero"><h1>¿Qué necesitas hoy?</h1><p>Pregunta lo que sea, o busca entre tus cursos. <span class="fc">Como hablar con tu equipo de tutores.</span></p></div>
+  <div class="searchbox">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+    <input id="q" type="text" placeholder="Pregunta algo, o busca un curso…" autocomplete="off">
+    <button id="go">Buscar</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="results"></div>
+</div>
+<div class="board-t" id="boardT" hidden>Esto te puede servir</div>
+<div class="board" id="board"></div>
+</div>
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+if(!window.SkillUp||!SkillUp.api){document.getElementById('results').innerHTML='<div class="empty">No se pudo cargar. Vuelve a entrar.</div>';return;}
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+
+var COURSES=[
+ {name:'Guía del Coach',src:'/index.html',desc:'Acompañar a quien llega en sus primeros meses.',rt:'Ruta A'},
+ {name:'Prospección con IA',src:'/prospeccion-social-selling.html',desc:'Encontrar y abrir con criterio.',rt:'Ruta A'},
+ {name:'Outbound Sales',src:'/outbound-sales.html',desc:'Vender en frío sin sonar a vendedor.',rt:'Ruta B'},
+ {name:'Reclutamiento de Partners',src:'/reclutamiento-partners.html',desc:'Captar partners de 0 a 100.',rt:'Ruta B'},
+ {name:'Marketing para Partners',src:'/marketing-partners.html',desc:'Generar demanda B2B.',rt:'Ruta C'},
+ {name:'Negociación',src:'/negociacion-partner-manager.html',desc:'Cerrar sin perder margen.',rt:'Ruta D'},
+ {name:'Objeciones',src:'/objeciones-partner-manager.html',desc:'Manejar el no y darle la vuelta.',rt:'Ruta D'}
+];
+var CHIPS=['¿Por dónde empiezo?','¿Cómo negocio sin perder margen?','Busca cursos de ventas','¿Qué es Brandooers?'];
+document.getElementById('chips').innerHTML=CHIPS.map(function(c){return '<button type="button">'+esc(c)+'</button>';}).join('');
+
+// Búsqueda real sobre tus cursos (nombre/descripción/ruta) — nunca inventa cursos que no existen.
+function matchCourses(q){
+  var terms=q.toLowerCase().split(/\s+/).filter(Boolean);
+  if(!terms.length) return [];
+  return COURSES.filter(function(c){
+    var hay=(c.name+' '+c.desc+' '+c.rt).toLowerCase();
+    return terms.some(function(t){ return hay.indexOf(t)>=0; });
+  });
+}
+function renderCourses(list){
+  if(!list.length) return '';
+  return '<div class="section-t">Cursos que coinciden</div><div class="courses">'+list.map(function(c){
+    return '<a class="cc" href="/app/curso.html?src='+encodeURIComponent(c.src)+'"><span class="rt">'+esc(c.rt)+'</span><b>'+esc(c.name)+'</b><small>'+esc(c.desc)+'</small></a>';
+  }).join('')+'</div>';
+}
+// Pizarra de notas sueltas: la misma búsqueda real de cursos (nunca inventa), como post-its que se
+// arrastran donde quieras y se expanden a vista grande (nada de vista previa diminuta en un lateral).
+var board=document.getElementById('board'), boardT=document.getElementById('boardT');
+function hashDeg(s){ var h=0; for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return (Math.abs(h)%50)/10-2.5; }
+function renderResources(list){
+  if(!list.length){ boardT.hidden=true; board.innerHTML=''; return; }
+  boardT.hidden=false;
+  board.innerHTML=list.slice(0,4).map(function(c){
+    var deg=hashDeg(c.name).toFixed(2);
+    return '<div class="note" data-src="'+esc(c.src)+'" data-name="'+esc(c.name)+'" style="transform:rotate('+deg+'deg)" data-deg="'+deg+'">'
+      +'<span class="rt">'+esc(c.rt)+'</span><h3>'+esc(c.name)+'</h3><p>'+esc(c.desc)+'</p>'
+      +'<div class="nact"><button type="button" class="nexp">Ver por dentro</button><a class="nopen" href="/app/curso.html?src='+encodeURIComponent(c.src)+'">Abrir curso →</a></div></div>';
+  }).join('');
+  board.querySelectorAll('.note').forEach(makeDraggable);
+}
+function makeDraggable(el){
+  var sx=0,sy=0,ox=0,oy=0,dragging=false,moved=false,deg=el.dataset.deg;
+  el.addEventListener('pointerdown',function(e){
+    if(e.target.closest('a,button')) return;
+    dragging=true; moved=false; sx=e.clientX; sy=e.clientY;
+    var m=/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(el.style.transform||''); ox=m?parseFloat(m[1]):0; oy=m?parseFloat(m[2]):0;
+    try{ el.setPointerCapture(e.pointerId); }catch(e2){}
+  });
+  el.addEventListener('pointermove',function(e){
+    if(!dragging) return; var dx=e.clientX-sx, dy=e.clientY-sy;
+    if(Math.abs(dx)>3||Math.abs(dy)>3){ moved=true; el.classList.add('drag'); }
+    el.style.transform='translate('+(ox+dx)+'px,'+(oy+dy)+'px) rotate('+deg+'deg)';
+  });
+  el.addEventListener('pointerup',function(e){
+    dragging=false; el.classList.remove('drag');
+    if(!moved && !e.target.closest('a,button')) openLightbox(el.dataset.src, el.dataset.name);
+  });
+}
+board.addEventListener('click',function(e){
+  var btn=e.target.closest('.nexp'); if(!btn) return;
+  var card=btn.closest('.note'); openLightbox(card.dataset.src, card.dataset.name);
+});
+function openLightbox(src,name){
+  var ov=document.createElement('div'); ov.className='lb';
+  ov.innerHTML='<div class="lb-card"><div class="lb-head"><b>'+esc(name)+'</b><a class="lb-open" href="/app/curso.html?src='+encodeURIComponent(src)+'">Abrir curso completo →</a><button type="button" class="lb-x" aria-label="Cerrar">×</button></div><iframe src="/app/curso.html?src='+encodeURIComponent(src)+'" loading="lazy" title="Vista previa del curso"></iframe></div>';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.classList.add('show'); });
+  function close(){ ov.classList.remove('show'); setTimeout(function(){ ov.remove(); },250); document.removeEventListener('keydown',onEsc); }
+  function onEsc(e){ if(e.key==='Escape') close(); }
+  ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+  ov.querySelector('.lb-x').addEventListener('click',close);
+  document.addEventListener('keydown',onEsc);
+}
+// Voz de la respuesta con ritmo e intensidad reales (Web Audio), y la misma variable --lvl que
+// usan los ojos del asistente: aunque hable desde aquí, los ojos se iluminan igual.
+var curAudio=null, audioCtx=null, analyser=null, freqData=null, levelRaf=null;
+function setSpeaking(v){ var w=document.getElementById('ansWave'); if(w) w.classList.toggle('active',v); }
+function levelLoop(){
+  if(!analyser||!curAudio||curAudio.paused){ stopLevel(); return; }
+  analyser.getByteFrequencyData(freqData);
+  var n=freqData.length,groups=4,sums=[0,0,0,0],per=n/groups,total=0;
+  for(var i=0;i<n;i++){ sums[Math.min(groups-1,Math.floor(i/per))]+=freqData[i]; total+=freqData[i]; }
+  document.documentElement.style.setProperty('--lvl',(total/n/255).toFixed(3));
+  var w=document.getElementById('ansWave'); if(w){ var bars=w.children; for(var k=0;k<bars.length&&k<groups;k++) bars[k].style.height=(4+15*Math.min(1,sums[k]/per/255))+'px'; }
+  levelRaf=requestAnimationFrame(levelLoop);
+}
+function stopLevel(){
+  if(levelRaf) cancelAnimationFrame(levelRaf); levelRaf=null;
+  document.documentElement.style.setProperty('--lvl','0');
+  var w=document.getElementById('ansWave'); if(w) Array.prototype.forEach.call(w.children,function(b){ b.style.height='4px'; });
+}
+function stopAudio(){ if(curAudio){ try{curAudio.pause();}catch(e){} curAudio=null; } setSpeaking(false); stopLevel(); }
+async function speak(text){
+  stopAudio();
+  try{
+    var r=await fetch('/api/voice/tts',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({text:String(text).slice(0,1200),voiceId:'bkcxugbRtulPFV1CinBX'})});
+    if(!r.ok) return;
+    setSpeaking(true);
+    var url=URL.createObjectURL(await r.blob());
+    var a=new Audio(url); curAudio=a; a.playbackRate=1;
+    a.onended=function(){ URL.revokeObjectURL(url); if(curAudio===a) curAudio=null; setSpeaking(false); stopLevel(); };
+    try{
+      if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      if(audioCtx.state==='suspended') audioCtx.resume().catch(function(){});
+      var src=audioCtx.createMediaElementSource(a);
+      analyser=audioCtx.createAnalyser(); analyser.fftSize=64; analyser.smoothingTimeConstant=0.6;
+      freqData=new Uint8Array(analyser.frequencyBinCount);
+      src.connect(analyser); analyser.connect(audioCtx.destination);
+    }catch(e){ analyser=null; }
+    await a.play().catch(function(){ setSpeaking(false); });
+    if(analyser) levelLoop();
+  }catch(e){ setSpeaking(false); }
+}
+
+var threadId=null, orchProfile=[];
+try{ SkillUp.api('/api/notes/list?source=onboarding').then(function(d){ (d&&d.items||[]).forEach(function(a){ if(a.kind==='insight'&&a.body) orchProfile.push(a.body); }); }).catch(function(){}); }catch(e){}
+var ORCH='[Eres el buscador/asistente de Brandooers SkillUp: la formación que se queda dentro de la empresa. Responde MUY breve y ágil (2-4 frases), cercano, sin markdown ni símbolos, y con puntuación correcta (para que suene bien en voz). Si la pregunta encaja con una especialidad, nombra al tutor adecuado: Diego (comercial), Marta (marketing), Álvaro (negociación), Elena (acompañamiento). No inventes cursos ni datos.]';
+
+async function search(q){
+  q=q.trim(); if(!q) return;
+  stopAudio();
+  var results=document.getElementById('results');
+  var courses=matchCourses(q);
+  renderResources(courses);
+  results.innerHTML='<div class="section-t">Respuesta</div><div class="answer think" id="ans">'
+    +'<span class="bg-wave" id="ansWave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>'
+    +'<span id="ansText">Pensando…</span></div>';
+  try{
+    var perf=orchProfile.length?(' Perfil del usuario: '+orchProfile.slice(0,6).join(' | ')+'.'):'';
+    var msg=threadId? q : (ORCH+perf+'\n\n'+q);
+    var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:msg,threadId:threadId||undefined}});
+    threadId=r.threadId;
+    var ans=document.getElementById('ans'), txt=document.getElementById('ansText');
+    if(ans&&txt){ txt.textContent=r.reply||'—'; ans.classList.remove('think'); }
+    if(r.reply) speak(r.reply);
+  }catch(e){ var ans2=document.getElementById('ans'), txt2=document.getElementById('ansText'); if(ans2&&txt2){ txt2.textContent='Ahora mismo no puedo responder. Inténtalo en un momento.'; ans2.classList.remove('think'); } }
+}
+document.getElementById('go').addEventListener('click',function(){ search(document.getElementById('q').value); });
+document.getElementById('q').addEventListener('keydown',function(e){ if(e.key==='Enter') search(this.value); });
+document.getElementById('chips').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; document.getElementById('q').value=b.textContent; search(b.textContent); });
+document.getElementById('q').focus();
+})();
+</script>
+<script src="/app/boo-eyes.js?v=20260915k"></script>
+<script src="/app/breadcrumbs.js" defer></script>
+<script src="/app/gestures.js" defer></script>
+</body>
+</html>

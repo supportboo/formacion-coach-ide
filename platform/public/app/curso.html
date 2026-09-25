@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Curso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#1a1820;--bg2:#1a1820;--ink:#F1EEF4;--body:#DED8E4;--muted:#948CA0;
+  --aub:#714B67;--aub2:#B588A8;--teal:#017E84;--teal2:#2FD3C6;--gold:#FFD700;--pink:#EC6FA6;
+  --panel:#201d28;--glass:rgba(255,255,255,.05);--line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;
+}
+:root[data-theme="light"]{color-scheme:light;
+  --bg:#F3EFE7;--bg2:#EDE8DF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--pink:#C24E86;
+  --panel:#FFFFFF;--glass:rgba(60,42,84,.05);--line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);overflow:hidden;background:var(--bg)}
+button{font-family:inherit}
+[hidden]{display:none!important}
+.app{display:flex;height:100dvh;position:relative}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.ctx{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ctx .mlogo{width:30px;height:18px;flex:none}
+.ctx .crumb{font-size:12.5px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctx .crumb b{color:var(--aub2)}
+.ctx .btn{color:var(--ink);text-decoration:none;font-size:12.5px;border:1px solid var(--line);border-radius:9px;padding:7px 12px;flex:none;background:var(--glass);cursor:pointer}
+.coachbar{display:flex;align-items:flex-start;gap:9px;padding:10px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);cursor:pointer}
+.coachbar .av{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;background:#1a1020;box-shadow:inset 0 0 0 1px rgba(181,136,168,.35)}
+.coachbar .av svg{width:18px;height:11px}
+.coachbar .tx{font-size:12.5px;line-height:1.4;color:var(--body)}
+.coachbar .tx b{color:var(--teal2);font-family:var(--fc);font-size:14px;font-weight:700}
+.deckwrap{flex:1;overflow:hidden;position:relative}
+.track{display:flex;height:100%;transition:transform .4s cubic-bezier(.7,.02,.24,1)}
+.card{flex:0 0 100%;height:100%;overflow-y:auto;padding:26px 22px 40px}
+.card-in{width:100%;max-width:720px;margin:0 auto}
+.kpill{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;padding:5px 11px;border-radius:999px;margin-bottom:16px;background:rgba(181,136,168,.16);color:var(--aub2)}
+.kpill i{width:6px;height:6px;border-radius:50%;background:var(--aub2)}
+/* prose: contenido real del curso re-estilado al tema oscuro */
+.prose h1,.prose h2{font-family:var(--fh);color:var(--ink);line-height:1.12;letter-spacing:-.015em;margin:.2em 0 .5em;font-size:clamp(23px,4vw,33px)}
+.prose h3{color:var(--aub2);font-size:clamp(16px,2.4vw,19px);margin:1.5em 0 .4em;font-weight:800}
+.prose h4{color:var(--teal2);font-size:15px;margin:1.3em 0 .3em}
+.prose p{font-size:clamp(14.5px,2vw,16px);line-height:1.65;margin:0 0 1em;color:var(--body)}
+.prose ul,.prose ol{margin:0 0 1.1em;padding-left:22px}
+.prose li{font-size:clamp(14px,1.9vw,15.5px);line-height:1.6;margin:.35em 0}
+.prose strong,.prose b{color:var(--ink);cursor:pointer;transition:color .15s}
+.prose strong:hover,.prose b:hover{color:var(--teal2)}
+.prose a{color:var(--teal2);text-decoration:underline;text-underline-offset:2px}
+.prose a.jump{cursor:pointer}
+.prose blockquote{border-left:3px solid var(--aub2);margin:0 0 1.1em;padding:6px 0 6px 16px;color:var(--body);background:linear-gradient(90deg,rgba(181,136,168,.08),transparent)}
+.prose code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:6px;font-size:.9em}
+.prose table{width:100%;border-collapse:collapse;margin:0 0 1.2em;font-size:13.5px;display:block;overflow-x:auto}
+.prose th,.prose td{border:1px solid var(--line);padding:8px 11px;text-align:left}
+.prose th{background:rgba(255,255,255,.05);color:var(--ink)}
+.prose img{max-width:100%;border-radius:12px;margin:.4em 0}
+.prose hr{border:0;border-top:1px solid var(--line);margin:1.4em 0}
+.dfoot{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.dfoot .spine{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.09);overflow:hidden}
+.dfoot .spine span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal2),var(--aub2));transition:width .4s}
+.dfoot .pos{font-size:12px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums;min-width:60px;text-align:center}
+.nb{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--glass);color:var(--ink);cursor:pointer;font-size:19px;flex:none}
+.nb.primary{width:auto;padding:0 18px;font-weight:800;font-size:13px;border:0;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff}
+.nb[disabled]{opacity:.3}
+/* índice */
+.idx{position:absolute;inset:0;z-index:22;background:rgba(8,5,12,.72);backdrop-filter:blur(4px);display:none}
+.idx.open{display:block}
+.idx-in{position:absolute;left:0;top:0;bottom:0;width:min(360px,86vw);background:rgba(19,11,26,.98);border-right:1px solid var(--line);display:flex;flex-direction:column}
+.idx-hd{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.idx-hd b{flex:1;color:var(--ink);font-size:14px}.idx-hd .x{border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer}
+.idx-list{flex:1;overflow-y:auto;padding:8px}
+.idx-mod{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--teal2);padding:12px 10px 4px;font-weight:800}
+.idx-item{display:block;width:100%;text-align:left;border:0;background:none;color:var(--body);cursor:pointer;padding:9px 10px;border-radius:9px;font:inherit;font-size:13.5px;line-height:1.35}
+.idx-item:hover{background:var(--glass)}
+.idx-item.on{background:linear-gradient(160deg,rgba(113,75,103,.5),rgba(1,126,132,.26));color:var(--ink)}
+/* tutor */
+/* panel de chat del tutor: en PC columna lateral fija; en móvil se desliza desde la derecha */
+.chatpanel{position:absolute;top:0;right:0;bottom:0;width:min(400px,92vw);z-index:24;transform:translateX(101%);transition:transform .3s;box-shadow:var(--sh);display:flex;flex-direction:column;background:var(--panel,#201d28);border-left:1px solid var(--line)}
+.chatpanel.open{transform:none}
+.cp-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.cp-hd .av{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:#1a1020;box-shadow:inset 0 0 0 1px rgba(181,136,168,.35);flex:none}
+.cp-hd .av svg{width:21px;height:13px}
+.cp-hd .who{flex:1;min-width:0}
+.cp-hd .who b{color:var(--ink);font-size:14px;display:block}.cp-hd .who small{color:var(--teal2);font-family:var(--fc);font-size:12.5px;font-weight:700}
+.cp-hd .vsel{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--body);font-size:11px;border-radius:8px;padding:5px;max-width:84px;cursor:pointer;outline:none;flex:none}
+.cp-hd .vsel option{background:#1b1226;color:var(--body)}
+.cp-hd .spk{background:none;border:0;color:var(--muted);cursor:pointer;padding:4px;display:grid;place-items:center;flex:none}
+.cp-hd .spk.on{color:var(--teal2)}.cp-hd .spk svg{width:17px;height:17px}
+.cp-hd .x{border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;flex:none}
+.cp-ctx{font-size:11.5px;color:var(--muted);padding:8px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-ctx b{color:var(--aub2)}
+.cp-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;min-height:120px}
+.msgb{max-width:90%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.45;white-space:pre-wrap}
+.msgb.a{align-self:flex-start;background:var(--glass);border:1px solid var(--line);color:var(--body);border-bottom-left-radius:4px}
+.kwrap{display:inline}
+.kw{border-radius:4px;padding:0 1px;transition:background-color .1s,color .1s}
+.kw.on{background:var(--teal2);color:#08161a;font-weight:600}
+.msgb.u{align-self:flex-end;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;border-bottom-right-radius:4px}
+.cp-row{display:flex;gap:7px;padding:11px;border-top:1px solid var(--line)}
+.cp-row .mic{width:42px;border:1px solid var(--line);border-radius:11px;background:var(--glass);color:var(--aub2);cursor:pointer;flex:none;display:grid;place-items:center}
+.cp-row .mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c}
+.cp-row input{flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:11px;color:#fff;padding:11px 13px;font:inherit;font-size:14px;outline:none}
+.cp-row .snd{width:42px;border:0;border-radius:11px;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;cursor:pointer;flex:none}
+.fab{position:absolute;right:16px;bottom:16px;z-index:12;width:58px;height:58px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 42%,#1d1128,#0b0611) padding-box,conic-gradient(from 210deg,#22D3EE,#8B5CF6,#EC4899,#FFD700,#22D3EE) border-box;box-shadow:0 10px 26px rgba(139,92,246,.5),0 0 24px rgba(47,211,198,.4)}
+.fab svg{width:32px;height:20px;filter:drop-shadow(0 0 6px rgba(103,232,249,.7)) drop-shadow(0 2px 5px rgba(0,0,0,.55))}
+/* anotaciones: el curso como superficie */
+.selmenu{position:fixed;z-index:30;display:none;background:#241f2e;border:1px solid var(--line);border-radius:11px;box-shadow:var(--sh);padding:5px;gap:3px;flex-wrap:wrap;max-width:min(340px,92vw)}
+.selmenu.open{display:flex}
+.selmenu button{border:0;background:none;color:var(--body);font:inherit;font-size:12.5px;font-weight:700;padding:7px 11px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.selmenu button:hover{background:rgba(181,136,168,.2);color:var(--ink)}
+mark.uhl{background:rgba(240,198,69,.28);color:inherit;border-radius:2px;padding:0 1px}
+.unote{margin:12px 0;border-left:3px solid var(--teal2);background:rgba(63,216,224,.08);border-radius:0 10px 10px 0;padding:9px 13px;font-size:13.5px;line-height:1.5}
+.unote .lbl{font-family:var(--fc);color:var(--teal2);font-size:15px;display:block;margin-bottom:2px}
+.mn{position:absolute;inset:0;z-index:26;background:rgba(8,5,12,.72);backdrop-filter:blur(4px);display:none}
+.mn.open{display:block}
+.mn-in{position:absolute;right:0;top:0;bottom:0;width:min(400px,90vw);background:#1f1c26;border-left:1px solid var(--line);display:flex;flex-direction:column}
+.mn-hd{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.mn-hd b{flex:1;color:var(--ink);font-size:14px}.mn-hd .x{border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer}
+.mn-list{flex:1;overflow-y:auto;padding:10px}
+.mn-item{border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:9px;cursor:pointer;background:rgba(255,255,255,.02)}
+.mn-item:hover{border-color:var(--aub2)}
+.mn-item .k{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--aub2)}
+.mn-item .q{font-size:13px;color:var(--ink);margin:3px 0}
+.mn-item .b{font-size:12.5px;color:var(--body)}
+.mn-item .del{float:right;border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+.mn-empty{color:var(--muted);text-align:center;padding:34px 16px;font-size:13.5px;line-height:1.5}
+/* pizarra viva: el tutor subraya a mano y señala dónde mirar. Reglas: no solapa texto, grande, y se va al interactuar. */
+.card-in{position:relative}
+.chalkwrap{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:3;transition:opacity .5s}
+.chalkwrap.gone{opacity:0}
+.chalk{position:absolute;left:0;top:0;overflow:visible}
+.chalk path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.chalk .ln{stroke:var(--gold);stroke-width:4;stroke-dasharray:2000;stroke-dashoffset:2000;animation:chalkdraw 1s ease forwards;filter:drop-shadow(0 1px 4px rgba(240,198,69,.5))}
+.chalk .arw{stroke:var(--teal2);stroke-width:3;stroke-dasharray:600;stroke-dashoffset:600;animation:chalkdraw .8s ease .6s forwards;filter:drop-shadow(0 1px 3px rgba(0,0,0,.4))}
+@keyframes chalkdraw{to{stroke-dashoffset:0}}
+.chalk-note{position:absolute;font-family:var(--fc);font-weight:700;color:var(--teal2);font-size:clamp(26px,3.4vw,34px);line-height:1;white-space:nowrap;transform:rotate(-4deg);opacity:0;animation:chalknote .45s ease .8s forwards;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+@keyframes chalknote{to{opacity:1}}
+.prose strong,.prose b{position:relative}
+.prose strong::after,.prose b::after{content:"";position:absolute;left:-1px;right:-1px;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--teal2),var(--aub2));border-radius:2px;transform:scaleX(0);transform-origin:left;transition:transform .2s}
+.prose strong:hover::after,.prose b:hover::after{transform:scaleX(1)}
+.prose strong::before,.prose b::before{content:"toca para preguntar";position:absolute;bottom:100%;left:50%;transform:translateX(-50%) translateY(-3px);background:#241f2e;border:1px solid var(--line);color:var(--teal2);font-family:var(--fc);font-weight:700;font-size:14px;padding:2px 9px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:5}
+.prose strong:hover::before,.prose b:hover::before{opacity:1}
+@media(prefers-reduced-motion:reduce){.chalk .ln,.chalk .arw{animation:none;stroke-dashoffset:0}.chalk-note{animation:none;opacity:1}}
+/* pizarra viva: nota manuscrita EN FLUJO que el tutor te deja para sacarte un caso/emoción real (clic -> pregunta).
+   En flujo = nunca se solapa a ningún ancho, siempre visible e incitante (móvil y escritorio). */
+.discue{margin:22px 0 6px;padding:13px 16px;border-radius:14px;border:1px dashed rgba(240,198,69,.42);background:rgba(240,198,69,.05);display:flex;align-items:center;gap:13px;cursor:pointer;transition:.2s;animation:cuein .45s ease both}
+@keyframes cuein{from{opacity:0;transform:translateY(8px)}}
+.discue:hover{border-color:var(--gold);background:rgba(240,198,69,.1)}
+.discue .arw{flex:none;width:36px;height:32px;stroke:var(--teal2);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+.discue .q{flex:1;min-width:0;font-family:var(--fc);color:var(--gold);font-size:26px;line-height:1.06;font-weight:700}
+.discue .cta{flex:none;border:0;border-radius:10px;padding:10px 15px;font-family:var(--ff);font-weight:800;font-size:12.5px;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));cursor:pointer}
+.discue.gone{opacity:0;pointer-events:none;max-height:0;margin:0;padding:0;border-width:0;overflow:hidden}
+@keyframes askglow{0%,100%{box-shadow:0 0 0 0 rgba(63,216,224,0)}50%{box-shadow:0 0 0 6px rgba(63,216,224,.16)}}
+.askpulse{animation:askglow 1.2s ease 2}
+/* ejercicios dentro del contenido: respondes por teclado o voz y el tutor te corrige */
+.uexercise{margin:18px 0 6px;border:1px solid rgba(240,198,69,.35);background:rgba(240,198,69,.06);border-radius:14px;padding:14px 16px}
+.uex-q{font-size:14.5px;color:var(--ink);line-height:1.5;margin-bottom:10px}
+.uex-lbl{font-family:var(--fc);color:var(--gold);font-size:18px;display:inline-block;margin-right:6px}
+.uex-in{display:flex;gap:8px;align-items:stretch}
+.uex-in textarea{flex:1;min-height:62px;resize:vertical;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:11px;color:#fff;padding:10px 12px;font:inherit;font-size:14px;outline:none}
+.uex-mic{width:42px;flex:none;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.06);color:var(--aub2);cursor:pointer;display:grid;place-items:center}
+.uex-mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c}
+.uex-send{margin-top:10px;border:0;border-radius:11px;padding:9px 16px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub))}
+.uex-send[disabled]{opacity:.5}
+.uex-ans{margin-top:12px;border-left:3px solid var(--teal2);padding:8px 12px;background:rgba(63,216,224,.07);border-radius:0 10px 10px 0;font-size:13.5px;line-height:1.5}
+.uex-ans .who,.uex-fb .who{font-family:var(--fc);display:block;font-size:14px}
+.uex-ans .who{color:var(--teal2)}
+.uex-fb .fbrow{margin-top:10px;border-left:3px solid var(--aub2);padding:8px 12px;background:rgba(198,156,184,.08);border-radius:0 10px 10px 0;font-size:13.5px;line-height:1.5;white-space:pre-wrap}
+.uex-fb .who{color:var(--aub2)}
+.uex-adopt{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
+.uex-al{font-size:12.5px;color:var(--muted);font-weight:700}
+.uex-adopt button{border:1px solid var(--line);background:var(--glass);color:var(--body);border-radius:10px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.uex-adopt button:hover{border-color:var(--aub2);color:var(--ink)}
+.revacts{align-self:flex-start;display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 4px}
+.revbtn{border:1px solid var(--line);background:var(--glass);color:var(--body);border-radius:10px;padding:7px 11px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.revbtn:hover{border-color:var(--aub2);color:var(--ink)}
+/* boot */
+.boot{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:26px;text-align:center;
+  background:radial-gradient(700px 420px at 50% 34%,rgba(113,75,103,.28),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2))}
+.boot-mark{display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:900;color:var(--ink);font-size:clamp(34px,7vw,46px);letter-spacing:-.02em}
+.boot-mark svg{width:clamp(64px,14vw,88px);height:auto;margin:0 -2px;filter:drop-shadow(0 3px 12px rgba(90,200,240,.4))}
+.boot-mark .booiris{animation:bootblink 3.2s infinite}
+@keyframes bootblink{0%,92%,100%{opacity:1}95%{opacity:.15}97%{opacity:1}}
+.boot-sub{font-family:var(--fc);font-size:19px;color:var(--teal2);margin-top:-8px}
+.boot-bar{width:min(300px,72vw);height:7px;border-radius:7px;background:rgba(255,255,255,.09);overflow:hidden}
+.boot-bar span{display:block;height:100%;width:8%;border-radius:7px;background:linear-gradient(90deg,var(--teal2),var(--aub2),var(--gold));transition:width .45s ease}
+.boot-status{font-size:13px;color:var(--muted);min-height:18px}
+.boot-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:none}
+@media(prefers-reduced-motion:reduce){.boot-mark .booiris{animation:none}.fab{animation:none}}
+@media(min-width:940px){.chatpanel{position:static;transform:none;width:340px;flex:none;box-shadow:none;background:rgba(255,255,255,.02)}.coachbar{display:none}.fab{display:none}.cp-hd .x{display:none}}
+</style>
+</head>
+<body>
+<div class="boot" id="boot">
+  <div class="boot-mark">Brand<svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#2FD3C6" stroke-width="3"/><circle class="booiris" cx="20" cy="36" r="7.5" fill="#B588A8"/><circle cx="20" cy="36" r="3.4" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#FFD700" stroke-width="3"/><circle class="booiris" cx="20" cy="36" r="7.5" fill="#2FD3C6"/><circle cx="20" cy="36" r="3.4" fill="#0a0a0f"/></g></svg>ers</div>
+  <div class="boot-sub">SkillUp</div>
+  <div class="boot-bar"><span id="bootFill"></span></div>
+  <div class="boot-status" id="bootStatus">Comprobando tu sesión…</div>
+  <a class="boot-btn" id="bootBtn" href="/app/login.html">Iniciar sesión</a>
+</div>
+<div class="app" id="app" hidden></div>
+
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+(function(){
+"use strict";
+// tema recordado (compartido con toda la app): claro tipo papel u oscuro mate
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+// Protección del contenido: dificulta extraer el texto tal cual (copiar/cortar/menú derecho/arrastrar).
+// Se mantiene la SELECCIÓN (necesaria para subrayar/anotar) pero se bloquea la copia. Los inputs/chat quedan libres.
+// Nota honesta: no impide capturas de pantalla (no es garantizable en web); el valor está en interactuar, no en el texto.
+['copy','cut','contextmenu','dragstart'].forEach(function(ev){ document.addEventListener(ev,function(e){ var t=e.target; if(t&&t.closest&&t.closest('input,textarea,.chatpanel,.mn,.idx'))return; e.preventDefault(); },true); });
+var boot=document.getElementById('boot'),bootFill=document.getElementById('bootFill'),bootStatus=document.getElementById('bootStatus'),bootBtn=document.getElementById('bootBtn');
+function setBoot(m,p){if(bootStatus)bootStatus.textContent=m;if(bootFill&&p!=null)bootFill.style.width=p+'%';}
+if(!window.SkillUp||!SkillUp.api){setBoot('No se pudo cargar. Vuelve a entrar desde el inicio.',100);return;}
+
+var app=document.getElementById('app');
+var params=new URLSearchParams(location.search);
+var SRC=params.get('src')||'/reclutamiento-partners.html';
+// seguridad: solo rutas del propio dominio
+if(!/^\/[a-z0-9._\/-]+\.html$/i.test(SRC)){ setBoot('Curso no válido.',100); throw new Error('bad src'); }
+var SLUG=SRC.replace(/^\//,'').replace(/\.html$/,'');
+var NAMES={'index':'Guía del Coach','outbound-sales':'Outbound Sales','reclutamiento-partners':'Reclutamiento de Partners','marketing-partners':'Marketing para Partners','negociacion-partner-manager':'Negociación con Partners','objeciones-partner-manager':'Objeciones de Partners','prospeccion-social-selling':'Prospección con IA'};
+var COURSE=NAMES[SLUG]||(function(){var s=SLUG.replace(/-/g,' ');return s.charAt(0).toUpperCase()+s.slice(1);})();
+// Tutor especialista con nombre y personalidad (sénior 25 años en su materia).
+var PERSONAS={
+  comercial:{name:'Diego',role:'Tutor Comercial',field:'venta y prospección B2B, 25 años de calle',voice:'WsvUasyBVDfzPhE0B6jC'},
+  marketing:{name:'Marta',role:'Tutora de Marketing',field:'marketing B2B y generación de demanda, 25 años',voice:'jQrhxsqzG6CPKo3ll0w9'},
+  negociacion:{name:'Álvaro',role:'Tutor de Negociación',field:'negociación y manejo de objeciones, 25 años',voice:'fjMC3Wxp5QfFT9wNGQOI'},
+  coach:{name:'Elena',role:'Tutora de Acompañamiento',field:'coaching y onboarding de equipos, 25 años',voice:'oHMibLgDqXK3fjgFVtJ6'}
+};
+var PMAP={'index':'coach','outbound-sales':'comercial','reclutamiento-partners':'comercial','prospeccion-social-selling':'comercial','marketing-partners':'marketing','negociacion-partner-manager':'negociacion','objeciones-partner-manager':'negociacion'};
+var PERSONA=PERSONAS[PMAP[SLUG]]||{name:'Tu tutor',role:'Tu tutor',field:'la materia del curso'};
+var NUDGES=[
+  'fíjate bien en «{t}». Si quieres, te cuento un caso real que viví con esto.',
+  '«{t}» es donde más gente falla. Pregúntame y te lo aterrizo con un ejemplo.',
+  'esto de «{t}» lo he visto mil veces. ¿Te pongo un ejemplo de tu sector?',
+  'léelo con calma. Cuando acabes, te hago una pregunta rápida para fijarlo.',
+  '«{t}»: aquí hay chicha. Si algo no te cuadra, me preguntas y lo vemos.'
+];
+
+var EYES='<svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#2FD3C6" stroke-width="3"/><circle cx="20" cy="36" r="7" fill="#B588A8"/><circle cx="20" cy="36" r="3.2" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#FFD700" stroke-width="3"/><circle cx="20" cy="36" r="7" fill="#2FD3C6"/><circle cx="20" cy="36" r="3.2" fill="#0a0a0f"/></g></svg>';
+function ico(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
+
+var CARDS=[]; // {mod, title, html}
+
+// --- limpiar contenido del curso: quitar chrome, clases, estilos; conservar estructura de texto ---
+var DROP='script,style,noscript,form,button,input,textarea,select,svg,nav,header,footer,iframe,.rail,.reg-overlay,.printbtn,.menu-fab,.sidenav,.agent-fab,.guide-fab,#intFab,.fb-toggle,.fb-panel';
+var KEEP={H1:1,H2:1,H3:1,H4:1,H5:1,P:1,UL:1,OL:1,LI:1,STRONG:1,B:1,EM:1,I:1,A:1,BLOCKQUOTE:1,CODE:1,PRE:1,TABLE:1,THEAD:1,TBODY:1,TR:1,TH:1,TD:1,IMG:1,HR:1,BR:1,MARK:1};
+function clean(el){
+  var c=el.cloneNode(true);
+  c.querySelectorAll(DROP).forEach(function(n){n.remove();});
+  var all=c.querySelectorAll('*');
+  all.forEach(function(n){
+    if(!KEEP[n.tagName]){ // desconocido -> desenvolver conservando hijos
+      while(n.firstChild) n.parentNode.insertBefore(n.firstChild,n);
+      n.remove(); return;
+    }
+    [].slice.call(n.attributes).forEach(function(a){
+      if(a.name==='id') return;
+      if(n.tagName==='A'&&a.name==='href'){
+        var hv=(a.value||'').trim(), cm=hv.match(/^\/?([a-z0-9-]+)\.html(?:#.*)?$/i);
+        if(hv[0]==='#'){n.removeAttribute('href'); n.setAttribute('data-jump',hv.slice(1));}
+        else if(cm){n.setAttribute('href','/app/curso.html?src='+encodeURIComponent('/'+cm[1]+'.html'));} // other course -> viewer
+        else if(/^javascript:/i.test(hv)){n.removeAttribute('href');}
+        return;
+      }
+      if(n.tagName==='IMG'&&(a.name==='src'||a.name==='alt')) return;
+      n.removeAttribute(a.name);
+    });
+  });
+  return c.innerHTML.trim();
+}
+function textOf(el){return (el.textContent||'').replace(/\s+/g,' ').replace(/[▲▼►◄▸▾▶◀‹›]+\s*$/,'').trim();}
+
+function parse(html){
+  var doc=new DOMParser().parseFromString(html,'text/html');
+  var mods=[].slice.call(doc.querySelectorAll('.module'));
+  if(!mods.length){ mods=[doc.body]; } // fallback
+  mods.forEach(function(mod){
+    var flat=clean(mod); // HTML plano (div/span desenvueltos): h2/h3/p/ul/table...
+    var tmp=document.createElement('div'); tmp.innerHTML=flat;
+    var kids=[].slice.call(tmp.children);
+    var modTitle=''; for(var k=0;k<kids.length;k++){ if(kids[k].tagName==='H2'){ modTitle=textOf(kids[k]); break; } }
+    if(!modTitle) modTitle=textOf(tmp.querySelector('h1,h2,h3'))||COURSE;
+    var cur=null;
+    kids.forEach(function(el){
+      if(el.tagName==='H1'||el.tagName==='H2'){ cur={mod:modTitle,title:textOf(el),body:'',anchorId:el.getAttribute('id')||''}; CARDS.push(cur); }
+      else if(cur){ cur.body+=el.outerHTML; }
+      else { cur={mod:modTitle,title:modTitle,body:el.outerHTML,anchorId:''}; CARDS.push(cur); }
+    });
+  });
+  // fuera tarjetas sin cuerpo real (solo encabezado suelto)
+  CARDS=CARDS.filter(function(c){ return c.body && c.body.replace(/<[^>]+>/g,'').replace(/\s+/g,'').length>1; });
+  // Bloques completos: coalesce las tarjetas cortas para que ninguna quede escueta (Marc: que ocupen la pantalla y aporten valor).
+  // Una tarjeta cuya anterior aún es corta se funde en ella como subsección (su título pasa a h3), hasta alcanzar sustancia.
+  function tlen(h){ return String(h||'').replace(/<[^>]+>/g,'').replace(/\s+/g,'').length; }
+  function esch(s){ return String(s||'').replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  var MIN=240, merged=[];
+  CARDS.forEach(function(c){
+    var prev=merged[merged.length-1];
+    if(prev && tlen(prev.body)<MIN){ prev.body+='<h3'+(c.anchorId?' id="'+esch(c.anchorId)+'"':'')+'>'+esch(c.title)+'</h3>'+c.body; }
+    else{ merged.push({mod:c.mod,title:c.title,body:c.body,anchorId:c.anchorId}); }
+  });
+  CARDS=merged;
+  resolveJumps();
+}
+// reconecta los <a data-jump="id"> (antiguos anclajes internos #id de la web fuente) con la tarjeta
+// paginada que contiene ese id; si no hay destino real, desenvuelve el <a> para no dejar un falso link.
+function resolveJumps(){
+  var idMap={};
+  CARDS.forEach(function(c,i){
+    if(c.anchorId) idMap[c.anchorId]=i;
+    var tmp=document.createElement('div'); tmp.innerHTML=c.body;
+    tmp.querySelectorAll('[id]').forEach(function(n){ if(n.id && !(n.id in idMap)) idMap[n.id]=i; });
+  });
+  CARDS.forEach(function(c){
+    if(c.body.indexOf('data-jump')<0) return;
+    var tmp=document.createElement('div'); tmp.innerHTML=c.body;
+    tmp.querySelectorAll('a[data-jump]').forEach(function(a){
+      var target=idMap[a.getAttribute('data-jump')];
+      a.removeAttribute('data-jump');
+      if(target!==undefined){ a.setAttribute('data-i',target); a.classList.add('jump'); }
+      else { while(a.firstChild) a.parentNode.insertBefore(a.firstChild,a); a.parentNode.removeChild(a); }
+    });
+    c.body=tmp.innerHTML;
+  });
+}
+
+var idx=0;
+function build(){
+  app.innerHTML=
+    '<div class="main">'
+      +'<div class="ctx"><svg class="mlogo" viewBox="0 0 100 58">'+EYES.replace('<svg viewBox="0 0 100 58" aria-hidden="true">','').replace('</svg>','')+'</svg><div class="crumb" id="crumb"></div><button class="btn" id="vidBtn" title="Vídeos externos sobre este tema">Vídeos</button><button class="btn" id="mnBtn">Mis notas</button><button class="btn" id="idxBtn">Índice</button><a class="btn" href="/app/inicio.html">Salir</a></div>'
+      +'<div class="coachbar" id="coachbar"><div class="av">'+EYES+'</div><div class="tx"><b>'+esc(PERSONA.name)+'</b> · '+esc(PERSONA.role.toLowerCase())+', pregúntame <span style="color:var(--teal2)">›</span></div></div>'
+      +'<div class="deckwrap"><div class="track" id="track">'+CARDS.map(function(c){return '<div class="card"><div class="card-in"><span class="kpill"><i></i>'+esc(c.mod)+'</span><div class="prose"><h2>'+esc(c.title)+'</h2>'+c.body+'</div></div></div>';}).join('')+'</div></div>'
+      +'<div class="dfoot"><button class="nb" id="prev">‹</button><div class="spine"><span id="fill"></span></div><div class="pos" id="pos"></div><button class="nb primary" id="next">Siguiente</button></div>'
+    +'</div>'
+    +'<aside class="chatpanel" id="chat"><div class="cp-hd"><div class="av">'+EYES+'</div><div class="who"><b>'+esc(PERSONA.name)+'</b><small>'+esc(PERSONA.role)+'</small></div><select class="vsel" id="vsel" aria-label="Voz" hidden></select><button class="spk" id="spk" aria-label="Leer en voz alta" hidden>'+ico('<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>')+'</button><button class="x" id="cpX" aria-label="Cerrar">×</button></div><div class="cp-ctx" id="cpCtx"></div><div class="cp-log" id="log"></div><div class="cp-row"><button class="mic" id="mic" aria-label="Hablar">'+ico('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/>')+'</button><input id="chatInput" placeholder="Pregúntale a '+esc(PERSONA.name)+'…"><button class="snd" id="snd" aria-label="Enviar">'+ico('<path d="M5 12h14M13 6l6 6-6 6"/>')+'</button></div></aside>'
+    +'<button class="fab" id="fab" aria-label="Hablar con el tutor">'+EYES+'</button>'
+    +'<div class="selmenu" id="selmenu"><button data-a="hl">Subrayar</button><button data-a="note">Nota</button><button data-a="ask">Preguntar</button><button data-a="advise">Consejo</button><button data-a="example">Ejemplo</button></div>'
+    +'<div class="mn" id="mn"><div class="mn-in"><div class="mn-hd"><b>Mi curso · notas y subrayados</b><button class="x" id="mnX">×</button></div><div class="mn-list" id="mnList"></div></div></div>'
+    +'<div class="idx" id="idx"><div class="idx-in"><div class="idx-hd"><b>Índice del curso</b><button class="x" id="idxX">×</button></div><div class="idx-list" id="idxList"></div></div></div>';
+  buildIndex(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
+}
+function wireAnnotations(){
+  var track=document.getElementById('track'), menu=document.getElementById('selmenu');
+  var anns=[];
+  function cardProse(ci){ var c=track.children[ci]; return c?c.querySelector('.prose'):null; }
+  function wrapQuote(p,q){ if(!p||!q)return; var w=document.createTreeWalker(p,NodeFilter.SHOW_TEXT,null),n; while((n=w.nextNode())){ if(n.parentNode&&n.parentNode.classList&&n.parentNode.classList.contains('uhl'))continue; var i=n.nodeValue.indexOf(q); if(i>=0){ try{var r=document.createRange();r.setStart(n,i);r.setEnd(n,i+q.length);var m=document.createElement('mark');m.className='uhl';r.surroundContents(m);}catch(e){} return; } } }
+  function renderAnns(){ anns.forEach(function(a){ var p=cardProse(a.card); if(!p)return;
+    if(a.kind==='highlight'&&a.quote){ wrapQuote(p,a.quote); }
+    else if((a.kind==='note'||a.kind==='question')&&a.body){ if(p.querySelector('[data-ann="'+a.id+'"]'))return; var d=document.createElement('div');d.className='unote';d.setAttribute('data-ann',a.id||'');d.innerHTML='<span class="lbl">'+(a.kind==='question'?'Tu pregunta':'Tu nota')+'</span>'+esc(a.body);p.appendChild(d); } }); }
+  SkillUp.api('/api/notes/list?source='+encodeURIComponent(SRC)).then(function(d){ anns=(d&&d.items)||[]; renderAnns(); }).catch(function(){});
+  function save(kind,quote,body){ var a={source:SRC,card:idx,cardTitle:(CARDS[idx]?CARDS[idx].title:''),kind:kind,quote:quote||undefined,body:body||undefined};
+    SkillUp.api('/api/notes/add',{method:'POST',body:a}).then(function(r){ a.id=r&&r.id; anns.unshift(a); }).catch(function(){}); return a; }
+  // menú de selección sobre el texto del curso
+  document.addEventListener('mouseup',function(){ setTimeout(function(){
+    var sel=window.getSelection(); var t=sel&&sel.toString().replace(/\s+/g,' ').trim();
+    if(!t||t.length<2||t.length>600){ menu.classList.remove('open'); return; }
+    var a=sel.anchorNode, el=a&&(a.nodeType===1?a:a.parentElement);
+    if(!el||!el.closest||!el.closest('.prose')){ menu.classList.remove('open'); return; }
+    var rect=sel.getRangeAt(0).getBoundingClientRect();
+    menu.style.left=Math.max(8,Math.min(window.innerWidth-340,rect.left))+'px';
+    menu.style.top=Math.max(8,rect.top-46)+'px';
+    menu._q=t; menu._range=sel.getRangeAt(0).cloneRange(); menu.classList.add('open');
+  },10); });
+  menu.addEventListener('mousedown',function(e){e.preventDefault();});
+  menu.querySelector('[data-a=hl]').onclick=function(){ var m=document.createElement('mark');m.className='uhl'; try{menu._range.surroundContents(m);}catch(e){try{m.appendChild(menu._range.extractContents());menu._range.insertNode(m);}catch(e2){}} save('highlight',menu._q); menu.classList.remove('open'); var s=window.getSelection();if(s)s.removeAllRanges(); };
+  menu.querySelector('[data-a=note]').onclick=function(){ var q=menu._q; menu.classList.remove('open'); var txt=prompt('Tu nota sobre: «'+q.slice(0,60)+'»'); if(txt&&txt.trim()){ var a=save('note',q,txt.trim()); var p=cardProse(idx); if(p){var d=document.createElement('div');d.className='unote';d.innerHTML='<span class="lbl">Tu nota</span>'+esc(txt.trim());p.appendChild(d);} } };
+  menu.querySelector('[data-a=ask]').onclick=function(){ var q=menu._q; menu.classList.remove('open'); if(window.tutor)window.tutor.ask('Sobre esto que he marcado: «'+q+'». ¿Qué significa esto exactamente?'); save('question',q,q); };
+  menu.querySelector('[data-a=advise]').onclick=function(){ var q=menu._q; menu.classList.remove('open'); if(window.tutor)window.tutor.ask('Sobre esto que he marcado: «'+q+'». Dame un consejo práctico para aplicarlo esta semana.'); save('question',q,'[consejo] '+q); };
+  menu.querySelector('[data-a=example]').onclick=function(){ var q=menu._q; menu.classList.remove('open'); if(window.tutor)window.tutor.ask('Sobre esto que he marcado: «'+q+'». Ponme un ejemplo real y concreto.'); save('question',q,'[ejemplo] '+q); };
+  // Mis notas
+  var mn=document.getElementById('mn');
+  document.getElementById('mnBtn').onclick=function(){ renderMN(); mn.classList.add('open'); };
+  document.getElementById('mnX').onclick=function(){ mn.classList.remove('open'); };
+  function renderMN(){ var list=document.getElementById('mnList'); var shown=anns.filter(function(a){return a.kind!=='insight';}); if(!shown.length){ list.innerHTML='<div class="mn-empty">Aún no has subrayado ni anotado nada.<br>Selecciona texto del curso y elige Subrayar, Nota o Preguntar.</div>'; return; }
+    list.innerHTML=shown.map(function(a){ var lab={highlight:'Subrayado',note:'Nota',question:'Pregunta',review:'Repasar'}[a.kind]||a.kind; return '<div class="mn-item" data-c="'+a.card+'"><button class="del" data-id="'+(a.id||'')+'" title="Borrar">×</button><span class="k">'+lab+(a.cardTitle?' · '+esc(a.cardTitle):'')+'</span>'+(a.quote?'<div class="q">'+esc(String(a.quote).slice(0,140))+'</div>':'')+(a.body&&a.body!==a.quote?'<div class="b">'+esc(a.body)+'</div>':'')+'</div>'; }).join('');
+    list.querySelectorAll('.mn-item').forEach(function(it){ it.onclick=function(e){ if(e.target.closest('.del'))return; window._go(+it.dataset.c); mn.classList.remove('open'); }; });
+    list.querySelectorAll('.del').forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); var id=b.getAttribute('data-id'); if(!id)return; SkillUp.api('/api/notes/'+id,{method:'DELETE'}).catch(function(){}); anns=anns.filter(function(x){return x.id!==id;}); renderMN(); }; });
+  }
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function buildIndex(){
+  var list=document.getElementById('idxList'),html='',lastMod=null;
+  CARDS.forEach(function(c,i){ if(c.mod!==lastMod){html+='<div class="idx-mod">'+esc(c.mod)+'</div>';lastMod=c.mod;} html+='<button class="idx-item" data-i="'+i+'">'+esc(c.title)+'</button>'; });
+  list.innerHTML=html;
+  list.addEventListener('click',function(e){var b=e.target.closest('.idx-item');if(!b)return;go(+b.dataset.i);document.getElementById('idx').classList.remove('open');});
+}
+function wireDeck(){
+  var track=document.getElementById('track'),fill=document.getElementById('fill'),pos=document.getElementById('pos'),prev=document.getElementById('prev'),next=document.getElementById('next'),crumb=document.getElementById('crumb');
+  track.addEventListener('click',function(e){ var j=e.target.closest('.jump'); if(!j)return; var i=+j.getAttribute('data-i'); if(!isNaN(i)) window._go(i); });
+  window._go=function(x){idx=Math.max(0,Math.min(CARDS.length-1,x));track.style.transform='translateX('+(-idx*100)+'%)';
+    fill.style.width=((idx+1)/CARDS.length*100)+'%';pos.textContent=(idx+1)+' / '+CARDS.length;
+    prev.disabled=idx===0;next.textContent=idx===CARDS.length-1?'Terminar':'Siguiente';
+    crumb.innerHTML=esc(COURSE)+' · <b>'+esc(CARDS[idx].title)+'</b>';
+    document.querySelectorAll('.idx-item').forEach(function(b){b.classList.toggle('on',+b.dataset.i===idx);});
+    var cc=document.querySelector('.card:nth-child('+(idx+1)+')');if(cc)cc.scrollTop=0;
+    var cm=document.getElementById('ccMsg'); if(cm) cm.textContent=PERSONA.name+': '+NUDGES[idx%NUDGES.length].replace('{t}',CARDS[idx].title);
+    if(window._onSection) window._onSection(idx);};
+  prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===CARDS.length-1){location.href='/app/inicio.html';return;}window._go(idx+1)};
+  document.getElementById('idxBtn').onclick=function(){document.getElementById('idx').classList.add('open')};
+  // Vídeos externos reales sobre el tema del bloque actual: dentro de la app (slider tipo Netflix), datos reales de YouTube.
+  var vb=document.getElementById('vidBtn'); if(vb) vb.onclick=function(){ location.href='/app/videos.html?topic='+encodeURIComponent(COURSE.slice(0,90)); };
+  document.getElementById('idxX').onclick=function(){document.getElementById('idx').classList.remove('open')};
+  document.addEventListener('keydown',function(e){var sh=document.getElementById('sheet');if(sh&&sh.classList.contains('open'))return;if(e.key==='ArrowRight')window._go(idx+1);if(e.key==='ArrowLeft')window._go(idx-1);});
+  window.go=window._go; window._go(0);
+}
+function go(i){window._go(i);}
+// Pizarra viva: el tutor subraya a mano la frase clave y señala con una flecha.
+var CHALKED={};
+var CUES=['mira esto','la clave','no te saltes esto','aquí está el truco','esto lo vas a usar','ojo aquí'];
+function chalk(ci){
+  var track=document.getElementById('track'); var cardEl=track&&track.children[ci]; if(!cardEl)return;
+  if(CHALKED[ci])return; var inner=cardEl.querySelector('.card-in'); if(!inner)return;
+  var target=inner.querySelector('.prose .lead')||inner.querySelector('.prose p'); if(!target)return;
+  if(((target.textContent||'').replace(/\s+/g,'')).length<24)return;
+  CHALKED[ci]=true;
+  var it=inner.getBoundingClientRect(), tt=target.getBoundingClientRect();
+  var W=inner.offsetWidth, H=inner.offsetHeight;
+  var x=Math.max(4,tt.left-it.left), y=(tt.bottom-it.top)+3, w=Math.min(tt.width-4,440);
+  var NS='http://www.w3.org/2000/svg';
+  var wrap=document.createElement('div'); wrap.className='chalkwrap';
+  var svg=document.createElementNS(NS,'svg'); svg.setAttribute('class','chalk');
+  svg.style.width=W+'px'; svg.style.height=H+'px';
+  // subrayado ondulado en el hueco bajo la línea (no pisa texto)
+  var d='M '+x.toFixed(1)+' '+y.toFixed(1); var steps=Math.max(5,Math.floor(w/26));
+  for(var s=1;s<=steps;s++){ var px=x+(w/steps)*s; var py=y+((s%2)?3:-2); d+=' Q '+(px-(w/steps)/2).toFixed(1)+' '+(py+(s%2?7:-5)).toFixed(1)+' '+px.toFixed(1)+' '+py.toFixed(1); }
+  var ln=document.createElementNS(NS,'path'); ln.setAttribute('class','ln'); ln.setAttribute('d',d); svg.appendChild(ln);
+  // nota grande y exagerada en la esquina superior derecha (zona despejada)
+  var note=document.createElement('div'); note.className='chalk-note'; note.textContent=CUES[ci%CUES.length];
+  var noteTop=Math.max(2,(tt.top-it.top)-46);
+  note.style.right='14px'; note.style.top=noteTop+'px';
+  // flecha desde la nota, por el margen derecho, hasta el final del subrayado
+  var nx=W-70, ny=noteTop+30, tx=Math.min(x+w+2,W-6), ty=y-2;
+  var arw=document.createElementNS(NS,'path'); arw.setAttribute('class','arw');
+  arw.setAttribute('d','M '+nx.toFixed(1)+' '+ny.toFixed(1)+' C '+(nx+14).toFixed(1)+' '+(ny+34).toFixed(1)+' '+(tx+34).toFixed(1)+' '+(ty-26).toFixed(1)+' '+tx.toFixed(1)+' '+ty.toFixed(1)+' m 0 0 l -13 -2 m 13 2 l -4 -12');
+  svg.appendChild(arw);
+  wrap.appendChild(svg); wrap.appendChild(note); inner.appendChild(wrap);
+  // se va al interactuar (clic/selección en la tarjeta) o a los 6 s
+  function gone(){ if(!wrap.parentNode)return; wrap.classList.add('gone'); setTimeout(function(){ if(wrap.parentNode)wrap.parentNode.removeChild(wrap); },550); cardEl.removeEventListener('pointerdown',gone); }
+  cardEl.addEventListener('pointerdown',gone); setTimeout(gone,6000);
+}
+// Ejercicios integrados en el contenido: el alumno responde (texto/voz) y el tutor le corrige al momento.
+function wireExercises(){
+  var track=document.getElementById('track'); if(!track)return;
+  var EXQ=['Explícalo con tus palabras, como se lo contarías a un compañero.','¿Cómo lo aplicarías a tu caso? Ponme tu situación real.','Escribe una frase concreta que usarías tú en esto.','¿Qué harías tú aquí? Cuéntame tu jugada.'];
+  [].slice.call(track.children).forEach(function(cardEl,i){
+    if(i===0||i%4!==0)return;
+    var inner=cardEl.querySelector('.card-in'); var prose=inner&&inner.querySelector('.prose'); if(!prose)return;
+    if(((prose.textContent||'').replace(/\s+/g,'')).length<50)return;
+    var q=EXQ[Math.floor(i/4)%EXQ.length];
+    var ex=document.createElement('div'); ex.className='uexercise';
+    ex.innerHTML='<div class="uex-q"><span class="uex-lbl">Tu turno</span>'+esc(q)+'</div><div class="uex-in"><textarea placeholder="Escribe o dicta tu respuesta…"></textarea><button class="uex-mic" title="Dictar">'+ico('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/>')+'</button></div><button class="uex-send">Responder a '+esc(PERSONA.name)+'</button><div class="uex-fb"></div>';
+    prose.appendChild(ex);
+    var ta=ex.querySelector('textarea'), send=ex.querySelector('.uex-send'), mic=ex.querySelector('.uex-mic'), fb=ex.querySelector('.uex-fb');
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null;
+    if(SR){ mic.onclick=function(){ if(rec){try{rec.stop();}catch(e){}return;} rec=new SR();rec.lang='es-ES';rec.interimResults=false;mic.classList.add('rec'); rec.onresult=function(ev){ta.value=(ta.value?ta.value+' ':'')+ev.results[0][0].transcript;}; rec.onend=function(){mic.classList.remove('rec');rec=null;}; rec.onerror=function(){mic.classList.remove('rec');rec=null;}; try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;} }; } else { mic.style.display='none'; }
+    send.onclick=async function(){ var a=ta.value.trim(); if(!a)return; send.disabled=true;
+      try{SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:i,cardTitle:(CARDS[i]?CARDS[i].title:''),kind:'insight',body:a}}).catch(function(){});}catch(e){}
+      var ans=document.createElement('div'); ans.className='uex-ans'; ans.innerHTML='<span class="who">Tu respuesta</span>'+esc(a);
+      ex.querySelector('.uex-in').style.display='none'; send.style.display='none'; ex.insertBefore(ans,fb);
+      fb.innerHTML='<div class="fbrow"><span class="who">'+esc(PERSONA.name)+'</span>…</div>';
+      var reply=(window.tutor&&window.tutor.evalAnswer)?await window.tutor.evalAnswer(q,a):'';
+      fb.innerHTML='<div class="fbrow"><span class="who">'+esc(PERSONA.name)+'</span>'+esc(reply||'—')+'</div>';
+      // Validación de adopción del bloque: intención real de aplicar (dato hacia ROI, nunca inventado)
+      var adopt=document.createElement('div'); adopt.className='uex-adopt';
+      adopt.innerHTML='<span class="uex-al">¿Te lo llevas?</span><button type="button" data-a="aplicar">Lo aplicaré esta semana</button><button type="button" data-a="repasar">Necesito repasarlo</button>';
+      ex.appendChild(adopt);
+      adopt.addEventListener('click',function(ev){ var b=ev.target.closest('button'); if(!b)return; var st=b.getAttribute('data-a'); var title=(CARDS[i]?CARDS[i].title:'');
+        try{SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:i,cardTitle:title,kind:'insight',body:'[adopcion:'+st+'] '+title}}).catch(function(){});}catch(e3){}
+        adopt.innerHTML='<span class="uex-al">'+(st==='aplicar'?'Anotado. Te preguntaré qué tal fue cuando lo apliques.':'Sin problema, lo repasamos las veces que haga falta.')+'</span>';
+      });
+    };
+  });
+}
+// Motor de descubrimiento: lo que el tutor quiere aprender de VERDAD del alumno (caso real, dolor,
+// emoción, objetivo, cliente). Detecta por cómo escribe qué ya ha soltado, y dirige las preguntas al hueco.
+var DISCOVERY=[
+  {key:'un caso real tuyo',q:'un caso real tuyo',ask:'Cuéntame un caso real tuyo con esto: ¿qué pasó exactamente?',rx:/\b(me pas|nos pas|una vez|el otro d[ií]a|tuve|tengo un|mi caso|cuando yo|recuerdo|hace poco|ayer|la semana pasada)\b/i,minLen:55},
+  {key:'qué te cuesta',q:'¿qué es lo que más te cuesta?',ask:'¿Qué es lo que más te cuesta de esto en tu día a día? Sé sincero, con eso avanzamos.',rx:/\b(cuesta|dif[ií]cil|me bloqueo|no s[eé] c[oó]mo|no s[eé] muy|problema|complicad|me l[ií]o|atasc|me pierdo|me frena)\b/i},
+  {key:'cómo te sientes',q:'¿cómo te hace sentir?',ask:'¿Cómo te hace sentir esta parte? Cuéntamelo tal cual, sin filtro.',rx:/\b(siento|sent[ií]|frustra|miedo|nervios|agobi|insegur|ilusi[oó]n|orgull|rabia|verg[üu]enza|tranquil|motivad|cansad|hart|abrumad|perdid)\b/i},
+  {key:'qué quieres lograr',q:'¿qué quieres conseguir?',ask:'¿Qué quieres conseguir tú con esto, en concreto? Ponme el resultado que buscas.',rx:/\b(quiero|objetivo|meta|conseguir|lograr|me gustar[ií]a|necesito|busco|pretendo|mi meta|aspiro)\b/i},
+  {key:'tu cliente o situación',q:'¿qué cliente tienes en mente?',ask:'Ponme un cliente o una situación concreta que tengas ahora mismo entre manos.',rx:/\b(cliente|partner|empresa|cuenta|prospecto|lead|sector|mercado|tienda|negocio|distribuidor|proveedor)\b/i}
+];
+var learned={};
+function scanLearn(text){ text=String(text||''); if(text.length<3)return; DISCOVERY.forEach(function(d){ if(learned[d.key])return; if(d.rx.test(text)&&(!d.minLen||text.length>=d.minLen)) learned[d.key]=true; }); }
+function nextGap(){ for(var i=0;i<DISCOVERY.length;i++){ if(!learned[DISCOVERY[i].key]) return DISCOVERY[i]; } return null; }
+function learnedCount(){ var n=0; DISCOVERY.forEach(function(d){ if(learned[d.key])n++; }); return n; }
+// nota manuscrita clicable EN FLUJO al final del contenido de la tarjeta: el tutor te pide un caso/emoción real.
+// En flujo -> nunca solapa el texto, se ve en cualquier ancho (móvil y escritorio). Clic -> abre el tutor con la pregunta.
+function discCue(i){
+  var g=nextGap(); if(!g)return;
+  var track=document.getElementById('track'); var cardEl=track&&track.children[i]; if(!cardEl)return;
+  var inner=cardEl.querySelector('.card-in'); var prose=inner&&inner.querySelector('.prose');
+  if(!prose||prose.querySelector('.discue'))return;
+  if(((prose.textContent||'').replace(/\s+/g,'')).length<80)return;
+  var cue=document.createElement('div'); cue.className='discue';
+  cue.innerHTML='<svg class="arw" viewBox="0 0 36 32"><path d="M3 5 C 21 7, 32 13, 33 28 M33 28 l -9 -3 M33 28 l 3 -9"/></svg><span class="q">'+esc(g.q)+'</span><button class="cta" type="button">Cuéntaselo a '+esc(PERSONA.name)+'</button>';
+  cue.addEventListener('click',function(){ cue.classList.add('gone'); if(window.tutor)window.tutor.prompt(g.ask); });
+  prose.appendChild(cue);
+}
+function wireTutor(){
+  var chat=document.getElementById('chat'),log=document.getElementById('log'),input=document.getElementById('chatInput');
+  var vsel=document.getElementById('vsel'),spk=document.getElementById('spk'),mic=document.getElementById('mic'),cpCtx=document.getElementById('cpCtx');
+  var threadId=null,greeted=false,voiceOn=true,ttsOn=true,voiceId=(PERSONA&&PERSONA.voice)||null,curAudio=null,interacted=false,userMemory=[],profile=[];
+  var userMsgs=0,synthed=false,contextCard='';
+  // Historial persistente del asistente, por curso y en el mismo navegador: al cerrar la ventana
+  // o cambiar de pestaña no se debe perder. Los mensajes tambien viven en el backend (threadId);
+  // aqui guardamos la transcripcion visible y el puntero del hilo para retomarlo tal cual.
+  var HKEY='skillup-chat:'+SLUG, TKEY='skillup-thread:'+SLUG, hist=[];
+  try{ var _tid=localStorage.getItem(TKEY); if(_tid) threadId=_tid; }catch(e){}
+  try{ hist=JSON.parse(localStorage.getItem(HKEY)||'[]'); if(!Array.isArray(hist)) hist=[]; }catch(e){ hist=[]; }
+  function setThread(id){ if(!id)return; threadId=id; try{localStorage.setItem(TKEY,id);}catch(e){} }
+  function saveTurn(role,txt){ if(!txt)return; hist.push({r:role==='u'?'u':'a',t:String(txt).slice(0,4000)}); if(hist.length>80)hist=hist.slice(-80); try{localStorage.setItem(HKEY,JSON.stringify(hist));}catch(e){} }
+  function restoreHistory(){ if(!hist.length)return false; hist.forEach(function(m){ bubble(m.r,m.t); }); greeted=true; return true; }
+  // Automejora basada en USO (idea de Marc): conversación a conversación el agente te conoce mejor.
+  // Mantiene un CONTEXTO ACUMULADO por alumno que EVOLUCIONA: combina lo que ya sabía con lo nuevo de esta
+  // sesión. Se guarda ([sintesis], el último gana) y se inyecta en cada respuesta -> te contesta mejor.
+  // Solo con lo que el alumno dice, sin inventar. Salida consumida (no es tubería suelta).
+  function maybeSynth(){
+    if(synthed||userMsgs<5||userMemory.length<4)return; synthed=true;
+    var prev=contextCard?(' Lo que ya sabías de él de antes: '+contextCard+'.'):'';
+    var sys='[Eres '+PERSONA.name+'. Actualiza en 2-3 frases y en tercera persona el CONTEXTO de ESTE alumno para conocerle mejor la próxima vez: su situación real, qué le cuesta, su objetivo, cómo aprende y cómo prefiere que le traten. Combina lo que ya sabías con lo nuevo de esta conversación; si algo cambió, quédate con lo más reciente.'+prev+' Nuevo de esta conversación: '+userMemory.slice(-8).join(' | ')+'. SOLO con lo que él ha dicho, sin inventar. Texto plano, sin símbolos.] ';
+    SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined}}).then(function(r){
+      var s=(r&&r.reply||'').trim(); if(s.length<12)return;
+      contextCard=s;
+      try{ SkillUp.api('/api/notes/add',{method:'POST',body:{source:'onboarding',kind:'insight',body:'[sintesis] '+s}}).catch(function(){}); }catch(e){}
+    }).catch(function(){ synthed=false; });
+  }
+  var LEARN=['¿esto te suena de algo que te haya pasado en tu trabajo? cuéntamelo.','para ti, ¿qué es lo que más cuesta de esto en el día a día?','¿dónde lo aplicarías esta semana? ponme una situación tuya.','cuando te ha tocado algo así, ¿cómo te sentiste? con eso trabajamos mejor.','ponme un caso real tuyo y lo llevamos a tu terreno.','¿qué cliente o situación concreta tienes ahora mismo en la cabeza?'];
+  // memoria continua: lo que el alumno ya te ha contado en este curso
+  SkillUp.api('/api/notes/list?source='+encodeURIComponent(SRC)).then(function(d){ (d&&d.items||[]).forEach(function(a){ if(a.kind!=='insight'||!a.body)return; if(a.body.indexOf('[adopcion:')===0){ if(a.body.indexOf('[adopcion:repasar] ')===0){ var rt=a.body.replace('[adopcion:repasar] ','').trim(); if(rt&&toReview.indexOf(rt)<0)toReview.push(rt); } return; } userMemory.push(a.body); scanLearn(a.body); }); reviewNudge(); }).catch(function(){});
+  // perfil del onboarding: empresa, rol, objetivo, nivel, cómo aprende -> prepara al tutor y siembra lo que ya sabe de él
+  SkillUp.api('/api/notes/list?source=onboarding').then(function(d){ (d&&d.items||[]).forEach(function(a){ if(a.kind!=='insight'||!a.body)return; if(a.body.indexOf('[sintesis]')===0){ if(!contextCard) contextCard=a.body.replace(/^\[sintesis\]\s*/,''); return; } profile.push(a.body); scanLearn(a.body); }); }).catch(function(){});
+  function bubble(role,txt){var d=document.createElement('div');d.className='msgb '+role;d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+  // Karaoke: crea una burbuja con un prefijo fijo (opcional) + un span "hablado" que se resaltará palabra a palabra.
+  function bubbleSpoken(role,prefix){var d=document.createElement('div');d.className='msgb '+role;if(prefix)d.appendChild(document.createTextNode(prefix));var span=document.createElement('span');span.className='kwrap';d.appendChild(span);log.appendChild(d);log.scrollTop=log.scrollHeight;return {el:d,wrap:span};}
+  // Reconstruye el texto dentro de "wrap" como palabras <span class="kw"> con sus tiempos, para ir iluminando la que se dice.
+  function buildKaraoke(wrap,chars,starts,ends){wrap.innerHTML='';var words=[],cur=null;
+    for(var i=0;i<chars.length;i++){var ch=chars[i];
+      if(/\s/.test(ch)){ if(cur){words.push(cur);cur=null;} wrap.appendChild(document.createTextNode(ch)); continue; }
+      if(!cur){ cur={text:'',start:starts[i],end:ends[i],span:document.createElement('span')}; cur.span.className='kw'; wrap.appendChild(cur.span); }
+      cur.text+=ch; cur.end=ends[i]; cur.span.textContent=cur.text;
+    }
+    if(cur)words.push(cur); return words;}
+  function highlightLoop(a,words){var idx=-1;
+    function tick(){ if(a.paused||a.ended){ if(idx>=0&&words[idx])words[idx].span.classList.remove('on'); return; }
+      var t=a.currentTime,ni=-1;
+      for(var i=0;i<words.length;i++){ if(t<words[i].start){ ni=i>0?i-1:-1; break; } if(t<=words[i].end+0.05){ ni=i; break; } ni=i; }
+      if(ni!==idx){ if(idx>=0&&words[idx])words[idx].span.classList.remove('on'); if(ni>=0&&words[ni]){words[ni].span.classList.add('on');} idx=ni; }
+      requestAnimationFrame(tick);
+    } requestAnimationFrame(tick);
+  }
+  function greet(){if(greeted)return;greeted=true;bubble('a','Hola, soy '+PERSONA.name+', tu '+PERSONA.role.toLowerCase()+'. Voy contigo por el curso y te iré señalando lo importante. Puedes subrayar o preguntarme sobre cualquier frase, y responder a los ejercicios por texto o por voz. Empecemos: ¿qué te ha traído hasta aquí?'); reviewNudge();}
+  // Auto-personalización por alumno (Nivel 1): el curso recuerda lo que marcaste "necesito repasarlo" y te ayuda a retomarlo (dato real tuyo, sin coste).
+  var toReview=[], reviewPosted=false;
+  function reviewNudge(){ if(reviewPosted||!greeted||!toReview.length)return; reviewPosted=true;
+    bubble('a',PERSONA.name+': La última vez marcaste algo para repasar. ¿Retomamos alguno?');
+    var wrap=document.createElement('div'); wrap.className='revacts';
+    wrap.innerHTML=toReview.slice(0,4).map(function(t){return '<button type="button" class="revbtn">'+esc(t)+'</button>';}).join('');
+    log.appendChild(wrap); log.scrollTop=log.scrollHeight;
+    wrap.addEventListener('click',function(e){ var b=e.target.closest('.revbtn'); if(!b)return; var t=(b.textContent||'').trim(); for(var k=0;k<CARDS.length;k++){ if(CARDS[k].title&&CARDS[k].title.trim()===t){ if(window._go)window._go(k); return; } } });
+  }
+  function open(){chat.classList.add('open');greet();input.focus();}
+  document.getElementById('fab').onclick=open;
+  var cb=document.getElementById('coachbar');if(cb)cb.onclick=open;
+  document.getElementById('cpX').onclick=function(){chat.classList.remove('open');stopAudio();};
+  function stopAudio(){if(curAudio){try{curAudio.pause();}catch(e){}curAudio=null;}}
+  // speak(text, wrap?): si se pasa "wrap" (el span de una burbuja), resalta la palabra que se está diciendo en vivo (karaoke, estilo reels).
+  async function speak(text,wrap){if(!ttsOn||!voiceId||!text)return;stopAudio();var body=JSON.stringify({text:String(text).slice(0,1200),voiceId:voiceId});
+    try{var r=await fetch('/api/voice/tts-timed',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:body});
+      if(r.ok){var d=await r.json();var bin=atob(d.audioBase64);var arr=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+        var url=URL.createObjectURL(new Blob([arr],{type:'audio/mpeg'}));var a=new Audio(url);curAudio=a;a.playbackRate=1;
+        var words=(wrap&&d.chars&&d.chars.length)?buildKaraoke(wrap,d.chars,d.startsSec,d.endsSec):null;
+        a.onended=function(){URL.revokeObjectURL(url);if(words)words.forEach(function(w){w.span.classList.remove('on');});};
+        if(words)highlightLoop(a,words);
+        await a.play().catch(function(){});return;}
+    }catch(e){}
+    try{var r2=await fetch('/api/voice/tts',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:body});if(!r2.ok)return;var url2=URL.createObjectURL(await r2.blob());var a2=new Audio(url2);curAudio=a2;a2.playbackRate=1;a2.onended=function(){URL.revokeObjectURL(url2);};await a2.play().catch(function(){});}catch(e2){}}
+  (async function(){try{var d=await SkillUp.api('/api/voice/voices');if(d&&d.provider==='elevenlabs'&&d.voices&&d.voices.length){ttsOn=true;var opts=d.voices.slice();if(PERSONA.voice&&!opts.some(function(v){return v.id===PERSONA.voice;}))opts.unshift({id:PERSONA.voice,name:PERSONA.name});voiceId=PERSONA.voice||d.voices[0].id;vsel.innerHTML=opts.map(function(v){return '<option value="'+v.id+'"'+(v.id===voiceId?' selected':'')+'>'+v.name+'</option>';}).join('');vsel.hidden=false;spk.hidden=false;spk.classList.toggle('on',voiceOn);spk.title=voiceOn?'Silenciar al tutor':'Que el tutor te hable';}}catch(e){}})();
+  vsel.addEventListener('change',function(){voiceId=vsel.value;});
+  spk.addEventListener('click',function(){voiceOn=!voiceOn;spk.classList.toggle('on',voiceOn);spk.title=voiceOn?'Silenciar al tutor':'Que el tutor te hable';if(!voiceOn)stopAudio();});
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null;
+  if(SR){mic.onclick=function(){if(rec){try{rec.stop();}catch(e){}return;}rec=new SR();rec.lang='es-ES';rec.interimResults=false;rec.maxAlternatives=1;mic.classList.add('rec');rec.onresult=function(ev){input.value=ev.results[0][0].transcript;};rec.onend=function(){mic.classList.remove('rec');rec=null;if(input.value.trim())send(true);};rec.onerror=function(){mic.classList.remove('rec');rec=null;};try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;}};}
+  else{mic.style.display='none';}
+  async function send(fromVoice,forced){var t=(forced!=null?forced:input.value.trim());if(!t)return;if(forced==null)input.value='';interacted=true;bubble('u',t);saveTurn('u',t);
+    // aprende de lo que escribe: guarda su mensaje como contexto (silencioso, no sale en Mis notas)
+    try{SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:idx,cardTitle:(CARDS[idx]?CARDS[idx].title:''),kind:'insight',body:t}}).catch(function(){});}catch(e){}
+    userMemory.push(t); if(userMemory.length>12)userMemory.shift(); scanLearn(t); userMsgs++; maybeSynth(); if(cpCtx&&CARDS[idx])cpCtx.innerHTML='Estás en: <b>'+esc(CARDS[idx].title)+'</b>'+(learnedCount()?' · te va conociendo '+learnedCount()+'/'+DISCOVERY.length:'');
+    var think=bubble('a','…');
+    try{var mem=userMemory.length>1?(' Lo que ya te ha contado (úsalo para personalizar, no lo repitas literal): '+userMemory.slice(0,-1).slice(-5).join(' | ')+'.'):'';
+      var perf=profile.length?(' Perfil del alumno (de su onboarding, úsalo para dar ejemplos de su mundo y su empresa): '+profile.slice(0,6).join(' | ')+'.'):'';
+      var ctx=contextCard?(' CONTEXTO ACUMULADO de este alumno (lo que ya sabes de él de conversaciones anteriores; úsalo para responder mejor y más personal, no lo repitas literal): '+contextCard+'.'):'';
+      var known=DISCOVERY.filter(function(d){return learned[d.key];}).map(function(d){return d.key;});
+      var gaps=DISCOVERY.filter(function(d){return !learned[d.key];}).map(function(d){return d.key;});
+      var disc=' Tu misión de fondo es conocerle de verdad para humanizar: aprende de CÓMO escribe (su tono y sus palabras) y devuélveselo con su mismo registro; cuando te dé un caso o una emoción, reconócelo y conéctalo.';
+      if(known.length) disc+=' Ya te ha abierto sobre: '+known.join(', ')+'; retómalo con naturalidad («antes me dijiste…»).';
+      if(gaps.length) disc+=' Aún no sabes de él: '+gaps.join(', ')+'; cuando encaje, sácale UNO de esos con una sola pregunta, sin interrogarle.';
+      var mlvl=(function(){try{return localStorage.getItem('skillup-mirror')||'natural';}catch(e){return 'natural';}})();
+      var mir=mlvl==='baja'?' Mantén un tono profesional y claro; NO imites su forma de hablar.':(mlvl==='alta'?' ESPEJA bastante cómo habla el alumno: su registro, alguna coletilla y su tono (si te suelta «¿qué tal, tío?», responde de colega), pero sin convertirte en su eco ni caricaturizarlo.':' ESPEJA con MODERACIÓN cómo habla el alumno (adapta un poco el registro y el tono) para resonar, sin exagerar ni imitarlo literalmente.');
+      var sys='[Eres '+PERSONA.name+', '+PERSONA.role+' sénior ('+PERSONA.field+'). Hablas cercano, humano y con emoción, con casos y ejemplos reales, sin humo.'+mir+' Escribe conversacional y con RITMO NATURAL: mezcla frases cortas y largas, con SU PUNTUACIÓN CORRECTA (comas, puntos, puntos suspensivos) porque de ahí sale la pausa real al leerlo en voz alta; sin puntuación no hay pausa y suena atropellado. Nunca monótono ni acelerado. Busca ser cercano y sorprender. HAZ PREGUNTAS para conocer su situación real: dónde aplicaría esto, qué le cuesta, qué le ha pasado, cómo se siente; adáptate a cómo escribe. El alumno está en el curso '+COURSE+', en la parte «'+(CARDS[idx]?CARDS[idx].title:'')+'».'+ctx+perf+mem+disc+' Si por su perfil aprende mejor en visual, sugiérele vídeos externos sobre el tema y dile que pulse el botón «Vídeos» de arriba (le abre una búsqueda real); NUNCA inventes enlaces, títulos exactos ni cifras de valoración. Adapta el formato a cómo aprende (ejemplos, práctica o teoría según su estilo). Nunca digas «excelente pregunta», «por supuesto», ni otras muletillas corporativas o serviles; habla como una persona competente, no como un asistente. Responde MUY breve y ágil, 2-4 frases máximo, sin enrollarte ni repetir, y termina casi siempre con una pregunta corta.] ';
+      var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys+t,threadId:threadId||undefined}});setThread(r.threadId);
+      think.innerHTML='';var kw=document.createElement('span');kw.className='kwrap';kw.textContent=r.reply||'—';think.appendChild(kw);saveTurn('a',r.reply||'—');
+      log.scrollTop=log.scrollHeight;if(r.reply&&(voiceOn||fromVoice))speak(r.reply,kw);}
+    catch(e){think.textContent='Ahora mismo no puedo responder. Inténtalo en un momento.';log.scrollTop=log.scrollHeight;}}
+  document.getElementById('snd').onclick=function(){send(false);};
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')send(false);});
+  window.tutor={open:open,ask:function(text){open();send(false,text);},
+    prompt:function(text){open();var bb=bubbleSpoken('a',PERSONA.name+': ');bb.wrap.textContent=text;bb.el.classList.add('askpulse');input.focus();if(voiceOn)speak(text,bb.wrap);},
+    evalAnswer:async function(exQ,ans){ var sys='[Eres '+PERSONA.name+', '+PERSONA.role+' sénior. El alumno responde a un ejercicio del curso '+COURSE+', parte «'+(CARDS[idx]?CARDS[idx].title:'')+'». Ejercicio: "'+exQ+'". Su respuesta: "'+ans+'". Dale feedback breve y humano: qué está bien, qué afinar, y una pregunta para llevarlo a su caso real. Sin markdown ni símbolos.] ';
+      userMemory.push(ans); if(userMemory.length>12)userMemory.shift(); scanLearn(ans); userMsgs++; maybeSynth(); if(cpCtx&&CARDS[idx])cpCtx.innerHTML='Estás en: <b>'+esc(CARDS[idx].title)+'</b>'+(learnedCount()?' · te va conociendo '+learnedCount()+'/'+DISCOVERY.length:'');
+      try{ var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined}}); setThread(r.threadId); if(r.reply&&voiceOn)speak(r.reply); return r.reply||''; }catch(e){ return 'Ahora mismo no puedo revisarlo, inténtalo en un momento.'; } }
+  };
+  // acompañamiento: al cambiar de sección actualiza el contexto; si ya has hablado, el tutor lo comenta
+  window._onSection=function(i){ if(!CARDS[i])return; if(cpCtx)cpCtx.innerHTML='Estás en: <b>'+esc(CARDS[i].title)+'</b>'+(learnedCount()?' · te va conociendo '+learnedCount()+'/'+DISCOVERY.length:'');
+    if(i%2===0) setTimeout(function(){chalk(i);},650);
+    if(i>0 && i%3===0 && i%2!==0) setTimeout(function(){discCue(i);},700);
+    if(i>0 && i%5===0){ var g=nextGap(); var b=bubble('a',PERSONA.name+': '+(g?g.ask:LEARN[Math.floor(i/5)%LEARN.length])); b.classList.add('askpulse'); var f=document.getElementById('fab'); if(f){f.classList.add('askpulse');setTimeout(function(){f.classList.remove('askpulse');},2600);} }
+    else if(interacted){ bubble('a',PERSONA.name+': '+NUDGES[i%NUDGES.length].replace('{t}',CARDS[i].title)); } };
+  // pulsar en una negrita dispara conversación con el tutor
+  var trackEl=document.getElementById('track');
+  if(trackEl) trackEl.addEventListener('click',function(e){var s=e.target.closest('.prose strong, .prose b');if(!s)return;var term=(s.textContent||'').replace(/\s+/g,' ').trim();if(term.length<3||term.length>70)return;window.tutor.ask('Explícame «'+term+'» y por qué es importante aquí, con un ejemplo.');});
+  // Hover sobre una palabra clave = el tutor interviene y te pregunta (para sacar TU caso). Ratón quieto = silencio.
+  // Enfriamiento de 22 s y una vez por término, para acompañar sin agobiar.
+  var hoverTimer=null,lastHoverAsk=0,askedTerms={};
+  if(trackEl){
+    trackEl.addEventListener('mouseover',function(e){
+      var s=e.target.closest('.prose strong, .prose b'); if(!s)return;
+      var term=(s.textContent||'').replace(/\s+/g,' ').trim(); if(term.length<3||term.length>70)return;
+      if(askedTerms[term.toLowerCase()])return;
+      clearTimeout(hoverTimer);
+      hoverTimer=setTimeout(function(){
+        if(Date.now()-lastHoverAsk<22000)return; lastHoverAsk=Date.now(); askedTerms[term.toLowerCase()]=true;
+        var qs=['¿Qué tal llevas tú lo de «'+term+'»? Ponme tu caso.','«'+term+'»… ¿esto lo tienes dominado o se te atraganta? Sé sincero.','Sobre «'+term+'», ¿cómo lo haces tú ahora mismo?'];
+        window.tutor.prompt(qs[Math.floor(Math.random()*qs.length)]);
+      },700);
+    });
+    trackEl.addEventListener('mouseout',function(e){ if(e.target.closest('.prose strong, .prose b')) clearTimeout(hoverTimer); });
+  }
+  restoreHistory(); greet(); if(window._onSection)window._onSection(idx);
+}
+
+// arranque
+setBoot('Comprobando tu sesión…',20);
+SkillUp.session().then(function(s){
+  if(!s||!s.user){ setBoot('Inicia sesión para ver el curso',100); if(bootBtn)bootBtn.style.display='inline-block'; return; }
+  setBoot('Cargando el curso…',45);
+  // El contenido se sirve por la ruta autenticada de la plataforma (mismo login de la app),
+  // no por el HTML del hub (que exige la cookie del acceso antiguo y redirigia al login).
+  return fetch('/api/learning/course-src?slug='+encodeURIComponent(SLUG),{credentials:'same-origin'}).then(function(r){ if(r.status===403) throw new Error('__pending'); if(!r.ok) throw new Error('fetch '+r.status); return r.text(); }).then(function(html){
+    setBoot('Dándole el formato nuevo…',75);
+    parse(html);
+    if(!CARDS.length){ setBoot('No he encontrado contenido en este curso.',100); return; }
+    build(); app.hidden=false; setBoot('Listo',100); setTimeout(function(){boot.hidden=true;},350);
+    var ml=document.querySelector('.ctx .mlogo'); if(ml){ ml.style.cursor='pointer'; ml.setAttribute('title','Menú principal'); ml.addEventListener('click',function(){ location.href='/app/inicio.html'; }); }
+  });
+}).catch(function(e){ if(e&&e.message==='__pending'){ setBoot('Tu cuenta está pendiente de aprobación. Los cursos se abrirán en cuanto el administrador te apruebe.',100); } else { setBoot('No se ha podido cargar el curso. Recarga la página.',100); } });
+})();
+</script>
+<script src="/app/gestures.js"></script>
+<script>
+if(window.SkillUpGestures){ SkillUpGestures.onIntent(function(i){
+  if(i==='next'){ var n=document.getElementById('next'); if(n){ n.click(); return true; } }
+  if(i==='prev'){ var p=document.getElementById('prev'); if(p){ p.click(); return true; } }
+  if(i==='ask'){ var c=document.getElementById('chat'); if(c){ c.classList.add('open'); var ci=document.getElementById('chatInput'); if(ci) ci.focus(); return true; } }
+  return false; // down/up: scroll por defecto
+}); }
+</script>
+<script src="/app/breadcrumbs.js" defer></script>
+</body>
+</html>

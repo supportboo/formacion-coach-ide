@@ -24,10 +24,10 @@
 <body>
 <div class="topbar">
   <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-    <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-    <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
     </defs>
     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
@@ -38,6 +38,7 @@
   <div class="card"><h2>Casos pendientes de validar</h2><div id="list"></div></div>
 </div>
 <script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
 <script>
 (async function () {
   var s = await SkillUp.requireSession(); if (!s) return;
@@ -50,7 +51,7 @@
     var d = document.createElement('div');
     d.className = 'case-item';
     d.innerHTML =
-      '<div class="who">Competencia ' + SkillUp.escHtml(c.competencyId) + ' · alumno ' + SkillUp.escHtml(c.userId) + '</div>' +
+      '<div class="who">' + SkillUp.escHtml(c.competencyName || 'Competencia') + ' · ' + SkillUp.escHtml(c.learnerName || 'alumno') + '</div>' +
       '<div class="prompt">' + SkillUp.escHtml(c.prompt) + '</div>' +
       '<div class="sub">' + SkillUp.escHtml(c.submission || '') + '</div>' +
       '<button class="btn btn-gh" type="button">Ver sugerencia de IA por criterio</button>' +
@@ -76,11 +77,16 @@
       }
     });
     async function decide(decision) {
+      var btns = d.querySelectorAll('.btn-ok, .btn-danger');
+      btns.forEach(function (b) { b.disabled = true; });
       try {
         var r = await SkillUp.api('/api/validation/cases/' + c.id + '/decide', { method: 'POST', body: { decision: decision, feedback: ta.value.trim() || undefined } });
         msg.textContent = 'Hecho — nivel actual del alumno: ' + r.level;
         d.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
-      } catch (ex) { msg.textContent = ex.message; }
+      } catch (ex) {
+        msg.textContent = ex.message;
+        btns.forEach(function (b) { b.disabled = false; });
+      }
     }
     d.querySelector('.btn-ok').addEventListener('click', function () { decide('aprobado'); });
     d.querySelector('.btn-danger').addEventListener('click', function () { decide('rechazado'); });
@@ -88,5 +94,6 @@
   });
 })();
 </script>
+<script src="/app/breadcrumbs.js" defer></script>
 </body>
 </html>

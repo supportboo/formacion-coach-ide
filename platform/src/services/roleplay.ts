@@ -7,7 +7,11 @@ import { firstJson } from "./aiContent.js";
 const BASE = "Español de España, natural, sin acotaciones de guion ni asteriscos -- solo lo que diría en voz alta.";
 
 export interface RoleplayArgs {
-  competencyName: string; sector?: string | null; puesto?: string | null; orgId: string; userId: string;
+  competencyName: string; sector?: string | null; puesto?: string | null; empresa?: string | null; orgId: string; userId: string;
+  // Instrucciones del responsable/Team Leader al agente tutor: a quién interpreta y cómo comportarse
+  // (dictadas o escritas). Si vienen, mandan sobre el personaje automático. Guardrail: es práctica,
+  // la validación sigue siendo humana.
+  brief?: string | null;
 }
 
 /** Elige un personaje de practica razonable para la competencia (determinista, sin IA: no hace falta gastar en esto). */
@@ -31,7 +35,12 @@ export interface RoleplayTurn { sessionId: string; reply: string; status: "activ
 export async function startRoleplay(
   deps: SvcDeps, llm: Llm, args: RoleplayArgs & { competencyId: string },
 ): Promise<RoleplayTurn> {
-  const persona = pickPersona(args.competencyName);
+  // Si el responsable ha dado un brief (instrucciones al agente), manda sobre el personaje automático.
+  // Si no, el personaje automático se aterriza en la empresa real del alumno (no genérico del sector).
+  const persona = (args.brief && args.brief.trim())
+    ? args.brief.trim().slice(0, 1500)
+    : pickPersona(args.competencyName) +
+      (args.empresa ? `. Contexto real de la empresa del alumno: ${args.empresa.slice(0, 240)}. Actúa como alguien de ESE mundo (sus clientes, su producto), no un caso genérico.` : "");
   const ctx = [args.sector, args.puesto].filter(Boolean).join(", ");
   const system = personaSystem(persona, args.competencyName, ctx);
   const opening = await llm.generate({
@@ -46,9 +55,9 @@ export async function startRoleplay(
   return { sessionId: id, reply: opening, status: "activo" };
 }
 
-async function loadSession(deps: SvcDeps, orgId: string, id: string) {
+async function loadSession(deps: SvcDeps, orgId: string, userId: string, id: string) {
   const [row] = await deps.db.select().from(roleplaySession)
-    .where(and(eq(roleplaySession.id, id), eq(roleplaySession.organizationId, orgId)));
+    .where(and(eq(roleplaySession.id, id), eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
   if (!row) throw new Error("sesión de roleplay no encontrada");
   if (row.status === "cerrado") throw new Error("esta sesión ya está cerrada");
   return row;
@@ -58,7 +67,7 @@ async function loadSession(deps: SvcDeps, orgId: string, id: string) {
 export async function replyRoleplay(
   deps: SvcDeps, llm: Llm, args: { orgId: string; userId: string; sessionId: string; message: string; competencyName: string; sector?: string | null; puesto?: string | null },
 ): Promise<RoleplayTurn> {
-  const row = await loadSession(deps, args.orgId, args.sessionId);
+  const row = await loadSession(deps, args.orgId, args.userId, args.sessionId);
   const ctx = [args.sector, args.puesto].filter(Boolean).join(", ");
   const system = personaSystem(row.persona, args.competencyName, ctx);
   const transcript = [...row.transcript, { role: "user" as const, content: args.message }];
@@ -81,7 +90,7 @@ export interface RoleplaySummary { fortalezas: string[]; areasDeMejora: string[]
 export async function closeRoleplay(
   deps: SvcDeps, llm: Llm, args: { orgId: string; userId: string; sessionId: string; competencyName: string },
 ): Promise<RoleplaySummary> {
-  const row = await loadSession(deps, args.orgId, args.sessionId);
+  const row = await loadSession(deps, args.orgId, args.userId, args.sessionId);
   const dialogue = row.transcript.map((m) => `${m.role === "assistant" ? "Personaje" : "Alumno"}: ${m.content}`).join("\n");
   const system = `Analiza esta práctica de roleplay para la competencia "${args.competencyName}". ${BASE} ` +
     "No inventes nada que no esté en la conversación. Responde SOLO JSON: " +

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Tu ADN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap">
+<link rel="stylesheet" href="/app/theme.css">
+<style>
+  :root{
+    --f-vision:#a98bff; --f-accion:#f0b743; --f-analisis:#3FD8E0; --f-personas:#54C79A;
+    --f-vision-soft:rgba(169,139,255,.14); --f-accion-soft:rgba(240,183,67,.14);
+    --f-analisis-soft:rgba(63,216,224,.13); --f-personas-soft:rgba(84,199,154,.14);
+  }
+  :root[data-theme="light"]{
+    --f-vision:#6d47e6; --f-accion:#b9770f; --f-analisis:#0d8f96; --f-personas:#1f9d63;
+    --f-vision-soft:rgba(109,71,230,.10); --f-accion-soft:rgba(185,119,15,.12);
+    --f-analisis-soft:rgba(13,143,150,.10); --f-personas-soft:rgba(31,157,99,.12);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--body);font-family:var(--ff);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:600px;margin:0 auto;padding:18px 16px 40px;min-height:100%;}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .top a.back{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;}
+  .top .brand{margin-left:auto;font-family:var(--fh);font-weight:800;color:var(--ink);font-size:15px;}
+  h1{font-family:var(--fh);color:var(--ink);font-weight:800;font-size:clamp(24px,7vw,32px);line-height:1.06;margin:.1em 0 .3em;text-wrap:balance;}
+  .lede{color:var(--body);font-size:clamp(15px,4vw,17px);margin:0 0 20px;line-height:1.5;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh);}
+  .btn{font-family:var(--ff);font-weight:700;border:none;border-radius:14px;padding:14px 18px;cursor:pointer;font-size:15px;width:100%;}
+  .btn-primary{background:var(--grad);color:#fff;}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink);}
+  .btn:active{transform:translateY(1px);}
+  .center{display:grid;place-items:center;min-height:60vh;text-align:center;gap:8px;}
+  .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--teal2);animation:s .8s linear infinite;}
+  @keyframes s{to{transform:rotate(360deg)}}
+
+  /* intro */
+  .intro .card{padding:22px;}
+  .intro ul{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:10px;}
+  .intro li{display:flex;gap:11px;align-items:flex-start;font-size:15px;line-height:1.45;color:var(--body);}
+  .intro li .d{width:9px;height:9px;border-radius:3px;margin-top:5px;flex:0 0 auto;}
+
+  /* quiz */
+  .prog{height:7px;border-radius:999px;background:var(--soft);overflow:hidden;margin-bottom:16px;}
+  .prog>i{display:block;height:100%;border-radius:999px;background:var(--grad);transition:width .25s;}
+  .qnum{font-size:13.5px;font-weight:700;color:var(--muted);letter-spacing:.03em;}
+  .qtext{font-family:var(--fh);color:var(--ink);font-weight:700;font-size:clamp(21px,6vw,26px);line-height:1.2;margin:6px 0 18px;text-wrap:balance;}
+  .opts{display:flex;flex-direction:column;gap:11px;}
+  .opt{display:flex;gap:13px;align-items:center;text-align:left;background:var(--panel);border:1.5px solid var(--line);
+    border-radius:15px;padding:16px 17px;cursor:pointer;color:var(--ink);font-size:clamp(15px,4.2vw,17px);line-height:1.4;font-family:var(--ff);width:100%;}
+  .opt:hover{border-color:var(--teal2);}
+  .opt:active{transform:scale(.99);}
+  .opt .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;background:var(--muted);opacity:.5;}
+  .opt:focus-visible{outline:2px solid var(--teal2);outline-offset:2px;}
+  .backq{margin-top:16px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--ff);}
+
+  /* certificate */
+  .cert-head{display:flex;align-items:baseline;gap:8px 12px;flex-wrap:wrap;margin-bottom:2px;}
+  .cert-head .stamp{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600;}
+  .wheelwrap{display:grid;place-items:center;padding:8px 0 4px;}
+  svg{width:100%;height:auto;max-width:min(440px,92vw);display:block;}
+  .arch{display:flex;align-items:center;gap:10px;font-family:var(--fh);font-weight:800;color:var(--ink);font-size:clamp(23px,6.4vw,28px);margin-top:6px;}
+  .arch .chip{width:16px;height:16px;border-radius:5px;flex:0 0 auto;}
+  .tagline{color:var(--body);font-size:clamp(15px,4vw,17px);margin:.35em 0 0;line-height:1.5;}
+  .near{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .near .n{font-size:13.5px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:6px 13px;display:flex;align-items:center;gap:7px;color:var(--ink);}
+  .near .n .c{width:10px;height:10px;border-radius:50%;}
+  h3.mini{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px;}
+  .weights{display:flex;flex-direction:column;gap:11px;}
+  .wrow{display:grid;grid-template-columns:96px 1fr 46px;gap:10px;align-items:center;font-size:14.5px;}
+  .wrow .lab{font-weight:700;}
+  .track{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;}
+  .fill{height:100%;border-radius:999px;}
+  .pct{font-variant-numeric:tabular-nums;text-align:right;color:var(--muted);font-weight:700;}
+  .cta{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
+  .note{color:var(--muted);font-size:13px;text-align:center;margin-top:14px;line-height:1.55;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="top"><a class="back" href="/app/inicio.html">← Inicio</a><span class="brand">Team DNA</span></div>
+  <div id="view"><div class="center"><div class="spin"></div><span style="color:var(--muted)">Cargando…</span></div></div>
+</div>
+
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+const NS="http://www.w3.org/2000/svg";
+const view=document.getElementById("view");
+let CAT=null, ANSWERS=[], STEP=0;
+const famColor=f=>getComputedStyle(document.documentElement).getPropertyValue("--f-"+f).trim()||"#888";
+const famSoft=f=>getComputedStyle(document.documentElement).getPropertyValue("--f-"+f+"-soft").trim()||"transparent";
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+
+async function boot(){
+  try{
+    const [cat, me] = await Promise.all([
+      SkillUp.api("/api/teamdna/catalog"),
+      SkillUp.api("/api/teamdna/me").catch(()=>({dna:null})),
+    ]);
+    CAT=cat;
+    if(me && me.dna) renderCert(me.dna, me.archetype);
+    else renderIntro();
+  }catch(e){
+    view.innerHTML='<div class="center"><h1>Ups</h1><p class="lede">No hemos podido cargar tu Team DNA. Recarga la página.</p><button class="btn btn-ghost" onclick="location.reload()">Reintentar</button></div>';
+  }
+}
+
+function renderIntro(){
+  STEP=0; ANSWERS=[];
+  const fams=CAT.families.map(f=>`<li><span class="d" style="background:${famColor(f)}"></span><b style="color:var(--ink);font-weight:700">${esc(CAT.familyLabel[f])}</b>&nbsp;· ${esc(CAT.familySub[f])}</li>`).join("");
+  view.innerHTML=`
+    <h1>Descubre tu ADN de aprendizaje</h1>
+    <p class="lede">${CAT.questions.length} preguntas rápidas sobre cómo trabajas. Al final tendrás tu arquetipo y tu certificado. No te encasilla: es un mapa de tus fortalezas y se afina con lo que haces.</p>
+    <div class="card intro"><div style="padding:22px">
+      <div style="font-weight:700;color:var(--ink);margin-bottom:2px">Cuatro familias de fortaleza</div>
+      <ul>${fams}</ul>
+    </div></div>
+    <div class="cta"><button class="btn btn-primary" id="start">Empezar</button></div>`;
+  document.getElementById("start").onclick=()=>renderQuestion();
+}
+
+function renderQuestion(){
+  const q=CAT.questions[STEP];
+  const pct=Math.round((STEP)/CAT.questions.length*100);
+  view.innerHTML=`
+    <div class="prog"><i style="width:${pct}%"></i></div>
+    <div class="qnum">Pregunta ${STEP+1} de ${CAT.questions.length}</div>
+    <div class="qtext">${esc(q.q)}</div>
+    <div class="opts">${q.options.map((o,i)=>`<button class="opt" data-f="${o.family}"><span class="dot" style="background:${famColor(o.family)};opacity:.9"></span><span>${esc(o.text)}</span></button>`).join("")}</div>
+    ${STEP>0?'<button class="backq" id="bq">← Atrás</button>':""}`;
+  view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    ANSWERS[STEP]=b.getAttribute("data-f"); STEP++;
+    if(STEP<CAT.questions.length) renderQuestion(); else submit();
+  });
+  const bq=document.getElementById("bq"); if(bq) bq.onclick=()=>{ STEP--; renderQuestion(); };
+  view.scrollIntoView({block:"start"});
+}
+
+async function submit(){
+  view.innerHTML='<div class="center"><div class="spin"></div><span style="color:var(--muted)">Calculando tu ADN…</span></div>';
+  try{
+    const r=await SkillUp.api("/api/teamdna/answers",{method:"POST",body:{answers:ANSWERS}});
+    renderCert(r.dna, r.archetype);
+  }catch(e){
+    view.innerHTML='<div class="center"><p class="lede">No se pudo guardar. Vuelve a intentarlo.</p><button class="btn btn-ghost" onclick="location.reload()">Reintentar</button></div>';
+  }
+}
+
+function drawWheel(svg, dna){
+  const cx=250,cy=220,R=150;
+  const layout=[
+    {f:"vision",a0:-135},{f:"accion",a0:-45},{f:"analisis",a0:45},{f:"personas",a0:135},
+  ];
+  const arche=CAT.archetypes;
+  const perFam={}; CAT.families.forEach(f=>perFam[f]=arche.filter(a=>a.primary===f).map(a=>a.name));
+  const pt=(ang,r)=>{const a=(ang-90)*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+  const el=(t,at)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);return e;};
+  svg.setAttribute("viewBox","-28 0 556 440"); svg.innerHTML=""; // margen lateral para que no se corten los nombres
+  [0.34,0.67,1].forEach(f=>svg.appendChild(el("circle",{cx,cy,r:R*f,fill:"none",stroke:"var(--line)","stroke-width":1})));
+  layout.forEach(L=>{
+    const col=famColor(L.f), s=L.a0-45, e=L.a0+45;
+    const [x0,y0]=pt(s,R),[x1,y1]=pt(e,R);
+    svg.appendChild(el("path",{d:`M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${R} ${R} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`,fill:"none",stroke:col,"stroke-width":7,"stroke-linecap":"round"}));
+    (perFam[L.f]||[]).forEach((nm,i)=>{
+      const ang=s+18+i*27, [lx,ly]=pt(ang,R+16);
+      const t=el("text",{x:lx.toFixed(1),y:ly.toFixed(1),fill:"var(--body)","font-size":12,"font-family":"Inter,sans-serif","font-weight":"600","text-anchor":lx<cx-6?"end":(lx>cx+6?"start":"middle"),"dominant-baseline":"middle"});
+      t.textContent=nm; svg.appendChild(t);
+    });
+    const [ax,ay]=pt(L.a0,R); svg.appendChild(el("line",{x1:cx,y1:cy,x2:ax,y2:ay,stroke:"var(--line)","stroke-width":1}));
+  });
+  const maxw=Math.max(...CAT.families.map(f=>dna.weights[f]||0))||1;
+  const poly=layout.map(L=>pt(L.a0, 20+(R-32)*((dna.weights[L.f]||0)/maxw))).map(p=>p.map(v=>v.toFixed(1)).join(",")).join(" ");
+  const defs=el("defs",{}); const g=el("radialGradient",{id:"tg",cx:"50%",cy:"50%",r:"60%"});
+  g.appendChild(el("stop",{offset:"0%","stop-color":famColor(dna.primary),"stop-opacity":.5}));
+  g.appendChild(el("stop",{offset:"100%","stop-color":famColor(dna.secondary),"stop-opacity":.25}));
+  defs.appendChild(g); svg.appendChild(defs);
+  svg.appendChild(el("polygon",{points:poly,fill:"url(#tg)",stroke:famColor(dna.primary),"stroke-width":2,"stroke-linejoin":"round"}));
+  layout.forEach(L=>{const [px,py]=pt(L.a0,20+(R-32)*((dna.weights[L.f]||0)/maxw));svg.appendChild(el("circle",{cx:px.toFixed(1),cy:py.toFixed(1),r:4,fill:famColor(L.f)}));});
+  svg.appendChild(el("circle",{cx,cy,r:34,fill:"var(--panel)",stroke:famColor(dna.primary),"stroke-width":2}));
+  const primPct=dna.weights[dna.primary]||0;
+  const t1=el("text",{x:cx,y:cy-3,fill:"var(--ink)","font-size":13,"font-family":"Inter,sans-serif","font-weight":"800","text-anchor":"middle"});t1.textContent=(CAT.familyLabel[dna.primary]||"");svg.appendChild(t1);
+  const t2=el("text",{x:cx,y:cy+14,fill:"var(--muted)","font-size":11,"text-anchor":"middle"});t2.textContent=primPct+"%";svg.appendChild(t2);
+}
+
+function renderCert(dna, archetype){
+  const name=archetype?archetype.name:"Tu arquetipo";
+  const tag=archetype?archetype.tagline:"";
+  const nearNames=(dna.near||[]).map(k=>CAT.archetypes.find(a=>a.key===k)).filter(Boolean);
+  const order=["vision","accion","analisis","personas"];
+  const weightsHtml=order.map(f=>`<div class="wrow"><span class="lab" style="color:${famColor(f)}">${esc(CAT.familyLabel[f])}</span><span class="track"><span class="fill" style="width:${dna.weights[f]||0}%;background:${famColor(f)}"></span></span><span class="pct">${dna.weights[f]||0}%</span></div>`).join("");
+  view.innerHTML=`
+    <div class="cert-head"><h1 style="margin:0">Tu ADN de aprendizaje</h1><span class="stamp">se afina con lo que haces</span></div>
+    <div class="card" style="padding:16px 18px 20px;margin-top:12px">
+      <div class="wheelwrap"><svg id="wheel" role="img" aria-label="Tu rueda de arquetipos"></svg></div>
+      <div class="arch"><span class="chip" style="background:${famColor(dna.primary)}"></span>${esc(name)}</div>
+      <p class="tagline">${esc(tag)}</p>
+      ${nearNames.length?`<div class="near">${nearNames.map(a=>`<span class="n"><span class="c" style="background:${famColor(a.primary)}"></span>Cerca: ${esc(a.name)}</span>`).join("")}</div>`:""}
+      <h3 class="mini">Tus pesos por familia</h3>
+      <div class="weights">${weightsHtml}</div>
+    </div>
+    <div class="cta">
+      <button class="btn btn-primary" id="toRoute">Ver mi ruta de aprendizaje</button>
+      <button class="btn btn-ghost" id="redo">Repetir el test</button>
+    </div>
+    <p class="note">Es un mapa de tus fortalezas, no una etiqueta. Cambiará contigo a medida que aprendes, aportas y aplicas.</p>`;
+  drawWheel(document.getElementById("wheel"), dna);
+  const toRoute=document.getElementById("toRoute");
+  toRoute.onclick=()=>{ location.href="/app/inicio.html"; };  // por defecto (si ya tiene ruta o falla la comprobación)
+  // Justo tras el ADN: si aún no tiene ruta, el botón lleva directo a montarla (reutiliza lo del onboarding),
+  // así "al empezar la ruta" no vuelve a preguntar ni hace pasar por Inicio.
+  SkillUp.api("/api/learning/route").then(r=>{
+    const has = r && r.plan && r.plan.modulos && r.plan.modulos.length;
+    if(!has){ toRoute.textContent="Montar mi ruta de aprendizaje"; toRoute.onclick=()=>{ location.href="/app/ruta-crear.html"; }; }
+  }).catch(()=>{});
+  document.getElementById("redo").onclick=()=>renderIntro();
+}
+
+boot();
+</script>
+<script src="/app/breadcrumbs.js" defer></script>
+<script src="/app/gestures.js" defer></script>
+</body>
+</html>

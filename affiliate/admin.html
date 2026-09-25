@@ -4,45 +4,93 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Brandooers · Afiliación</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--p:#8B5CF6;--t:#0891B2;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;background:var(--bg);color:var(--ink);padding:26px 30px 60px}
-h1{font-size:24px;margin:0}.sub{font-family:Caveat,cursive;font-size:24px;color:var(--t);margin:0 0 6px}
-.kpis{display:flex;gap:14px;margin:16px 0 22px;flex-wrap:wrap}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 20px;min-width:130px}
-.kpi .v{font-size:26px;font-weight:900}.kpi .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:14px}
-th,td{padding:11px 13px;text-align:left;border-bottom:1px solid #F0EAEE;vertical-align:middle}
-th{background:var(--warm);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--pink:#EC6FA6;--green:#54C79A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.03);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#443E4E;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--pink:#C24E86;--green:#2E9E73;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{font-family:var(--ff);background:var(--bg);color:var(--body);display:flex;overflow:hidden}
+button{font-family:inherit}
+.rail{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 0;border-right:1px solid var(--line);background:var(--soft)}
+.rail .rlogo{width:34px;height:20px;margin-bottom:10px}
+.rail a{width:58px;height:56px;border-radius:14px;display:grid;place-items:center;gap:2px;color:var(--muted);text-decoration:none;transition:.15s}
+.rail a svg{width:19px;height:19px}
+.rail a small{font-size:8.5px;font-weight:700}
+.rail a:hover{color:var(--body);background:var(--panel)}
+.rail a.on{color:var(--ink);background:linear-gradient(160deg,rgba(138,95,124,.5),rgba(26,154,160,.26))}
+.main{flex:1;min-width:0;padding:30px 32px 70px;overflow-y:auto;height:100dvh}
+@media(max-width:760px){body{flex-direction:column}.rail{width:100%;flex-direction:row;justify-content:center;border-right:0;border-bottom:1px solid var(--line);padding:8px}.rail a{width:52px;height:52px}.main{padding:20px 16px 50px;height:auto}}
+h1{font-family:var(--fh);font-size:26px;color:var(--ink);letter-spacing:-.01em}
+.sub{font-family:var(--fc);font-size:22px;color:var(--teal2);margin:0 0 4px;font-weight:700}
+.hint{font-size:13px;color:var(--muted);margin:8px 0 20px;max-width:820px;line-height:1.6}
+.hero{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0 22px}
+.ringcard{flex:none;width:180px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--sh)}
+.ringcard svg{width:94px;height:94px}
+.ringcard .t{font-size:11.5px;font-weight:800;color:var(--ink);text-align:center}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 20px;min-width:130px;box-shadow:var(--sh)}
+.kpi .v{font-family:var(--fh);font-size:26px;font-weight:900;color:var(--ink)}.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:14px;box-shadow:var(--sh)}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 tr:last-child td{border-bottom:0}
-.dom{font-weight:700}.dom a{color:var(--p);text-decoration:none}
-.net{font-size:12px;color:var(--t);font-weight:600}
+.dom{font-weight:700;color:var(--ink)}.dom a{color:var(--teal2);text-decoration:none}
+.net{font-size:12px;color:var(--teal2);font-weight:600}
 .badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.03em}
-.b-SIN_PROGRAMA{background:#eee;color:#888}.b-DISPONIBLE{background:#fff3bf;color:#a07a00}
-.b-SOLICITADA{background:#d0ebff;color:#1971c2}.b-EN_CURSO{background:#e5dbff;color:#6741d9}
-.b-MONETIZANDO{background:#d3f9d8;color:#2b8a3e}.b-AUTO_MONETIZADO{background:#c5f6fa;color:#0c8599}.b-RECHAZADA{background:#ffe3e3;color:#c92a2a}
-select,input{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}
-.tag input{width:70px}.note{font-size:12px;color:var(--mut);max-width:230px}
-.hint{font-size:13px;color:var(--mut);margin:0 0 18px;max-width:820px;line-height:1.6}
-button{font-family:inherit;font-size:12px;font-weight:700;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;background:var(--p);color:#fff}
+.b-SIN_PROGRAMA{background:var(--soft);color:var(--muted)}.b-DISPONIBLE{background:rgba(240,198,69,.14);color:var(--gold)}
+.b-SOLICITADA{background:rgba(63,216,224,.14);color:var(--teal2)}.b-EN_CURSO{background:rgba(198,156,184,.16);color:var(--aub2)}
+.b-MONETIZANDO{background:rgba(84,199,154,.14);color:var(--green)}.b-AUTO_MONETIZADO{background:rgba(63,216,224,.14);color:var(--teal2)}.b-RECHAZADA{background:rgba(224,121,140,.14);color:#E88}
+select,input{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--soft);color:var(--ink)}
+.tag input{width:70px}.note{font-size:12px;color:var(--muted);max-width:230px}
+button{font-family:inherit;font-size:12px;font-weight:700;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff}
+.themetoggle{position:absolute;top:28px;right:32px;display:inline-flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.themetoggle button{border:0;background:none;color:var(--muted);font:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:8px;background:none}
+.themetoggle button.on{background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff}
 </style>
 </head>
 <body>
-<a href="/panel.html" style="display:inline-block;margin-bottom:14px;color:var(--p);font-weight:700;text-decoration:none;font-size:14px">← Volver al panel</a>
+<script>try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}</script>
+<aside class="rail">
+  <svg class="rlogo" viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>
+  <a href="/panel.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><small>Panel</small></a>
+  <a href="/revisiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l2 3h4l2-3h4"/><path d="M4 12l1-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2l1 7v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg><small>Revisiones</small></a>
+  <a href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-5 7-5s7 1.7 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M23 20c0-2.5-2-4-5-4.3"/></svg><small>Usuarios</small></a>
+  <a href="/aff/" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M13 4h4a4 4 0 0 1 0 8h-2"/><path d="M11 20H7a4 4 0 0 1 0-8h2"/></svg><small>Afiliación</small></a>
+  <a href="/app/inicio.html" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg><small>App</small></a>
+</aside>
+<main class="main" style="position:relative">
+<div class="themetoggle" id="themeSeg"><button data-th="dark">Oscuro</button><button data-th="light">Claro</button></div>
 <p class="sub">Monetización</p>
 <h1>Panel de afiliación</h1>
-<p class="hint">Cada dominio que recomendamos, con su estado. <b>Automático:</b> descubrimiento del programa, red detectada, nº de recursos y clics, y el tag aplicado por el redirector. <b>Manual (por diseño y por términos de las redes):</b> aplicar, aceptar condiciones y el alta fiscal (KYC). Cambia el estado y pega el tag cuando te aprueben, y el redirector empieza a monetizar sin tocar los cursos.</p>
-<div class="kpis" id="kpis"></div>
+<p class="hint">Cada dominio que recomendamos, con su estado. <b>Automático:</b> descubrimiento del programa, red detectada, nº de recursos y clics, y el tag aplicado por el redirector. <b>Manual (por diseño y por términos de las redes):</b> aplicar, aceptar condiciones y el alta fiscal (KYC). Cambia el estado y pega el tag cuando te aprueben, y el redirector empieza a monetizar sin tocar los cursos. Recuerda: los enlaces de afiliado deben declararse siempre al usuario, nunca ocultarse.</p>
+<div class="hero" id="hero"></div>
 <table id="tbl"><thead><tr><th>Dominio</th><th>Estado</th><th>Red</th><th>Recursos</th><th>Clics</th><th>Tag afiliado</th><th>Programa</th><th>Nota</th></tr></thead><tbody id="rows"></tbody></table>
+</main>
 <script>
 var STATES=['SIN_PROGRAMA','DISPONIBLE','SOLICITADA','EN_CURSO','MONETIZANDO','AUTO_MONETIZADO','RECHAZADA'];
+var SCOL={SIN_PROGRAMA:'#968EA4',DISPONIBLE:'#F0C645',SOLICITADA:'#3FD8E0',EN_CURSO:'#C69CB8',MONETIZANDO:'#54C79A',AUTO_MONETIZADO:'#1a9aa0',RECHAZADA:'#EC6FA6'};
 function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function ring(rows){
+  var total=rows.length; if(!total) return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="11"/></svg>';
+  var by={}; rows.forEach(function(r){by[r.status]=(by[r.status]||0)+1;});
+  var circ=2*Math.PI*40, off=0, arcs='';
+  STATES.forEach(function(s){ var v=by[s]||0; if(!v)return; var len=circ*(v/total);
+    arcs+='<circle cx="50" cy="50" r="40" fill="none" stroke="'+SCOL[s]+'" stroke-width="11" stroke-dasharray="'+len.toFixed(1)+' '+(circ-len).toFixed(1)+'" stroke-dashoffset="'+(-off).toFixed(1)+'" transform="rotate(-90 50 50)"/>';
+    off+=len;
+  });
+  return '<svg viewBox="0 0 100 100">'+arcs+'<text x="50" y="46" text-anchor="middle" font-family="var(--fh)" font-size="22" fill="var(--ink)" font-weight="700">'+total+'</text><text x="50" y="63" text-anchor="middle" font-size="9" fill="var(--muted)">dominios</text></svg>';
+}
 async function load(){
   var d=await (await fetch('api/data')).json();
-  document.getElementById('kpis').innerHTML =
-    kpi(d.totals.dominios,'Dominios')+kpi(d.totals.disponibles,'Con programa')+kpi(d.totals.clics,'Clics registrados')+
-    kpi(d.rows.filter(function(r){return r.status==='MONETIZANDO'||r.status==='AUTO_MONETIZADO'}).length,'Monetizando');
+  document.getElementById('hero').innerHTML =
+    '<div class="ringcard">'+ring(d.rows)+'<div class="t">Estado de tus dominios</div></div>'
+    +kpi(d.totals.dominios,'Dominios')+kpi(d.totals.disponibles,'Con programa')+kpi(d.totals.clics,'Clics registrados')
+    +kpi(d.rows.filter(function(r){return r.status==='MONETIZANDO'||r.status==='AUTO_MONETIZADO'}).length,'Monetizando');
   document.getElementById('rows').innerHTML=d.rows.map(row).join('');
 }
 function kpi(v,l){return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>'}
@@ -55,7 +103,7 @@ function row(r){
     '<td class="net">'+esc(r.network||'—')+'</td>'+
     '<td>'+r.resources+'</td><td><b>'+r.clicks+'</b></td>'+
     '<td class="tag"><input class="tp" placeholder="param" value="'+esc(tag.param)+'"><input class="tv" placeholder="valor" value="'+esc(tag.value)+'"><br><button class="savetag" style="margin-top:5px">Guardar tag</button></td>'+
-    '<td>'+(r.programUrl?'<a href="'+esc(r.programUrl)+'" target="_blank" rel="noopener">abrir ↗</a>':'—')+'</td>'+
+    '<td>'+(r.programUrl?'<a href="'+esc(r.programUrl)+'" target="_blank" rel="noopener" style="color:var(--teal2)">abrir ↗</a>':'—')+'</td>'+
     '<td class="note">'+esc(r.note||'')+'</td></tr>';
 }
 document.addEventListener('change',function(e){
@@ -67,6 +115,11 @@ document.addEventListener('click',function(e){
     fetch('api/tag',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({domain:d,param:tr.querySelector('.tp').value.trim(),value:tr.querySelector('.tv').value.trim()})}).then(function(){e.target.textContent='✓ Guardado';setTimeout(load,600)});}
 });
 load();
+(function(){ var seg=document.getElementById('themeSeg'); var cur=(function(){try{return localStorage.getItem('skillup-theme')==='light'?'light':'dark';}catch(e){return 'dark';}})();
+  seg.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-th')===cur);
+    b.onclick=function(){ var t=b.getAttribute('data-th'); if(t==='light')document.documentElement.setAttribute('data-theme','light'); else document.documentElement.removeAttribute('data-theme'); try{localStorage.setItem('skillup-theme',t);}catch(e){} seg.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); }; }); })();
 </script>
+<script src="/app/api.js"></script>
+<script src="/app/boo-eyes.js?v=20260915k"></script>
 </body>
 </html>

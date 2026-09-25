@@ -1,6 +1,6 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import type { DB } from "../db/index.js";
-import { agentMessage, agentThread, auditLog } from "../db/schema.js";
+import { agentMessage, agentThread, annotation, auditLog, levelByCompetency } from "../db/schema.js";
 import type { Embeddings } from "../rag/embeddings.js";
 import { retrieve } from "../rag/rag.js";
 import type { VectorStore } from "../rag/store.js";
@@ -39,9 +39,11 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   let threadId = input.threadId;
   if (threadId) {
     const [t] = await deps.db.select().from(agentThread)
-      .where(and(eq(agentThread.id, threadId), eq(agentThread.organizationId, input.orgId)));
-    if (!t) throw new Error("hilo no encontrado en esta organización");
-  } else {
+      .where(and(eq(agentThread.id, threadId), eq(agentThread.organizationId, input.orgId), eq(agentThread.userId, input.userId)));
+    // Stale or someone else's thread id (e.g. another profile in the same browser): start fresh.
+    if (!t) threadId = undefined;
+  }
+  if (!threadId) {
     threadId = deps.newId();
     await deps.db.insert(agentThread).values({
       id: threadId, organizationId: input.orgId, userId: input.userId,
@@ -52,10 +54,18 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   // 2) recuperar contexto RAG de la org + perfil (sector/puesto) para personalizar como ya hace aiContent
   const hits = await retrieve(deps.store, deps.emb, input.orgId, input.message, 5);
   const profile = await getOnboardingProfile({ db: deps.db, newId: deps.newId }, input.orgId, input.userId);
+  const [ruta, avance, estilo, freno, objetivo, empresaResumen] = await Promise.all([
+    learnerRoute(deps.db, input.orgId, input.userId),
+    learnerProgress(deps.db, input.orgId, input.userId),
+    learnerStyle(deps.db, input.orgId, input.userId),
+    onboardingMarker(deps.db, input.orgId, input.userId, "[freno]"),
+    onboardingMarker(deps.db, input.orgId, input.userId, "[objetivo]"),
+    companySummary(deps.db, input.orgId, input.userId),
+  ]);
   const ctx: AgentContext = {
     orgName: input.orgName, userName: input.userName,
     contextSnippets: hits.map((h) => h.content),
-    sector: profile?.sector, puesto: profile?.puesto,
+    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo, freno, objetivo, empresaResumen,
   };
 
   // 3) historial reciente del hilo
@@ -84,4 +94,52 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   });
 
   return { threadId, reply };
+}
+
+/** Módulos de la ruta del alumno (guardada como nota source='ruta' body '[ruta-plan] <json>'). */
+async function learnerRoute(db: DB, orgId: string, userId: string): Promise<string[]> {
+  const rows = await db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "ruta")))
+    .orderBy(desc(annotation.createdAt));
+  const plan = rows.find((r) => String(r.body || "").startsWith("[ruta-plan]"));
+  if (!plan) return [];
+  try {
+    const p = JSON.parse(String(plan.body).slice("[ruta-plan]".length).trim()) as { modulos?: { titulo?: string }[] };
+    return (p.modulos || []).map((m) => m.titulo || "").filter(Boolean).slice(0, 8);
+  } catch { return []; }
+}
+
+/** Cómo dijo el alumno que aprende mejor (nota onboarding [estilo]); guía el FORMATO, no el fondo. */
+async function learnerStyle(db: DB, orgId: string, userId: string): Promise<string | null> {
+  return onboardingMarker(db, orgId, userId, "[estilo]");
+}
+
+/** Lee un marcador del onboarding del alumno ([freno], [objetivo], [estilo]...). El más reciente gana. */
+async function onboardingMarker(db: DB, orgId: string, userId: string, marker: string): Promise<string | null> {
+  const rows = await db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "onboarding")))
+    .orderBy(desc(annotation.createdAt));
+  const r = rows.find((x) => String(x.body || "").startsWith(marker));
+  return r ? String(r.body).slice(marker.length).trim() || null : null;
+}
+
+/** Resumen real de la web de la empresa (nota onboarding "[Empresa <fuente>] <resumen>"), para ejemplos de lo suyo. */
+async function companySummary(db: DB, orgId: string, userId: string): Promise<string | null> {
+  const rows = await db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "onboarding")))
+    .orderBy(desc(annotation.createdAt));
+  const r = rows.find((x) => String(x.body || "").startsWith("[Empresa "));
+  if (!r) return null;
+  const body = String(r.body);
+  const end = body.indexOf("]");
+  return end > 0 ? body.slice(end + 1).trim().slice(0, 400) : null;
+}
+
+/** Resumen breve del nivel actual del alumno, sin exponer la mecánica de puntos. */
+async function learnerProgress(db: DB, orgId: string, userId: string): Promise<string | null> {
+  const rows = await db.select({ level: levelByCompetency.level }).from(levelByCompetency)
+    .where(and(eq(levelByCompetency.organizationId, orgId), eq(levelByCompetency.userId, userId)));
+  if (!rows.length) return null;
+  const max = Math.max(...rows.map((r) => r.level));
+  return `va por Nivel ${max} en ${rows.length} competencia${rows.length > 1 ? "s" : ""}`;
 }

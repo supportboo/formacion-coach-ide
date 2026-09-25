@@ -1,5 +1,5 @@
-import { and, eq } from "drizzle-orm";
-import { appliedCase } from "../db/schema.js";
+import { and, eq, gte, inArray } from "drizzle-orm";
+import { appliedCase, competency, evidence, levelByCompetency } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import { listPendingCases } from "./validation.js";
 import { expiringSoon } from "./rewards.js";
@@ -37,5 +37,54 @@ export async function myReminders(deps: SvcDeps, orgId: string, userId: string, 
     }
   }
 
+  // Seguimiento en el tiempo (R3): lo que validó hace semanas -> "¿cómo lo estás aplicando?".
+  // Es lo que convierte formación en resultado demostrable. Sin cron: se calcula al abrir el panel.
+  out.push(...(await followUpReminders(deps, orgId, userId)));
+
+  return out;
+}
+
+const APPLY_AFTER_DAYS = 14; // primer check-in de aplicación tras validar
+const RECHECK_DAYS = 30;     // no se vuelve a preguntar por la misma competencia antes de un mes
+
+/** Genera el aviso de seguimiento de aplicación para competencias validadas hace tiempo y sin check-in reciente. */
+async function followUpReminders(deps: SvcDeps, orgId: string, userId: string): Promise<Reminder[]> {
+  const levels = await deps.db.select({
+    competencyId: levelByCompetency.competencyId, updatedAt: levelByCompetency.updatedAt,
+  }).from(levelByCompetency).where(and(
+    eq(levelByCompetency.organizationId, orgId), eq(levelByCompetency.userId, userId),
+    gte(levelByCompetency.level, 2),
+  ));
+  const compIds = levels.map((l) => l.competencyId).filter((x): x is string => !!x);
+  if (compIds.length === 0) return [];
+
+  const checkins = await deps.db.select({ ownerId: evidence.ownerId, createdAt: evidence.createdAt })
+    .from(evidence).where(and(
+      eq(evidence.organizationId, orgId), eq(evidence.createdBy, userId),
+      eq(evidence.ownerType, "seguimiento"), eq(evidence.kind, "kpi"),
+    ));
+  const lastCheckin = new Map<string, number>();
+  for (const ci of checkins) {
+    const t = ci.createdAt.getTime();
+    if (ci.ownerId && t > (lastCheckin.get(ci.ownerId) ?? 0)) lastCheckin.set(ci.ownerId, t);
+  }
+
+  const names = await deps.db.select({ id: competency.id, name: competency.name }).from(competency)
+    .where(and(eq(competency.organizationId, orgId), inArray(competency.id, compIds)));
+  const nameById = new Map(names.map((n) => [n.id, n.name]));
+
+  const out: Reminder[] = [];
+  for (const l of levels) {
+    if (!l.competencyId) continue;
+    const ageDays = (Date.now() - l.updatedAt.getTime()) / 86_400_000;
+    const last = lastCheckin.get(l.competencyId);
+    const sinceCheck = last ? (Date.now() - last) / 86_400_000 : Infinity;
+    if (ageDays >= APPLY_AFTER_DAYS && sinceCheck >= RECHECK_DAYS) {
+      out.push({
+        kind: "seguimiento_aplicacion", refId: l.competencyId,
+        message: `Validaste "${nameById.get(l.competencyId) || "una competencia"}" hace ${Math.floor(ageDays)} días. ¿Cómo lo estás aplicando en tu trabajo?`,
+      });
+    }
+  }
   return out;
 }

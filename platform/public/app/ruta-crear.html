@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Crea tu ruta</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--green:#54C79A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.05);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--green:#2E9E73;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);overflow:hidden;
+  background:radial-gradient(760px 460px at 50% 20%,rgba(113,75,103,.28),transparent 60%),var(--bg)}
+button{font-family:inherit}[hidden]{display:none!important}
+.wrap{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px}
+.card{width:min(600px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh);display:flex;flex-direction:column;max-height:88dvh;overflow:hidden}
+.mascota{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 16px 10px}
+.mascota svg{width:96px;height:auto}
+.mascota .ir{transition:transform .3s}
+.mascota .nm{font-family:var(--fc);color:var(--teal2);font-size:19px}
+.body{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+.conv{padding:8px 18px 12px;display:flex;flex-direction:column;gap:10px}
+.b{max-width:88%;padding:11px 15px;border-radius:16px;font-size:14.5px;line-height:1.5;animation:rise .35s both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.b.a{align-self:flex-start;background:var(--soft);border:1px solid var(--line);color:var(--body);border-bottom-left-radius:4px}
+.b.u{align-self:flex-end;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;border-bottom-right-radius:4px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;padding:2px 18px 6px}
+.chips button{border:1px solid var(--line);background:var(--soft);color:var(--body);border-radius:11px;padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
+.chips button:hover{border-color:var(--aub2);color:var(--ink)}
+.row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line)}
+.row .mic{width:44px;flex:none;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--aub2);cursor:pointer;display:grid;place-items:center}
+.row .mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c}
+.row textarea{flex:1;min-width:0;background:var(--soft);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px 14px;font:inherit;font-size:14.5px;line-height:1.4;outline:none;resize:none;max-height:140px;overflow-y:auto}
+.row .snd{border:0;border-radius:12px;padding:0 18px;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));flex:none}
+.row .snd[disabled]{opacity:.5}
+.done{padding:16px 18px 20px}
+.done .btn{border:0;border-radius:12px;padding:12px 22px;font:inherit;font-weight:800;font-size:14px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:inline-block}
+.loader{min-height:100dvh;display:grid;place-items:center;color:var(--muted);font-size:13px}
+/* Ruta preparada */
+.plan{padding:4px 18px 6px}
+.plan .pt{font-family:var(--fh);color:var(--ink);font-size:20px;margin:6px 0 2px}
+.plan .ps{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+.mod{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.mod .n{width:26px;height:26px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;background:linear-gradient(135deg,var(--teal),var(--aub))}
+.mod .mb b{color:var(--ink);font-size:14.5px;display:block}
+.mod .mb small{color:var(--muted);font-size:12.5px}
+.mod .tag{margin-left:auto;flex:none;font-size:11px;color:var(--gold);border:1px solid var(--line);border-radius:8px;padding:3px 8px;align-self:center}
+.prep{display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px 18px;text-align:center}
+.prep .dots{display:flex;gap:8px}
+.prep .dots i{width:10px;height:10px;border-radius:50%;background:var(--teal2);animation:pp 1s infinite alternate}
+.prep .dots i:nth-child(2){animation-delay:.2s;background:var(--aub2)}.prep .dots i:nth-child(3){animation-delay:.4s;background:var(--gold)}
+@keyframes pp{from{opacity:.25;transform:translateY(0)}to{opacity:1;transform:translateY(-6px)}}
+.prep p{color:var(--body);font-size:14px;margin:0;max-width:380px}
+.game{width:100%;max-width:520px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(180deg,rgba(63,216,224,.07),transparent);touch-action:manipulation}
+.game canvas{display:block;width:100%;height:150px}
+.gtip{color:var(--muted);font-size:12px;margin-top:2px}.gtip b{color:var(--teal2)}
+@media(prefers-reduced-motion:no-preference){.mascota .ir{animation:blink 4s infinite}@keyframes blink{0%,94%,100%{opacity:1}96%{opacity:.15}98%{opacity:1}}}
+</style>
+</head>
+<body>
+<div class="loader" id="loader">Cargando…</div>
+<div class="wrap" id="wrap" hidden>
+  <div class="card">
+    <div class="mascota"><svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="3.5"/><circle class="ir" cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="3.5"/><circle class="ir" cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.6" fill="#0a0a0f"/></g></svg><span class="nm">Tu ruta</span></div>
+    <div class="body" id="body">
+      <div class="conv" id="conv"></div>
+      <div id="prep" hidden></div>
+      <div id="planBox" hidden></div>
+      <div class="done" id="done" hidden></div>
+    </div>
+    <div class="chips" id="chips" hidden></div>
+    <div class="row" id="row"><button class="mic" id="mic" aria-label="Hablar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></button><textarea id="inp" rows="1" placeholder="Escribe o dicta tu respuesta…" aria-label="Respuesta"></textarea><button class="snd" id="snd">Enviar</button></div>
+  </div>
+</div>
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var loader=document.getElementById('loader'), wrap=document.getElementById('wrap');
+if(!window.SkillUp||!SkillUp.api){loader.textContent='No se pudo cargar. Vuelve a entrar.';return;}
+var body=document.getElementById('body'), conv=document.getElementById('conv'), chipsEl=document.getElementById('chips'), row=document.getElementById('row'), inp=document.getElementById('inp'), done=document.getElementById('done'), prep=document.getElementById('prep'), planBox=document.getElementById('planBox');
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function bubble(role,txt){var d=document.createElement('div');d.className='b '+role;d.textContent=txt;conv.appendChild(d);body.scrollTop=body.scrollHeight;return d;}
+function scrollBottom(){ requestAnimationFrame(function(){ body.scrollTop=body.scrollHeight; }); }
+function autoGrow(){ inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,140)+'px'; }
+
+var STEPS=[
+ {ask:'Vamos a montar TU ruta de aprendizaje. Cuéntame qué temáticas quieres dominar. Cuanto más concreto, mejor, y puedes poner varias.',key:'temas'},
+ {ask:'¿Para qué lo quieres conseguir? Tu objetivo, aunque sea en una frase.',key:'objetivo'},
+ {ask:'¿Cuánto tiempo te comprometes a dedicarle a la semana? Sé realista.',key:'compromiso',chips:['Menos de 1 hora','2-3 horas','5 horas o más']},
+ {ask:'¿En cuánto tiempo te gustaría lograrlo?',key:'plazo',chips:['1 mes','3 meses','6 meses','Sin prisa']}
+];
+var step=-1, busy=false, answers={};
+// Lo que ya nos contó en el onboarding: no se lo volvemos a preguntar.
+var ONB={};
+function loadOnb(){
+  return SkillUp.api('/api/notes/list?source=onboarding').then(function(d){
+    (d&&d.items||[]).forEach(function(a){ var m=String(a.body||'').match(/^\[(\w+)\]\s*([\s\S]+)$/); if(m && !ONB[m[1]]) ONB[m[1]]=m[2].trim(); });
+  }).catch(function(){});
+}
+
+function ask(){
+  step++;
+  if(step>=STEPS.length){ build(); return; }
+  var s=STEPS[step];
+  // Reutiliza lo del onboarding en vez de repetir la pregunta.
+  if(s.key==='objetivo' && ONB.objetivo){ answers.objetivo=ONB.objetivo; ask(); return; }
+  if(s.key==='compromiso' && ONB.ritmo){ answers.compromiso=ONB.ritmo; ask(); return; }
+  var askText=s.ask;
+  if(s.key==='temas' && ONB.objetivo){ askText='En tu bienvenida me dijiste que querías «'+ONB.objetivo+'». Para montar tu ruta, dime los temas concretos que quieres dominar. Te he dejado abajo lo que contaste: edítalo o añade lo que quieras.'; }
+  bubble('a',askText);
+  chipsEl.innerHTML=''; chipsEl.hidden=true;
+  if(s.chips){ chipsEl.hidden=false; s.chips.forEach(function(ch){ var b=document.createElement('button'); b.textContent=ch; b.onclick=function(){ answer(ch); }; chipsEl.appendChild(b); }); }
+  if(s.key==='temas' && ONB.objetivo && !answers.temas){ inp.value=ONB.objetivo; autoGrow(); }
+  inp.focus();
+  scrollBottom();
+}
+function answer(val){
+  val=(val||inp.value).trim(); if(!val||busy)return; inp.value=''; autoGrow(); chipsEl.hidden=true; chipsEl.innerHTML='';
+  bubble('u',val); answers[STEPS[step].key]=val;
+  setTimeout(ask,300);
+}
+// Mini-juego de espera (estilo dino de Chrome, a marca): los ojos de BOO corren, un T-Rex persigue
+// y con Espacio/toque saltas los obstáculos. Solo entretiene mientras se monta la ruta; no bloquea nada.
+function loadingGame(host){
+  var css=getComputedStyle(document.documentElement);
+  function col(n,f){ return (css.getPropertyValue(n)||'').trim()||f; }
+  var C={teal:col('--teal2','#3FD8E0'),gold:col('--gold','#F0C645'),aub:col('--aub2','#C69CB8'),green:col('--green','#54C79A'),muted:col('--muted','#968EA4'),line:col('--line','#3a3340')};
+  var wrap=document.createElement('div'); wrap.className='game'; host.appendChild(wrap);
+  var cv=document.createElement('canvas'); wrap.appendChild(cv); var ctx=cv.getContext('2d');
+  var H=150,dpr=Math.min(2,window.devicePixelRatio||1),W=340,groundY=H-30;
+  function resize(){ W=wrap.clientWidth||host.clientWidth||340; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); }
+  var py=groundY,vy=0,jumping=false,obs=[],spawn=40,score=0,trex=6,shake=0,caught=0,running=true,raf=0,last=0;
+  function jump(){ if(running && !jumping){ vy=-9; jumping=true; } }
+  function onKey(e){ if(e.code==='Space'||e.key===' '||e.key==='ArrowUp'){ e.preventDefault(); jump(); } }
+  function onTap(e){ e.preventDefault(); jump(); }
+  document.addEventListener('keydown',onKey); cv.addEventListener('pointerdown',onTap);
+  function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function eyes(x,y){ [[x-11,C.aub],[x+11,C.teal]].forEach(function(p){ ctx.lineWidth=3; ctx.strokeStyle=p[1]; ctx.beginPath(); ctx.arc(p[0],y,10,0,7); ctx.stroke(); ctx.fillStyle=p[1]; ctx.beginPath(); ctx.arc(p[0],y,4.5,0,7); ctx.fill(); ctx.fillStyle='#0a0a0f'; ctx.beginPath(); ctx.arc(p[0],y,2,0,7); ctx.fill(); }); }
+  function trexDraw(x,by){ ctx.save(); ctx.translate(x,by); ctx.fillStyle=C.green; ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(0,-24); ctx.lineTo(9,-38); ctx.lineTo(27,-38); ctx.lineTo(31,-27); ctx.lineTo(20,-25); ctx.lineTo(20,-19); ctx.lineTo(14,-17); ctx.lineTo(14,0); ctx.lineTo(9,0); ctx.lineTo(9,-8); ctx.lineTo(5,-8); ctx.lineTo(5,0); ctx.closePath(); ctx.fill();
+    var m=(Math.sin(performance.now()/90)>0)?4:1; ctx.fillStyle='#0a0a0f'; ctx.fillRect(23,-32,6,m); ctx.beginPath(); ctx.arc(22,-33,1.7,0,7); ctx.fill(); ctx.restore(); }
+  function frame(now){
+    if(!running) return; if(!last)last=now; var dt=Math.min(2.2,(now-last)/16.7); last=now;
+    if(W<=1) resize();
+    if(jumping){ vy+=0.6*dt; py+=vy*dt; if(py>=groundY){ py=groundY; vy=0; jumping=false; } }
+    spawn-=dt; if(spawn<=0){ obs.push({x:W+12,w:9+Math.random()*10,h:15+Math.random()*17,hit:false}); spawn=80+Math.random()*70; }
+    var pv=6.2*dt; obs.forEach(function(o){ o.x-=pv; }); obs=obs.filter(function(o){ return o.x>-30; });
+    var clear=groundY-py; obs.forEach(function(o){ if(!o.hit && o.x<118 && o.x+o.w>84 && clear<o.h){ o.hit=true; trex+=15; shake=7; } });
+    trex-=0.06*dt; if(trex<6)trex=6; caught=0; if(trex>70){ caught=1; trex=6; } score+=pv*0.55;
+    var sx=shake?(Math.random()*shake-shake/2):0; shake*=0.82; if(shake<0.3)shake=0;
+    ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(sx,0);
+    ctx.strokeStyle=C.line; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,groundY+14); ctx.lineTo(W,groundY+14); ctx.stroke();
+    obs.forEach(function(o){ ctx.fillStyle=o.hit?C.muted:C.gold; rr(o.x,groundY+14-o.h,o.w,o.h,3); ctx.fill(); });
+    eyes(101,py); trexDraw(trex,groundY+14); ctx.restore();
+    ctx.fillStyle=C.muted; ctx.font='700 12px Inter,system-ui,sans-serif'; ctx.textAlign='right'; ctx.fillText(Math.floor(score)+' m',W-10,18);
+    if(caught){ ctx.fillStyle=C.aub; ctx.textAlign='center'; ctx.font='800 13px Inter,system-ui,sans-serif'; ctx.fillText('¡casi te pilla!',W/2,20); }
+    raf=requestAnimationFrame(frame);
+  }
+  resize(); window.addEventListener('resize',resize); raf=requestAnimationFrame(frame);
+  return { stop:function(){ running=false; if(raf)cancelAnimationFrame(raf); document.removeEventListener('keydown',onKey); window.removeEventListener('resize',resize); try{ wrap.remove(); }catch(e){} } };
+}
+var game=null;
+function stopGame(){ if(game){ try{ game.stop(); }catch(e){} game=null; } }
+function build(){
+  row.hidden=true; chipsEl.hidden=true;
+  prep.hidden=false;
+  prep.className='prep';
+  scrollBottom();
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){
+    prep.innerHTML='<div class="dots"><i></i><i></i><i></i></div><p>Tus agentes están montando tu ruta a medida con lo que me has contado. Un momento…</p>';
+  } else {
+    prep.innerHTML='<div id="gameHost"></div><p>Tus agentes están montando tu ruta a medida. Mientras, entretente: los ojos de BOO huyen del T-Rex.</p><p class="gtip"><b>Espacio</b> o toca para saltar los obstáculos.</p>';
+    stopGame(); game=loadingGame(document.getElementById('gameHost'));
+  }
+  // Recorta a los límites del servidor para que un pegado largo no rompa el envío (400).
+  var payload={ temas:String(answers.temas||'').slice(0,8000), objetivo:String(answers.objetivo||'').slice(0,2000), compromiso:String(answers.compromiso||'').slice(0,500), plazo:String(answers.plazo||'').slice(0,200) };
+  SkillUp.api('/api/learning/route/build',{method:'POST',body:payload})
+    .then(function(r){ stopGame(); prep.hidden=true; showPlan(r&&r.plan); })
+    .catch(function(err){ stopGame(); var msg=(err&&err.message&&!/cuerpo|error 4|error 5/.test(err.message))?err.message:'No he podido montar la ruta ahora mismo.'; prep.innerHTML='<p>'+esc(msg)+' <a href="#" id="retry" style="color:var(--teal2)">Reintentar</a></p>'; var rt=document.getElementById('retry'); if(rt)rt.onclick=function(e){e.preventDefault();build();}; });
+}
+function showPlan(plan){
+  if(!plan||!plan.modulos||!plan.modulos.length){ prep.hidden=false; prep.className='prep'; prep.innerHTML='<p>No he sabido montar la ruta con eso. <a href="/app/ruta-crear.html" style="color:var(--teal2)">Prueba de nuevo</a> reformulando los temas.</p>'; return; }
+  var html='<div class="plan"><div class="pt">'+esc(plan.titulo||'Tu ruta de aprendizaje')+'</div>'+(plan.resumen?'<p class="ps">'+esc(plan.resumen)+'</p>':'');
+  plan.modulos.forEach(function(m,i){
+    html+='<div class="mod"><div class="n">'+(i+1)+'</div><div class="mb"><b>'+esc(m.titulo)+'</b>'+(m.resumen?'<small>'+esc(m.resumen)+'</small>':'')+'</div>'+(m.courseSrc?'':'<span class="tag">en preparación</span>')+'</div>';
+  });
+  html+='</div>';
+  planBox.innerHTML=html; planBox.hidden=false;
+  done.hidden=false;
+  done.innerHTML='<a class="btn" href="/app/inicio.html">Empezar mi ruta</a>';
+  requestAnimationFrame(function(){ planBox.scrollIntoView({behavior:'smooth',block:'start'}); });
+}
+
+// dictado
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, mic=document.getElementById('mic');
+if(SR){ mic.onclick=function(){ if(rec){try{rec.stop();}catch(e){}return;} rec=new SR();rec.lang='es-ES';rec.interimResults=false;mic.classList.add('rec'); rec.onresult=function(ev){inp.value=(inp.value?inp.value+' ':'')+ev.results[0][0].transcript;autoGrow();}; rec.onend=function(){mic.classList.remove('rec');rec=null;}; rec.onerror=function(){mic.classList.remove('rec');rec=null;}; try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;} }; } else { mic.style.display='none'; }
+document.getElementById('snd').onclick=function(){answer();};
+inp.addEventListener('input',autoGrow);
+inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();answer();}});
+
+SkillUp.requireSession('/app/login.html').then(function(sess){ if(!sess) return;
+  loadOnb().then(function(){ loader.hidden=true; wrap.hidden=false; ask(); });
+});
+})();
+</script>
+<script src="/app/breadcrumbs.js" defer></script>
+<script src="/app/gestures.js" defer></script>
+</body>
+</html>

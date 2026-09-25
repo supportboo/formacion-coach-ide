@@ -64,7 +64,7 @@ f.addEventListener('submit',async function(ev){
     var r=await fetch('/auth/login',{method:'POST',headers:{'content-type':'application/json'},
       body:JSON.stringify({u:document.getElementById('u').value.trim(),p:document.getElementById('p').value})});
     var d=await r.json();
-    if(r.ok&&d.ok){ location.href='/hub.html'; return; }
+    if(r.ok&&d.ok){ location.href="/app/inicio.html"; return; }
     e.textContent=d.error||'No se pudo entrar';
   }catch(_){ e.textContent='Error de conexión'; }
   b.disabled=false; b.textContent='Entrar';

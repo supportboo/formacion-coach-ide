@@ -53,7 +53,7 @@ async function isCritical(deps: SvcDeps, orgId: string, competencyId: string): P
   return c?.critical ?? false;
 }
 
-async function awardPoints(
+export async function awardPoints(
   deps: SvcDeps, orgId: string, userId: string, season: string, points: number, reason: string, refId?: string,
 ): Promise<void> {
   await deps.db.insert(pointsLedger).values({

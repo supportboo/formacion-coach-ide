@@ -3,451 +3,631 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formación a medida por sector y puesto | SkillUp de Brandooers</title>
-<meta name="description" content="SkillUp adapta la formación de cada persona a su sector, su puesto y sus casos reales. Se aplica desde el primer día, con fuentes verificables y sin relleno.">
+<title>SkillUp · La plataforma que te lleva de perdido a referente</title>
+<meta name="description" content="SkillUp es la plataforma de Brandooers: rutas a medida, tutor 24/7, roleplays y tests reales. De «no sé por dónde empezar» a coach del top ranking — y equipos que se forman solos.">
 <link rel="canonical" href="https://skillup.brandooers.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SkillUp · Brandooers">
 <meta property="og:locale" content="es_ES">
 <meta property="og:url" content="https://skillup.brandooers.com/">
-<meta property="og:title" content="Formación a medida por sector y puesto | SkillUp de Brandooers">
-<meta property="og:description" content="Cada persona aprende con los casos de su sector y su puesto. Se aplica desde el primer día.">
-<meta property="og:image" content="https://skillup.brandooers.com/assets/char/char-hero.jpg">
+<meta property="og:title" content="SkillUp · De perdido a referente">
+<meta property="og:description" content="Rutas a medida, tutor 24/7, roleplays y tests reales. Sube en el ranking y forma a tu equipo.">
+<meta property="og:image" content="https://skillup.brandooers.com/assets/su-inicio.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#8B5CF6">
+<meta name="theme-color" content="#FAFAFA">
 <link rel="apple-touch-icon" href="/icon.svg">
 <script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --dark:#0E0B14;--dark2:#171121;--ink:#ECE9F3;--ink-mut:#A79FB8;
-  --bg:#FAFAFA;--white:#FFF;--text:#2D2D2D;--body:#4A4A4A;--mut:#8F8F8F;--line:#E8E0E5;--warm:#F5F0EE;
-  --p:#8B5CF6;--t:#0891B2;--gold:#E4A900;--green:#21B799;
-  --grad:linear-gradient(90deg,#00D4FF,#8B5CF6,#EC4899);--radius:18px;
+  /* Paleta REAL de la app SkillUp (Odoo-flavored, tema claro cálido) */
+  --bg:#FAFAFA; --warm:#F5F0EE; --white:#FFFFFF;
+  --ink:#2D2D2D; --body:#4A4A4A; --mut:#6E6870; --line:#E8E0E5; --line2:#F0EAEE;
+  --vi:#8B5CF6; --te:#0891B2; --gold:#E4A900; --coral:#E46E78; --green:#21B799; --silver:#5B899E;
+  --grad:linear-gradient(120deg,#8B5CF6,#0891B2);
+  --grad-flow:linear-gradient(90deg,#E46E78,#0891B2 45%,#21B799 72%,#E4A900);
+  --fb:'Inter',system-ui,sans-serif; --fd:'Space Grotesk',var(--fb); --fc:'Caveat',cursive;
+  --sh:0 24px 60px rgba(45,32,46,.14); --sh2:0 12px 30px rgba(45,32,46,.10);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--body);line-height:1.65;-webkit-font-smoothing:antialiased}
-a{text-decoration:none;color:inherit}
-.hand{font-family:'Caveat',cursive}
+body{font-family:var(--fb);background:var(--bg);color:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(48% 40% at 84% 6%,rgba(139,92,246,.10),transparent 70%),
+  radial-gradient(42% 38% at 6% 26%,rgba(8,145,178,.08),transparent 70%),
+  radial-gradient(50% 42% at 70% 102%,rgba(228,169,0,.09),transparent 70%),var(--bg)}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,54px)}
 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
-.brandooers-logo{display:inline-flex;align-items:baseline;font-family:'Inter',sans-serif;font-weight:900;line-height:1;letter-spacing:-.02em;user-select:none}
-.brandooers-logo .beyes{display:inline-block;align-self:center;margin:0 1px}
-.beyes .socketL,.beyes .socketR,.beyes .irisL,.beyes .irisR,.beyes .pupilL,.beyes .pupilR,.beyes .glint{transform-box:fill-box;transform-origin:center;animation:bBlink 5.4s infinite}
-@keyframes bBlink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}98%{transform:scaleY(1)}}
-.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;border-radius:100px;padding:12px 24px;cursor:pointer;border:0;transition:transform .18s,box-shadow .18s,opacity .18s;font-family:inherit}
-.btn-grad{background:var(--grad);color:#fff;box-shadow:0 6px 22px rgba(139,92,246,.35)}
-.btn-grad:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(139,92,246,.5)}
-.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18)}
-.btn-ghost:hover{background:rgba(255,255,255,.15)}
-.btn-dark{background:var(--text);color:#fff}.btn-dark:hover{transform:translateY(-2px)}
-
-nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
-nav.solid{background:rgba(14,11,20,.85);backdrop-filter:blur(16px);border-bottom-color:rgba(255,255,255,.08)}
-nav .row{display:flex;align-items:center;justify-content:space-between;height:64px}
-nav .brandooers-logo{font-size:19px;color:#fff}
-nav .sk{font-family:'Caveat',cursive;font-size:20px;color:#67E8F9;margin-left:8px}
-.nav-r{display:flex;align-items:center;gap:10px}
-.nav-r a.txt{color:var(--ink-mut);font-size:14px;font-weight:600;padding:8px 12px}
-.nav-r a.txt:hover{color:#fff}
-
-.hero{position:relative;background:#0E0B14 url('assets/char/char-hero.jpg') center right/cover no-repeat;color:var(--ink);overflow:hidden;padding:150px 0 110px;min-height:92vh;display:flex;align-items:center}
-.hero .ovl{position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(14,11,20,.97) 0%,rgba(14,11,20,.9) 34%,rgba(14,11,20,.52) 62%,rgba(14,11,20,.25) 100%)}
-.hero .wrap{position:relative;z-index:1}
-.kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mut);border:1px solid rgba(255,255,255,.14);border-radius:100px;padding:8px 16px;margin-bottom:26px}
-.kicker .d{width:6px;height:6px;border-radius:50%;background:var(--grad)}
-.hero h1{font-size:clamp(38px,6vw,68px);font-weight:900;letter-spacing:-.035em;line-height:1.05;color:#fff;max-width:17ch;margin:0 0 22px}
-.hero p.lead{font-size:clamp(17px,2vw,20px);color:var(--ink-mut);max-width:560px;margin:0 0 18px;line-height:1.65}
-.hero .roi{font-family:'Caveat',cursive;font-size:26px;color:#67E8F9;margin:0 0 34px}
-.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
-.hero-note{margin-top:30px;font-size:13px;color:var(--ink-mut)}
-
-section{padding:92px 0}
-.tag{font-family:'Caveat',cursive;font-size:30px;font-weight:700;color:var(--t);margin-bottom:6px}
-.h2{font-size:clamp(28px,3.6vw,42px);font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1.14;margin-bottom:16px;max-width:20ch}
-.lead2{font-size:17px;color:var(--body);max-width:660px;line-height:1.7}
-.center{text-align:center;margin:0 auto}.center .h2,.center .lead2{margin-left:auto;margin-right:auto}
-
-.band{background:var(--dark2);color:var(--ink)}
-.bene{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:10px}
-.bene .b{padding:6px 4px}
-.bene .b .big{font-size:30px;font-weight:900;letter-spacing:-.02em;color:#fff;margin-bottom:6px}
-.bene .b .big .grad{font-weight:900}
-.bene .b p{font-size:14.5px;color:var(--ink-mut)}
-
-.split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.pain-list{list-style:none;margin-top:8px}
-.pain-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;font-size:15.5px;color:var(--body)}
-.pain-list li .x{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:#ffe3e3;color:#c92a2a;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
-.pain-list li.ok .x{background:#d3f9d8;color:#2b8a3e}
-.shot{border-radius:20px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 50px rgba(139,92,246,.12);aspect-ratio:4/3;background:#0E0B14 url('assets/char/char-search.jpg') center/cover}
-
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:52px}
-.step{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px 22px}
-.step .n{width:36px;height:36px;border-radius:11px;background:var(--grad);color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.step h4{font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px}
-.step p{font-size:13.5px;color:var(--body)}
-
-.why{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:50px}
-.why .w{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px 26px;display:flex;gap:16px;align-items:flex-start}
-.why .w .ic{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--warm);display:flex;align-items:center;justify-content:center}
-.why .w .ic svg{width:22px;height:22px;stroke:var(--p);fill:none;stroke-width:2}
-.why .w h4{font-size:16.5px;font-weight:800;color:var(--text);margin-bottom:4px}
-.why .w p{font-size:14px;color:var(--body)}
-
-.pricing{background:var(--dark);color:var(--ink)}
-.pricing .tag{color:#8B5CF6}.pricing .h2{color:#fff}.pricing .lead2{color:var(--ink-mut)}
-.plans{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;max-width:820px;margin:52px auto 0}
-.plan{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:34px 30px}
-.plan.feat{border-color:rgba(139,92,246,.55);box-shadow:0 20px 60px rgba(139,92,246,.22)}
-.plan .pop{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:5px 14px;border-radius:100px;white-space:nowrap}
-.plan h3{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mut);margin-bottom:14px}
-.plan .price{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
-.plan .price .now{font-size:52px;font-weight:900;color:#fff;letter-spacing:-.03em}
-.plan .price .u{font-size:16px;color:var(--ink-mut);font-weight:600}
-.plan .was{font-size:14px;color:var(--ink-mut);margin-bottom:20px}
-.plan .was s{color:#EC4899;opacity:.8}
-.plan ul{list-style:none;margin-bottom:26px}
-.plan ul li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:14.5px;color:var(--ink)}
-.plan ul li:before{content:"";flex:0 0 auto;width:18px;height:18px;margin-top:2px;border-radius:50%;background:var(--grad);
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center/13px no-repeat;
-  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E") center/13px no-repeat}
-.plan .btn{width:100%;justify-content:center}
-.plan .roi{font-size:12.5px;color:var(--ink-mut);text-align:center;margin-top:12px}
-.launch{text-align:center;margin-top:26px;font-size:13.5px;color:var(--ink-mut)}
-.launch b{color:#67E8F9}
-
-.access{background:var(--warm)}
-.access .acc{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1.55fr 1fr;gap:24px;align-items:start}
-/* registro = acción primaria: panel oscuro elevado con acento de marca */
-.acc-main{position:relative;background:var(--dark);color:var(--ink);border-radius:24px;padding:40px 38px;overflow:hidden;box-shadow:0 34px 74px rgba(14,11,20,.30)}
-.acc-main:before{content:"";position:absolute;inset:0;background:var(--grad);opacity:.10;pointer-events:none}
-.acc-main:after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--grad)}
-.acc-main>*{position:relative}
-.acc-main .k{font-family:'Caveat',cursive;font-size:24px;color:#67E8F9;margin-bottom:2px}
-.acc-main h3{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.16;margin-bottom:9px}
-.acc-main .s{font-size:14.5px;color:var(--ink-mut);margin-bottom:22px;max-width:44ch}
-.acc-main .fields{display:grid;grid-template-columns:1fr 1fr;gap:13px 14px}
-.acc-main .fields .full{grid-column:1 / -1}
-.acc-main label{display:block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-mut);margin:0 0 5px}
-.acc-main select{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;-webkit-appearance:none;appearance:none}
-.acc-main select option{color:#191320}
-.acc-main .msg.ok{color:#67E8F9}
-.acc-main .msg.err{color:#fda4af}
-.acc-main input{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;transition:border-color .18s,background .18s}
-.acc-main input::placeholder{color:#6b6480}
-.acc-main input:focus{outline:none;border-color:#8B5CF6;background:rgba(139,92,246,.12)}
-.acc-main button{width:100%;justify-content:center;margin-top:18px;font-size:15px;padding:14px 24px}
-.acc-main .assure{display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:16px}
-.acc-main .assure span{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-mut)}
-.acc-main .assure svg{width:14px;height:14px;stroke:#67E8F9;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.acc-main .msg{font-size:13px;margin-top:11px;min-height:16px}
-/* login = acción secundaria: tarjeta clara, discreta */
-.acc-side{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:28px 26px}
-.acc-side h4{font-size:16.5px;font-weight:800;color:var(--text);margin-bottom:3px}
-.acc-side .s{font-size:13px;color:var(--body);margin-bottom:16px}
-.acc-side label{display:block;font-size:11.5px;font-weight:600;color:var(--text);margin:11px 0 5px}
-.acc-side input{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px}
-.acc-side input:focus{outline:none;border-color:var(--p)}
-.acc-side button{width:100%;margin-top:16px}
-.acc-side .msg{font-size:12.5px;margin-top:10px;min-height:15px;color:#c92a2a}
-
-footer{background:var(--dark);color:var(--ink-mut);padding:44px 0 38px}
-footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-footer .brandooers-logo{font-size:16px;color:#fff}
-footer a{color:var(--ink-mut);font-size:13.5px}footer a:hover{color:#fff}
-footer .fl{display:flex;gap:22px;flex-wrap:wrap}
-footer .cp{font-size:12.5px;color:#6b6480;margin-top:24px;border-top:1px solid rgba(255,255,255,.08);padding-top:20px}
-
-/* Recorrido fijado (scrollytelling) */
-.flowsec{position:relative;background:var(--dark);color:var(--ink);padding:0}
-.flow-sticky{position:relative}
-.flow-ui{position:relative;z-index:1}
-.flow{position:relative}
-.fstep{display:grid;grid-template-columns:60px 1fr;gap:22px;padding-bottom:34px}
-.fnode{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#fff;background:rgba(255,255,255,.04);border:1.5px solid rgba(139,92,246,.5)}
-.fnode.on{background:linear-gradient(135deg,#00D4FF,#8B5CF6,#EC4899);border-color:transparent;box-shadow:0 10px 30px rgba(139,92,246,.5)}
-.fbody h3{font-size:clamp(20px,2.1vw,26px);font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:7px}
-.fbody p{font-size:15.5px;color:var(--ink-mut);line-height:1.65;max-width:52ch}
-.fticks{display:none;gap:8px;margin-top:26px;max-width:520px}
-.ftick{height:3px;flex:1;border-radius:2px;background:rgba(255,255,255,.12);transition:background .4s}
-.ftick.on{background:var(--grad)}
-.fcta{background:linear-gradient(135deg,rgba(139,92,246,.16),rgba(236,72,153,.1));border:1px solid rgba(139,92,246,.4);border-radius:18px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
-.fcta h3{font-size:19px;font-weight:800;color:#fff;margin-bottom:4px}
-.fcta p{font-size:14px;color:var(--ink-mut)}
-.fcta-wrap{margin-top:22px;max-width:760px}
-.imm .flowsec{height:440vh}
-.imm .flow-sticky{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
-.imm .flow-ui{display:grid;grid-template-columns:minmax(0,560px) 1fr;gap:40px;width:100%}
-.imm .flow-head{margin-bottom:24px}
-.imm .flow{min-height:210px}
-.imm .fstep{position:absolute;left:0;top:0;right:0;padding-bottom:0;opacity:0;transform:translateY(24px);transition:opacity .55s cubic-bezier(.2,.8,.2,1),transform .55s cubic-bezier(.2,.8,.2,1);pointer-events:none}
-.imm .fstep.on{opacity:1;transform:none;pointer-events:auto}
-.imm .fticks{display:flex}
-.imm .fcta-wrap{opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
-.imm .fcta-wrap.on{opacity:1;transform:none}
-.no-motion .flowsec{padding:70px 0}
-.no-motion .flowsec .net{opacity:.45}
-
-/* Qué incluye la propuesta */
-.incl{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:46px}
-.inc{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 24px}
-.inc h4{font-size:17px;font-weight:800;color:#fff;margin-bottom:7px;letter-spacing:-.01em}
-.inc p{font-size:14px;color:var(--ink-mut);line-height:1.6}
-
-/* Tarjetas con inclinación 3D + foco del cursor */
-.tilt{transform-style:preserve-3d;will-change:transform}
-@media(hover:hover) and (prefers-reduced-motion:no-preference){
-  .tilt{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .25s}
-  .tilt:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-6px) scale(1.012)}
-  .tilt:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:calc(var(--lift,0)*.9);transition:opacity .25s;background:radial-gradient(320px circle at var(--sx,50%) var(--sy,50%),rgba(139,92,246,.14),transparent 60%)}
-}
-
-/* Preguntas frecuentes */
-.faq{background:var(--bg)}
-.faqs{margin-top:34px;border-top:1px solid var(--line);max-width:820px;margin-left:auto;margin-right:auto}
-.faqs details{border-bottom:1px solid var(--line)}
-.faqs summary{list-style:none;cursor:pointer;padding:22px 44px 22px 0;position:relative;font-size:clamp(16.5px,1.7vw,19px);font-weight:800;color:var(--text)}
-.faqs summary::-webkit-details-marker{display:none}
-.faqs summary:after{content:"";position:absolute;right:8px;top:50%;width:10px;height:10px;border-right:2.4px solid var(--p);border-bottom:2.4px solid var(--p);transform:translateY(-70%) rotate(45deg);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
-.faqs details[open] summary:after{transform:translateY(-30%) rotate(225deg)}
-.faqs summary:hover{color:var(--p)}
-.faqs details>div{padding:0 40px 24px 0}
-.faqs details>div p{font-size:16px;color:var(--body);line-height:1.75}
-
-/* ===== Capa inmersiva (assets/immersive.js) — solo transform/opacity, respeta prefers-reduced-motion ===== */
-html.lenis,html.lenis body{height:auto}
-.lenis.lenis-smooth{scroll-behavior:auto!important}
-.net{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
-.hero{background:#0E0B14}
-.hero-mascot{position:absolute;z-index:1;right:-8%;top:50%;width:min(64vw,980px);aspect-ratio:16/9;transform:translate3d(var(--mx,0px),calc(-50% + var(--my,0px) + var(--out,0)*40px),0) scale(calc(1 + var(--out,0)*.12));-webkit-mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);mask-image:radial-gradient(ellipse 52% 58% at 50% 50%,#000 30%,transparent 70%);will-change:transform;pointer-events:none;opacity:calc(1 - var(--out,0)*.85)}
-.hero-mascot img{width:100%;height:100%;object-fit:cover}
-.hero .ovl{z-index:2;background:linear-gradient(90deg,rgba(14,11,20,.97) 0%,rgba(14,11,20,.88) 34%,rgba(14,11,20,.32) 60%,rgba(14,11,20,.04) 100%)}
-.hero .wrap{z-index:3;transform:translate3d(calc(var(--mx,0px)*-.3),calc(var(--my,0px)*-.3 + var(--out,0)*-70px),0) scale(calc(1 - var(--out,0)*.05));opacity:calc(1 - var(--out,0)*1.15)}
-.hero h1.words .w{display:inline-block;opacity:0;transform:translateY(.45em);animation:wIn .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i,0)*55ms)}
-@keyframes wIn{to{opacity:1;transform:none}}
-.no-motion .hero h1.words .w{animation:none;opacity:1;transform:none}
-.imm .split .shot{clip-path:inset(0 0 100% 0 round 20px);transition:clip-path 1.1s cubic-bezier(.77,0,.18,1)}
-.imm .split .shot.in{clip-path:inset(0 0 0 0 round 20px)}
-@media(min-width:900px) and (prefers-reduced-motion:no-preference){body:after{content:"";position:fixed;inset:0;z-index:1000;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}}
-@media(max-width:900px){.hero-mascot{right:-28%;top:30%;width:140vw;opacity:.75}}
-
-.reveal{opacity:0;transform:perspective(1000px) translateY(24px) rotateX(4deg);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms)}
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
 .no-motion .reveal{opacity:1;transform:none}
-@media(max-width:860px){
-  .bene,.why,.incl,.split,.access .acc,.acc-main .fields{grid-template-columns:1fr}
-  .imm .flowsec{height:380vh}
-  .imm .flow-ui{grid-template-columns:1fr;align-self:flex-end;padding-bottom:36px}
-  .imm .flow-head .lead2{display:none}
-  .imm .flow{min-height:165px}
-  .imm .flow-sticky:after{content:"";position:absolute;left:0;right:0;bottom:0;height:72%;background:linear-gradient(180deg,rgba(14,11,20,0),rgba(14,11,20,.88) 45%);pointer-events:none}
-  .nav-r a.txt{display:none}
-  section{padding:64px 0}
-  .hero{background-position:center top;min-height:86vh}
-  .hero .ovl{background:linear-gradient(180deg,rgba(14,11,20,.62),rgba(14,11,20,.9) 55%,rgba(14,11,20,.96))}
-  .shot{display:none}
+.ek{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--te)}
+.ek:before{content:"";width:22px;height:1px;background:var(--te)}
+
+/* Logo ojos compartido con Brandooers + wordmark SkillUp (marca real de la app) */
+.logo{display:inline-flex;align-items:center;gap:8px;font-family:var(--fb);font-weight:900;font-size:20px;letter-spacing:-.02em;color:#fff}
+.logo .beyes{align-self:center}
+.logo .ide{font-family:var(--fc);font-weight:700;font-size:23px;color:#67E8F9;margin-left:2px}
+.beyes .b{transform-box:fill-box;transform-origin:center;animation:blink 5.6s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}98%{transform:scaleY(1)}}
+
+/* Nav — MISMA píldora glass que Brandooers (continuidad de menú) */
+nav{position:fixed;top:16px;left:0;right:0;z-index:50;transition:top .3s}
+nav .bar{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 12px 10px 20px;border-radius:100px;background:rgba(38,26,40,.72);border:1px solid rgba(255,255,255,.10);backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(45,32,46,.18)}
+.nav-r{display:flex;align-items:center;gap:6px}
+.nav-r a.t{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.72);padding:8px 14px;border-radius:100px}
+.nav-r a.t:hover{color:#fff;background:rgba(255,255,255,.10)}
+.btn{font-family:var(--fb);font-size:13px;font-weight:700;padding:12px 22px;border-radius:100px;display:inline-flex;align-items:center;gap:8px;transition:transform .3s,box-shadow .3s,background .3s;cursor:pointer;border:0}
+.btn-grad{background:var(--grad);color:#fff;box-shadow:0 8px 24px rgba(8,145,178,.38)}
+.btn-grad:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(8,145,178,.5)}
+.btn-line{background:var(--white);border:1px solid var(--line);color:var(--ink)}
+.btn-line:hover{border-color:var(--vi);color:var(--vi)}
+@media(max-width:820px){.nav-r a.t{display:none}}
+
+/* Hero */
+.hero{position:relative;padding:150px 0 60px;overflow:visible}
+.hero .grid{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(28px,4vw,56px);align-items:center;position:relative;z-index:2}
+.hero h1{font-family:var(--fb);font-weight:900;font-size:clamp(40px,6.6vw,88px);line-height:1.0;letter-spacing:-.035em;margin:16px 0 40px;color:var(--ink);max-width:none}
+.hero h1 em{font-style:normal;font-family:var(--fc);font-weight:700;color:#CE3F50}
+.hero p.lead{font-size:clamp(16px,1.5vw,19px);color:var(--body);max-width:48ch;margin-bottom:30px;line-height:1.7}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.trust{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px;color:var(--mut);font-weight:500}
+.trust b{color:var(--ink)}
+@media(max-width:900px){.hero .grid{grid-template-columns:1fr}}
+
+/* Marco navegador para pantallazos reales */
+.browser{position:relative;border-radius:16px;background:var(--white);border:1px solid var(--line);box-shadow:var(--sh);overflow:hidden}
+.browser .bbar{display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--warm);border-bottom:1px solid var(--line2)}
+.browser .dots{display:flex;gap:6px}
+.browser .dots i{width:11px;height:11px;border-radius:50%;background:#D9CEd4;display:block}
+.browser .dots i:nth-child(1){background:#E46E78}.browser .dots i:nth-child(2){background:#E4A900}.browser .dots i:nth-child(3){background:#21B799}
+.browser .url{flex:1;font-size:12px;color:var(--mut);background:var(--white);border:1px solid var(--line2);border-radius:100px;padding:5px 14px;text-align:center;max-width:280px;margin:0 auto}
+.shot{position:relative;aspect-ratio:16/10;background:linear-gradient(135deg,#efe9ee,#e7eef1)}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.shot .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fc);font-size:20px;color:var(--silver);opacity:.7;pointer-events:none}
+.float{animation:float 6.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.no-motion .float{animation:none}
+
+/* Anotaciones handwriting + flechas */
+.note{position:absolute;font-family:var(--fc);font-weight:700;font-size:clamp(34px,3.6vw,46px);color:#C0344A;line-height:1.12;z-index:5;pointer-events:none;text-shadow:0 1px 0 rgba(255,255,255,.85)}
+.note.te{color:#0A6E86}.note.vi{color:#6D28D9}.note.gd{color:#9A6E08}.note.gr{color:#127c65}
+.arw{position:absolute;z-index:5;pointer-events:none;overflow:visible}
+.arw path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.arw .hd{stroke-width:2.4}
+/* Anotación FUERA del marco: fluye encima y apunta hacia abajo, nunca solapa */
+.noteout{display:flex;align-items:flex-end;gap:0;width:max-content;max-width:94%;margin:0 0 -8px 5%;position:relative;z-index:4;pointer-events:none;color:#C0344A}
+.noteout.te{color:#0A6E86}.noteout.vi{color:#6D28D9}.noteout.gd{color:#9A6E08}.noteout.gr{color:#127c65}
+.noteout .note{position:static;color:inherit;font-size:clamp(30px,3.2vw,42px)}
+.arwd{flex:0 0 auto;width:48px;height:44px;overflow:visible;color:inherit;margin:0 0 6px 2px}
+.arwd path{fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+@media(max-width:760px){.noteout{max-width:100%;margin-left:2%}}
+.chip-flow{display:inline-flex;align-items:center;gap:7px;background:var(--white);border:1px solid var(--line);border-radius:100px;padding:6px 13px;font-size:12.5px;font-weight:700;color:var(--ink);box-shadow:var(--sh2)}
+.chip-flow .dot{width:9px;height:9px;border-radius:50%}
+/* Lightbox — ampliar la captura al pulsar */
+.browser .shot,.jframe .shot,.scard .shot{cursor:zoom-in}
+.lightbox{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:clamp(14px,3vw,40px)}
+.lightbox.open{display:flex}
+.lightbox .lb-back{position:absolute;inset:0;background:rgba(20,14,24,.86);backdrop-filter:blur(6px)}
+.lightbox figure{position:relative;margin:0;max-width:1120px;width:100%;opacity:0;transform:scale(.97);transition:opacity .3s,transform .3s}
+.lightbox.open figure{opacity:1;transform:none}
+.lightbox img{display:block;width:100%;height:auto;max-height:86vh;object-fit:contain;border-radius:14px;border:1px solid rgba(255,255,255,.14);box-shadow:0 40px 120px rgba(0,0,0,.6);background:#0f0d14}
+.lightbox figcaption{margin-top:12px;text-align:center;font-family:var(--fc);font-weight:700;font-size:clamp(24px,3.2vw,36px);color:#fff}
+.lightbox .lb-x{position:absolute;top:-16px;right:-10px;width:46px;height:46px;border-radius:50%;background:#fff;border:0;color:#211E28;font-size:20px;cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+@media(max-width:640px){.lightbox .lb-x{top:-6px;right:0}}
+
+section{padding:clamp(72px,11vh,128px) 0;position:relative}
+.head{max-width:760px}
+.head h2{font-family:var(--fb);font-weight:900;font-size:clamp(30px,5vw,58px);line-height:1.03;letter-spacing:-.03em;margin:14px 0;max-width:17ch;color:var(--ink)}
+.head p{color:var(--body);max-width:54ch}
+.center{margin-left:auto;margin-right:auto;text-align:center}
+.center h2,.center p{margin-left:auto;margin-right:auto}
+
+/* Rail de estados (lenguaje de color real de la app) */
+.states{margin-top:44px;position:relative;padding:30px clamp(16px,3vw,34px);background:var(--white);border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh2)}
+.states .bar{height:8px;border-radius:100px;background:var(--grad-flow);margin-bottom:22px}
+.states .row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.st{display:flex;flex-direction:column;gap:4px}
+.st .lab{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--ink);font-size:15px}
+.st .lab i{width:12px;height:12px;border-radius:50%;display:block}
+.st p{font-size:13px;color:var(--mut);line-height:1.5}
+@media(max-width:720px){.states .row{grid-template-columns:1fr 1fr;gap:18px}}
+
+/* Recorrido — mapa del tesoro (como las rutas de la app) */
+.mapnote{font-family:var(--fc);font-size:clamp(34px,4vw,48px);line-height:1.1;color:#C0344A;margin-top:12px;transform:rotate(-2deg);display:inline-block}
+@keyframes dash{to{stroke-dashoffset:-460}}
+/* Recorrido — camino curvo descendente interconectado */
+.journey{position:relative;margin-top:34px}
+.jconn{position:absolute;inset:0;width:100%;height:100%;z-index:0;overflow:visible;pointer-events:none}
+.jconn .jseg{fill:none;stroke:#C9AFC4;stroke-width:2.4;stroke-dasharray:2 11;stroke-linecap:round;transition:stroke .35s,stroke-width .35s;filter:none}
+.jconn .jseg.lit{stroke:var(--vi);stroke-width:3.4;filter:drop-shadow(0 0 6px rgba(139,92,246,.6))}
+.jconn .jwalk{fill:var(--coral);filter:drop-shadow(0 0 7px rgba(228,110,120,.85))}
+.no-motion .jconn .jwalk{animation:none}
+.jsteps{position:relative;z-index:1;display:flex;flex-direction:column;gap:clamp(30px,6vh,72px)}
+.jstep{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(16px,3vw,40px);position:relative}
+.jstep[data-side="l"] .jcard{grid-column:1;margin-right:auto}
+.jstep[data-side="l"] .jaside{grid-column:2}
+.jstep[data-side="r"] .jcard{grid-column:2;margin-left:auto}
+.jstep[data-side="r"] .jaside{grid-column:1;order:-1;text-align:right}
+.jcard{position:relative;width:100%;max-width:420px;background:var(--white);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh2);transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s;cursor:pointer}
+.jcard:hover{transform:translateY(-6px) scale(1.015);box-shadow:var(--sh)}
+.jstep.end .jcard{border:2px dashed var(--gold);background:linear-gradient(180deg,#FFFBF0,#fff)}
+.jbadge{position:absolute;top:-17px;left:22px;width:40px;height:40px;border-radius:50%;color:#fff;font-family:var(--fd);font-weight:700;font-size:16px;display:grid;place-items:center;z-index:4;border:3px solid var(--white);box-shadow:0 6px 16px rgba(45,32,46,.28)}
+.jframe{border-radius:16px 16px 0 0;overflow:hidden}
+.jframe .bbar{display:flex;align-items:center;gap:7px;padding:9px 12px;background:var(--warm);border-bottom:1px solid var(--line2)}
+.jframe .dots{display:flex;gap:5px}.jframe .dots i{width:9px;height:9px;border-radius:50%;background:#D9CEd4}
+.jframe .dots i:nth-child(1){background:#E46E78}.jframe .dots i:nth-child(2){background:#E4A900}.jframe .dots i:nth-child(3){background:#21B799}
+.jframe .shot{aspect-ratio:16/10;background:linear-gradient(135deg,#efe9ee,#e7eef1);position:relative}
+.jframe .shot img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.jframe .shot .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fc);font-size:16px;color:var(--silver);opacity:.7}
+.jmeta{padding:13px 18px 16px}
+.jmeta h4{font-size:16px;font-weight:800;color:var(--ink)}
+.jmeta p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:3px}
+/* Nota manuscrita + flecha FUERA de la captura */
+.jaside{position:relative;min-height:1px}
+.jnote{display:inline-block;font-family:var(--fc);font-weight:700;font-size:clamp(34px,3.4vw,46px);line-height:1.12;color:#0A6E86;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+.jstep[data-side="r"] .jnote{color:#C0344A}
+.jarrow{display:block;margin-top:2px;color:#0A6E86;overflow:visible}
+.jstep[data-side="r"] .jarrow{color:#C0344A;margin-left:auto}
+.jarrow path{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+/* Bocadillo de cómic (hover) */
+.jbubble{position:absolute;left:50%;bottom:calc(100% + 14px);transform:translate(-50%,8px);width:max-content;max-width:340px;background:var(--white);border:2px solid var(--ink);border-radius:16px;padding:14px 20px;font-family:var(--fc);font-weight:700;font-size:30px;line-height:1.18;color:var(--ink);box-shadow:5px 5px 0 rgba(45,32,46,.13);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:6}
+.jbubble:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:9px solid transparent;border-top-color:var(--ink)}
+.jbubble:before{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%) translateY(-2.5px);border:8px solid transparent;border-top-color:var(--white);z-index:1}
+.jcard:hover .jbubble,.jstep.on .jbubble{opacity:1;transform:translate(-50%,0)}
+@media(max-width:760px){
+  .jconn{display:none}
+  .journey:before{content:"";position:absolute;left:19px;top:10px;bottom:10px;width:0;border-left:2px dashed #C9AFC4;z-index:0}
+  .jsteps{gap:26px}
+  .jstep{grid-template-columns:1fr;gap:8px;padding-left:6px}
+  .jstep .jcard{grid-column:1;max-width:100%;margin:0}
+  .jstep .jaside{grid-column:1;order:2;text-align:left!important}
+  .jstep[data-side="r"] .jnote,.jstep[data-side="r"] .jarrow{color:#0A6E86;margin-left:0}
+  .jarrow{display:none}
+  .jbubble{position:static;left:auto;transform:none;opacity:1;max-width:100%;width:auto;margin-top:8px;box-shadow:3px 3px 0 rgba(45,32,46,.12)}
+  .jbubble:after,.jbubble:before{display:none}
 }
+@media(max-width:520px){.tnodes{grid-template-columns:1fr}}
+
+/* Showcase — composiciones variadas alternas (estilo bloque tutor) */
+.show{display:grid;grid-template-columns:1.04fr .96fr;gap:clamp(30px,5vw,72px);align-items:center;margin-top:clamp(64px,9vh,108px)}
+.show:first-of-type{margin-top:0}
+.show.flip .txt{order:2}.show.flip .media{order:1}
+.show .txt h3{font-family:var(--fb);font-weight:900;font-size:clamp(24px,3.3vw,40px);line-height:1.06;letter-spacing:-.025em;color:var(--ink);margin:12px 0 12px}
+.show .txt p{color:var(--body);max-width:46ch;font-size:15.5px}
+.show .txt .mini{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.show .txt .mini li{list-style:none;display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--body)}
+.show .txt .mini li b{color:var(--ink)}
+.show .txt .mini svg{flex:0 0 20px;margin-top:2px}
+.media{position:relative}
+@media(max-width:900px){.show{grid-template-columns:1fr;gap:26px}.show.flip .txt{order:0}.show.flip .media{order:0}}
+
+/* Slider modeka (peek, no corta tarjetas) */
+.slider{margin-top:44px;position:relative}
+.strack{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 2px 16px;scroll-padding-left:2px}
+.strack::-webkit-scrollbar{display:none}
+.scard{flex:0 0 min(72%,560px);scroll-snap-align:center;background:var(--white);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--sh2)}
+.scard .cap{padding:14px 20px 18px}
+.scard .cap h4{font-size:16px;font-weight:800;color:var(--ink)}
+.scard .cap p{font-size:13.5px;color:var(--mut);margin-top:3px}
+.sctrl{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.arrow{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:19px;cursor:pointer;display:grid;place-items:center;transition:.3s;box-shadow:var(--sh2)}
+.arrow:hover{border-color:var(--vi);color:var(--vi);transform:translateY(-2px)}
+
+/* Statement ranking */
+.rank{position:relative;overflow:hidden;background:linear-gradient(120deg,#2b1f2e,#3a2340 55%,#4a2d1a);color:#fff}
+.rank .wrap{position:relative;z-index:2}
+.rank .grid{display:grid;grid-template-columns:1fr .9fr;gap:clamp(30px,5vw,64px);align-items:center}
+.rank .huge{font-family:var(--fb);font-weight:900;font-size:clamp(38px,7vw,92px);line-height:.94;letter-spacing:-.035em}
+.rank .huge em{font-style:normal;background:linear-gradient(90deg,#E4A900,#E46E78);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rank p{margin-top:20px;color:rgba(255,255,255,.78);max-width:42ch}
+.rank .glow{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(40% 50% at 80% 30%,rgba(228,169,0,.28),transparent 70%),radial-gradient(40% 45% at 15% 80%,rgba(228,110,120,.22),transparent 70%)}
+@media(max-width:860px){.rank .grid{grid-template-columns:1fr}}
+
+/* Equipos */
+.teams .grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(30px,5vw,64px);align-items:center}
+.teams .mini{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.teams .mc{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--sh2)}
+.teams .mc .k{font-family:var(--fd);font-weight:700;font-size:26px;color:var(--vi)}
+.teams .mc .k.g{color:var(--te)}.teams .mc .k.o{color:#B9860B}
+.teams .mc p{font-size:13px;color:var(--mut);margin-top:2px}
+@media(max-width:860px){.teams .grid{grid-template-columns:1fr}}
+
+/* CTA */
+.cta .box{padding:clamp(30px,5vw,58px);border-radius:28px;background:var(--white);border:1px solid var(--line);box-shadow:var(--sh)}
+.cta .grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(30px,5vw,60px);align-items:center}
+.cta h2{font-family:var(--fb);font-weight:900;font-size:clamp(30px,4.4vw,54px);line-height:1.03;letter-spacing:-.03em;max-width:14ch;color:var(--ink)}
+.cta .p{margin-top:16px;color:var(--body);max-width:40ch}
+.assure{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:16px;font-size:12.5px;color:var(--mut)}
+form .fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+form .full{grid-column:1/-1}
+form label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+form input{width:100%;font-family:var(--fb);font-size:15px;padding:13px 15px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px}
+form input:focus{outline:none;border-color:var(--vi);background:#fff}
+form input::placeholder{color:#B7ADB5}
+form button{width:100%;justify-content:center;margin-top:16px;padding:16px;font-size:15px}
+.msg{font-size:13.5px;margin-top:12px;min-height:16px}.msg.ok{color:var(--green)}.msg.err{color:#c0392b}
+@media(max-width:820px){.cta .grid{grid-template-columns:1fr}}
+
+footer{padding:54px 0 44px;color:var(--mut);border-top:1px solid var(--line);margin-top:20px;background:var(--warm)}
+footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+footer .logo{color:var(--ink)}footer .logo .ide{color:var(--te)}
+footer a:hover{color:var(--ink)}
+footer .fl{display:flex;gap:22px;flex-wrap:wrap;font-size:14px}
+footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-height:1.7}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.reveal{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-<linearGradient id="bo-bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-<linearGradient id="bo-bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-<radialGradient id="bo-iris1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-<radialGradient id="bo-iris2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+<linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#0891B2"/></linearGradient>
+<linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891B2"/><stop offset="100%" stop-color="#E4A900"/></linearGradient>
+<radialGradient id="ir1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#6D28D9"/></radialGradient>
+<radialGradient id="ir2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
 </defs></svg>
 
-<nav id="nav"><div class="wrap"><div class="row">
-  <a href="https://brandooers.com" title="Volver a Brandooers" style="display:flex;align-items:baseline"><span class="brandooers-logo">Brand<svg class="beyes" width="38" height="22" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse class="socketL" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g><g transform="translate(53,0)"><ellipse class="socketR" cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/><circle class="glint" cx="23" cy="33" r="2" fill="#fff"/></g></svg>ers</span><span class="sk">SkillUp</span></a>
+<nav id="nav"><div class="bar">
+  <a href="#top" class="logo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58" aria-hidden="true"><g class="b"><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg1)" stroke-width="3"/><circle cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle cx="25" cy="36" r="3.4" fill="#0a0a12"/><circle cx="28" cy="33" r="1.8" fill="#fff"/></g><g class="b"><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg2)" stroke-width="3"/><circle cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle cx="73" cy="36" r="3.4" fill="#0a0a12"/><circle cx="76" cy="33" r="1.8" fill="#fff"/></g></svg>ers<span class="ide">SkillUp</span></a>
   <div class="nav-r">
-    <a class="txt" href="#como">Cómo funciona</a>
-    <a class="txt" href="#faq">Preguntas</a>
-    <a class="txt" href="https://brandooers.com">← Brandooers</a>
-    <a class="btn btn-grad" href="#acceso">Empezar</a>
+    <a class="t" href="#como">Cómo funciona</a>
+    <a class="t" href="#recorrido">El recorrido</a>
+    <a class="t" href="https://brandooers.com">Brandooers</a>
+    <a class="t" href="/app/login.html">Entrar</a>
+    <a class="btn btn-grad" href="#empezar">Encuentra tu ruta</a>
   </div>
-</div></div></nav>
+</div></nav>
 
 <header class="hero" id="top">
-  <canvas class="net" data-net="hero" aria-hidden="true"></canvas>
-  <div class="hero-mascot" aria-hidden="true"><img src="assets/char/char-hero.jpg" alt="" width="2048" height="1152" fetchpriority="high" decoding="async"></div>
-  <div class="ovl"></div>
   <div class="wrap">
-    <span class="kicker"><span class="d"></span>Formación para equipos · a medida de cada persona</span>
-    <h1>Tu equipo aprende <span class="grad">lo que de verdad usa</span>.</h1>
-    <p class="lead">SkillUp crea y personaliza la formación de cada persona según su sector, su rol y su día a día. Se aplica desde el primer día. Tú solo ves cómo crecen.</p>
-    <p class="roi">Un curso aplicado ya paga meses de SkillUp.</p>
-    <div class="hero-cta">
-      <a href="#acceso" class="btn btn-grad">Solicita acceso para tu equipo →</a>
-      <a href="#como" class="btn btn-ghost">Cómo funciona</a>
+    <span class="ek reveal">La plataforma de Brandooers</span>
+    <h1 class="reveal">Empiezas <em>perdido</em>. Acabas siendo <span class="grad">la referencia</span>.</h1>
+    <div class="grid">
+      <div>
+        <p class="lead reveal">SkillUp te da una ruta a tu medida, un tutor que no duerme, roleplays y tests reales. Aprendes haciendo, subes en el ranking y tu equipo se forma solo.</p>
+        <div class="hero-cta reveal">
+          <a href="#empezar" class="btn btn-grad">Encuentra tu ruta →</a>
+          <a href="/app/login.html" class="btn btn-line">Ya tengo cuenta · Entrar</a>
+        </div>
+        <div class="trust reveal">
+          <span><b>Ruta a medida</b> desde el minuto uno</span>
+          <span><b>Tutor 24/7</b> que te reta</span>
+          <span><b>Ranking</b> que te empuja</span>
+        </div>
+      </div>
+      <div class="media reveal" style="position:relative">
+        <div class="noteout"><span class="note">aquí empiezas</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+        <div class="browser float">
+          <div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup.brandooers.com</span></div>
+          <div class="shot"><span class="ph">Tu inicio</span><img src="assets/su-inicio.png" alt="Pantalla de inicio de SkillUp: la ruta del alumno al entrar" loading="eager" onerror="this.style.display='none'"></div>
+        </div>
+        <span class="chip-flow" style="position:absolute;bottom:-16px;left:-10px"><span class="dot" style="background:var(--coral)"></span>Aprendiendo → <span class="dot" style="background:var(--green)"></span>Dominado</span>
+      </div>
     </div>
-    <p class="hero-note">Contenido verificado · cero relleno · se adapta a cada alumno</p>
   </div>
 </header>
 
-<section class="band">
-  <div class="wrap"><div class="bene">
-    <div class="b reveal"><div class="big">Se <span class="grad">aplica</span>, no se olvida</div><p>Cada curso usa ejemplos del sector y del puesto de la persona. Lo que aprende hoy, lo usa mañana.</p></div>
-    <div class="b reveal"><div class="big">Cero <span class="grad">horas perdidas</span></div><p>Al grano, práctico, sin relleno. Menos tiempo formando, más tiempo aplicando.</p></div>
-    <div class="b reveal"><div class="big">Crecen y lo <span class="grad">demuestran</span></div><p>Rutas a medida y casos reales de su puesto. Cada persona ve lo que ya sabe hacer — y quiere más.</p></div>
-  </div></div>
-</section>
-
-<section id="problema">
-  <div class="wrap"><div class="split">
-    <div class="reveal">
-      <p class="tag">El problema</p>
-      <h2 class="h2">La formación de siempre no cala.</h2>
-      <p class="lead2" style="margin-bottom:10px">Cursos genéricos, ejemplos que no son los tuyos, gente que empieza y no termina. Pagas formación y nadie la aplica.</p>
-      <ul class="pain-list">
-        <li><span class="x">✕</span>Contenido genérico que no habla de tu negocio</li>
-        <li><span class="x">✕</span>Vídeos larguísimos que nadie acaba</li>
-        <li><span class="x">✕</span>Se olvida en una semana porque no se usa</li>
-        <li class="ok"><span class="x">✓</span>SkillUp lo cambia: cada persona, su contexto</li>
-      </ul>
+<section id="como">
+  <div class="wrap">
+    <div class="head reveal">
+      <span class="ek">Cómo funciona</span>
+      <h2>Una sola cosa a la vez, en el orden correcto.</h2>
+      <p>SkillUp usa el mismo lenguaje de colores en toda la plataforma: sabes de un vistazo qué estás aprendiendo, qué ya dominas y dónde está la maestría.</p>
     </div>
-    <div class="shot reveal" aria-hidden="true"></div>
-  </div></div>
-</section>
-
-<section class="flowsec" id="como" data-story>
-  <div class="flow-sticky">
-    <canvas class="net" data-net="story" data-morph="no" aria-hidden="true"></canvas>
-    <div class="wrap flow-ui">
-      <div>
-        <div class="flow-head reveal">
-          <p class="tag" style="color:#b39bff">Cómo funciona</p>
-          <h2 class="h2" style="color:#fff">De cero a equipo formado, casi solo.</h2>
-          <p class="lead2" style="color:var(--ink-mut)">Tú cuentas quién es tu equipo. SkillUp hace el resto y lo adapta a cada uno.</p>
-        </div>
-        <div class="flow">
-          <div class="fstep on"><div class="fnode">01</div><div class="fbody"><h3>Cuéntanos tu equipo</h3><p>Un onboarding tipo entrevista detecta el sector, el nivel y los objetivos de cada persona.</p></div></div>
-          <div class="fstep"><div class="fnode">02</div><div class="fbody"><h3>Cada uno, su ruta</h3><p>Se arma la ruta de aprendizaje de cada persona combinando solo lo que le sirve a su puesto.</p></div></div>
-          <div class="fstep"><div class="fnode">03</div><div class="fbody"><h3>Aprende con su mundo</h3><p>Titulares, ejemplos y prácticas del sector de esa persona. Todo verificado y con la fuente a la vista.</p></div></div>
-          <div class="fstep"><div class="fnode on">04</div><div class="fbody"><h3>Lo demuestra</h3><p>Resuelve un caso real de su puesto y lo revisa alguien acreditado. Lo que se ve es quién sabe aplicarlo.</p></div></div>
-        </div>
-        <div class="fticks" aria-hidden="true"><span class="ftick on"></span><span class="ftick"></span><span class="ftick"></span><span class="ftick"></span></div>
-        <div class="fcta-wrap"><div class="fcta"><div><h3>Y esto es lo que cambia.</h3><p>Menos horas de formación, más gente que sabe aplicarlo. Cuéntanos cómo es tu equipo.</p></div><a href="#acceso" class="btn btn-grad">Solicitar acceso →</a></div></div>
+    <div class="states reveal">
+      <div class="bar"></div>
+      <div class="row">
+        <div class="st"><span class="lab"><i style="background:var(--coral)"></i>Aprendiendo</span><p>Lo acabas de empezar. El tutor te acompaña paso a paso.</p></div>
+        <div class="st"><span class="lab"><i style="background:var(--te)"></i>Practicando</span><p>Roleplays y casos reales. Aplicas, no memorizas.</p></div>
+        <div class="st"><span class="lab"><i style="background:var(--green)"></i>Dominado</span><p>Lo demuestras en un test real y queda registrado.</p></div>
+        <div class="st"><span class="lab"><i style="background:var(--gold)"></i>Maestría</span><p>Enseñas a otros y subes al top del ranking.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="porque" class="band">
-  <div class="wrap center reveal">
-    <p class="tag" style="color:#67E8F9">Por qué SkillUp</p>
-    <h2 class="h2" style="color:#fff">No es otro catálogo de vídeos.</h2>
-    <p class="lead2" style="color:var(--ink-mut)">Lo que nos hace distintos es lo que hace que tu equipo de verdad aprenda.</p>
+<section id="recorrido">
+  <div class="wrap">
+    <div class="head reveal">
+      <span class="ek">El recorrido</span>
+      <h2>Tu ruta, dibujada como un mapa del tesoro.</h2>
+      <p>Ninguna pantalla es de mentira: esto es SkillUp por dentro, paso a paso, desde que entras hasta que llegas arriba.</p>
+    </div>
+    <span class="mapnote reveal" aria-hidden="true">sigue la línea… el tesoro es el nº 1 del ranking ✕</span>
+    <div class="journey reveal" id="journey">
+      <svg class="jconn" id="jconn" aria-hidden="true"></svg>
+      <div class="jsteps" id="jsteps">
+        <div class="jstep" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--coral)">1</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-onboarding</span><img src="assets/su-onboarding.png" alt="Onboarding de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Onboarding</h4><p>Nos cuentas quién eres y qué quieres conseguir. En 2 minutos.</p></div>
+            <div class="jbubble">Cuéntanos quién eres y qué quieres. Sin exámenes, sin humo.</div>
+          </div>
+          <div class="jaside"><span class="jnote">aquí empiezas</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="r">
+          <div class="jcard"><span class="jbadge" style="background:var(--vi)">2</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-dna</span><img src="assets/su-dna.png" alt="Perfil de capacidades / Team DNA en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Tu ADN</h4><p>La plataforma mapea tus fortalezas y tus huecos reales.</p></div>
+            <div class="jbubble">Vemos lo que se te da bien y lo que no — no un test de personalidad.</div>
+          </div>
+          <div class="jaside"><span class="jnote">tu mapa real</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--te)">3</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Ruta de aprendizaje a medida en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Tu ruta</h4><p>Un camino a tu medida, no un catálogo infinito de cursos.</p></div>
+            <div class="jbubble">Solo lo que tú necesitas, en el orden correcto.</div>
+          </div>
+          <div class="jaside"><span class="jnote">solo lo tuyo</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="r">
+          <div class="jcard"><span class="jbadge" style="background:var(--te)">4</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en curso en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Lecciones</h4><p>Cortas y aplicables, con el tutor al lado por si atascas.</p></div>
+            <div class="jbubble">Al grano, y con el tutor pegado por si te trabas.</div>
+          </div>
+          <div class="jaside"><span class="jnote">al grano</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--te)">5</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-roleplay</span><img src="assets/su-roleplay.png" alt="Roleplay / reto conversacional en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Roleplays</h4><p>Practicas la conversación difícil antes de tenerla de verdad.</p></div>
+            <div class="jbubble">Ensaya la reunión que temes hasta que te salga sola.</div>
+          </div>
+          <div class="jaside"><span class="jnote">ensaya sin miedo</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
+        <div class="jstep" data-side="r">
+          <div class="jcard"><span class="jbadge" style="background:var(--green)">6</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-test</span><img src="assets/su-test.png" alt="Test / evaluación con resultado en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Tests</h4><p>Demuestras lo que sabes. Queda registrado en tu panel.</p></div>
+            <div class="jbubble">Se pone en verde solo cuando lo demuestras. Eso sí cuenta.</div>
+          </div>
+          <div class="jaside"><span class="jnote">esto sí cuenta</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
+        </div>
+        <div class="jstep end" data-side="l">
+          <div class="jcard"><span class="jbadge" style="background:var(--gold)">✕</span>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ranking</span><img src="assets/su-ranking.png" alt="Ranking / leaderboard de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jmeta"><h4>Ranking</h4><p>El tesoro: del último al primero. Y de primero, a coach.</p></div>
+            <div class="jbubble">Del último al número 1. Y de primero, a coach.</div>
+          </div>
+          <div class="jaside"><span class="jnote">el tesoro ✕</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="wrap"><div class="why">
-    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div><div><h4>Personalización real</h4><p>No cambia cuatro palabras: los ejemplos y las prácticas son del mundo de cada alumno.</p></div></div>
-    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div><h4>Contenido verificado</h4><p>Cero información inventada. Cada dato con su fuente, cada enlace comprobado. Formamos con rigor.</p></div></div>
-    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M4 20c0-3 2.5-5 5-5s5 2 5 5"/></svg></div><div><h4>Se aprende acompañado</h4><p>Quien domina algo forma al siguiente. El conocimiento se queda en el equipo y se multiplica.</p></div></div>
-    <div class="w tilt reveal"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13"/><path d="M8 7h6M8 11h8"/></svg></div><div><h4>Recursos de los mejores</h4><p>Libros, charlas y herramientas de referentes reales, seleccionados para cada tema.</p></div></div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="head reveal">
+      <span class="ek">Por dentro</span>
+      <h2>Cuatro piezas que hacen que de verdad aprendas.</h2>
+    </div>
+
+    <div class="show reveal">
+      <div class="media">
+        <div class="noteout vi"><span class="note">pregúntale lo que sea</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+        <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · tutor</span></div><div class="shot"><span class="ph">su-tutor</span><img src="assets/su-tutor.png" alt="Chat con el tutor de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+      </div>
+      <div class="txt">
+        <span class="ek">Tutor 24/7</span>
+        <h3>Un mentor que te devuelve la pregunta.</h3>
+        <p>No es una FAQ. Te reta, te pone el ejemplo de tu caso y te empuja a aplicarlo hoy. A la hora que sea.</p>
+        <ul class="mini">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Contexto tuyo:</b> conoce tu ruta y tu nivel.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Te corrige</b> con tus propias palabras, no con teoría.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="show flip reveal">
+      <div class="txt">
+        <span class="ek">Práctica real</span>
+        <h3>Roleplays de la conversación que temes.</h3>
+        <p>La reunión, la objeción, el «no» del cliente. Lo ensayas en SkillUp hasta que te sale solo — y entonces lo haces de verdad.</p>
+        <ul class="mini">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Escenarios reales</b> de tu sector y tu puesto.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Feedback inmediato</b> sobre qué mejorar.</span></li>
+        </ul>
+      </div>
+      <div class="media">
+        <div class="noteout te"><span class="note">ensaya sin miedo</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+        <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · roleplay</span></div><div class="shot"><span class="ph">su-roleplay</span><img src="assets/su-roleplay.png" alt="Roleplay conversacional en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+      </div>
+    </div>
+
+    <div class="show reveal">
+      <div class="media">
+        <div class="noteout gr"><span class="note">esto sí cuenta</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+        <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · test</span></div><div class="shot"><span class="ph">su-test</span><img src="assets/su-test.png" alt="Test de evaluación con resultado en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+      </div>
+      <div class="txt">
+        <span class="ek">Evaluación honesta</span>
+        <h3>Tests que miden lo que de verdad sabes hacer.</h3>
+        <p>Nada de aprobar por asistir. Cuando un skill se pone en verde es porque lo has demostrado — y queda en tu panel para siempre.</p>
+        <ul class="mini">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#21B799" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Sin trampa:</b> de coral a verde solo demostrándolo.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#21B799" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Historial</b> que puedes enseñar a tu empresa.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="show flip reveal">
+      <div class="txt">
+        <span class="ek">Tu panel</span>
+        <h3>Ves cómo subes, en tiempo real.</h3>
+        <p>Tu capacidad deja de ser una sensación. El panel te enseña qué dominas, qué te falta y cuánto has avanzado esta semana.</p>
+        <ul class="mini">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#B9860B" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Mapa de capacidades</b> por área.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="#B9860B" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span><b>Progreso</b> visible que motiva a seguir.</span></li>
+        </ul>
+      </div>
+      <div class="media">
+        <div class="noteout gd"><span class="note">tu progreso, a la vista</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+        <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · panel</span></div><div class="shot"><span class="ph">su-panel</span><img src="assets/su-panel.png" alt="Panel de capacidad de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="head reveal"><span class="ek">Más por dentro</span><h2>Desliza y míralo funcionando.</h2></div>
+    <div class="slider reveal">
+      <div class="strack" id="strack">
+        <div class="scard"><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Rutas de aprendizaje en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Rutas de aprendizaje</h4><p>El camino a medida, no un catálogo interminable.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Lecciones aplicables</h4><p>Cortas y directas al grano, con el tutor al lado.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-insights</span><img src="assets/su-insights.png" alt="Insights y analítica en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Insights</h4><p>Qué funciona, qué te frena y dónde poner el foco.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-equipo</span><img src="assets/su-equipo.png" alt="Vista de equipo en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Vista de equipo</h4><p>Para managers: quién avanza y quién necesita empuje.</p></div></div>
+      </div>
+      <div class="sctrl"><button class="arrow" id="sprev" aria-label="Anterior">‹</button><button class="arrow" id="snext" aria-label="Siguiente">›</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="rank">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap"><div class="grid">
+    <div class="reveal">
+      <span class="ek" style="color:#E4A900">El tesoro</span>
+      <div class="huge">Del último<br>al <em>número&nbsp;1</em>.</div>
+      <p>El ranking no es vanidad: es la prueba de que estás mejorando de verdad. Y cuando llegas arriba, SkillUp te convierte en coach — enseñar es el último nivel.</p>
+    </div>
+    <div class="media reveal">
+      <div class="noteout" style="color:#F5C64A"><span class="note" style="text-shadow:0 1px 4px rgba(0,0,0,.5)">tú, aquí arriba</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+      <div class="browser"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · ranking</span></div><div class="shot"><span class="ph">su-ranking</span><img src="assets/su-ranking.png" alt="Ranking del top de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+    </div>
   </div></div>
 </section>
 
-<section id="propuesta" class="pricing">
-  <div class="wrap center reveal">
-    <p class="tag">La propuesta</p>
-    <h2 class="h2">Se ajusta a tu equipo, no al revés.</h2>
-    <p class="lead2">No hay paquetes cerrados: el alcance depende de cuánta gente formas y de qué competencias te importan. Nos lo cuentas y te preparamos una propuesta por escrito, sin compromiso.</p>
-  </div>
-  <div class="wrap"><div class="incl">
-    <div class="inc tilt reveal"><h4>Rutas por puesto</h4><p>Una ruta distinta para cada perfil de tu equipo, con los casos de su día a día.</p></div>
-    <div class="inc tilt reveal"><h4>Validación práctica</h4><p>Casos reales corregidos por alguien acreditado, no un test que se aprueba de memoria.</p></div>
-    <div class="inc tilt reveal"><h4>Contenido con fuente</h4><p>Cada dato con su origen enlazado y su fecha de revisión visible.</p></div>
-    <div class="inc tilt reveal"><h4>Panel del responsable</h4><p>Quién sabe aplicar qué, dónde dependes de una sola persona y cuánto cuesta formar al siguiente.</p></div>
-  </div>
-  <p class="launch">Cuéntanos cómo es tu equipo y te preparamos la propuesta. Sin permanencia durante el piloto.</p>
-  </div>
-</section>
-
-<section class="faq" id="faq">
-  <div class="wrap center reveal" style="margin-bottom:10px">
-    <p class="tag">Antes de que preguntes</p>
-    <h2 class="h2">Lo que nos preguntan todos.</h2>
-  </div>
-  <div class="wrap"><div class="faqs">
-    <details class="reveal"><summary>¿Qué diferencia a SkillUp de una plataforma de cursos?</summary><div><p>Una plataforma sirve el mismo contenido a todo el mundo y te informa de quién terminó. Aquí los ejemplos, las prácticas y el caso final son del sector y del puesto de cada persona, y lo que se mide es quién sabe aplicarlo.</p></div></details>
-    <details class="reveal"><summary>¿Cómo sabéis lo que necesita cada persona?</summary><div><p>Con un onboarding en forma de entrevista: sector, nivel de partida y qué necesita resolver en su puesto. De ahí sale su ruta, y solo entra lo que le sirve.</p></div></details>
-    <details class="reveal"><summary>¿De dónde sale el contenido y cómo sé que es fiable?</summary><div><p>Cada afirmación lleva su fuente enlazada y cada lección su fecha de última revisión, a la vista. Cuando cambia la normativa de un sector, lo afectado se revisa antes de volver a formar con ello.</p></div></details>
-    <details class="reveal"><summary>¿Puedo empezar yo solo y llevarlo después a mi equipo?</summary><div><p>Sí. SkillUp funciona para un profesional por su cuenta y para un equipo entero. Mucha gente lo prueba sola y después lo plantea en su empresa.</p></div></details>
-    <details class="reveal"><summary>¿Cuánto cuesta?</summary><div><p>Todavía no publicamos tarifa. El alcance depende del tamaño del equipo y de las competencias que quieras cubrir, y te lo damos por escrito antes de decidir nada.</p></div></details>
+<section class="teams">
+  <div class="wrap"><div class="grid">
+    <div class="media reveal">
+      <div class="noteout te"><span class="note">todo tu equipo, de un vistazo</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+      <div class="browser float"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup · equipo</span></div><div class="shot"><span class="ph">su-equipo</span><img src="assets/su-equipo.png" alt="Panel de equipo / workforce en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+    </div>
+    <div class="reveal">
+      <span class="ek">Para empresas · FUNDAE</span>
+      <h2 class="head" style="font-size:clamp(28px,4.2vw,48px);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin:12px 0;color:var(--ink)">Equipos que se forman solos.</h2>
+      <p style="color:var(--body);max-width:46ch">Cada persona tiene su ruta; tú ves el conjunto. SkillUp descubre el talento oculto, cierra los huecos y te enseña quién está listo para más. Bonificable por FUNDAE.</p>
+      <div class="mini">
+        <div class="mc"><div class="k">1 ruta</div><p>por persona, automática</p></div>
+        <div class="mc"><div class="k g">Panel</div><p>de capacidad del equipo</p></div>
+        <div class="mc"><div class="k o">FUNDAE</div><p>formación bonificable</p></div>
+        <div class="mc"><div class="k">Piloto</div><p>de 90 días para probarlo</p></div>
+      </div>
+    </div>
   </div></div>
 </section>
 
-<section id="acceso" class="access">
-  <div class="wrap center reveal" style="margin-bottom:44px">
-    <p class="tag">Empieza hoy</p>
-    <h2 class="h2">Da el paso. Tu equipo lo notará esta semana.</h2>
-  </div>
-  <div class="wrap"><div class="acc">
-    <div class="acc-main reveal">
-      <p class="k">Para tu empresa</p>
-      <h3>Solicita acceso para tu equipo</h3>
-      <p class="s">Cuéntanos quiénes sois y te preparamos una propuesta a medida, sin compromiso.</p>
-      <form id="leadForm">
+<section class="cta" id="empezar">
+  <div class="wrap"><div class="box reveal"><div class="grid">
+    <div>
+      <span class="ek">Encuentra tu ruta</span>
+      <h2 style="margin-top:14px">Dinos dónde estás y te trazamos el camino.</h2>
+      <p class="p">Sea para ti o para tu equipo, preparamos tu ruta y te damos acceso. Sin compromiso.</p>
+      <div class="assure"><span>✓ Ruta a medida</span><span>✓ Tutor 24/7</span><span>✓ Bonificable FUNDAE</span></div>
+    </div>
+    <div>
+      <form id="pilotForm">
         <div class="fields">
-          <div><label for="lname">Tu nombre</label><input id="lname" autocomplete="name" placeholder="Nombre y apellido"></div>
-          <div><label for="lcompany">Empresa</label><input id="lcompany" autocomplete="organization" placeholder="Nombre de la empresa"></div>
-          <div class="full"><label for="lemail">Email de empresa</label><input id="lemail" type="email" autocomplete="email" required placeholder="tu@empresa.com"></div>
-          <div><label for="lsector">Sector</label><input id="lsector" placeholder="Logística, distribución, sanidad…"></div>
-          <div><label for="lsize">Equipo a formar</label><select id="lsize"><option value="">Tamaño del equipo</option><option>5-20 personas</option><option>21-50 personas</option><option>51-200 personas</option><option>Más de 200 personas</option></select></div>
+          <div><label for="pName">Tu nombre</label><input id="pName" autocomplete="name" placeholder="Nombre y apellido" required></div>
+          <div><label for="pCompany">Empresa / perfil</label><input id="pCompany" autocomplete="organization" placeholder="Empresa o «por mi cuenta»"></div>
+          <div class="full"><label for="pEmail">Email</label><input id="pEmail" type="email" autocomplete="email" placeholder="tu@email.com" required></div>
+          <div><label for="pGoal">¿Qué objetivo buscas?</label><input id="pGoal" placeholder="Vender, liderar, hablar mejor…"></div>
+          <div><label for="pRoi">¿Qué esperas conseguir?</label><input id="pRoi" placeholder="Ascenso, clientes, un equipo top…"></div>
         </div>
-        <button class="btn btn-grad" type="submit">Solicitar acceso</button>
-        <div class="assure">
-          <span><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Sin compromiso</span>
-          <span><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Propuesta a medida</span>
-          <span><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Contenido verificado</span>
-        </div>
-        <div class="msg" id="leadMsg"></div>
+        <button class="btn btn-grad" type="submit">Empezar en SkillUp</button>
+        <div class="msg" id="pilotMsg" aria-live="polite"></div>
       </form>
     </div>
-    <aside class="acc-side reveal">
-      <h4>¿Ya tienes cuenta?</h4>
-      <p class="s">Entra a la formación de tu equipo.</p>
-      <a class="btn btn-dark" href="/app/login.html" style="display:inline-block;text-align:center;text-decoration:none">Entrar a SkillUp →</a>
-    </aside>
-  </div></div>
+  </div></div></div>
 </section>
-
 
 <footer>
   <div class="wrap">
     <div class="row">
-      <a href="https://brandooers.com" title="Volver a Brandooers" style="display:flex;align-items:baseline"><span class="brandooers-logo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#bo-bg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bo-iris2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>ers</span><span class="sk">SkillUp</span></a>
-      <div class="fl">
-        <a href="#como">Cómo funciona</a>
-        <a href="#propuesta">La propuesta</a>
-        <a href="#faq">Preguntas</a>
-        <a href="#acceso">Entrar</a>
-        <a href="https://brandooers.com">Brandooers</a>
-      </div>
+      <a href="#top" class="logo" style="font-size:18px">Brand<svg class="beyes" width="30" height="18" viewBox="0 0 100 58" aria-hidden="true"><g><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg1)" stroke-width="3"/><circle cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle cx="25" cy="36" r="3.4" fill="#0a0a12"/></g><g><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg2)" stroke-width="3"/><circle cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle cx="73" cy="36" r="3.4" fill="#0a0a12"/></g></svg>ers<span class="ide">SkillUp</span></a>
+      <div class="fl"><a href="#como">Cómo funciona</a><a href="#recorrido">El recorrido</a><a href="#empezar">Empezar</a><a href="https://brandooers.com">Brandooers</a></div>
     </div>
-    <p class="cp">SkillUp es una vertical de Brandooers · formación a medida para empresas y profesionales.</p>
+    <p class="cp">SkillUp es la plataforma de formación a medida de Brandooers: rutas personales, tutor 24/7, práctica real y panel de capacidad — para personas y equipos. Producto en marcha · primeras plazas abiertas.</p>
   </div>
 </footer>
 
 <script type="application/ld+json">
-{"@context":"https://schema.org","@graph":[
-{"@type":"Organization","@id":"https://brandooers.com/#org","name":"Brandooers","url":"https://brandooers.com/"},
-{"@type":"WebSite","@id":"https://skillup.brandooers.com/#web","url":"https://skillup.brandooers.com/","name":"SkillUp · Brandooers","inLanguage":"es-ES","publisher":{"@id":"https://brandooers.com/#org"}},
-{"@type":"Service","name":"SkillUp · formación a medida por sector y puesto","serviceType":"Formación","provider":{"@id":"https://brandooers.com/#org"},"areaServed":"ES","description":"Rutas de aprendizaje adaptadas al sector y al puesto de cada persona, con casos reales, validación práctica y contenido con fuente verificable."},
-{"@type":"FAQPage","@id":"https://skillup.brandooers.com/#faq","mainEntity":[
-{"@type":"Question","name":"¿Qué diferencia a SkillUp de una plataforma de cursos?","acceptedAnswer":{"@type":"Answer","text":"Una plataforma sirve el mismo contenido a todo el mundo y te informa de quién terminó. Aquí los ejemplos, las prácticas y el caso final son del sector y del puesto de cada persona, y lo que se mide es quién sabe aplicarlo."}},
-{"@type":"Question","name":"¿Cómo sabéis lo que necesita cada persona?","acceptedAnswer":{"@type":"Answer","text":"Con un onboarding en forma de entrevista: sector, nivel de partida y qué necesita resolver en su puesto. De ahí sale su ruta, y solo entra lo que le sirve."}},
-{"@type":"Question","name":"¿De dónde sale el contenido y cómo sé que es fiable?","acceptedAnswer":{"@type":"Answer","text":"Cada afirmación lleva su fuente enlazada y cada lección su fecha de última revisión, a la vista. Cuando cambia la normativa de un sector, lo afectado se revisa antes de volver a formar con ello."}},
-{"@type":"Question","name":"¿Puedo empezar yo solo y llevarlo después a mi equipo?","acceptedAnswer":{"@type":"Answer","text":"Sí. SkillUp funciona para un profesional por su cuenta y para un equipo entero."}},
-{"@type":"Question","name":"¿Cuánto cuesta?","acceptedAnswer":{"@type":"Answer","text":"Todavía no publicamos tarifa. El alcance depende del tamaño del equipo y de las competencias que quieras cubrir, y te lo damos por escrito antes de decidir nada."}}
-]}]}
+{"@context":"https://schema.org","@type":"WebApplication","name":"SkillUp","applicationCategory":"EducationApplication","operatingSystem":"Web","url":"https://skillup.brandooers.com/","description":"Plataforma de formación a medida de Brandooers: rutas personales, tutor 24/7, roleplays, tests y ranking.","publisher":{"@type":"EducationalOrganization","name":"Brandooers","url":"https://brandooers.com/"}}
 </script>
-<script src="assets/lenis.min.js" defer></script>
-<script src="assets/immersive.js?v=20260903c" defer></script>
+<script>
+(function(){
+  var RM=false; try{RM=matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){}
+  if(RM){document.documentElement.className='no-motion';}
+  else{
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  }
+  // slider modeka (avanza por tarjeta, centrada, sin cortar)
+  var st=document.getElementById('strack');
+  if(st){
+    var cw=function(){ var c=st.querySelector('.scard'); return c?c.offsetWidth+22:560; };
+    document.getElementById('snext').onclick=function(){ st.scrollBy({left:cw(),behavior:'smooth'}); };
+    document.getElementById('sprev').onclick=function(){ st.scrollBy({left:-cw(),behavior:'smooth'}); };
+  }
+  // recorrido — camino curvo interconectado + hover ilumina segmentos + toque abre bocadillo
+  var jsteps=document.getElementById('jsteps'), jconn=document.getElementById('jconn');
+  if(jsteps && jconn){
+    var jst=[].slice.call(jsteps.querySelectorAll('.jstep'));
+    var buildJ=function(){
+      var wr=jsteps.getBoundingClientRect(); if(!wr.width) return;
+      jconn.setAttribute('viewBox','0 0 '+wr.width+' '+wr.height); jconn.setAttribute('width',wr.width); jconn.setAttribute('height',wr.height);
+      var pts=jst.map(function(s){ var b=s.querySelector('.jbadge').getBoundingClientRect(); return {x:b.left+b.width/2-wr.left, y:b.top+b.height/2-wr.top}; });
+      var segs=[], full='M'+pts[0].x.toFixed(1)+','+pts[0].y.toFixed(1);
+      for(var i=1;i<pts.length;i++){ var a=pts[i-1],b=pts[i], my=((a.y+b.y)/2).toFixed(1);
+        var c=' C'+a.x.toFixed(1)+','+my+' '+b.x.toFixed(1)+','+my+' '+b.x.toFixed(1)+','+b.y.toFixed(1);
+        segs.push('M'+a.x.toFixed(1)+','+a.y.toFixed(1)+c); full+=c; }
+      var html=segs.map(function(d,i){return '<path class="jseg" data-i="'+i+'" d="'+d+'"/>';}).join('');
+      if(!RM) html+='<circle class="jwalk" r="6"><animateMotion dur="18s" repeatCount="indefinite" path="'+full+'"/></circle>';
+      jconn.innerHTML=html;
+    };
+    var hi=function(i){ jconn.querySelectorAll('.jseg').forEach(function(p){ var d=+p.getAttribute('data-i'); if(d===i-1||d===i)p.classList.add('lit'); else p.classList.remove('lit'); }); };
+    var unhi=function(){ jconn.querySelectorAll('.jseg.lit').forEach(function(p){p.classList.remove('lit');}); };
+    jst.forEach(function(s,i){ s.addEventListener('mouseenter',function(){hi(i);}); s.addEventListener('mouseleave',unhi);
+      s.querySelector('.jcard').addEventListener('click',function(){ var im=s.querySelector('.jframe img'); if(im) openLB(im.getAttribute('src'), im.getAttribute('alt')||''); }); });
+    var drawJ=function(){ if(window.innerWidth>760) buildJ(); else jconn.innerHTML=''; };
+    setTimeout(drawJ,300);
+    try{ var jio=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting){ setTimeout(drawJ,60); setTimeout(drawJ,1000); } });},{threshold:.05}); jio.observe(document.getElementById('journey')); }catch(e){}
+    window.addEventListener('load',function(){ setTimeout(drawJ,50); });
+    var jt; window.addEventListener('resize',function(){ clearTimeout(jt); jt=setTimeout(drawJ,200); },{passive:true});
+  }
+  // lightbox — pulsar una captura la amplía (búsqueda diferida: el nodo va tras el script)
+  function openLB(src,alt){ var lb=document.getElementById('lightbox'); if(!lb||!src)return; var im=document.getElementById('lbImg'), cap=document.getElementById('lbCap'); im.setAttribute('src',src); im.setAttribute('alt',alt||''); cap.textContent=alt||''; lb.classList.add('open'); lb.setAttribute('aria-hidden','false'); }
+  function closeLB(){ var lb=document.getElementById('lightbox'); if(!lb)return; lb.classList.remove('open'); lb.setAttribute('aria-hidden','true'); }
+  document.addEventListener('click',function(e){ if(e.target && e.target.closest && e.target.closest('[data-lbclose]')) closeLB(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLB(); });
+  document.querySelectorAll('.browser .shot, .scard .shot').forEach(function(sh){ sh.addEventListener('click',function(){ var im=sh.querySelector('img'); if(im) openLB(im.getAttribute('src'), im.getAttribute('alt')||''); }); });
+  // lead → mismo endpoint que Brandooers
+  var f=document.getElementById('pilotForm'), msg=document.getElementById('pilotMsg');
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault(); msg.textContent=''; msg.className='msg';
+    var g=function(id){var el=document.getElementById(id);return el?(el.value||'').trim():'';};
+    var company=[g('pCompany'), g('pGoal')&&'Objetivo: '+g('pGoal'), g('pRoi')&&'Espera: '+g('pRoi')].filter(Boolean).join(' · ');
+    var btn=f.querySelector('button'); btn.disabled=true;
+    fetch('/auth/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:g('pName'),email:g('pEmail'),company:company,source:'skillup-landing'})})
+      .then(function(r){return r.json().then(function(d){return{ok:r.ok&&d.ok,d:d};});})
+      .then(function(x){ if(x.ok){msg.className='msg ok';msg.textContent='Recibido. Te damos acceso en breve.';f.reset();} else {msg.className='msg err';msg.textContent=(x.d&&x.d.error)||'No se pudo enviar.';} })
+      .catch(function(){ msg.className='msg err'; msg.innerHTML='No se pudo enviar. Escríbenos a <a href="mailto:info@brandooers.com" style="color:var(--te)">info@brandooers.com</a>.'; })
+      .then(function(){ btn.disabled=false; });
+  });
+})();
+</script>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="lb-back" data-lbclose></div>
+  <figure><button class="lb-x" type="button" aria-label="Cerrar" data-lbclose>✕</button><img id="lbImg" src="" alt=""><figcaption id="lbCap"></figcaption></figure>
+</div>
 </body>
 </html>
