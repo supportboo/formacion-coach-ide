@@ -27,7 +27,7 @@ p.sub{font-size:14px;color:var(--mut);margin-bottom:24px;text-align:center}
 </style>
 </head>
 <body>
-<div class="wv-ov" id="welcomeVideo">
+<div class="wv-ov" id="welcomeVideo" style="display:none">
   <div class="wv-card">
     <div class="wv-vidwrap"><video id="wvVid" src="https://brandooers.com/assets/marc-brandooers-explica.mp4?v=5" poster="https://brandooers.com/assets/marc-brandooers-explica-poster.jpg" controls playsinline preload="metadata"></video></div>
     <div class="wv-body">
@@ -39,8 +39,12 @@ p.sub{font-size:14px;color:var(--mut);margin-bottom:24px;text-align:center}
 </div>
 <script>
 (function(){
+  var KEY='skillup-welcome-video-seen';
+  var seen=false; try{ seen=localStorage.getItem(KEY)==='1'; }catch(e){}
   var ov=document.getElementById('welcomeVideo'), v=document.getElementById('wvVid');
-  function done(){ try{ v.pause(); }catch(e){} ov.style.display='none'; }
+  if(seen){ return; } // ya lo vio (p. ej. en bienvenida): no reabrir
+  ov.style.display='flex';
+  function done(){ try{ v.pause(); }catch(e){} ov.style.display='none'; try{ localStorage.setItem(KEY,'1'); }catch(e){} }
   document.getElementById('wvStart').onclick=done;
   document.getElementById('wvSkip').onclick=done;
   ov.addEventListener('click',function(e){ if(e.target===ov) done(); });
