@@ -1,6 +1,18 @@
-# SkillUp platform — Fase 0
+# SkillUp platform — V1.0
 
-Infraestructura de la app Brandooers · SkillUp: multi-tenant + RAG + agentes conversacionales por rol.
+Plataforma Brandooers · SkillUp: formación que mide CAPACIDAD aplicada, no asistencia. Multi-tenant + RAG + agentes por rol.
+
+## Qué hace la V1.0
+- **Aprendizaje aplicado por rol**: ruta por sector/puesto, test, caso práctico validado por un humano (no autoservicio), coach de voz, juego de rol.
+- **Panel de empresa**: cobertura por competencia, riesgo de dependencia, transferencia interna, autonomía en días.
+- **Pirámides de conocimiento** por competencia (quién sostiene cada una) + **perks configurables** por empresa.
+- **Informe de ROI** con marco FUNDAE y agente de ROI (IA), separando HECHO de ESTIMACIÓN.
+- **Gamificación**: puntos por aplicar/enseñar, ranking de temporada, rangos.
+- **Consola de superadmin**: agentes (prompt+herramientas+memoria+cerebro), métricas por empresa, gestión de usuarios y contraseñas.
+- **Panel de ayuda por perfil** con pantallazos reales y guía visual.
+- **Seguridad**: aislamiento multi-tenant, tope de gasto de IA por empresa, rate-limit, cabeceras de seguridad, curador de datos (anti-fuga entre usuarios).
+
+Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle por versión.
 
 ## Stack
 - **Postgres + Drizzle ORM** (datos, multi-tenant por `organizationId`).

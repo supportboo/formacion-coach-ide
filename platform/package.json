@@ -2,7 +2,7 @@
   "name": "skillup-platform",
   "private": true,
   "type": "module",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "Brandooers SkillUp — Fase 0: infraestructura multi-tenant + RAG + agentes por rol",
   "scripts": {
     "dev": "tsx watch src/index.ts",
