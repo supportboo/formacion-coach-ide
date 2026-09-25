@@ -52,6 +52,7 @@ details.editor summary{cursor:pointer;font-weight:700;color:var(--p);font-size:1
 <div class="wrap" id="root"><p class="msg">Cargando el informe…</p></div>
 
 <script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
 <script>
 var EUR=function(n){return (Math.round(n)).toLocaleString('es-ES')+' €';};
 var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
@@ -64,7 +65,7 @@ var VIEW_ORG=new URLSearchParams(location.search).get('org'); // superadmin vien
   if(!d||d.error){ root.innerHTML='<div class="card"><p class="msg">No se pudo cargar el informe de ROI: '+E(d&&d.error||'')+'</p></div>'; return; }
   var me=await SkillUp.api('/api/org/me').catch(function(){return {};});
   // Solo se edita/genera narrativa en la propia empresa (los endpoints son de la sesión). Cross-org = solo lectura.
-  var canEdit=!VIEW_ORG && me && (me.orgRole==='admin'||me.orgRole==='direccion'||me.platformAdmin);
+  var canEdit=!VIEW_ORG && me && (me.role==='admin'||me.role==='direccion'||me.platformAdmin);
   render(d,canEdit,!VIEW_ORG);
 })();
 
