@@ -86,7 +86,7 @@ select option{background:var(--panel);color:var(--ink)}
     <a href="/app/inicio.html">Formaciones</a>
     <a href="#" id="exportLink" title="Descarga un archivo con todos tus datos guardados">Descargar mis datos</a>
     <a href="/app/ranking.html">Ranking</a>
-    <a href="/app/validar.html">Validar casos</a>
+    <a href="/app/validar.html" id="validarLink" style="display:none">Validar casos</a>
     <a href="/app/panel.html" id="panelLink" style="display:none">Panel de empresa</a>
     <a href="/app/superadmin.html" id="superadminLink" style="display:none">Super admin</a>
     <a href="#" id="logout">Salir</a>
@@ -160,6 +160,9 @@ var threadId = null;
   var me = await SkillUp.api('/api/org/me').catch(function () { return { role: 'empleado', platformAdmin: false }; });
   if (['team_leader', 'direccion', 'admin', 'inspirador'].indexOf(me.role) !== -1) {
     document.getElementById('panelLink').style.display = '';
+  }
+  if (['coach', 'team_leader', 'direccion', 'admin', 'inspirador'].indexOf(me.role) !== -1) {
+    document.getElementById('validarLink').style.display = '';
   }
   if (me.platformAdmin) {
     document.getElementById('superadminLink').style.display = '';

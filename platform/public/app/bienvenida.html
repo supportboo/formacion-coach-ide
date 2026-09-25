@@ -79,6 +79,7 @@ button{font-family:inherit}[hidden]{display:none!important}
   document.getElementById('wvStart').onclick=done;
   document.getElementById('wvSkip').onclick=done;
   ov.addEventListener('click',function(e){ if(e.target===ov) done(); });
+  v.addEventListener('error',done); // si el vídeo no carga, no mostrar un reproductor roto
 })();
 </script>
 <div class="loader" id="loader">Cargando…</div>

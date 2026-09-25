@@ -16,6 +16,7 @@
     chart: '<path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6"/>',
     check: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.2 9.5a2.8 2.8 0 1 1 3.6 2.7c-.8.3-1.3 1-1.3 1.8v.3"/><circle cx="12" cy="17.2" r="0.6" fill="currentColor" stroke="none"/>',
     exit: '<path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h9"/>'
   };
   function svg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON[k] || ICON.home) + '</svg>'; }
@@ -28,6 +29,7 @@
     ['/app/videos.html', 'Vídeos', 'video', 'base'],
     ['/app/ranking.html', 'Ranking', 'trophy', 'base'],
     ['/app/team-dna.html', 'Team DNA', 'dna', 'base'],
+    ['/app/ayuda.html', 'Ayuda', 'help', 'base'],
     ['/app/validar.html', 'Validar casos', 'check', 'manager'],
     ['/app/panel.html', 'Panel de empresa', 'building', 'manager'],
     ['/app/informe-roi.html', 'Informe de ROI', 'chart', 'manager'],
@@ -35,7 +37,7 @@
   ];
 
   var css = '' +
-    '.sunav-fab{position:fixed;left:14px;bottom:calc(16px + env(safe-area-inset-bottom,0));z-index:1200;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;background:var(--grad,#8a5f7c);color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center}' +
+    '.sunav-fab{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:1200;width:40px;height:56px;border-radius:0 16px 16px 0;border:none;cursor:pointer;background:var(--grad,#8a5f7c);color:#fff;box-shadow:3px 4px 16px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;padding-left:4px}' +
     '.sunav-fab svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round}' +
     '.sunav-ov{position:fixed;inset:0;z-index:1199;background:rgba(10,8,14,.5);opacity:0;pointer-events:none;transition:opacity .2s}' +
     '.sunav-ov.open{opacity:1;pointer-events:auto}' +
@@ -50,8 +52,7 @@
     '.sunav-bub{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--warm,#eee);display:flex;align-items:center;justify-content:center;color:var(--p,#8a5f7c)}' +
     '.sunav-item.active .sunav-bub{background:var(--grad,#8a5f7c);color:#fff}' +
     '.sunav-bub svg{width:18px;height:18px}' +
-    '.sunav-sep{height:1px;background:var(--line,rgba(120,90,120,.14));margin:8px 10px}' +
-    '@media(min-width:1024px){.sunav-fab{left:18px;bottom:18px}}';
+    '.sunav-sep{height:1px;background:var(--line,rgba(120,90,120,.14));margin:8px 10px}';
 
   function build() {
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);

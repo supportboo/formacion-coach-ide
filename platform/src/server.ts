@@ -61,6 +61,16 @@ async function isApproved(orgId: string, userId: string): Promise<boolean> {
 
 export const app = new Hono();
 
+// Cabeceras de seguridad base (defensa en profundidad; sin CSP para no romper el inline de la app).
+app.use("*", async (c, next) => {
+  await next();
+  if (!c.res) return;
+  c.res.headers.set("X-Content-Type-Options", "nosniff");
+  c.res.headers.set("X-Frame-Options", "SAMEORIGIN");
+  c.res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  c.res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+});
+
 app.get("/health", (c) => c.json({ ok: true, service: "skillup-platform" }));
 
 // better-auth (registro, login, organización, invitaciones…)
@@ -756,6 +766,9 @@ app.post("/api/learning/test/generate", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
   if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  // Guardián de coste: caso entregado sin validar en esta competencia -> no regeneramos test.
+  try { await validationSvc.assertCanProgress(svcDeps, ctx.orgId, ctx.userId, parsed.data.competencyId); }
+  catch (e) { return c.json({ error: (e as Error).message }, 409); }
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
   const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
@@ -831,6 +844,9 @@ app.post("/api/validation/cases/generate", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
   if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  // Guardián de coste: si ya tiene un caso entregado sin validar en esta competencia, no generamos otro.
+  try { await validationSvc.assertCanProgress(svcDeps, ctx.orgId, ctx.userId, parsed.data.competencyId); }
+  catch (e) { return c.json({ error: (e as Error).message }, 409); }
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
   const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
@@ -896,7 +912,14 @@ app.post("/api/validation/cases/:id/evidence", async (c) => {
 app.get("/api/validation/cases/:id/evidence", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  return c.json(await validationSvc.listEvidence(svcDeps, ctx.orgId, c.req.param("id")));
+  const caseId = c.req.param("id");
+  // Solo el dueño del caso o quien puede validarlo ven su evidencia (no cualquier miembro de la org).
+  const [caseRow] = await db.select().from(appliedCase).where(and(eq(appliedCase.id, caseId), eq(appliedCase.organizationId, ctx.orgId)));
+  if (!caseRow) return c.json({ error: "caso no encontrado en esta organización" }, 404);
+  if (caseRow.userId !== ctx.userId && !(await validationSvc.canValidate(svcDeps, ctx.orgId, ctx.userId, ctx.role, caseRow.competencyId))) {
+    return c.json({ error: "sin permiso para ver la evidencia de este caso" }, 403);
+  }
+  return c.json(await validationSvc.listEvidence(svcDeps, ctx.orgId, caseId));
 });
 
 app.get("/api/validation/cases/:id/suggest", async (c) => {
@@ -1033,6 +1056,7 @@ app.post("/api/roleplay/:id/reply", async (c) => {
 app.post("/api/roleplay/:id/close", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const parsed = z.object({ competencyId: z.string().optional(), topic: z.string().max(160).optional() }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const comp = (parsed.data.competencyId && parsed.data.competencyId !== "libre") ? await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId) : null;
@@ -1429,7 +1453,8 @@ app.post("/api/platform/users/set-password", async (c) => {
   const [u] = await db.select({ email: user.email }).from(user).where(eq(user.id, parsed.data.userId));
   if (!u) return c.json({ error: "usuario no encontrado" }, 404);
   // Temporal legible si el superadmin no escribe una: "Boo-XXXX-2026".
-  const pwd = parsed.data.newPassword ?? `Boo-${Math.random().toString(36).slice(2, 6).toUpperCase()}-2026`;
+  // Temporal de alta entropía (10 hex del uuid, ~40 bits) si el superadmin no escribe una.
+  const pwd = parsed.data.newPassword ?? `Boo-${newId().replace(/-/g, "").slice(0, 10)}-2026`;
   try {
     await auth.api.setUserPassword({ body: { userId: parsed.data.userId, newPassword: pwd }, headers: c.req.raw.headers });
   } catch (e) { return c.json({ error: "no se pudo cambiar la contraseña: " + String((e as Error).message) }, 400); }

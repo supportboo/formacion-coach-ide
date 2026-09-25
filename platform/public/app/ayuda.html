@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Guía de uso</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/theme.css">
+<style>
+.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px;margin-bottom:16px;box-shadow:var(--sh)}
+.hero h1{color:#fff;margin:0 0 6px;font-size:clamp(24px,6vw,34px);letter-spacing:-.02em}
+.hero p{margin:0;opacity:.96;font-size:15px;max-width:60ch;line-height:1.5}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tab{border:1px solid var(--line);background:var(--panel);color:var(--body);border-radius:999px;padding:9px 16px;font-weight:700;font-size:14px;cursor:pointer}
+.tab.on{background:var(--grad);color:#fff;border-color:transparent}
+.prof{display:none}
+.prof.on{display:block}
+.pintro{background:var(--warm);border-radius:14px;padding:16px 18px;margin-bottom:20px}
+.pintro h2{margin:0 0 4px;color:var(--ink);font-size:20px}
+.pintro p{margin:0;color:var(--body);font-size:14.5px;line-height:1.55}
+.step{margin:0 0 34px}
+.step .n{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;font-size:15px;margin-right:10px;vertical-align:middle}
+.step h3{display:inline;color:var(--ink);font-size:18px;letter-spacing:-.01em}
+.step .desc{color:var(--body);font-size:14.5px;line-height:1.55;margin:8px 0 12px}
+.fig{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.12);line-height:0}
+.fig img{width:100%;display:block}
+.anno{position:absolute;pointer-events:none}
+.anno .lbl{font-family:'Caveat',cursive;font-weight:700;font-size:clamp(16px,2.6vw,24px);color:#ff5da2;text-shadow:0 1px 0 rgba(0,0,0,.25);white-space:nowrap;line-height:1.05}
+.anno svg{position:absolute;overflow:visible}
+.anno svg path{fill:none;stroke:#ff5da2;stroke-width:3.2;stroke-linecap:round}
+.figcap{font-size:12.5px;color:var(--mut);margin-top:7px;text-align:center}
+.mob{max-width:300px;margin:0 auto}
+@media(max-width:600px){.anno .lbl{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
+    </defs>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>ers<span class="sk">Guía de uso</span></span>
+  <nav><a href="/app/dashboard.html">← Mi panel</a></nav>
+</div>
+<div class="wrap">
+  <div class="hero">
+    <h1>Tu guía de SkillUp</h1>
+    <p>En dos minutos por perfil: qué haces aquí, dónde tocar y cómo sacarle partido. Elige tu perfil y sigue los pasos. Las flechas te marcan dónde poner el foco.</p>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div id="profiles"></div>
+</div>
+
+<script src="/app/api.js"></script>
+<script>
+// Flecha manuscrita reutilizable. dir: 'dl' abajo-izq, 'dr' abajo-der, 'ul' arriba-izq, 'ur' arriba-der.
+function arrow(dir){
+  var paths={
+    dl:'M60 4 C 30 10, 8 26, 4 54 M4 54 L 16 44 M4 54 L 18 58',
+    dr:'M4 4 C 34 10, 56 26, 60 54 M60 54 L 48 44 M60 54 L 46 58',
+    ul:'M60 58 C 30 52, 8 36, 4 8 M4 8 L 16 18 M4 8 L 18 4',
+    ur:'M4 58 C 34 52, 56 36, 60 8 M60 8 L 48 18 M60 8 L 46 4'
+  };
+  return '<svg width="64" height="62" viewBox="0 0 64 62"><path d="'+(paths[dir]||paths.dl)+'"/></svg>';
+}
+// una anotación: x,y = posición del texto (%). ax,ay = desplazamiento de la flecha respecto al texto (px). dir de la flecha.
+function anno(a){
+  var arrowOff = a.dir==='dr'||a.dir==='ur' ? 'left:100%;margin-left:6px' : 'right:100%;margin-right:6px';
+  var arrowV = a.dir==='ul'||a.dir==='ur' ? 'top:-52px' : 'top:14px';
+  return '<div class="anno" style="left:'+a.x+'%;top:'+a.y+'%;transform:translate(-50%,-50%)">'
+    +'<span class="lbl">'+E(a.t)+'</span>'
+    +'<div style="position:absolute;'+arrowOff+';'+arrowV+'">'+arrow(a.dir)+'</div></div>';
+}
+function E(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function fig(img,mob){ return '<div class="fig'+(mob?' mob':'')+'"><img src="/app/help-shots/'+img+'" loading="lazy" alt="">'
+  +(arguments.length>2 && arguments[2]&&arguments[2].annos ? arguments[2].annos.map(anno).join('') : '')+'</div>'; }
+
+var GUIDE = {
+  empleado: { name:'Empleado', intro:'Aquí aprendes con casos de TU puesto, demuestras que sabes aplicarlo y creces. No es memorizar: es aplicar en tu día a día y que se note.',
+    steps:[
+      {h:'Tu panel', d:'Nada más entrar ves lo importante: qué te toca aplicar esta semana, tus rutas y su estado, y el generador de test y caso práctico.',
+       img:'empleado-dashboard.jpg', annos:[
+         {t:'lo que aplicas esta semana', x:30, y:14, dir:'ul'},
+         {t:'genera tu test aquí', x:24, y:82, dir:'dl'},
+         {t:'tu coach de voz, siempre', x:82, y:90, dir:'dr'} ]},
+      {h:'Tu ruta', d:'Tu itinerario paso a paso, adaptado a tu sector y puesto. Cada módulo termina con un compromiso de aplicarlo esa semana.', img:'empleado-ruta.jpg'},
+      {h:'Explora y aprende', d:'Contenido y vídeos recomendados para lo que haces. Si algo ya lo dominas, te lo saltas.', img:'empleado-explorar.jpg'},
+      {h:'Tu ranking', d:'Tus puntos de la temporada y tu posición. Los puntos premian aplicar y enseñar a otros, no acumular por acumular.', img:'empleado-ranking.jpg',
+       annos:[{t:'tus puntos y posición', x:50, y:20, dir:'ul'}]},
+      {h:'Tus fortalezas', d:'Tu Team DNA: en qué destacas y cómo aprovecharlo con tu equipo.', img:'empleado-team-dna.jpg'},
+      {h:'En el móvil', d:'Todo a un toque: el botón redondo de abajo abre el menú, sin tener que buscar entre pantallas.', img:'empleado-dashboard-mobile.jpg', mob:true,
+       annos:[{t:'menú aquí', x:30, y:92, dir:'dl'}]}
+    ]},
+  responsable: { name:'Responsable', intro:'Dejas de medir asistencia y empiezas a medir CAPACIDAD. Ves qué parte del equipo ya aplica cada competencia, dónde tienes riesgo de dependencia, y validas el trabajo real de tu gente.',
+    steps:[
+      {h:'El panel de empresa', d:'La foto de tu equipo: cobertura por competencia, quién ya aplica, cuántos días tardan en ser autónomos y el riesgo de que un conocimiento dependa de una sola persona.',
+       img:'responsable-panel.jpg', annos:[{t:'quién ya aplica cada cosa', x:50, y:24, dir:'ul'}]},
+      {h:'Informe de ROI', d:'Lo que SkillUp aporta a tu empresa en euros: ahorro de formación, eficiencia y conocimiento que se queda dentro. Ideal para enseñar el valor a dirección.',
+       img:'responsable-informe-roi.jpg', annos:[{t:'el retorno, en euros', x:50, y:26, dir:'ul'}]},
+      {h:'Validar casos', d:'Cuando alguien de tu equipo entrega un caso práctico, tú lo revisas y decides si sube de nivel. La IA sugiere criterio; decides tú.',
+       img:'responsable-validar.jpg'},
+      {h:'El ranking del equipo', d:'Quién está aplicando y enseñando más esta temporada. Úsalo para reconocer, no para presionar.', img:'responsable-ranking.jpg'}
+    ]},
+  admin: { name:'Administrador', intro:'Configuras cómo funciona SkillUp en tu empresa y tienes la visión de negocio: métricas, ROI y la marcha general.',
+    steps:[
+      {h:'Panel y configuración', d:'Desde aquí gobiernas las competencias, las etiquetas de nivel y las recompensas de tu empresa, y ves la marcha del equipo.', img:'admin-panel.jpg'},
+      {h:'Informe de ROI', d:'El retorno de la formación con el marco FUNDAE: la inversión te sale a coste neto cero y encima ganas en eficiencia. El agente de ROI te lo redacta para dirección.',
+       img:'admin-informe-roi.jpg', annos:[{t:'informe listo para dirección', x:50, y:26, dir:'ul'}]},
+      {h:'Tu panel', d:'Tu punto de entrada con lo esencial del día a día.', img:'admin-dashboard.jpg'}
+    ]}
+};
+
+var order=['empleado','responsable','admin'];
+var tabs=document.getElementById('tabs'), profs=document.getElementById('profiles');
+tabs.innerHTML=order.map(function(k){return '<button class="tab" data-k="'+k+'">'+E(GUIDE[k].name)+'</button>';}).join('');
+profs.innerHTML=order.map(function(k){
+  var g=GUIDE[k];
+  var steps=g.steps.map(function(s,i){
+    return '<div class="step"><span class="n">'+(i+1)+'</span><h3>'+E(s.h)+'</h3>'
+      +'<p class="desc">'+E(s.d)+'</p>'+fig(s.img, s.mob, {annos:s.annos})+'</div>';
+  }).join('');
+  return '<section class="prof" data-k="'+k+'"><div class="pintro"><h2>'+E(g.name)+'</h2><p>'+E(g.intro)+'</p></div>'+steps+'</section>';
+}).join('');
+
+function show(k){
+  order.forEach(function(x){
+    document.querySelector('.tab[data-k="'+x+'"]').classList.toggle('on', x===k);
+    document.querySelector('.prof[data-k="'+x+'"]').classList.toggle('on', x===k);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.querySelectorAll('.tab').forEach(function(b){ b.onclick=function(){ show(b.getAttribute('data-k')); }; });
+
+// Abrir por defecto en el perfil del usuario.
+(async function(){
+  var def='empleado';
+  try{ var me=await SkillUp.api('/api/org/me'); var r=me&&me.role;
+    if(r==='team_leader'||r==='inspirador') def='responsable';
+    else if(r==='admin'||r==='direccion'||me.platformAdmin) def='admin';
+  }catch(e){}
+  show(def);
+})();
+</script>
+<script src="/app/nav.js" defer></script>
+</body>
+</html>

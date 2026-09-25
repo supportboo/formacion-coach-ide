@@ -53,6 +53,7 @@ export class OpenAIEmbeddings implements Embeddings {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${this.apiKey}` },
       body: JSON.stringify({ model: this.model, input: texts }),
+      signal: AbortSignal.timeout(8000), // que una llamada colgada de OpenAI no cuelgue el chat entero
     });
     if (!res.ok) throw new Error(`OpenAI embeddings ${res.status}: ${await res.text()}`);
     const json = (await res.json()) as { data: { embedding: number[] }[] };
