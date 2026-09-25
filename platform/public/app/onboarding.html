@@ -15,9 +15,37 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;
 .kx{font-family:'Caveat',cursive;font-size:16px;color:var(--t);text-align:center;margin-bottom:18px}
 h1{font-size:23px;color:var(--text);margin-bottom:6px;text-align:center;letter-spacing:-.02em}
 p.sub{font-size:14px;color:var(--mut);margin-bottom:24px;text-align:center}
+.wv-ov{position:fixed;inset:0;z-index:2000;background:rgba(10,8,14,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.wv-card{width:100%;max-width:760px;background:var(--panel);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.wv-vidwrap{position:relative;background:#000;aspect-ratio:16/9}
+.wv-vidwrap video{width:100%;height:100%;display:block;object-fit:cover}
+.wv-body{padding:18px 20px 20px;text-align:center}
+.wv-body h3{margin:0 0 4px;color:var(--ink);font-size:19px;letter-spacing:-.02em}
+.wv-body p{margin:0 0 16px;color:var(--body);font-size:14px}
+.wv-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center}
+.wv-skip{background:none;border:none;color:var(--mut);font-weight:600;cursor:pointer;font-size:13px}
 </style>
 </head>
 <body>
+<div class="wv-ov" id="welcomeVideo">
+  <div class="wv-card">
+    <div class="wv-vidwrap"><video id="wvVid" src="https://brandooers.com/assets/marc-brandooers-explica.mp4?v=4" poster="https://brandooers.com/assets/marc-brandooers-explica-poster.jpg" controls playsinline preload="metadata"></video></div>
+    <div class="wv-body">
+      <h3>Bienvenido a SkillUp</h3>
+      <p>En tres minutos, Marc te cuenta cómo vas a aprender aquí y por qué esta formación sí se te queda dentro. Cuando quieras, empezamos tu perfil.</p>
+      <div class="wv-actions"><button class="btn btn-grad" id="wvStart">Empezar mi perfil</button><button class="wv-skip" id="wvSkip">Saltar el vídeo</button></div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var ov=document.getElementById('welcomeVideo'), v=document.getElementById('wvVid');
+  function done(){ try{ v.pause(); }catch(e){} ov.style.display='none'; }
+  document.getElementById('wvStart').onclick=done;
+  document.getElementById('wvSkip').onclick=done;
+  ov.addEventListener('click',function(e){ if(e.target===ov) done(); });
+})();
+</script>
 <div class="card">
   <div class="logohead"><span class="blogo">Brand<svg class="beyes" width="38" height="22" viewBox="0 0 100 58"><defs>
     <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
