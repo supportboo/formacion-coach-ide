@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Informe de ROI</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/theme.css">
+<style>
+.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px;margin-bottom:16px;box-shadow:var(--sh)}
+.hero .big{font-size:clamp(38px,11vw,64px);font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0}
+.hero .sub{font-size:15px;opacity:.95;font-weight:600}
+.hero .tag{display:inline-block;font-size:11px;font-weight:700;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:999px;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{background:var(--warm);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:24px;color:var(--p);letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--body);font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.line{margin:12px 0}
+.line summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.line summary::-webkit-details-marker{display:none}
+.line .lbl{font-weight:700;color:var(--ink);font-size:14px}
+.line .amt{font-weight:900;color:var(--p);font-size:18px;white-space:nowrap}
+.bar{height:12px;border-radius:999px;background:var(--line);margin:8px 0 4px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:999px;background:var(--grad)}
+.line .why{font-size:12.5px;color:var(--body);background:var(--warm);border-radius:10px;padding:10px 12px;margin-top:8px}
+.line .why .k{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:999px;margin-right:6px}
+.k.hecho{background:rgba(46,160,90,.16);color:var(--green)}
+.k.est{background:rgba(200,150,60,.18);color:var(--gold)}
+.rowflex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.narr{white-space:pre-wrap;line-height:1.6;color:var(--body);font-size:15px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:8px}
+.field input{width:100%}
+details.editor summary{cursor:pointer;font-weight:700;color:var(--p);font-size:14px}
+.foot{font-size:11.5px;color:var(--mut);margin-top:6px}
+@media(max-width:520px){.hero{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
+    </defs>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>ers<span class="sk">Informe de ROI</span></span>
+  <nav><a href="/app/dashboard.html">← Mi panel</a></nav>
+</div>
+<div class="wrap" id="root"><p class="msg">Cargando el informe…</p></div>
+
+<script src="/app/api.js"></script>
+<script>
+var EUR=function(n){return (Math.round(n)).toLocaleString('es-ES')+' €';};
+var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+
+var VIEW_ORG=new URLSearchParams(location.search).get('org'); // superadmin viendo otra empresa
+(async function(){
+  var root=document.getElementById('root');
+  var path=VIEW_ORG?('/api/platform/roi/'+encodeURIComponent(VIEW_ORG)):'/api/analytics/roi';
+  var d=await SkillUp.api(path).catch(function(e){return {error:e.message||'sin acceso'};});
+  if(!d||d.error){ root.innerHTML='<div class="card"><p class="msg">No se pudo cargar el informe de ROI: '+E(d&&d.error||'')+'</p></div>'; return; }
+  var me=await SkillUp.api('/api/org/me').catch(function(){return {};});
+  // Solo se edita/genera narrativa en la propia empresa (los endpoints son de la sesión). Cross-org = solo lectura.
+  var canEdit=!VIEW_ORG && me && (me.orgRole==='admin'||me.orgRole==='direccion'||me.platformAdmin);
+  render(d,canEdit,!VIEW_ORG);
+})();
+
+function render(d,canEdit){
+  var maxLine=Math.max(1,d.lines.reduce(function(m,l){return Math.max(m,l.amount);},0));
+  var linesHtml=d.lines.map(function(l){
+    var pct=Math.round(100*l.amount/maxLine);
+    return '<details class="line"><summary><span class="lbl">'+E(l.label)+'</span><span class="amt">'+EUR(l.amount)+'</span></summary>'
+      +'<div class="bar"><i style="width:'+pct+'%"></i></div>'
+      +'<div class="why"><span class="k hecho">Hecho</span>'+E(l.base)+'<br><span class="k est">Estimación</span>Valorado a '+E(l.supuesto)+'</div></details>';
+  }).join('');
+  var f=d.facts;
+  var facts=[
+    ['Personas',f.personas],['Competencias en uso',f.competenciasAplicadas],['Referentes internos',f.referentes],
+    ['Casos validados',f.validacionesAprobadas],['Transferencias internas',f.transferenciasInternas],['Riesgos de dependencia',f.riesgosCriticos]
+  ].map(function(x){return '<div class="stat"><b>'+x[1]+'</b><span>'+E(x[0])+'</span></div>';}).join('');
+
+  var fundae='<div class="card"><h2>Con FUNDAE</h2><p style="color:var(--body);font-size:14px;line-height:1.5">'+E(d.fundae.mensaje)+'</p>'
+    +(canEdit?'<div class="rowflex" style="margin-top:8px"><label class="field" style="max-width:220px">Crédito FUNDAE anual (€)<input id="fundae" type="number" min="0" step="1000" value="'+(d.fundae.presupuesto!=null?d.fundae.presupuesto:'')+'" placeholder="p. ej. 50000"></label><button class="btn btn-grad" id="saveFundae" style="align-self:flex-end;margin-bottom:8px">Guardar</button></div>':'')+'</div>';
+
+  var risk=d.riesgoAbiertoEur>0?'<div class="card" style="border-left:4px solid var(--gold)"><h2>Riesgo que estamos reduciendo</h2>'
+    +'<p style="color:var(--body);font-size:14px;line-height:1.5">Hoy hay <b>'+f.riesgosCriticos+'</b> competencia(s) crítica(s) en manos de una sola persona. Coste potencial estimado si esa persona se va: <b style="color:var(--gold)">'+EUR(d.riesgoAbiertoEur)+'</b>. Cada segundo referente que formamos reduce ese riesgo.</p></div>':'';
+
+  var editor=canEdit?editorHtml(d.assumptions):'';
+
+  root.innerHTML=
+    '<div class="hero"><div class="sub">Lo que SkillUp aporta a '+E(d.orgName)+'</div>'
+      +'<div class="big">'+EUR(d.retornoAnual)+'</div>'
+      +'<div class="sub">de retorno estimado al año'+(d.roiPct!=null?' · ROI '+d.roiPct+'%':'')+'</div>'
+      +'<span class="tag">Estimación honesta · hechos reales + supuestos editables</span></div>'
+    +fundae
+    +'<div class="card"><h2>De dónde sale <span class="hand" style="color:var(--t);font-size:14px">toca cada línea para ver el cálculo</span></h2>'+linesHtml+'</div>'
+    +'<div class="card"><h2>Los hechos <span class="hand" style="color:var(--t);font-size:14px">medidos, no inventados</span></h2><div class="grid">'+facts+'</div></div>'
+    +risk
+    +'<div class="card"><h2>El analista de ROI</h2><p class="msg" id="narrMsg">Pulsa para que el analista lea los datos y escriba el informe para dirección.</p>'
+      +'<button class="btn btn-grad" id="genNarr">Generar informe</button><div class="narr" id="narr" style="margin-top:12px"></div></div>'
+    +editor
+    +'<p class="foot">Hecho = dato real de la plataforma. Estimación = valor en euros calculado con supuestos editables; ajústalos a tu realidad para afinar la cifra. SkillUp no promete resultados: mide capacidad aplicada.</p>';
+
+  var g=document.getElementById('genNarr');
+  if(g) g.onclick=async function(){ g.disabled=true; g.textContent='Escribiendo…'; document.getElementById('narrMsg').style.display='none';
+    try{ var r=await SkillUp.api('/api/analytics/roi/narrative'); document.getElementById('narr').textContent=r.narrative||''; g.textContent='Regenerar'; g.disabled=false; }
+    catch(e){ document.getElementById('narrMsg').style.display=''; document.getElementById('narrMsg').textContent='No se pudo generar: '+(e.message||''); g.textContent='Reintentar'; g.disabled=false; } };
+
+  if(canEdit){
+    var sf=document.getElementById('saveFundae');
+    if(sf) sf.onclick=function(){ var v=document.getElementById('fundae').value; saveAssumptions({presupuestoFundaeAnual:v===''?null:Number(v)}); };
+    bindEditor();
+  }
+}
+
+function editorHtml(a){
+  var fld=function(id,label,val,step){return '<label class="field">'+E(label)+'<input id="a_'+id+'" type="number" min="0" step="'+(step||'1')+'" value="'+(val!=null?val:'')+'"></label>';};
+  return '<details class="editor card"><summary>Ajustar los supuestos a tu empresa</summary><div style="margin-top:12px">'
+    +fld('costeCursoExternoPorPersona','Coste de un curso externo por persona (€)',a.costeCursoExternoPorPersona)
+    +fld('valorHoraEmpleado','Valor de la hora de un empleado (€)',a.valorHoraEmpleado)
+    +fld('horasMesPorCompetenciaAplicada','Horas/mes que ahorra aplicar una competencia',a.horasMesPorCompetenciaAplicada,'0.5')
+    +fld('costeReemplazoPersonaClave','Coste de reemplazar a una persona clave (€)',a.costeReemplazoPersonaClave,'100')
+    +fld('costeLicenciaSkillUpAnual','Lo que pagas por SkillUp al año (€)',a.costeLicenciaSkillUpAnual)
+    +'<button class="btn btn-grad" id="saveAssum">Guardar supuestos</button></div></details>';
+}
+function bindEditor(){
+  var b=document.getElementById('saveAssum'); if(!b) return;
+  b.onclick=function(){
+    var ids=['costeCursoExternoPorPersona','valorHoraEmpleado','horasMesPorCompetenciaAplicada','costeReemplazoPersonaClave','costeLicenciaSkillUpAnual'];
+    var body={}; ids.forEach(function(id){ var v=document.getElementById('a_'+id).value; if(v!=='') body[id]=Number(v); });
+    saveAssumptions(body);
+  };
+}
+async function saveAssumptions(body){
+  try{ await SkillUp.api('/api/analytics/roi/assumptions',{method:'POST',body:body}); location.reload(); }
+  catch(e){ alert('No se pudo guardar: '+(e.message||'')); }
+}
+</script>
+<script src="/app/boo-eyes.js"></script>
+</body>
+</html>

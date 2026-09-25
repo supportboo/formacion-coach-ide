@@ -542,6 +542,7 @@ async function metricas(box){
         +'<span style="font-size:12px;color:var(--muted)">'+m.members+' personas · '+m.coaches+' coaches · aplica '+nz(m.coveragePct,'%')+' · autonomía '+nz(m.timeToAutonomyDays,' días')+' · ROI aplicación '+nz(m.application.tasaAplicacion,'%')+'</span></div>'
         +'<div style="margin-top:10px">'+bars(m.levelBars)+'</div>'
         +(m.industries&&m.industries.length?'<div style="margin-top:9px;font-size:12px;color:var(--muted)">Industrias: '+m.industries.map(function(i){return E(i.sector)+' ('+i.n+')';}).join(' · ')+'</div>':'')
+        +'<div style="margin-top:10px"><a class="btn btn-gh" style="padding:6px 12px;font-size:12px" href="/app/informe-roi.html?org='+encodeURIComponent(o.orgId)+'" target="_blank">Ver informe de ROI →</a></div>'
         +'</div>';
     }).join(''):'<p class="msg">Aún no hay empresas con datos.</p>');
 }

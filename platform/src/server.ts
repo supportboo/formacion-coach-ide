@@ -25,6 +25,7 @@ import * as configSvc from "./services/config.js";
 import * as rewardsSvc from "./services/rewards.js";
 import * as fundaeSvc from "./services/fundae.js";
 import * as analyticsSvc from "./services/analytics.js";
+import * as roiSvc from "./services/roi.js";
 import * as costsSvc from "./services/costs.js";
 import * as roleplaySvc from "./services/roleplay.js";
 import * as privacySvc from "./services/privacy.js";
@@ -1852,6 +1853,55 @@ app.get("/api/analytics/metrics", async (c) => {
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   await analyticsSvc.captureSnapshotIfNeeded(svcDeps, ctx.orgId).catch(() => {});
   return c.json(await analyticsSvc.orgMetrics(svcDeps, ctx.orgId));
+});
+
+// ROI de la empresa: HECHOS de la BD + supuestos editables -> retorno estimado y marco FUNDAE.
+app.get("/api/analytics/roi", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, ctx.orgId));
+  return c.json({ orgName: o?.name ?? "tu empresa", ...(await roiSvc.computeRoi(svcDeps, ctx.orgId)) });
+});
+
+// Editar los supuestos de ROI (solo admin/dirección de la empresa).
+app.post("/api/analytics/roi/assumptions", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
+  const num = z.number().nonnegative().max(10_000_000);
+  const parsed = z.object({
+    costeCursoExternoPorPersona: num.optional(), valorHoraEmpleado: num.optional(),
+    horasMesPorCompetenciaAplicada: num.optional(), costeReemplazoPersonaClave: num.optional(),
+    presupuestoFundaeAnual: num.nullable().optional(), costeLicenciaSkillUpAnual: num.optional(),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const saved = await roiSvc.saveAssumptions(svcDeps, ctx.orgId, parsed.data);
+  return c.json({ ok: true, assumptions: saved });
+});
+
+// El agente de ROI redacta el informe para dirección (rate-limited: llama a la IA).
+app.get("/api/analytics/roi/narrative", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  if (rateLimited(`roi:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, ctx.orgId));
+  const r = await roiSvc.computeRoi(svcDeps, ctx.orgId);
+  try {
+    const texto = await roiSvc.roiNarrative(llm, o?.name ?? "tu empresa", r, { orgId: ctx.orgId, userId: ctx.userId });
+    return c.json({ narrative: texto });
+  } catch (e) { return c.json({ error: "no se pudo generar el informe: " + String((e as Error).message) }, 502); }
+});
+
+// Superadmin: ROI de cualquier empresa (para la consola de control).
+app.get("/api/platform/roi/:orgId", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const orgId = c.req.param("orgId");
+  const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, orgId));
+  if (!o) return c.json({ error: "empresa no encontrada" }, 404);
+  return c.json({ orgName: o.name, ...(await roiSvc.computeRoi(svcDeps, orgId)) });
 });
 app.get("/api/analytics/completion", async (c) => {
   const ctx = await getAuthContext(c);
