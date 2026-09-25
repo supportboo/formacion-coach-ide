@@ -98,7 +98,7 @@ export async function evaluateRules(
       });
       granted.push({ reward: "certificado", ruleId: r.id, refId: cert.code });
     } else if (r.reward === "punto") {
-      const pts = Number(rp["points"] ?? 0);
+      const pts = Number(rp["points"] ?? rp["amount"] ?? 0);
       await deps.db.insert(pointsLedger).values({
         id: deps.newId(), organizationId: ev.orgId, userId: ev.userId, season: currentSeason(),
         points: pts, reason: `regla:${ev.event}`, refId: r.id,

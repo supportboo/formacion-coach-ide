@@ -122,7 +122,7 @@ export interface KnowledgeTestInput {
 export async function recordKnowledgeTest(
   deps: SvcDeps, input: KnowledgeTestInput,
 ): Promise<{ passed: boolean; level: number }> {
-  const threshold = input.passThreshold ?? 70;
+  const threshold = input.passThreshold ?? 85;
   const passed = input.score >= threshold;
   await deps.db.insert(testAttempt).values({
     id: deps.newId(), organizationId: input.orgId, userId: input.userId,

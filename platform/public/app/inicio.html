@@ -364,7 +364,7 @@ var RANKS=[
  {name:'Super Coach',min:150,c1:'#8a5f7c',c2:'#C69CB8'},
  {name:'Pro',min:250,c1:'#FFD700',c2:'#8a5f7c'}
 ];
-function computeXP(items){ var xp=0; (items||[]).forEach(function(it){ if(!it||it.source==='onboarding'||it.source==='ruta')return; xp+= it.kind==='insight'?(String(it.body||'').indexOf('[adopcion:aplicar]')===0?5:2):1; }); return xp; }
+function computeXP(items){ var xp=0; (items||[]).forEach(function(it){ if(!it||it.source==='onboarding'||it.source==='ruta')return; if(it.kind==='insight' && String(it.body||'').indexOf('[adopcion:aplicar]')===0) xp+=5; }); return xp; }
 function rankFor(xp){ var cur=RANKS[0]; for(var i=0;i<RANKS.length;i++){ if(xp>=RANKS[i].min) cur=RANKS[i]; } var next=RANKS[RANKS.indexOf(cur)+1]||null; return {cur:cur,next:next,xp:xp}; }
 function rankAvatar(r){ return '<svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="'+r.c1+'" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="'+r.c2+'"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="'+r.c2+'" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="'+r.c1+'"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>'; }
 function checkRankUp(name){ var prev=null; try{prev=localStorage.getItem('skillup-lastrank');}catch(e){} try{localStorage.setItem('skillup-lastrank',name);}catch(e){} return !!(prev&&prev!==name); }
@@ -441,7 +441,7 @@ function start(){
       +'<div class="content">'+approvalBanner()+'<div class="pill"><i></i>Tu experiencia</div>'
         +'<div class="hero"><div class="herotop"><div class="herotxt"><h2>Aprender haciendo, y que se te quede.</h2><p>Cada curso te acompaña con tu tutor, te señala lo importante y te pone a practicar. <span class="fc">Empieza por tu ruta.</span></p><a class="btn" href="'+heroHref()+'">'+esc(heroLabel())+'</a></div>'+rankBlock(ALLNOTES)+'</div></div>'
         +'<div class="ov" id="ovRank"><div class="ov-in"><div class="ov-hd"><b>Cómo funciona tu nivel</b><button class="x" data-close>×</button></div><div class="ov-body">'
-          +'<div class="ov-note">Ganas XP real por lo que haces, no por estar conectado: <b>+1</b> por cada nota o subrayado, <b>+2</b> por cada aportación al tutor, <b>+5</b> cuando marcas «lo aplicaré esta semana». Subes de rango con el uso real: Rookie → Aprendiz → Practicante → Especialista → Coach → Super Coach → Pro. Cuantas más funcionalidades desbloquees, más lejos llegarás — y se nota en tu avatar.</div></div></div></div>'
+          +'<div class="ov-note">Ganas rango por lo que aplicas de verdad, no por subrayar ni por estar conectado. Subrayar y tomar notas son herramientas para aprender, no puntos. Los puntos de verdad llegan cuando aplicas lo aprendido y tu responsable lo confirma, y cuando ayudas a otros a lograrlo. Subes de rango con el uso real: Rookie → Aprendiz → Practicante → Especialista → Coach → Super Coach → Pro. Cuantas más funcionalidades desbloquees, más lejos llegarás — y se nota en tu avatar.</div></div></div></div>'
         +'<div class="excard" id="exCard" hidden><span class="fc">Así es el contenido de Brandooers</span><video id="exVideo" controls preload="none" playsinline></video><p class="excap">Ejemplo real: la intro de Outbound Sales, con el avatar del propio equipo.</p></div>'
         +'<div class="bizrow">'+bizPanel(ONB)+roadmap()+'</div>'
         +'<div id="usageBox" class="usagebox" hidden></div>'
