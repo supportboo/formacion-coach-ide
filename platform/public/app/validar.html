@@ -46,7 +46,7 @@
   var list = document.getElementById('list');
   var cases;
   try { cases = await SkillUp.api('/api/validation/pending'); }
-  catch (ex) { list.innerHTML = '<p class="empty">' + SkillUp.escHtml(ex.message) + '</p>'; return; }
+  catch (ex) { list.innerHTML = '<p class="empty">No hemos podido cargar los casos pendientes. Si crees que deberías tener acceso a validar, avisa a tu responsable.</p>'; return; }
   if (!cases.length) { list.innerHTML = '<p class="empty">No hay casos pendientes.</p>'; return; }
   cases.forEach(function (c) {
     var d = document.createElement('div');

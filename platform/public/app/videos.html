@@ -125,11 +125,11 @@ function card(v, extra){
   var d=document.createElement('div'); d.className='card';
   d.innerHTML='<div class="thumb"><img loading="lazy" src="'+esc(v.thumbnail)+'" alt="">'+
     (v.durationSeconds?'<span class="dur">'+fmtDur(v.durationSeconds)+'</span>':'')+
-    (extra&&extra.plays?'<span class="plays">▶ '+fmtN(extra.plays)+' en SkillUp</span>':'')+
+    (extra&&extra.plays?'<span class="plays"><svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11" style="vertical-align:-1px;margin-right:3px"><path d="M6 4l14 8-14 8z"/></svg>'+fmtN(extra.plays)+' en SkillUp</span>':'')+
     '</div><div class="meta"><p class="t">'+esc(v.title)+'</p><div class="s">'+
     '<span>'+esc(v.channel||'')+'</span>'+(v.channel?'<span class="dot"></span>':'')+
-    '<span>'+fmtN(v.views)+' vistas</span>'+(v.likes?'<span class="dot"></span><span>'+fmtN(v.likes)+' 👍</span>':'')+
-    '</div><div class="vfb"><button class="vfbtn" data-k="like" title="Me gusta">👍</button><button class="vfbtn" data-k="dislike" title="No me gusta">👎</button><button class="vfbtn" data-k="hide" title="No mostrar más">🚫</button><a class="vfsim" target="_blank" rel="noopener" style="display:none">Más como este ›</a></div></div>';
+    '<span>'+fmtN(v.views)+' vistas</span>'+(v.likes?'<span class="dot"></span><span>'+fmtN(v.likes)+' me gusta</span>':'')+
+    '</div><div class="vfb"><button class="vfbtn" data-k="like" title="Me gusta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" width="15" height="15"><path d="M7 11v9H4V11zM7 11l4-8a2 2 0 0 1 2 2v4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.6 20H7"/></svg></button><button class="vfbtn" data-k="dislike" title="No me gusta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" width="15" height="15"><path d="M17 13V4h3v9zM17 13l-4 8a2 2 0 0 1-2-2v-4H6a2 2 0 0 1-2-2.3l1.2-6A2 2 0 0 1 6.4 4H17"/></svg></button><button class="vfbtn" data-k="hide" title="No mostrar más"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.4 5.2A9 9 0 0 1 21 12a9 9 0 0 1-2 2.9M6.5 6.6A9 9 0 0 0 3 12a9 9 0 0 0 8.5 5"/></svg></button><a class="vfsim" target="_blank" rel="noopener" style="display:none">Más como este ›</a></div></div>';
   var img=d.querySelector('.thumb'), hoverT=null, iframeEl=null;
   d.addEventListener('mouseenter',function(){
     hoverT=setTimeout(function(){
@@ -154,7 +154,7 @@ function openModal(v){
   var modal=document.getElementById('modal');
   document.getElementById('ply').innerHTML='<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(v.youtubeId)+'?autoplay=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
   document.getElementById('mTitle').textContent=v.title;
-  document.getElementById('mSub').textContent=(v.channel?v.channel+' · ':'')+fmtN(v.views)+' vistas'+(v.likes?' · '+fmtN(v.likes)+' 👍':'');
+  document.getElementById('mSub').textContent=(v.channel?v.channel+' · ':'')+fmtN(v.views)+' vistas'+(v.likes?' · '+fmtN(v.likes)+' me gusta':'');
   modal.classList.add('open');
   SkillUp.api('/api/learning/videos/watch',{method:'POST',body:{youtubeId:v.youtubeId,title:v.title,thumbnail:v.thumbnail}}).catch(function(){});
 }

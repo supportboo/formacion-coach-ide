@@ -664,6 +664,7 @@ app.post("/api/catalog/lessons/generate", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, ...CATALOG_WRITERS)) return c.json({ error: "requiere admin/direccion/inspirador" }, 403);
+  if (!(await isApproved(ctx.orgId, ctx.userId))) return c.json({ error: "cuenta pendiente de aprobación", pending: true }, 403);
   if (rateLimited(`gen:${ctx.orgId}`, 20, 60_000)) return c.json({ error: "demasiadas generaciones, espera un momento" }, 429);
   const parsed = z.object({ pathId: z.string().min(1), competencyId: z.string().min(1), topic: z.string().min(1) })
     .safeParse(await c.req.json().catch(() => ({})));

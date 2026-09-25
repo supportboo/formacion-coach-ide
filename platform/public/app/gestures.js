@@ -180,7 +180,7 @@
       try { fd = await vision.FaceDetector.createFromOptions(fileset, { baseOptions: { modelAssetPath: FACE_MODEL }, runningMode: 'VIDEO' }); } catch (e) { fd = null; }
       on = true; awayT = performance.now(); trail.length = 0;
       try { localStorage.setItem(KEY, '1'); } catch (e) { }
-      if (btn) { btn.disabled = false; btn.textContent = '🖐 Manos libres: ON'; btn.style.borderColor = '#2fbf71'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Manos libres: ON'; btn.style.borderColor = '#2fbf71'; }
       // Ayuda persistente: se muestra salvo que el usuario la cerrara antes (entonces queda el "?").
       var closed = false; try { closed = localStorage.getItem(HELP_KEY) === 'closed'; } catch (e) { }
       if (closed) mountHelpBtn(); else showHelp();
@@ -188,7 +188,7 @@
       raf = requestAnimationFrame(loop);
     } catch (e) {
       disable();
-      if (btn) { btn.disabled = false; btn.textContent = '🖐 Manos libres'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Manos libres'; }
       toast(e && /denied|Permission/i.test(String(e.name || e)) ? 'Necesito permiso de cámara para las manos libres.' : 'No he podido activar las manos libres en este navegador.', 3200);
     }
   }
@@ -200,14 +200,14 @@
     gr = fd = null; try { localStorage.removeItem(KEY); } catch (e) { }
     var h = document.getElementById('gHelp'); if (h) h.hidden = true;
     var hb = document.getElementById('gHelpBtn'); if (hb) hb.hidden = true;
-    var btn = document.getElementById('gBtn'); if (btn) { btn.textContent = '🖐 Manos libres'; btn.style.borderColor = ''; }
+    var btn = document.getElementById('gBtn'); if (btn) { btn.textContent = 'Manos libres'; btn.style.borderColor = ''; }
   }
   function toggle() { on ? disable() : enable(); }
 
   function mountButton() {
     if (document.getElementById('gBtn')) return;
     var b = document.createElement('button'); b.id = 'gBtn'; b.type = 'button';
-    b.textContent = '🖐 Manos libres';
+    b.textContent = 'Manos libres';
     b.title = 'Navega con gestos de la mano. La cámara solo se usa en tu navegador; no se graba ni se envía nada.';
     b.style.cssText = 'position:fixed;left:16px;bottom:16px;z-index:55;background:rgba(20,28,38,.9);color:#eef3f8;border:1.5px solid #37506a;border-radius:999px;padding:9px 14px;font:13px/1 system-ui,sans-serif;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4)';
     b.onclick = toggle;

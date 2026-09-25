@@ -91,7 +91,7 @@ details[open] summary:before{content:"▾ "}
 
   <div class="card" id="cardVfb">
     <h2>Qué contenido gusta y cuál no <span class="hand" style="color:var(--t);font-size:15px">semáforo de tu equipo</span></h2>
-    <p class="msg" style="margin-top:0">Lo que tu gente marca 👍 / 👎 / 🚫 en los vídeos. Verde: gusta. Rojo: no gusta u ocultado. Úsalo para quitar lo que no aporta y buscar más de lo que sí.</p>
+    <p class="msg" style="margin-top:0">Lo que tu gente marca como me gusta, no me gusta u ocultar en los vídeos. Verde: gusta. Rojo: no gusta u ocultado. Úsalo para quitar lo que no aporta y buscar más de lo que sí.</p>
     <div id="vfbBox"><span class="msg">Cargando…</span></div>
   </div>
 
@@ -209,9 +209,9 @@ details[open] summary:before{content:"▾ "}
     var box = document.getElementById('vfbBox'); if (!box) return;
     var d = await SkillUp.api('/api/analytics/video-feedback').catch(function () { return null; });
     var vids = (d && d.videos) || [];
-    if (!vids.length) { box.innerHTML = '<p class="msg">Aún no hay valoraciones de vídeos. Aparecerán cuando tu equipo empiece a marcar 👍/👎.</p>'; return; }
+    if (!vids.length) { box.innerHTML = '<p class="msg">Aún no hay valoraciones de vídeos. Aparecerán cuando tu equipo empiece a valorarlos.</p>'; return; }
     box.innerHTML = vids.slice(0, 20).map(function (v) { var pos = v.like, neg = v.dislike + v.hide, tot = pos + neg || 1, gp = Math.round(pos / tot * 100);
-      return '<div style="margin:11px 0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;margin-bottom:4px"><b style="color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64%">' + SkillUp.escHtml(v.title || v.youtubeId) + '</b><span class="msg">👍' + v.like + ' · 👎' + v.dislike + ' · 🚫' + v.hide + '</span></div><div style="height:9px;border-radius:999px;background:rgba(220,80,80,.28);overflow:hidden"><div style="height:100%;width:' + gp + '%;background:#2E9E73"></div></div></div>'; }).join('');
+      return '<div style="margin:11px 0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;margin-bottom:4px"><b style="color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64%">' + SkillUp.escHtml(v.title || v.youtubeId) + '</b><span class="msg" style="white-space:nowrap">' + v.like + ' me gusta · ' + v.dislike + ' no · ' + v.hide + ' ocultado</span></div><div style="height:9px;border-radius:999px;background:rgba(220,80,80,.28);overflow:hidden"><div style="height:100%;width:' + gp + '%;background:#2E9E73"></div></div></div>'; }).join('');
   })();
 
   // Conocimiento de los agentes: barras que crecen con el uso (solo lectura; la memoria no se edita).
@@ -270,7 +270,7 @@ details[open] summary:before{content:"▾ "}
       '<div class="stat"><b>' + (p.internalTransfer * 100).toFixed(0) + '%</b><span>formado de casa</span></div>' +
       '<div class="stat"><b>' + p.timeToAutonomyDays + '</b><span>días a autonomía</span></div>';
     document.getElementById('coverage').innerHTML = p.coverage.map(function (c) {
-      return '<div class="row"><span>' + SkillUp.escHtml(c.name) + (c.critical ? ' ⚠' : '') + '</span><span>' + c.atApply + '/' + c.total + ' (' + c.pct + '%)</span></div>';
+      return '<div class="row"><span>' + SkillUp.escHtml(c.name) + (c.critical ? ' <span style="color:var(--gold);font-weight:700;font-size:11px">· crítica</span>' : '') + '</span><span>' + c.atApply + '/' + c.total + ' (' + c.pct + '%)</span></div>';
     }).join('') || '<p class="msg">Aún no hay competencias dadas de alta (las configura el superadministrador). En cuanto las haya y tu equipo empiece, verás aquí qué domináis.</p>';
     document.getElementById('risks').innerHTML = p.risks.map(function (r) {
       return '<div class="row"><span class="risk">' + SkillUp.escHtml(r.name) + '</span><span>' + r.referentes + ' referente(s)</span></div>';
