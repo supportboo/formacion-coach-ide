@@ -1,0 +1,505 @@
+<title>Guiones Onboarding SkillUp</title>
+<meta name="description" content="Guion de vídeo de onboarding por rol para SkillUp: qué contar, qué pantalla capturar y qué animar antes de montarlo en HeyGen.">
+<style>
+  :root{
+    --bg:#F3EFE7; --panel:#FFFFFF; --panel2:#FBF9F5; --ink:#211E28; --body:#403A48; --muted:#837B90;
+    --aub:#7A4E6B; --aub-soft:rgba(122,78,107,.12);
+    --teal:#0F7F86; --teal-soft:rgba(15,127,134,.12);
+    --gold:#9C7A10; --gold-soft:rgba(156,122,16,.14);
+    --green:#2E9E73; --red:#C23A54;
+    --line:rgba(70,50,90,.16); --soft:rgba(60,42,84,.045); --shadow:0 16px 44px rgba(80,60,100,.12);
+    --ff:'Inter',system-ui,-apple-system,sans-serif;
+    --fh:'Playfair Display',Georgia,serif;
+    --fc:'Caveat','Segoe Print',cursive;
+    --radius:16px;
+    color-scheme:light;
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme:dark){
+    --bg:#171420; --panel:#221f2a; --panel2:#26222f; --ink:#F2EFF5; --body:#DAD4E2; --muted:#968EA4;
+    --aub:#C69CB8; --aub-soft:rgba(198,156,184,.16);
+    --teal:#3FD8E0; --teal-soft:rgba(63,216,224,.14);
+    --gold:#F0C645; --gold-soft:rgba(240,198,69,.16);
+    --green:#54C79A; --red:#E2506A;
+    --line:rgba(180,150,205,.16); --soft:rgba(255,255,255,.05); --shadow:0 24px 70px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#171420; --panel:#221f2a; --panel2:#26222f; --ink:#F2EFF5; --body:#DAD4E2; --muted:#968EA4;
+    --aub:#C69CB8; --aub-soft:rgba(198,156,184,.16);
+    --teal:#3FD8E0; --teal-soft:rgba(63,216,224,.14);
+    --gold:#F0C645; --gold-soft:rgba(240,198,69,.16);
+    --green:#54C79A; --red:#E2506A;
+    --line:rgba(180,150,205,.16); --soft:rgba(255,255,255,.05); --shadow:0 24px 70px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--body);font-family:var(--ff);line-height:1.55;
+    -webkit-font-smoothing:antialiased;margin:0}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+  a{color:var(--teal);text-underline-offset:2px}
+
+  /* Header */
+  header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line)}
+  .top .wrap{display:flex;align-items:center;gap:14px;padding-block:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+  .eye{width:26px;height:26px;flex:0 0 auto}
+  .brand small{font-family:var(--fc);font-weight:700;font-size:17px;color:var(--teal);line-height:1}
+  .brand b{font-size:16px}
+  .top .spacer{flex:1}
+  .tbtn{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--muted);background:var(--soft);
+    border:1px solid var(--line);border-radius:100px;padding:8px 14px;cursor:pointer;transition:.15s}
+  .tbtn:hover{color:var(--ink);border-color:var(--aub)}
+
+  /* Intro */
+  .hero{padding-block:26px 8px}
+  .kick{font-family:var(--fc);font-size:21px;color:var(--aub);line-height:1;margin-bottom:6px}
+  h1{font-family:var(--fh);font-weight:900;color:var(--ink);letter-spacing:-.02em;
+    font-size:clamp(28px,5.4vw,44px);line-height:1.04;margin:.1em 0 .3em;text-wrap:balance}
+  .lead{font-size:16px;max-width:64ch}
+  .lead b{color:var(--ink)}
+  .brief{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin:20px 0 6px}
+  @media (max-width:720px){.brief{grid-template-columns:1fr}}
+  .brief .box{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;box-shadow:var(--shadow)}
+  .brief h3{font-family:var(--fh);font-size:16px;color:var(--ink);margin:0 0 8px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px}
+  .flow .step{display:flex;align-items:center;gap:7px;background:var(--soft);border:1px solid var(--line);
+    border-radius:100px;padding:6px 12px}
+  .flow .n{width:19px;height:19px;border-radius:50%;background:var(--aub);color:#fff;font-size:11px;
+    font-weight:800;display:grid;place-items:center}
+  .flow .arw{color:var(--muted)}
+  .brief ul{margin:6px 0 0;padding-left:18px;font-size:13.5px}
+  .brief li{margin:3px 0}
+  .brief li b{color:var(--ink)}
+
+  /* Tabs */
+  nav.tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 57px);z-index:15;
+    background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);margin-top:18px}
+  .tabs .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+  .tabs .wrap::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--muted);
+    background:transparent;border:1px solid transparent;border-radius:100px;padding:9px 16px;cursor:pointer;
+    white-space:nowrap;transition:.15s;display:flex;align-items:center;gap:8px}
+  .tab:hover{color:var(--ink)}
+  .tab[aria-selected="true"]{color:var(--ink);background:var(--panel);border-color:var(--line);
+    box-shadow:0 4px 14px rgba(0,0,0,.08)}
+  .tab .dot{width:8px;height:8px;border-radius:50%}
+
+  main{padding-block:22px 60px}
+  section.role{animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}}
+
+  /* Role header */
+  .rhead{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px 22px 20px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .rhead::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--accent,var(--aub))}
+  .rhead .who{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent,var(--aub))}
+  .rhead h2{font-family:var(--fh);font-weight:900;color:var(--ink);font-size:clamp(22px,4vw,30px);
+    letter-spacing:-.015em;margin:6px 0 10px;text-wrap:balance}
+  .rhead .mision{font-size:15.5px;max-width:70ch}
+  .rhead .mision b{color:var(--ink)}
+  .obj{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .obj span{font-size:12.5px;font-weight:600;background:var(--soft);border:1px solid var(--line);
+    border-radius:8px;padding:6px 11px;color:var(--ink)}
+
+  .blocktitle{font-family:var(--fh);font-size:19px;font-weight:800;color:var(--ink);
+    letter-spacing:-.01em;margin:30px 0 4px;display:flex;align-items:baseline;gap:10px}
+  .blocktitle .sub{font-family:var(--fc);font-size:16px;color:var(--muted);font-weight:600}
+
+  /* Scenes */
+  .scene{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;margin-top:12px;display:grid;grid-template-columns:44px 1fr;gap:2px 14px;
+    box-shadow:0 6px 18px rgba(0,0,0,.05)}
+  .scene.star{border-color:color-mix(in srgb,var(--gold) 55%,var(--line));
+    background:linear-gradient(180deg,var(--gold-soft),transparent 60%),var(--panel)}
+  .scene .num{grid-row:1/99;font-family:var(--fh);font-weight:900;font-size:24px;color:var(--accent,var(--aub));
+    width:44px;height:44px;border-radius:12px;background:var(--soft);display:grid;place-items:center}
+  .scene .st{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .scene .st h4{font-family:var(--fh);font-size:16.5px;color:var(--ink);margin:0;font-weight:800}
+  .starbadge{font-family:var(--fc);font-size:14px;font-weight:700;color:var(--gold)}
+  .line{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:6px 0;border-top:1px dashed var(--line);
+    font-size:14px}
+  .line:first-of-type{border-top:none}
+  .tag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 0;height:fit-content}
+  .tag.voz{color:var(--teal)}
+  .tag.cap{color:var(--aub)}
+  .tag.ani{color:var(--gold)}
+  .line b{color:var(--ink)}
+  .line .cap-src{font-family:var(--fc);font-size:14px;color:var(--muted)}
+
+  /* Rules + generic cards grid */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .card h5{font-family:var(--fh);font-size:15.5px;color:var(--ink);margin:0 0 10px;font-weight:800}
+  .card ul{margin:0;padding-left:17px}
+  .card li{margin:5px 0;font-size:13.8px}
+  .card li b{color:var(--ink)}
+
+  /* Levels ladder */
+  .ladder{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .rung{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:center;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  .rung .lv{font-family:var(--fh);font-weight:900;font-size:18px;color:#fff;width:52px;height:44px;
+    border-radius:10px;display:grid;place-items:center}
+  .rung .nm{font-weight:800;color:var(--ink);font-size:14.5px}
+  .rung .how{font-size:13px;color:var(--muted)}
+  .rung .how b{color:var(--body)}
+
+  /* ROI bars */
+  .roi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-top:12px;box-shadow:var(--shadow)}
+  .roi .ex{font-family:var(--fc);font-size:15px;color:var(--gold);margin-bottom:2px}
+  .roi .big{font-family:var(--fh);font-weight:900;font-size:34px;color:var(--ink);letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums;line-height:1}
+  .roi .bigsub{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .roiline{margin:12px 0}
+  .roiline .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:13.5px}
+  .roiline .top b{color:var(--ink)}
+  .roiline .amt{font-family:var(--fh);font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .track{height:14px;border-radius:8px;background:var(--soft);margin-top:6px;overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%;border-radius:8px 0 0 8px;animation:grow 1s cubic-bezier(.2,.8,.2,1)}
+  @keyframes grow{from{width:0 !important}}
+  .src{font-size:11.5px;color:var(--muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+  .pill{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;border-radius:100px;padding:2px 8px}
+  .pill.fact{background:var(--teal-soft);color:var(--teal)}
+  .pill.est{background:var(--gold-soft);color:var(--gold)}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+  @media (max-width:640px){.metrics{grid-template-columns:1fr 1fr}}
+  .metric{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+  .metric .k{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .metric .v{font-family:var(--fh);font-weight:900;font-size:26px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+  .metric .m{font-size:11.5px;color:var(--muted)}
+  .metric.risk .v{color:var(--red)}
+  .metric.good .v{color:var(--green)}
+  .stack{display:flex;height:16px;border-radius:8px;overflow:hidden;border:1px solid var(--line);margin-top:8px}
+  .stack i{display:block;height:100%}
+  .stack-leg{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px}
+  .stack-leg span{display:flex;align-items:center;gap:5px}
+  .stack-leg b{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+  /* Caution / captures */
+  .ojo{background:linear-gradient(180deg,rgba(194,58,84,.06),transparent 70%),var(--panel);
+    border:1px solid color-mix(in srgb,var(--red) 30%,var(--line));border-radius:var(--radius);padding:16px 18px;margin-top:12px}
+  .ojo h5{color:var(--red)}
+  .ojo li b{color:var(--ink)}
+  .caps{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .cap-chip{font-size:12px;font-weight:600;background:var(--aub-soft);color:var(--aub);
+    border:1px solid color-mix(in srgb,var(--aub) 30%,transparent);border-radius:8px;padding:6px 10px}
+  .cap-chip small{color:var(--muted);font-weight:500}
+
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:16px;
+    border-top:1px solid var(--line);padding-top:14px}
+  .legend b{color:var(--ink)}
+  footer{color:var(--muted);font-size:12.5px;padding-block:24px;border-top:1px solid var(--line)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:6px}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">
+      <svg class="eye" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="var(--aub)" stroke-width="2.5"/><ellipse cx="20" cy="20" rx="14" ry="9" fill="none" stroke="var(--teal)" stroke-width="2.5"/><circle cx="20" cy="20" r="4.5" fill="var(--gold)"/></svg>
+      <b>SkillUp</b><small>onboarding</small>
+    </span>
+    <span class="spacer"></span>
+    <button class="tbtn" id="themeBtn" type="button">Tema</button>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <div class="kick">Producción de vídeo</div>
+  <h1>Un vídeo de onboarding para cada rol</h1>
+  <p class="lead">El de portada de la web presenta la idea. Este otro es distinto: <b>da la bienvenida, inspira y enseña a moverse por la plataforma</b> — cómo empezar, qué vas a encontrar, cómo se juega, cómo subes de nivel y hasta dónde puedes llegar. Aquí tienes el guion de cada rol: qué se cuenta, qué pantalla real capturar y qué animar antes de montarlo en HeyGen.</p>
+
+  <div class="brief">
+    <div class="box">
+      <h3>El flujo de trabajo</h3>
+      <div class="flow">
+        <span class="step"><span class="n">1</span> Guion por rol</span><span class="arw">›</span>
+        <span class="step"><span class="n">2</span> Capturar pantallas reales</span><span class="arw">›</span>
+        <span class="step"><span class="n">3</span> Animar los momentos</span><span class="arw">›</span>
+        <span class="step"><span class="n">4</span> Montar en HeyGen</span>
+      </div>
+      <p style="font-size:13.5px;margin:12px 0 0">Cada usuario, una vez <b>registrado y validado</b>, ve el vídeo de <b>su</b> rol: con lo que puede hacer, su misión y cómo saca el máximo partido.</p>
+    </div>
+    <div class="box">
+      <h3>Reglas de todos los vídeos</h3>
+      <ul>
+        <li>Voz y avatar de <b>Marc</b>, tono cercano que inspira.</li>
+        <li>Se muestran pantallas <b>reales</b>, no maquetas.</li>
+        <li><b>Nada de prometer</b> lo que aún no existe (marcado como «Ojo» en cada rol).</li>
+        <li>Animaciones firma: agentes que hablan, roleplay del caso real, barras que se llenan.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="Roles">
+  <div class="wrap" id="tabbar" role="tablist"></div>
+</nav>
+
+<main class="wrap"><div id="stage" aria-live="polite"></div></main>
+
+<footer class="wrap">
+  Documento de trabajo interno · SkillUp / Brandooers · Guion previo a captura y animación. Los números de las barras de ROI son un <b>ejemplo ilustrativo</b> para el vídeo, no datos de un cliente.
+</footer>
+
+<script>
+/* ---------------- DATA ---------------- */
+const ROLES = [
+ {
+  key:"empleado", label:"Usuario", dot:"var(--teal)", accent:"var(--teal)",
+  who:"Empleado · el que aprende",
+  title:"Aprender haciendo, y que se te quede",
+  mision:"Te acaban de dar una responsabilidad nueva. Esto <b>no es otro curso</b> que se olvida a la semana: es entrenamiento para tu momento, con <b>casos reales de tu puesto</b>, y cuando demuestras que lo aplicas, <b>alguien de dentro lo valida</b>. Tu nivel lo firma una persona, no una máquina.",
+  obj:["Cómo empezar en 2 minutos","Cómo se aprende (haciendo)","Cómo interactúas con el tutor","Qué ganas: niveles, puntos, ser coach"],
+  escaleta:[
+   {t:"Bienvenida e inspiración",voz:"«Enhorabuena por dar este paso. Soy Marc y en un minuto te cuento cómo funciona y hasta dónde puedes llegar.»",cap:"Portada + logo de ojos",src:"su-portada",ani:"El avatar entra; los ojos del logo siguen al ratón."},
+   {t:"Tu onboarding rápido",voz:"«Me cuentas a qué te dedicas, cuál es tu web y qué quieres conseguir. Con eso te preparo una ruta a tu medida.»",cap:"bienvenida.html — chat con «Tu guía» y micro",src:"bienvenida.html",ani:"Burbujas de chat escribiéndose; onda de voz al dictar por micro.",star:true},
+   {t:"Tu ADN de aprendizaje",voz:"«Descubrimos cómo aprendes mejor: tu arquetipo entre doce.»",cap:"team-dna.html — rueda con % por familia",src:"team-dna.html",ani:"La rueda gira y los porcentajes suben hasta su valor."},
+   {t:"Tu ruta a medida",voz:"«Te monto una ruta solo con lo tuyo, con casos de tu sector, nada genérico.»",cap:"ruta-crear.html + ruta.html (mapa cerebro)",src:"ruta.html",ani:"Los nodos se conectan uno a uno formando el mapa."},
+   {t:"El tutor: aprender haciendo",voz:"«Tienes cuatro tutores con voz. Subrayas, preguntas, pides un ejemplo de tu caso. Aprendes practicando, no memorizando.»",cap:"curso.html — chat con voz (karaoke), menú al seleccionar texto, pizarra viva",src:"curso.html",ani:"ESTRELLA: al pasar el ratón sobre una palabra en negrita, el tutor pregunta «¿qué tal llevas tú lo de X?»; al hacer clic, lo explica con un ejemplo tuyo.",star:true},
+   {t:"Demuestra que lo aplicas",voz:"«Ensayas conversaciones difíciles antes de vivirlas: un cliente que discute el precio, alguien a la defensiva. Y resuelves un caso real.»",cap:"reto.html — roleplay y «Tu turno»",src:"reto.html",ani:"ESTRELLA: roleplay de tu situación real, respondes por voz, al cerrar salen tus fortalezas y qué mejorar.",star:true},
+   {t:"Lo valida una persona",voz:"«Cuando demuestras que sabes aplicarlo, alguien de tu equipo que ya domina esa habilidad lo valida. Tu nivel lo firma una persona.»",cap:"El caso pasa a validación humana",src:"validar.html",ani:"Sello de «Aprobado» y saltas a Nivel 2."},
+   {t:"Subes de nivel y de rango",voz:"«A medida que avanzas ganas puntos, subes en el ranking y desbloqueas tu siguiente nivel.»",cap:"inicio.html (tarjeta de rango XP) + ranking.html (pódium)",src:"ranking.html",ani:"ESTRELLA: la barra de XP se llena; tu avatar de ojos crece en el pódium; confeti si vas primero.",star:true},
+   {t:"Hasta llegar a coach",voz:"«Lo más alto es convertirte en coach: referente de una habilidad. Y ahí, cada persona que ayudas te hace crecer más.»",cap:"Ranking «quién más enseña»",src:"ranking.html",ani:"Una pirámide de conocimiento que crece (marcar como visión)."},
+   {t:"Cierre que inspira",voz:"«Cuanto más practiques, más aprendas y a más gente ayudes, más lejos vas a llegar. Cuando estés listo, empecemos.»",cap:"Botón «Empezar»",src:"inicio.html",ani:"El avatar sonríe; el botón late suavemente."}
+  ],
+  reglasTitle:"Las reglas del juego, en cristiano",
+  ladder:[
+   {lv:"0",c:"var(--muted)",nm:"Sin nivel",how:"Punto de partida."},
+   {lv:"1",c:"var(--teal)",nm:"En formación",how:"Apruebas un <b>test</b> (70 o más)."},
+   {lv:"2",c:"var(--aub)",nm:"Aplica",how:"Resuelves un <b>caso real y lo valida una persona</b>."},
+   {lv:"3",c:"var(--gold)",nm:"Referente / Coach",how:"Formas a <b>2 personas</b> que llegan a «Aplica»."}
+  ],
+  reglas:[
+   {h:"Puntos y rango",items:["<b>Rango XP</b> (en tu inicio): +1 por nota o subrayado, +2 por aportar al tutor, +5 por «lo aplicaré esta semana». Vas de Rookie a Pro.","<b>Puntos de temporada</b> (el ranking): se ganan <b>enseñando</b>. Cuando tu alumno sube a «Aplica», ganas +50 (×1,5 si la habilidad es crítica).","El ranking se reinicia cada temporada (trimestre)."]},
+   {h:"Juego limpio",items:["Nadie valida su propio caso.","Cada caso se decide una sola vez: los puntos no se pagan dos veces.","El test es de un solo uso y las respuestas correctas nunca se enseñan."]}
+  ],
+  ojo:["«Custodio» (nivel 4) aparece como nombre pero <b>nadie llega ahí todavía</b>: no lo pintes como alcanzable.","Las <b>pirámides de coaches</b> y el «master coach» son la <b>visión (V2)</b>, aún no están en la app.","No hay una pantalla «Mis certificados» para el alumno todavía.","Un reto ya entregado puede seguir apareciendo como pendiente: cuidado al grabar."],
+  caps:[["bienvenida.html","chat + ADN"],["team-dna.html","rueda de arquetipo"],["ruta.html","mapa cerebro"],["curso.html","tutor, negritas, pizarra viva"],["reto.html","roleplay"],["inicio.html","tarjeta XP"],["ranking.html","pódium, avatares que crecen"]]
+ },
+
+ {
+  key:"coach", label:"Coach", dot:"var(--gold)", accent:"var(--gold)",
+  who:"Coach · referente que multiplica",
+  title:"Multiplica lo que sabes",
+  mision:"Ya dominas una habilidad. Ahora <b>fórmate al siguiente</b>: cada persona que ayudas a dominar tu especialidad te hace ganar más, y hace más grande tu pirámide. Así el saber deja de vivir en una sola cabeza y tú te vuelves imprescindible <b>por lo que enseñas</b>, no solo por lo que sabes.",
+  obj:["Qué desbloqueas al ser referente","Cómo validas casos","Cómo ganas puntos enseñando","Las reglas de coach"],
+  escaleta:[
+   {t:"Enhorabuena, eres referente",voz:"«Has llegado a lo más alto de tu habilidad. Ahora tu trabajo es que otros lleguen donde tú estás.»",cap:"Tu avatar con estrella/corona en el ranking",src:"ranking.html",ani:"El avatar sube de escala y le aparece la estrella."},
+   {t:"Tu nuevo poder: validar",voz:"«Tú apruebas los casos de tu especialidad, con una rúbrica delante. La IA te sugiere una nota por criterio, pero decides tú.»",cap:"validar.html — «Sugerencia IA por criterio»",src:"validar.html",ani:"Aparece la nota /10 por criterio y el botón «Aprobar»."},
+   {t:"Cada alumno que sube, ganas",voz:"«Cuando tu coachee llega a Aplica, ganas 50 puntos. Y ×1,5 si esa habilidad es crítica para la empresa.»",cap:"Ranking «quién más enseña»",src:"ranking.html",ani:"ESTRELLA: el contador de puntos sube al aprobar a un alumno.",star:true},
+   {t:"Tu pirámide de conocimiento",voz:"«Cuantas más personas formas, más grande se hace tu pirámide: la tuya, la de ventas, la de lo que se te dé bien. Y una habilidad crítica nunca depende de una sola cabeza.»",cap:"Vista de pirámide (visión)",src:"visión V2",ani:"La pirámide crece con cada rama (marcar como visión V2)."},
+   {t:"Cierre",voz:"«El saber deja de vivir en una sola cabeza y se multiplica por toda la empresa.»",cap:"Ranking / equipo",src:"ranking.html",ani:"Varias pirámides encendiéndose por la empresa."}
+  ],
+  reglasTitle:"Reglas de coach",
+  ladder:null,
+  reglas:[
+   {h:"Cómo se llega y cómo se cobra",items:["Eres referente (Nivel 3) cuando <b>2 alumnos tuyos llegan a Aplica</b>.","Cobras <b>solo cuando el alumno aprueba</b>, no antes.","Tope de <b>3 alumnos a la vez</b> por habilidad; nadie se mentoriza a sí mismo."]},
+   {h:"Qué puedes validar",items:["Validas <b>solo casos de la habilidad</b> en la que eres referente.","No ves ni validas tu propio caso.","Cada caso lo decide una sola persona."]}
+  ],
+  ojo:["Hoy el coach <b>no ve «Validar casos» en el menú lateral</b>: solo desde la barra de «Mi panel». Conviene arreglarlo antes de grabar esa parte.","El coach necesita ser Nivel 3 en la habilidad; si no, su lista de validación sale vacía.","<b>No hay pantalla</b> para que el coach se asigne alumnos (existe por detrás, sin interfaz).","Pirámides y «master coach» = visión V2, no lo muestres como funcionando."],
+  caps:[["ranking.html","estrella/corona del referente"],["validar.html","rúbrica + sugerencia IA"],["Pirámide","boceto de la visión V2"]]
+ },
+
+ {
+  key:"tl", label:"Team Leader", dot:"var(--aub)", accent:"var(--aub)",
+  who:"Team Leader · entrena a su gente",
+  title:"Ves cómo evoluciona tu gente y la entrenas",
+  mision:"Tú ves la evolución de tu equipo <b>en gráficas reales</b> y lo entrenas para lo que se le viene. Cuando algo pasa hoy —una reunión que se rescató, un cliente difícil— lo <b>conviertes en un reto</b> para que lo resuelvan mañana. El objetivo: dejar de rescatar reuniones porque tu gente ya se sostiene sola.",
+  obj:["Lanzar retos cuando quieras","Leer la evolución del equipo","Entender cobertura y riesgo","Dónde está el retorno"],
+  escaleta:[
+   {t:"Bienvenida a tu panel",voz:"«Aquí ves a tu gente y cómo evoluciona. No es asistencia: es si ya resuelven solos.»",cap:"panel.html — panel de empresa",src:"panel.html",ani:"Las tarjetas del panel entran en cascada."},
+   {t:"Lanza un reto cuando quieras",voz:"«¿Viste algo hoy que quieres que alguien practique? Se lo dictas por voz y la IA te prepara el reto: un roleplay o un caso.»",cap:"Formulario de reto (dictado + «Que el agente prepare un borrador»)",src:"reto (consola)",ani:"ESTRELLA: dictas por micro, el brief se escribe solo y pulsas «Asignar reto».",star:true},
+   {t:"Tu gente practica de verdad",voz:"«Ensayan con su cliente real en un roleplay, o resuelven un caso que entra a validación humana.»",cap:"reto.html (lado del alumno)",src:"reto.html",ani:"Roleplay corriendo; el caso pasa a la cola de validar."},
+   {t:"Mira la evolución",voz:"«Tres gráficas de los últimos 90 días: cobertura, riesgos críticos y días hasta que alguien es autónomo.»",cap:"panel.html — «Evolución»",src:"panel.html",ani:"ESTRELLA: las líneas se dibujan de izquierda a derecha.",star:true},
+   {t:"¿Mejora tu equipo?",voz:"«Cuánta gente se formó en casa, cuánto tarda en ser autónoma, qué habilidades están cubiertas y cuáles dependen de una sola persona.»",cap:"panel.html — bloque ROI + informe-roi.html",src:"informe-roi.html",ani:"Barras de cobertura llenándose; semáforo de riesgo."},
+   {t:"Barras de conocimiento",voz:"«Por cada habilidad ves cuánta gente está en cada nivel, del que empieza al referente.»",cap:"Barras N0–N1–N2–N3 por competencia",src:"panel.html",ani:"Barras apiladas que crecen por color."},
+   {t:"Qué le cuesta a tu equipo",voz:"«Ves las últimas preguntas reales al tutor y qué rutas se terminan. Ahí está lo que hay que reforzar.»",cap:"panel.html — preguntas + finalización por ruta",src:"panel.html",ani:"Lista de preguntas apareciendo."},
+   {t:"Cierre",voz:"«Dejas de rescatar reuniones. Tu gente asume su responsabilidad y se sostiene sola.»",cap:"panel.html",src:"panel.html",ani:"El riesgo baja y la cobertura sube."}
+  ],
+  reglasTitle:"Lo que mides en tu equipo",
+  ladder:null,
+  roiKind:"tl",
+  reglas:[
+   {h:"Qué significa cada dato",items:["<b>Cobertura</b>: % de tu gente que ya <b>aplica</b> una habilidad (nivel 2+), no que la haya visto.","<b>Riesgo de dependencia</b> (factor autobús): habilidades críticas en manos de una sola persona.","<b>Transferencia interna</b>: cuánta gente llegó a aplicar <b>con un coach de casa</b>.","<b>Días a autonomía</b>: cuánto tarda alguien desde que empieza hasta que valida por primera vez."]},
+   {h:"Tus herramientas",items:["Lanzar retos a cualquiera de tu gente (roleplay o caso).","Ver las 3 gráficas de evolución a 90 días.","Ver el informe de ROI y generarlo con el analista IA.","Ver el mapa del equipo (quién aprende, quién aporta, quién aplica)."]}
+  ],
+  ojo:["Hoy <b>no hay pantalla propia del TL para crear retos</b>: el formulario solo vive en la consola de superadmin. Hay que construirlo antes de grabar esa escena.","El TL <b>ve toda la empresa</b>, no «su equipo»: no existe todavía la relación líder→equipo.","No puede matricular a otros, ni «Guardar la foto de hoy», ni invitar (dan aviso de permiso).","El asistente de chat del TL <b>no ve las métricas del equipo</b>: no le preguntes cifras en el vídeo.","Si no hay datos, la pantalla muestra «0%» y «null»: graba con una empresa con datos."],
+  caps:[["panel.html","evolución, ROI, equipo, preguntas"],["informe-roi.html","retorno del equipo"],["reto (consola)","crear y dictar retos"],["workforce.html","mapa del equipo"]]
+ },
+
+ {
+  key:"admin", label:"Admin y Dirección", dot:"var(--green)", accent:"var(--green)",
+  who:"Admin / Dirección · dueño del retorno",
+  title:"Convierte la formación en retorno medible",
+  mision:"Tú tienes el <b>control de la empresa</b> y ves el <b>euro que entra</b> por cada persona que ya se sostiene sola. Configuras las reglas del juego, atas (o no) los logros a beneficios, y a los 90 días tienes el dato en la mano. La promesa: <b>si no puedes ver esa medición, no pagas.</b>",
+  obj:["Leer el ROI con barras y números","Configurar niveles y recompensas","FUNDAE y facturación","Lanzar peticiones a tus líderes"],
+  escaleta:[
+   {t:"Bienvenida, tú tienes el control",voz:"«Este es el panel de tu empresa: personas, habilidades, retorno y las reglas del juego.»",cap:"panel.html",src:"panel.html",ani:"Tarjetas del panel entrando."},
+   {t:"El informe de ROI",voz:"«Aquí ves de dónde sale el retorno del año: formación que no compras fuera, conocimiento que se propaga dentro y eficiencia por aplicar.»",cap:"informe-roi.html — «De dónde sale»",src:"informe-roi.html",ani:"ESTRELLA: las tres barras de ROI se cargan con sus euros; cada una marca qué es «Hecho» y qué es «Estimación».",star:true},
+   {t:"Hechos y estimaciones",voz:"«Los hechos son recuentos reales. Los euros son una estimación con supuestos que tú ajustas a tu empresa. Nada inventado.»",cap:"informe-roi.html — 6 tiles de hechos + editor de supuestos",src:"informe-roi.html",ani:"Los seis números cuentan hacia arriba."},
+   {t:"El riesgo que reduces",voz:"«Una habilidad crítica en una sola persona es un riesgo con precio. Te lo ponemos delante.»",cap:"informe-roi.html — riesgo de dependencia",src:"informe-roi.html",ani:"El coste del riesgo aparece en rojo."},
+   {t:"FUNDAE: el crédito que ya tienes",voz:"«Metes tu crédito FUNDAE y ves el coste neto. Muchas veces gran parte no se usa.»",cap:"panel.html — FUNDAE (crear acción, justificante)",src:"panel.html",ani:"El coste neto baja al meter el crédito."},
+   {t:"Configura las reglas del juego",voz:"«Pones los niveles, las recompensas y qué desbloquea cada logro. El primer año no atamos nada a la nómina.»",cap:"panel.html — recompensas y ajustes",src:"panel.html",ani:"Un logro se convierte en un perk visible."},
+   {t:"Facturación por asientos",voz:"«Tu plan y tus asientos, claros.»",cap:"panel.html — facturación",src:"panel.html",ani:"El plan y los asientos se resaltan."},
+   {t:"Pide a tus líderes",voz:"«Puedes lanzar retos y peticiones a cualquiera, incluidos tus team leaders.»",cap:"Asignar reto (a un líder)",src:"reto (consola)",ani:"Un reto viaja del admin a un líder."},
+   {t:"Cierre",voz:"«Si en 90 días no ves quién ya se sostiene solo, no pagas. Ese es el trato.»",cap:"informe-roi.html",src:"informe-roi.html",ani:"El retorno del año se sella en pantalla."}
+  ],
+  reglasTitle:"La barra de carga del ROI",
+  ladder:null,
+  roiKind:"admin",
+  reglas:[
+   {h:"Extra de superadmin (Marc)",items:["Consola con orquestador que responde con datos reales de todas las empresas.","Aprobar registros, cambiar roles, ajustar puntos.","Subir conocimiento al «cerebro» (RAG) de cada empresa.","Fijar precios por plan."]},
+   {h:"Cómo se calcula el retorno",items:["<b>No compras fuera</b> = casos validados × coste de un curso externo.","<b>Propagado dentro</b> = transferencias internas × coste de un curso externo.","<b>Eficiencia</b> = habilidades aplicadas × horas/mes × 12 × valor de la hora.","Todos los supuestos (350 €, 22 €/h, 8.000 €…) los ajustas tú."]}
+  ],
+  ojo:["Muchas funciones existen por detrás pero <b>aún no tienen pantalla</b> para el admin: crear retos, métricas ricas, moderación entre equipos, planes de carrera, subir conocimiento. No las grabes como listas.","En el panel del admin están <b>ocultas</b> Coste IA, Catálogo, Recompensas y Rúbricas (hoy solo las ve el superadmin).","No hay vista de árbol líder→equipo, ni comparación «línea base vs hoy».","El asistente de dirección <b>no ve las cifras</b> de ROI todavía, y el redactor del informe no comprueba los números que escribe.","Una regla de puntos creada desde el panel da 0 por un fallo pendiente: revísalo antes de enseñarlo."],
+  caps:[["informe-roi.html","barras de ROI, hechos, supuestos"],["panel.html","FUNDAE, facturación, recompensas"],["superadmin.html","consola, aprobar, roles, precios"],["reto (consola)","peticiones a líderes"]]
+ }
+];
+
+/* ROI example data (ilustrativo) */
+const ROI_LINES=[
+ {label:"Formación que no compras fuera",base:"10 casos validados × 350 €",val:3500,kind:"Ahorro",c:"var(--teal)"},
+ {label:"Conocimiento propagado dentro",base:"4 transferencias internas × 350 €",val:1400,kind:"Ahorro",c:"var(--aub)"},
+ {label:"Eficiencia por aplicar lo aprendido",base:"20 habilidades × 2 h × 12 meses × 22 €",val:10560,kind:"Eficiencia",c:"var(--green)"}
+];
+const ROI_TOTAL=15460, ROI_PCT=158, ROI_RISK=16000;
+const TL_METRICS=[
+ {k:"Cobertura",v:"62%",m:"aplican una habilidad",cls:""},
+ {k:"Transferencia interna",v:"45%",m:"formados en casa",cls:"good"},
+ {k:"Días a autonomía",v:"34",m:"de media",cls:""},
+ {k:"Riesgo crítico",v:"2",m:"habilidades en 1 persona",cls:"risk"}
+];
+const LEVELBARS=[{lb:"N0",v:4,c:"var(--muted)"},{lb:"N1",v:6,c:"var(--teal)"},{lb:"N2",v:5,c:"var(--aub)"},{lb:"N3+",v:2,c:"var(--gold)"}];
+
+/* ---------------- RENDER ---------------- */
+const esc=(s)=>s;
+function sceneHTML(s,i){
+ return `<article class="scene${s.star?' star':''}">
+   <div class="num">${i+1}</div>
+   <div>
+     <div class="st"><h4>${s.t}</h4>${s.star?'<span class="starbadge">★ animación estrella</span>':''}</div>
+     <div class="line"><span class="tag voz">Voz</span><div>${s.voz}</div></div>
+     <div class="line"><span class="tag cap">En pantalla</span><div>${s.cap} <span class="cap-src">· ${s.src}</span></div></div>
+     <div class="line"><span class="tag ani">Animar</span><div>${s.ani}</div></div>
+   </div>
+ </article>`;
+}
+function ladderHTML(l){
+ return `<div class="ladder">`+l.map(r=>`<div class="rung"><div class="lv" style="background:${r.c}">${r.lv}</div><div><div class="nm">${r.nm}</div><div class="how">${r.how}</div></div></div>`).join('')+`</div>`;
+}
+function roiAdminHTML(){
+ const max=Math.max(...ROI_LINES.map(l=>l.val));
+ const lines=ROI_LINES.map(l=>`
+   <div class="roiline">
+     <div class="top"><b>${l.label}</b><span class="amt">${l.val.toLocaleString('es-ES')} €</span></div>
+     <div class="track"><div class="fill" style="width:${Math.round(l.val/max*100)}%;background:${l.c}"></div></div>
+     <div class="src"><span>${l.base}</span><span class="pill fact">Hecho</span><span class="pill est">Estimación</span></div>
+   </div>`).join('');
+ return `<div class="roi">
+   <div class="ex">Ejemplo ilustrativo para el vídeo</div>
+   <div class="big">${ROI_TOTAL.toLocaleString('es-ES')} €</div>
+   <div class="bigsub">de retorno estimado al año · ROI ${ROI_PCT}% · hechos reales + supuestos que tú editas</div>
+   ${lines}
+   <div class="metrics">
+     <div class="metric"><div class="k">Personas</div><div class="v">18</div><div class="m">en la empresa</div></div>
+     <div class="metric good"><div class="k">Habilidades en uso</div><div class="v">20</div><div class="m">nivel «Aplica»</div></div>
+     <div class="metric"><div class="k">Referentes</div><div class="v">5</div><div class="m">internos</div></div>
+     <div class="metric risk"><div class="k">Riesgo abierto</div><div class="v">${ROI_RISK.toLocaleString('es-ES')} €</div><div class="m">2 habilidades en 1 persona</div></div>
+   </div>
+ </div>`;
+}
+function roiTlHTML(){
+ const tot=LEVELBARS.reduce((a,b)=>a+b.v,0);
+ const stack=LEVELBARS.map(b=>`<i style="width:${Math.round(b.v/tot*100)}%;background:${b.c}" title="${b.lb}"></i>`).join('');
+ const leg=LEVELBARS.map(b=>`<span><b style="background:${b.c}"></b>${b.lb} · ${b.v}</span>`).join('');
+ return `<div class="roi">
+   <div class="ex">Ejemplo ilustrativo — así se ve la evolución del equipo</div>
+   <div class="metrics">
+     ${TL_METRICS.map(m=>`<div class="metric ${m.cls}"><div class="k">${m.k}</div><div class="v">${m.v}</div><div class="m">${m.m}</div></div>`).join('')}
+   </div>
+   <div style="margin-top:16px">
+     <div class="top" style="display:flex;justify-content:space-between;font-size:13.5px"><b style="color:var(--ink)">Barras de conocimiento — Negociación</b><span style="color:var(--muted)">17 personas</span></div>
+     <div class="stack">${stack}</div>
+     <div class="stack-leg">${leg}</div>
+   </div>
+ </div>`;
+}
+function roleHTML(r){
+ const roi = r.roiKind==='admin'?roiAdminHTML():(r.roiKind==='tl'?roiTlHTML():'');
+ const ladder = r.ladder?ladderHTML(r.ladder):'';
+ const reglas = `<div class="grid2">`+r.reglas.map(b=>`<div class="card"><h5>${b.h}</h5><ul>${b.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('')+`</div>`;
+ const caps = `<div class="caps">`+r.caps.map(c=>`<span class="cap-chip">${c[0]} <small>${c[1]}</small></span>`).join('')+`</div>`;
+ const ojo = `<div class="ojo"><h5>Ojo — no lo prometas en el vídeo</h5><ul>${r.ojo.map(o=>`<li>${o}</li>`).join('')}</ul></div>`;
+ return `<section class="role" style="--accent:${r.accent}">
+   <div class="rhead">
+     <div class="who">${r.who}</div>
+     <h2>${r.title}</h2>
+     <p class="mision">${r.mision}</p>
+     <div class="obj">${r.obj.map(o=>`<span>${o}</span>`).join('')}</div>
+   </div>
+
+   <div class="blocktitle">Escaleta del vídeo <span class="sub">qué se cuenta · qué se captura · qué se anima</span></div>
+   ${r.escaleta.map(sceneHTML).join('')}
+
+   <div class="blocktitle">${r.reglasTitle}</div>
+   ${ladder}
+   ${roi}
+   ${reglas}
+
+   <div class="blocktitle">Capturas a conseguir</div>
+   ${caps}
+
+   ${ojo}
+
+   <div class="legend">
+     <span><b style="color:var(--teal)">Voz</b> lo que narra Marc</span>
+     <span><b style="color:var(--aub)">En pantalla</b> captura real de la plataforma</span>
+     <span><b style="color:var(--gold)">Animar</b> el movimiento a crear</span>
+     <span><b>★</b> animación estrella del rol</span>
+   </div>
+ </section>`;
+}
+
+/* Tabs */
+const tabbar=document.getElementById('tabbar'), stage=document.getElementById('stage');
+let current=0;
+ROLES.forEach((r,i)=>{
+ const b=document.createElement('button');
+ b.className='tab'; b.role='tab'; b.type='button';
+ b.setAttribute('aria-selected', i===0?'true':'false');
+ b.innerHTML=`<span class="dot" style="background:${r.dot}"></span>${r.label}`;
+ b.addEventListener('click',()=>select(i));
+ tabbar.appendChild(b);
+});
+function select(i){
+ current=i;
+ [...tabbar.children].forEach((b,j)=>b.setAttribute('aria-selected', j===i?'true':'false'));
+ stage.innerHTML=roleHTML(ROLES[i]);
+ try{location.hash=ROLES[i].key}catch(e){}
+ stage.scrollIntoView({block:'start',behavior:'smooth'});
+}
+/* Deep link */
+let start=0;
+try{const h=(location.hash||'').replace('#','');const idx=ROLES.findIndex(r=>r.key===h);if(idx>=0)start=idx;}catch(e){}
+select(start);
+[...tabbar.children][start]?.setAttribute('aria-selected','true');
+
+/* Theme toggle */
+const tb=document.getElementById('themeBtn');
+function applyStored(){try{const t=localStorage.getItem('su-onb-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}}
+applyStored();
+tb.addEventListener('click',()=>{
+ const cur=document.documentElement.getAttribute('data-theme');
+ const isDark = cur==='dark' || (!cur && matchMedia('(prefers-color-scheme:dark)').matches);
+ const next=isDark?'light':'dark';
+ document.documentElement.setAttribute('data-theme',next);
+ try{localStorage.setItem('su-onb-theme',next);}catch(e){}
+});
+</script>
