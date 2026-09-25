@@ -23,6 +23,8 @@ const orgId = org.id;
 
 // Cuentas reales de demo (para colgarles progreso y que su panel personal tenga contenido)
 const [alumno] = await db.select().from(user).where(eq(user.email, "alumno.demo@brandooers.com"));
+const [empleado] = await db.select().from(user).where(eq(user.email, "empleado.demo@brandooers.com"));
+const [adminU] = await db.select().from(user).where(eq(user.email, "admin.demo@brandooers.com"));
 const [resp] = await db.select().from(user).where(eq(user.email, "responsable.demo@brandooers.com"));
 const validatorId = resp?.id ?? "demo:user:1";
 
@@ -62,6 +64,9 @@ for (let i = 0; i < NAMES.length; i++) {
   await db.insert(member).values({ id: `demo:member:${i + 1}`, organizationId: orgId, userId: id, role: "member", orgRole: "empleado" });
   learners.push({ id, name: NAMES[i], puesto: PUESTOS[i], sector: "Comercio y servicios" });
 }
+// Cuentas reales con login, como aprendices con datos (orden = filas 6,7,8 de LEVELS).
+if (empleado) learners.push({ id: empleado.id, name: "Empleado Demo", puesto: "Comercial", sector: "Comercio y servicios" });
+if (adminU) learners.push({ id: adminU.id, name: "Admin Demo", puesto: "Responsable de tienda", sector: "Comercio y servicios" });
 if (alumno) learners.push({ id: alumno.id, name: "Alumno Demo", puesto: "Comercial", sector: "Comercio y servicios" });
 
 // onboarding (da contexto real a los agentes)
@@ -71,7 +76,9 @@ for (const l of learners)
     sector: l.sector, puesto: l.puesto, motivo: "Ser más autónomo y aplicar lo aprendido esta misma semana." });
 
 // ---- 4) Nivel por competencia (repartido; C2 crítica con un solo referente = riesgo) ----
-// filas = aprendices (L0..L6), columnas = comps C1..C4. Nivel 0-4.
+// filas = aprendices (mismo orden que learners), columnas = comps C1..C4. Nivel 0-4.
+// Marta (fila 2) es la ÚNICA con nivel>=3 en C2 -> riesgo de dependencia. Empleado Demo es top
+// por amplitud (Custodio en C1 y C3, Referente en C4) pero NO referente en C2, para no romper el riesgo.
 const LEVELS: number[][] = [
   [2, 2, 3, 1], // Ana
   [3, 1, 2, 2], // Luis
@@ -79,6 +86,8 @@ const LEVELS: number[][] = [
   [1, 1, 3, 2], // Iván
   [3, 2, 2, 3], // Nerea
   [2, 1, 4, 1], // Hugo
+  [4, 2, 4, 3], // Empleado Demo (login: top del ranking)
+  [2, 1, 2, 2], // Admin Demo
   [1, 0, 1, 0], // Alumno Demo (en formación)
 ];
 let lv = 0;
@@ -153,6 +162,8 @@ const COACHINGS = [
   { coach: "demo:user:2", learner: "demo:user:4", comp: compOf(0), status: "activo" },   // Luis(N3 C1) -> Iván
   { coach: "demo:user:3", learner: "demo:user:6", comp: compOf(1), status: "logrado" },   // Marta(N4 C2) -> Hugo
   { coach: "demo:user:5", learner: alumno?.id ?? "demo:user:7", comp: compOf(3), status: "activo" }, // Nerea(N3 C4) -> Alumno
+  ...(empleado ? [{ coach: empleado.id, learner: "demo:user:1", comp: compOf(0), status: "logrado" }] : []), // Empleado(Custodio C1) -> Ana
+  ...(empleado && alumno ? [{ coach: empleado.id, learner: alumno.id, comp: compOf(2), status: "activo" }] : []), // Empleado -> Alumno (CRM)
 ];
 let co = 0;
 for (const c of COACHINGS)
@@ -175,6 +186,7 @@ for (const b of BPS)
 const DNA = [
   { u: "demo:user:1", primary: "conectora", secondary: "ejecutora", arch: "La que cierra con calidez" },
   { u: "demo:user:3", primary: "analitica", secondary: "resolutiva", arch: "La que ve el problema real" },
+  { u: empleado?.id, primary: "ejecutora", secondary: "conectora", arch: "El que aplica y arrastra al equipo" },
   { u: alumno?.id, primary: "curiosa", secondary: "constante", arch: "El que quiere aplicar ya" },
 ];
 let dna = 0;

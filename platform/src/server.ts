@@ -68,6 +68,16 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 // Frontend de SkillUp (estático, sin build) servido por el mismo proceso.
 app.get("/app", (c) => c.redirect("/app/inicio.html"));
 app.get("/app/", (c) => c.redirect("/app/inicio.html"));
+// El HTML de la app no se cachea: así cada deploy se ve al instante (evita el "no veo los cambios").
+// Los assets versionables (js/css) mantienen su caché normal.
+app.use("/app/*", async (c, next) => {
+  await next();
+  if (c.req.path.endsWith(".html") && c.res) {
+    const h = new Headers(c.res.headers);
+    h.set("Cache-Control", "no-cache, must-revalidate");
+    c.res = new Response(c.res.body, { status: c.res.status, headers: h });
+  }
+});
 app.use("/app/*", serveStatic({ root: "./public" }));
 app.get("/verificar", serveStatic({ path: "./public/verificar.html" }));
 
@@ -1406,6 +1416,23 @@ app.post("/api/platform/users/reset-password", async (c) => {
   const r = lastResetLink.get(key);
   if (!r) return c.json({ error: "no se pudo generar el enlace" }, 500);
   return c.json({ email: u.email, sent: r.delivered, link: r.delivered ? undefined : r.link });
+});
+
+// Soporte: el superadmin fija una contraseña nueva a un usuario cuando el correo de reset no llega.
+// Si no envía una, se genera una temporal y se devuelve SOLO al superadmin para entregarla en mano.
+app.post("/api/platform/users/set-password", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), newPassword: z.string().min(8).max(200).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido (contraseña mínimo 8)" }, 400);
+  const [u] = await db.select({ email: user.email }).from(user).where(eq(user.id, parsed.data.userId));
+  if (!u) return c.json({ error: "usuario no encontrado" }, 404);
+  // Temporal legible si el superadmin no escribe una: "Boo-XXXX-2026".
+  const pwd = parsed.data.newPassword ?? `Boo-${Math.random().toString(36).slice(2, 6).toUpperCase()}-2026`;
+  try {
+    await auth.api.setUserPassword({ body: { userId: parsed.data.userId, newPassword: pwd }, headers: c.req.raw.headers });
+  } catch (e) { return c.json({ error: "no se pudo cambiar la contraseña: " + String((e as Error).message) }, 400); }
+  return c.json({ email: u.email, password: pwd, generated: !parsed.data.newPassword });
 });
 
 // Insights de plataforma: de qué aprende el sistema (conversaciones, notas, prácticas, documentos).

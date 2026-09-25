@@ -13,6 +13,8 @@ import type { Role } from "../src/agents/registry.js";
 const ORG_NAME = "Demo SkillUp";
 const ACCOUNTS: { name: string; email: string; password: string; orgRole: Role; authRole: "owner" | "member" }[] = [
   { name: "Responsable Demo", email: "responsable.demo@brandooers.com", password: "Demo-Responsable-2026", orgRole: "team_leader", authRole: "owner" },
+  { name: "Empleado Demo", email: "empleado.demo@brandooers.com", password: "Demo-Empleado-2026", orgRole: "empleado", authRole: "member" },
+  { name: "Admin Demo", email: "admin.demo@brandooers.com", password: "Demo-Admin-2026", orgRole: "admin", authRole: "member" },
   { name: "Alumno Demo", email: "alumno.demo@brandooers.com", password: "Demo-Alumno-2026", orgRole: "empleado", authRole: "member" },
 ];
 

@@ -224,7 +224,8 @@ function userRowsHTML(list){
     var st=userState(u);
     var stColor=st==='aprobado'?'var(--green)':(st==='pendiente'?'var(--gold)':(st==='archivado'?'var(--muted)':'var(--red)'));
     var stPill=st?('<span class="pill" style="color:'+stColor+'">'+E(st==='aprobado'?'activo':st)+'</span>'):'';
-    var acts=u.email?'<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-pw="'+E(u.userId)+'" title="Envía a '+E(u.email)+' un enlace para elegir contraseña nueva">Restablecer contraseña</button> ':'';
+    var acts=u.email?'<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-pw="'+E(u.userId)+'" title="Envía a '+E(u.email)+' un enlace para elegir contraseña nueva">Restablecer contraseña</button> '
+      +'<button class="btn btn-gh" style="padding:6px 10px;font-size:11px" data-spw="'+E(u.userId)+'" title="Fija tú la contraseña de '+E(u.email)+' (soporte, cuando no le llega el correo)">Cambiar contraseña</button> ':'';
     if(!u.platformAdmin && u.organizationId){
       var du='data-u="'+E(u.userId)+'" data-o="'+E(u.organizationId)+'"';
       if(st==='pendiente') acts+='<button class="btn btn-grad" style="padding:6px 10px;font-size:11px" data-set="aprobado" '+du+'>Aprobar</button>';
@@ -261,6 +262,24 @@ function bindUserRows(box){
       cp.onclick=function(){ (navigator.clipboard?navigator.clipboard.writeText(r.link):Promise.reject()).then(function(){ cp.textContent='Copiado'; },function(){ i.select(); }); };
       row.appendChild(i); row.appendChild(cp); w.appendChild(row); b.parentNode.appendChild(w);
     }catch(e){ b.disabled=false; b.textContent='Restablecer contraseña'; alert('No se pudo: '+(e.message||'')); }
+  }; });
+  box.querySelectorAll('button[data-spw]').forEach(function(b){ b.onclick=async function(){
+    var np=window.prompt('Nueva contraseña para este usuario (mínimo 8). Déjalo vacío para generar una temporal:','');
+    if(np===null) return; // cancelado
+    np=np.trim();
+    if(np && np.length<8){ alert('La contraseña debe tener al menos 8 caracteres.'); return; }
+    b.disabled=true; b.textContent='Cambiando…';
+    try{
+      var r=await SkillUp.api('/api/platform/users/set-password',{method:'POST',body:np?{userId:b.getAttribute('data-spw'),newPassword:np}:{userId:b.getAttribute('data-spw')}});
+      b.textContent='Contraseña cambiada';
+      var w=document.createElement('div'); w.style.cssText='flex-basis:100%;font-size:11px;color:var(--green);margin-top:4px';
+      w.textContent=(r.generated?'Contraseña temporal para ':'Contraseña fijada para ')+r.email+' (pásasela y que la cambie al entrar):';
+      var row=document.createElement('div'); row.className='rowflex'; row.style.cssText='gap:6px;margin-top:4px';
+      var i=document.createElement('input'); i.readOnly=true; i.value=r.password; i.style.cssText='flex:1;min-width:0;font-size:12px;font-weight:600'; i.onclick=function(){ i.select(); };
+      var cp=document.createElement('button'); cp.className='btn btn-grad'; cp.style.cssText='padding:6px 10px;font-size:11px'; cp.textContent='Copiar';
+      cp.onclick=function(){ (navigator.clipboard?navigator.clipboard.writeText(r.password):Promise.reject()).then(function(){ cp.textContent='Copiado'; },function(){ i.select(); }); };
+      row.appendChild(i); row.appendChild(cp); w.appendChild(row); b.parentNode.appendChild(w);
+    }catch(e){ b.disabled=false; b.textContent='Cambiar contraseña'; alert('No se pudo: '+(e.message||'')); }
   }; });
   box.querySelectorAll('button[data-delu]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/users/delete',{method:'POST',body:{userId:b.getAttribute('data-delu')}}); DATA.users=DATA.users.filter(function(x){return x.userId!==b.getAttribute('data-delu');}); reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
   box.querySelectorAll('button[data-reonb]').forEach(function(b){ b.onclick=function(){ armed(b,async function(){ b.disabled=true; b.textContent='…'; try{ await SkillUp.api('/api/platform/users/reset-onboarding',{method:'POST',body:{userId:b.getAttribute('data-u'),organizationId:b.getAttribute('data-o')}}); DATA.userStates=null; reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }); }; });
