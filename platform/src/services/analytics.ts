@@ -321,7 +321,10 @@ export async function levelBars(deps: SvcDeps, orgId: string): Promise<LevelBars
       .where(and(eq(levelByCompetency.organizationId, orgId), eq(levelByCompetency.competencyId, c.id)))
       .groupBy(levelByCompetency.level);
     const by = new Map(rows.map((r) => [r.level, r.n]));
-    const n1 = by.get(1) ?? 0, n2 = by.get(2) ?? 0, n3 = by.get(3) ?? 0;
+    // n3 = nivel >= 3 (Referente + Custodio juntos): si no, el nivel 4 no caía en ningún cubo y
+    // la fórmula de n0 lo contaba como "ninguno", contradiciendo cobertura y riesgo de dependencia.
+    const n1 = by.get(1) ?? 0, n2 = by.get(2) ?? 0;
+    let n3 = 0; for (const [lvl, n] of by) if (lvl >= 3) n3 += n;
     out.push({ competencyId: c.id, name: c.name, critical: c.critical, n0: Math.max(0, total - (n1 + n2 + n3)), n1, n2, n3, total });
   }
   return out;
