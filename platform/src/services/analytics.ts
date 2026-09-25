@@ -431,3 +431,34 @@ export async function platformSummary(deps: SvcDeps): Promise<PlatformOrgSummary
   }
   return out;
 }
+
+/**
+ * Pirámides de conocimiento por competencia: quién está en cada nivel (1-4), para el panel del
+ * responsable. Incluye si es crítica y cuántos referentes (nivel>=3) hay -> alerta de dependencia
+ * cuando una crítica tiene menos de 2. Datos dentro de la propia organización (sin fuga cross-tenant).
+ */
+export interface Pyramid {
+  competencyId: string; name: string; critical: boolean;
+  levels: { level: number; users: string[] }[]; // 4..1 (cúspide -> base)
+  referentes: number; dependencyRisk: boolean;
+}
+export async function pyramids(deps: SvcDeps, orgId: string): Promise<Pyramid[]> {
+  const comps = await deps.db.select().from(competency).where(eq(competency.organizationId, orgId)).orderBy(desc(competency.critical), asc(competency.name));
+  const rows = await deps.db.select({ competencyId: levelByCompetency.competencyId, level: levelByCompetency.level, name: user.name })
+    .from(levelByCompetency).innerJoin(user, eq(levelByCompetency.userId, user.id))
+    .where(and(eq(levelByCompetency.organizationId, orgId), gte(levelByCompetency.level, 1)));
+  const byComp = new Map<string, Map<number, string[]>>();
+  for (const r of rows) {
+    if (!byComp.has(r.competencyId)) byComp.set(r.competencyId, new Map());
+    const lv = byComp.get(r.competencyId)!;
+    const bucket = r.level >= 4 ? 4 : r.level; // custodio (4) en la cúspide; niveles 1-3 tal cual
+    if (!lv.has(bucket)) lv.set(bucket, []);
+    lv.get(bucket)!.push(r.name || "—");
+  }
+  return comps.map((c) => {
+    const lv = byComp.get(c.id) ?? new Map<number, string[]>();
+    const levels = [4, 3, 2, 1].map((level) => ({ level, users: (lv.get(level) ?? []).sort() }));
+    const referentes = (lv.get(4)?.length ?? 0) + (lv.get(3)?.length ?? 0);
+    return { competencyId: c.id, name: c.name, critical: c.critical, levels, referentes, dependencyRisk: c.critical && referentes < 2 };
+  });
+}

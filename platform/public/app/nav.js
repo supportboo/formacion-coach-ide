@@ -17,6 +17,7 @@
     check: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
     help: '<circle cx="12" cy="12" r="9"/><path d="M9.2 9.5a2.8 2.8 0 1 1 3.6 2.7c-.8.3-1.3 1-1.3 1.8v.3"/><circle cx="12" cy="17.2" r="0.6" fill="currentColor" stroke="none"/>',
+    pyramid: '<path d="M12 3l9 17H3z"/><path d="M7.5 12h9M9.7 7.5h4.6"/>',
     exit: '<path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h9"/>'
   };
   function svg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON[k] || ICON.home) + '</svg>'; }
@@ -32,6 +33,7 @@
     ['/app/ayuda.html', 'Ayuda', 'help', 'base'],
     ['/app/validar.html', 'Validar casos', 'check', 'manager'],
     ['/app/panel.html', 'Panel de empresa', 'building', 'manager'],
+    ['/app/piramides.html', 'Pirámides', 'pyramid', 'manager'],
     ['/app/informe-roi.html', 'Informe de ROI', 'chart', 'manager'],
     ['/app/superadmin.html', 'Consola', 'gear', 'super']
   ];

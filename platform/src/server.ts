@@ -26,6 +26,7 @@ import * as rewardsSvc from "./services/rewards.js";
 import * as fundaeSvc from "./services/fundae.js";
 import * as analyticsSvc from "./services/analytics.js";
 import * as roiSvc from "./services/roi.js";
+import * as gamificationSvc from "./services/gamification.js";
 import * as costsSvc from "./services/costs.js";
 import * as roleplaySvc from "./services/roleplay.js";
 import * as privacySvc from "./services/privacy.js";
@@ -1879,6 +1880,29 @@ app.get("/api/analytics/metrics", async (c) => {
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   await analyticsSvc.captureSnapshotIfNeeded(svcDeps, ctx.orgId).catch(() => {});
   return c.json(await analyticsSvc.orgMetrics(svcDeps, ctx.orgId));
+});
+
+// Pirámides de conocimiento por competencia (quién en cada nivel) + alerta de dependencia.
+app.get("/api/analytics/pyramids", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ pyramids: await analyticsSvc.pyramids(svcDeps, ctx.orgId) });
+});
+
+// Perks por nivel (gamificación). Los ve cualquier miembro (para saber qué gana); los edita admin/dirección.
+app.get("/api/config/perks", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ perks: await gamificationSvc.getPerks(svcDeps, ctx.orgId), labels: (await configSvc.getCompanyConfig(svcDeps, ctx.orgId))?.levelLabels ?? null });
+});
+app.post("/api/config/perks", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
+  const parsed = z.object({ perks: z.record(z.string(), z.string().max(200)) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  return c.json({ ok: true, perks: await gamificationSvc.savePerks(svcDeps, ctx.orgId, parsed.data.perks) });
 });
 
 // ROI de la empresa: HECHOS de la BD + supuestos editables -> retorno estimado y marco FUNDAE.

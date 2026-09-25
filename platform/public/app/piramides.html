@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Pirámides de conocimiento</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/theme.css">
+<style>
+.intro{background:var(--warm);border-radius:14px;padding:16px 18px;margin-bottom:18px}
+.intro p{margin:0;color:var(--body);font-size:14.5px;line-height:1.55}
+.comp{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:16px;background:var(--panel)}
+.comp.risk{border-color:var(--gold);box-shadow:inset 3px 0 0 var(--gold)}
+.comp h3{margin:0 0 2px;color:var(--ink);font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 8px;border-radius:999px}
+.tag.crit{background:rgba(200,150,60,.18);color:var(--gold)}
+.tag.ok{background:rgba(46,160,90,.16);color:var(--green)}
+.riskmsg{color:var(--gold);font-size:12.5px;font-weight:600;margin:2px 0 10px}
+.pyr{display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:8px}
+.lvl{width:100%;display:flex;align-items:center;gap:10px}
+.lvl .band{border-radius:10px;padding:8px 12px;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;box-sizing:border-box}
+.lvl.l4 .band{width:40%;background:linear-gradient(120deg,#C69CB8,#8a5f7c)}
+.lvl.l3 .band{width:60%;background:linear-gradient(120deg,#8a5f7c,#6f4a63)}
+.lvl.l2 .band{width:80%;background:linear-gradient(120deg,#3FD8E0,#1a9aa0)}
+.lvl.l1 .band{width:100%;background:linear-gradient(120deg,#9aa3ad,#6b7480)}
+.lvl .who{flex:1;font-size:12.5px;color:var(--body)}
+.chip{display:inline-block;background:var(--warm);border-radius:999px;padding:2px 9px;margin:2px 4px 2px 0;font-size:12px;color:var(--ink)}
+.perks{margin-top:22px}
+.perk{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.perk b{color:var(--p);white-space:nowrap;min-width:110px}
+.perk span{color:var(--body);font-size:14px}
+.perk input{flex:1;min-width:0}
+.hand{color:var(--t)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
+    </defs>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>ers<span class="sk">Pirámides de conocimiento</span></span>
+  <nav><a href="/app/panel.html">← Panel</a></nav>
+</div>
+<div class="wrap" id="root"><p class="msg">Cargando…</p></div>
+
+<script src="/app/api.js"></script>
+<script>
+var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+var DEFLBL={"1":"En formación","2":"Aplica","3":"Referente","4":"Custodio"};
+
+(async function(){
+  var root=document.getElementById('root');
+  var d=await SkillUp.api('/api/analytics/pyramids').catch(function(e){return {error:e.message||'sin acceso'};});
+  if(!d||d.error){ root.innerHTML='<div class="card"><p class="msg">No se pudo cargar: '+E(d&&d.error||'')+'. Esta vista es para responsables.</p></div>'; return; }
+  var pk=await SkillUp.api('/api/config/perks').catch(function(){return {perks:{},labels:null};});
+  var me=await SkillUp.api('/api/org/me').catch(function(){return {};});
+  var canEdit=me&&(me.role==='admin'||me.role==='direccion'||me.platformAdmin);
+  render(d.pyramids||[], pk, canEdit);
+})();
+
+function lbl(labels,l){ return (labels&&labels[l])||DEFLBL[l]||('Nivel '+l); }
+
+function render(pyrs, pk, canEdit){
+  var labels=(pk&&pk.labels)||DEFLBL;
+  var perks=(pk&&pk.perks)||{};
+  var comps=pyrs.map(function(c){
+    var rows=c.levels.map(function(L){
+      var chips=L.users.length?L.users.map(function(u){return '<span class="chip">'+E(u)+'</span>';}).join(''):'<span class="msg" style="font-size:12px">nadie todavía</span>';
+      return '<div class="lvl l'+L.level+'"><div class="band"><span>'+E(lbl(labels,L.level))+'</span><span>'+L.users.length+'</span></div><div class="who">'+chips+'</div></div>';
+    }).join('');
+    return '<div class="comp'+(c.dependencyRisk?' risk':'')+'"><h3>'+E(c.name)
+      +(c.critical?'<span class="tag crit">crítica</span>':'')
+      +(c.referentes>=2?'<span class="tag ok">'+c.referentes+' referentes</span>':'')+'</h3>'
+      +(c.dependencyRisk?'<div class="riskmsg">Riesgo de dependencia: menos de 2 referentes. Forma a un segundo antes de que esto dependa de una sola persona.</div>':'')
+      +'<div class="pyr">'+rows+'</div></div>';
+  }).join('')||'<p class="msg">Aún no hay competencias con datos.</p>';
+
+  var perksHtml='<div class="card perks"><h2>Perks por nivel <span class="hand" style="font-size:14px">lo que gana tu gente al subir</span></h2>';
+  ["2","3","4"].forEach(function(l){
+    if(canEdit){
+      perksHtml+='<div class="perk"><b>'+E(lbl(labels,l))+'</b><input id="perk_'+l+'" value="'+E(perks[l]||'')+'" placeholder="Qué gana al llegar aquí"></div>';
+    } else {
+      perksHtml+='<div class="perk"><b>'+E(lbl(labels,l))+'</b><span>'+E(perks[l]||'—')+'</span></div>';
+    }
+  });
+  if(canEdit) perksHtml+='<button class="btn btn-grad" id="savePerks" style="margin-top:12px">Guardar perks</button>';
+  perksHtml+='<p class="msg" style="margin-top:10px">Guardarraíl: por defecto, recompensas no salariales el primer año. Se premia aplicar y enseñar, no acumular.</p></div>';
+
+  document.getElementById('root').innerHTML=
+    '<div class="intro"><p>Cada competencia es una pirámide: abajo quien está en formación, arriba los Custodios que sostienen el conocimiento. Si una competencia crítica tiene menos de 2 referentes, marca riesgo: forma a un segundo. Así el saber no depende de una sola persona.</p></div>'
+    +comps+perksHtml;
+
+  if(canEdit){
+    document.getElementById('savePerks').onclick=async function(){
+      var body={perks:{}}; ["2","3","4"].forEach(function(l){ body.perks[l]=document.getElementById('perk_'+l).value; });
+      var b=this; b.disabled=true; b.textContent='Guardando…';
+      try{ await SkillUp.api('/api/config/perks',{method:'POST',body:body}); b.textContent='Guardado'; setTimeout(function(){b.textContent='Guardar perks';b.disabled=false;},1200); }
+      catch(e){ b.textContent='Guardar perks'; b.disabled=false; alert('No se pudo: '+(e.message||'')); }
+    };
+  }
+}
+</script>
+<script src="/app/nav.js" defer></script>
+<script src="/app/boo-eyes.js"></script>
+</body>
+</html>
