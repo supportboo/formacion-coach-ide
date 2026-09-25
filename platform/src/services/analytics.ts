@@ -2,7 +2,7 @@ import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import {
   agentMessage, agentThread, analyticsSnapshot, appliedCase, baselineSnapshot, coaching, competency,
   enrollment, evidence, learningPath, levelByCompetency, member, onboardingProfile, pointsLedger,
-  roleplaySession, testAttempt, organization, user, validation,
+  ragDocument, roleplaySession, testAttempt, organization, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
@@ -370,7 +370,9 @@ export async function orgMetrics(deps: SvcDeps, orgId: string): Promise<OrgMetri
     countDistinct(deps, levelByCompetency, levelByCompetency.userId, and(eq(levelByCompetency.organizationId, orgId), gte(levelByCompetency.level, 3))),
     countDistinct(deps, levelByCompetency, levelByCompetency.userId, and(eq(levelByCompetency.organizationId, orgId), gte(levelByCompetency.level, 2))),
     count(deps, agentMessage, and(eq(agentMessage.organizationId, orgId), eq(agentMessage.sender, "user"))),
-    count(deps, evidence, and(eq(evidence.organizationId, orgId), eq(evidence.ownerType, "buena_practica"))).catch(() => 0),
+    // Las buenas prácticas anónimas se guardan en el cerebro RAG (ingestDocument kind="buena_practica"),
+    // no en evidence: contar ahí (antes leía evidence y siempre daba 0).
+    count(deps, ragDocument, and(eq(ragDocument.organizationId, orgId), eq(ragDocument.kind, "buena_practica"))).catch(() => 0),
     deps.db.select({ s: sql<number>`coalesce(sum(${pointsLedger.points}),0)::int` }).from(pointsLedger).where(eq(pointsLedger.organizationId, orgId)).then((r) => r[0]?.s ?? 0).catch(() => 0),
     countDistinct(deps, agentMessage, agentMessage.threadId, and(eq(agentMessage.organizationId, orgId), eq(agentMessage.sender, "user"))),
     avgDaysToValidation(deps, orgId),

@@ -1,4 +1,4 @@
-﻿import { and, count, desc, eq, inArray } from "drizzle-orm";
+﻿import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { serveStatic } from "@hono/node-server/serve-static";
@@ -1426,14 +1426,37 @@ app.get("/api/platform/insights", async (c) => {
 });
 
 // Revisión de los tutores: qué instrucciones lleva cada agente por rol.
+// Herramientas/capacidades REALES de cada agente (lo que el código les da: RAG, contexto, casos…).
+const AGENT_MEMORIA = [
+  "Cerebro RAG de SU empresa: solo lecciones publicadas, casos y buenas prácticas ANÓNIMAS ya curadas",
+  "Contexto real del usuario: sector, puesto, ruta, avance, estilo, objetivo y freno del onboarding",
+  "Historial de su propia conversación (nunca la de otra persona)",
+];
+const AGENT_TOOLS: Record<string, string[]> = {
+  empleado: ["Recuperación del cerebro RAG (citando fuente)", "Casos prácticos de su puesto", "Juego de rol de conversaciones difíciles", "Compromiso de aplicación semanal"],
+  coach: ["Recuperación del cerebro RAG", "Seguimiento (check-ins) del aprendiz", "Buenas prácticas del equipo (anónimas)"],
+  team_leader: ["Panel de métricas del equipo", "Riesgos de dependencia y cobertura", "Moderación entre personas (consenso)"],
+  inspirador: ["Rúbricas y validación de casos", "Control de calidad del contenido", "Buenas prácticas del cerebro"],
+  admin: ["Configuración de empresa (etiquetas de nivel, recompensas)", "Alta de competencias, rutas y lecciones"],
+  direccion: ["Métricas agregadas y ROI", "Cobertura, transferencia interna y autonomía"],
+};
 app.get("/api/platform/agents", async (c) => {
   const admin = await getPlatformAdminSession(c);
   if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
   const agents = Object.values(REGISTRY).map((a) => ({
     role: a.role, title: a.title, model: a.model,
     system: a.system({ orgName: "(empresa)", userName: "(usuario)", contextSnippets: [], sector: null, puesto: null }),
+    tools: AGENT_TOOLS[a.role] ?? [], memoria: AGENT_MEMORIA,
   }));
-  return c.json({ agents });
+  // Resumen del cerebro (todas las empresas): documentos por tipo + curador de datos activo.
+  const kinds = await db.select({ kind: ragDocument.kind, n: sql<number>`count(*)::int` })
+    .from(ragDocument).groupBy(ragDocument.kind).catch(() => [] as { kind: string; n: number }[]);
+  const brain = {
+    docsByKind: Object.fromEntries(kinds.map((k) => [k.kind, k.n])),
+    total: kinds.reduce((s, k) => s + k.n, 0),
+    curador: "El curador de datos anonimiza cada experiencia antes de que entre al cerebro: quita nombres, clientes y datos privados; solo deja pasar la enseñanza. Ningún agente cuenta a un usuario lo de otro.",
+  };
+  return c.json({ agents, brain });
 });
 
 // Conocimiento de los tutores (base RAG): revisar y añadir conocimiento específico a una empresa.

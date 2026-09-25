@@ -319,11 +319,21 @@ async function empresaDetail(box,orgId){
 
 /* ---------- AGENTES ---------- */
 async function agentes(box){
-  box.innerHTML=hdr('Agentes tutores','Cada rol del organigrama tiene su agente. Aquí revisas EXACTAMENTE con qué instrucciones trabaja cada tutor.','Revisión de conocimientos de los tutores: sus instrucciones base, por rol.')+'<div id="aglist"><p class="msg">Cargando…</p></div>';
+  box.innerHTML=hdr('Agentes tutores','Cada rol del organigrama tiene su agente. Aquí revisas EXACTAMENTE su prompt, sus herramientas y de qué memoria bebe.','Prompt de sistema, herramientas/capacidades y memoria de cada tutor, más el estado del cerebro compartido.')+'<div id="agbrain"></div><div id="aglist"><p class="msg">Cargando…</p></div>';
   var d=await SkillUp.api('/api/platform/agents').catch(function(){return {agents:[]};});
   var ags=(d&&d.agents)||[];
+  var b=d&&d.brain;
+  if(b){
+    var kinds=Object.keys(b.docsByKind||{}).map(function(k){return '<span class="pill">'+E(k)+': '+b.docsByKind[k]+'</span>';}).join(' ')||'<span class="msg">cerebro vacío</span>';
+    document.getElementById('agbrain').innerHTML='<div class="ag" style="padding:14px"><b>Cerebro compartido</b> <span class="mono">'+(b.total||0)+' documentos</span><div style="margin:8px 0">'+kinds+'</div><p class="msg" style="margin:0">'+E(b.curador||'')+'</p></div>';
+  }
   document.getElementById('aglist').innerHTML=ags.map(function(a){
-    return '<details class="ag"><summary>'+E(a.title)+' <span class="pill">'+E(a.role)+'</span> <span class="mono">'+E(a.model||'')+'</span></summary><pre>'+E(a.system||'')+'</pre></details>';
+    var tools=(a.tools||[]).map(function(t){return '<li>'+E(t)+'</li>';}).join('');
+    var mem=(a.memoria||[]).map(function(m){return '<li>'+E(m)+'</li>';}).join('');
+    return '<details class="ag"><summary>'+E(a.title)+' <span class="pill">'+E(a.role)+'</span> <span class="mono">'+E(a.model||'')+'</span></summary>'
+      +(tools?'<h4>Herramientas / capacidades</h4><ul>'+tools+'</ul>':'')
+      +(mem?'<h4>Memoria (de qué bebe)</h4><ul>'+mem+'</ul>':'')
+      +'<h4>Prompt de sistema</h4><pre>'+E(a.system||'')+'</pre></details>';
   }).join('')||'<p class="msg">No hay agentes definidos.</p>';
 }
 
