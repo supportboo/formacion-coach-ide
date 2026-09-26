@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piloto de 90 días · SkillUp · Brandooers</title>
+<meta name="description" content="La capacidad se demuestra. Piloto de 90 días de SkillUp con tu equipo: aprenden con casos de su propio trabajo, la IA practica y una persona valida. Bonificable a través de FUNDAE, sujeto a requisitos.">
+<link rel="canonical" href="https://skillup.brandooers.com/piloto.html">
+<!-- TODO(Marc/legal): quitar noindex cuando legal apruebe las condiciones de la garantía (hoy son borrador). -->
+<meta name="robots" content="noindex,follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SkillUp · Brandooers">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://skillup.brandooers.com/piloto.html">
+<meta property="og:title" content="La capacidad se demuestra · Piloto de 90 días">
+<meta property="og:description" content="Deja de medir asistencia. Mide capacidad. Piloto de 90 días con tu equipo.">
+<meta property="og:image" content="https://skillup.brandooers.com/assets/su-panel.png">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#FAFAFA">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAFA; --warm:#F5F0EE; --white:#FFFFFF;
+  --ink:#2D2D2D; --body:#4A4A4A; --mut:#645E66; --line:#E8E0E5; --line2:#F0EAEE;
+  --vi:#6D28D9; --te:#0A6E86; --coral:#C0344A; --green:#127C65; --gold:#9A6E08;
+  --fb:'Inter',system-ui,sans-serif; --fc:'Caveat',cursive;
+  --sh:0 12px 30px rgba(45,32,46,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--te)}
+img{display:block;max-width:100%;height:auto}
+:focus-visible{outline:3px solid var(--te);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+@media(min-width:720px){.wrap{padding:0 32px}}
+.ek{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--te)}
+
+/* Logo oficial: ojos SVG completos, nunca «oo» de texto */
+.logo{display:inline-flex;align-items:center;gap:6px;font-weight:900;font-size:19px;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+.logo .ide{font-family:var(--fc);font-weight:700;font-size:22px;color:var(--te);margin-left:2px}
+
+nav{position:sticky;top:0;z-index:50;background:rgba(250,250,250,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+nav .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--fb);font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--vi);border:0;border-radius:100px;padding:14px 24px;min-height:48px;cursor:pointer;text-decoration:none;transition:background .2s,transform .2s}
+.btn:hover{background:#5B21B6;transform:translateY(-1px)}
+.btn.te{background:var(--te)}.btn.te:hover{background:#085A6E}
+.btn.sm{font-size:12px;padding:10px 16px;min-height:40px}
+.btn[disabled]{opacity:.6;cursor:wait}
+
+section{padding:clamp(56px,9vw,104px) 0;border-top:1px solid var(--line2)}
+h1,h2,h3{color:var(--ink);letter-spacing:-.025em;line-height:1.08}
+h2{font-weight:900;font-size:clamp(28px,5.4vw,46px);margin:10px 0 14px;max-width:20ch}
+h3{font-weight:800;font-size:18px;line-height:1.3}
+.lead{font-size:clamp(16px,2.2vw,19px);max-width:60ch}
+.head p{max-width:62ch}
+.small{font-size:13px;color:var(--mut);line-height:1.6}
+
+/* Hero */
+.hero{padding:clamp(40px,7vw,80px) 0 clamp(48px,8vw,88px);border-top:0}
+.hero h1{font-weight:900;font-size:clamp(38px,6.4vw,68px);line-height:1;margin:12px 0 18px;letter-spacing:-.035em}
+.hero .grid{display:grid;gap:28px;align-items:center}
+@media(min-width:900px){.hero .grid{grid-template-columns:1fr 1.05fr;gap:48px}}
+.video{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#211E28;border:1px solid var(--line);box-shadow:var(--sh)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video .ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px;color:#E8E0E5;font-size:15px}
+.ailabel{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:100px;padding:3px 10px;background:var(--white)}
+
+/* Tarjetas */
+.cards{display:grid;gap:16px;margin-top:28px}
+@media(min-width:720px){.cards{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:22px}
+.card p{margin-top:6px;font-size:15px}
+.card .dot{display:block;width:12px;height:12px;border-radius:50%;margin-bottom:12px}
+
+/* Pasos */
+.steps{list-style:none;margin-top:28px;display:grid;gap:14px;counter-reset:s}
+.steps li{position:relative;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px 18px 18px 64px}
+.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:16px;top:18px;width:34px;height:34px;border-radius:50%;background:var(--te);color:#fff;font-weight:800;display:grid;place-items:center;font-size:15px}
+.steps .when{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--te);margin-bottom:4px}
+.steps p{font-size:15px;margin-top:4px}
+.tbc{display:inline-block;font-size:12px;font-weight:700;color:var(--gold);background:#FFF7E0;border:1px solid #F2DFA6;border-radius:6px;padding:1px 8px}
+
+/* FUNDAE */
+.split{display:grid;gap:24px;margin-top:28px}
+@media(min-width:900px){.split{grid-template-columns:1fr 1fr;gap:40px}}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:22px}
+.panel ul{padding-left:20px;margin-top:8px}.panel li{margin-top:6px;font-size:15px}
+.calc .row{display:grid;gap:12px}
+.result{margin-top:16px;padding:16px;border-radius:12px;background:var(--warm);border:1px solid var(--line)}
+.result b{display:block;font-size:clamp(26px,6vw,34px);font-weight:900;color:var(--ink);letter-spacing:-.02em}
+cite{font-style:normal}
+.fine{margin-top:14px;font-size:12.5px;color:var(--mut);line-height:1.6}
+
+/* Conocimiento */
+.shot{margin-top:28px;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--sh);background:#211E28}
+.shot figcaption{background:var(--white);padding:12px 16px;font-size:13px;color:var(--mut)}
+
+/* Garantía */
+.draft{display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:14px 16px;border-radius:12px;background:#FFF1F2;border:2px solid var(--coral);color:#7A1E2C;font-weight:700;font-size:15px}
+.guarantee{margin-top:24px;display:grid;gap:14px}
+@media(min-width:900px){.guarantee{grid-template-columns:1fr 1fr}}
+.guarantee .panel h3{margin-bottom:4px}
+
+/* Coaches */
+.coach{background:var(--warm)}
+
+/* FAQ */
+.faq{margin-top:24px;display:grid;gap:10px}
+.faq details{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:4px 18px}
+.faq summary{cursor:pointer;font-weight:800;color:var(--ink);padding:14px 0;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:after{content:"+";font-weight:700;color:var(--te);font-size:20px;line-height:1}
+.faq details[open] summary:after{content:"−"}
+.faq details p{padding:0 0 16px;font-size:15px}
+
+/* Formularios */
+.fbox{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,32px);box-shadow:var(--sh)}
+.fields{display:grid;gap:14px}
+@media(min-width:640px){.fields{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+label.l{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px}
+input[type=text],input[type=email],input[type=number],select{width:100%;font-family:var(--fb);font-size:16px;padding:12px 14px;min-height:48px;border:1px solid #BDB3BA;border-radius:10px;background:var(--white);color:var(--ink)}
+input:focus-visible,select:focus-visible{outline:3px solid var(--te);outline-offset:1px;border-color:var(--te)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5}
+.check input{width:20px;height:20px;margin-top:2px;flex:0 0 auto;accent-color:var(--te)}
+.legal1{margin-top:12px;font-size:12.5px;color:var(--mut);line-height:1.6}
+.fbox .btn{width:100%;margin-top:16px}
+.msg{margin-top:12px;min-height:20px;font-size:14px;font-weight:600}
+.msg.ok{color:var(--green)}.msg.err{color:#B42318}
+
+footer{padding:40px 0;background:var(--warm);border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
+footer .row{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#0891B2"/></linearGradient>
+<linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891B2"/><stop offset="100%" stop-color="#E4A900"/></linearGradient>
+<radialGradient id="ir1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#6D28D9"/></radialGradient>
+<radialGradient id="ir2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+</defs></svg>
+
+<nav aria-label="Principal"><div class="wrap bar">
+  <a href="/" class="logo" aria-label="Brandooers SkillUp, inicio">Brand<svg width="32" height="19" viewBox="0 0 100 58" aria-hidden="true" focusable="false"><g><ellipse cx="25" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg1)" stroke-width="3"/><circle cx="25" cy="36" r="7.5" fill="url(#ir1)"/><circle cx="25" cy="36" r="3.4" fill="#0a0a12"/><circle cx="28" cy="33" r="1.8" fill="#fff"/></g><g><ellipse cx="73" cy="36" rx="18" ry="18" fill="none" stroke="url(#bg2)" stroke-width="3"/><circle cx="73" cy="36" r="7.5" fill="url(#ir2)"/><circle cx="73" cy="36" r="3.4" fill="#0a0a12"/><circle cx="76" cy="33" r="1.8" fill="#fff"/></g></svg>ers<span class="ide">SkillUp</span></a>
+  <a class="btn sm" href="#pide-piloto">Pide un piloto</a>
+</div></nav>
+
+<main>
+<!-- 1 · HERO -->
+<header class="hero" id="top">
+  <div class="wrap grid">
+    <div>
+      <span class="ek">Piloto de 90 días para equipos</span>
+      <h1>La capacidad se demuestra</h1>
+      <p class="lead"><strong>Deja de medir asistencia. Mide capacidad.</strong> Tu equipo aprende con casos de su propio trabajo, practica lo difícil antes de hacerlo de verdad y una persona valida que lo domina.</p>
+      <p style="margin-top:22px"><a class="btn" href="#pide-piloto">Pide un piloto</a></p>
+    </div>
+    <div>
+      <div class="video">
+        <!-- TODO(Marc): pegar aquí el ID del vídeo de YouTube «La capacidad se demuestra» y sustituir el bloque .ph por:
+        <iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID?rel=0" title="La capacidad se demuestra · Brandooers SkillUp" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        -->
+        <div class="ph">Vídeo «La capacidad se demuestra»<br>(próximamente)</div>
+      </div>
+      <span class="ailabel">Contenido creado con ayuda de IA</span>
+    </div>
+  </div>
+</header>
+
+<!-- 2 · QUÉ ES -->
+<section id="que-es">
+  <div class="wrap">
+    <div class="head">
+      <span class="ek">Qué es SkillUp</span>
+      <h2>Capacidad aplicada, no horas de asistencia.</h2>
+      <p class="lead">«¿Cuánto de lo que formas se aplica de verdad?» SkillUp, la plataforma de Brandooers, está hecha para responder a esa pregunta con datos.</p>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="dot" style="background:var(--coral)"></span><h3>Aprenden con casos de su propio trabajo</h3><p>Rutas por competencia, lecciones cortas y tests. Si alguien ya lo domina, se lo salta.</p></div>
+      <div class="card"><span class="dot" style="background:var(--te)"></span><h3>La IA practica con ellos</h3><p>Tutor disponible a cualquier hora y roleplay por texto con agentes para ensayar la conversación difícil antes de tenerla.</p></div>
+      <div class="card"><span class="dot" style="background:var(--green)"></span><h3>Una persona valida</h3><p>Los casos prácticos los valida un referente de tu equipo que ya domina esa competencia. Nunca es automático.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · CÓMO FUNCIONA EL PILOTO -->
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="head">
+      <span class="ek">El piloto, paso a paso</span>
+      <h2>Noventa días con un equipo, medidos desde el primero.</h2>
+      <p>Los 90 días naturales cuentan desde que todo el equipo piloto tiene acceso, no desde la firma.</p>
+    </div>
+    <ol class="steps">
+      <li><span class="when">Antes de empezar</span><h3>Hablamos y preparamos el arranque</h3><p>Nos cuentas qué equipo y qué competencias quieres trabajar. Plazo desde tu solicitud hasta el arranque: <span class="tbc">a confirmar</span><!-- TODO(Marc): plazo real desde la solicitud hasta el arranque --></p></li>
+      <li><span class="when">Día 0 · Arranque</span><h3>Anexo de adopción y línea base</h3><p>Firmamos el anexo de adopción (quién participa, qué competencias, qué umbrales). Se dan los accesos y se guarda la línea base: la foto de hoy de lo que sabe cada persona.</p></li>
+      <li><span class="when">Práctica</span><h3>Aprenden y practican con su trabajo</h3><p>Lecciones, tests, casos prácticos, tutor y roleplay con agentes, dentro del tiempo semanal que se pacte.</p></li>
+      <li><span class="when">Validación</span><h3>Un referente valida</h3><p>Los casos prácticos pasan a una cola de validación que firma una persona de referencia en esa competencia.</p></li>
+      <li><span class="when">Día 45</span><h3>Revisión conjunta</h3><p>Informe de medio periodo con los datos de la plataforma. Si algo va mal, se acuerdan medidas para corregirlo antes del cierre.</p></li>
+      <li><span class="when">Día 90</span><h3>Informe final</h3><p>Comparamos con la línea base: quién ha avanzado, en qué competencias y de quién sigue dependiendo el equipo. Tienes un plazo de <span class="tbc">a confirmar</span><!-- TODO(Marc/legal): plazo de objeción en días hábiles --> para objetar cada informe con datos.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 4 · FUNDAE -->
+<section id="fundae">
+  <div class="wrap">
+    <div class="head">
+      <span class="ek">¿Cuánto me cuesta con FUNDAE?</span>
+      <h2>Bonificable a través de FUNDAE, sujeto a requisitos.*</h2>
+      <p>Las empresas que cotizan por formación profesional tienen cada año un crédito de formación que pueden aplicar como bonificación en sus cuotas a la Seguridad Social. Calcula una estimación del tuyo con la fórmula publicada por FUNDAE.</p>
+    </div>
+    <div class="split">
+      <form class="panel calc" id="calc" novalidate aria-labelledby="calcT">
+        <h3 id="calcT">Estima tu crédito de formación</h3>
+        <div class="row" style="margin-top:14px">
+          <div><label class="l" for="cSize">Plantilla media de tu empresa</label>
+            <select id="cSize">
+              <option value="1-5">De 1 a 5 personas</option>
+              <option value="6-9">De 6 a 9 personas</option>
+              <option value="10-49" selected>De 10 a 49 personas</option>
+              <option value="50-249">De 50 a 249 personas</option>
+              <option value="250+">250 personas o más</option>
+            </select></div>
+          <div><label class="l" for="cBase">Suma de «Base otras cotizaciones» del año anterior (€)</label>
+            <input id="cBase" type="number" inputmode="decimal" min="0" step="any" placeholder="Te la da tu asesoría laboral" aria-describedby="cHelp">
+            <p class="small" id="cHelp" style="margin-top:6px">Es la base sobre la que tu empresa pagó la cuota de formación profesional. Si no la tienes a mano, pídela a tu asesoría o déjanos el formulario y lo vemos contigo.</p></div>
+        </div>
+        <div class="result" aria-live="polite"><span class="small">Crédito estimado para este año</span><b id="cOut">—</b><span class="small" id="cHow"></span></div>
+        <p class="fine">Estimación orientativa, no vinculante. El crédito real lo asigna FUNDAE con las cuotas efectivamente ingresadas; compruébalo en el <a href="https://simuladorcredito.fundae.es/" target="_blank" rel="noopener">simulador oficial de crédito de FUNDAE</a>.</p>
+      </form>
+      <div class="panel">
+        <h3>Lo que dice FUNDAE</h3>
+        <ul>
+          <li><strong>Fórmula:</strong> suma de «Base otras cotizaciones» × 0,7 % × porcentaje según plantilla: de 1 a 9 personas, 100 %; de 10 a 49, 75 %; de 50 a 249, 60 %; más de 250, 50 %. De 1 a 5 personas, 420 € en vez del porcentaje. <cite class="small">(<a href="https://www.fundae.es/formacion/financiacion" target="_blank" rel="noopener">fundae.es · Financiación</a>)</cite></li>
+          <li><strong>Tu aportación:</strong> con más de 5 personas en plantilla, la empresa cofinancia parte de la formación: 5 % (6-9), 10 % (10-49), 20 % (50-249) y 40 % (más de 250). <cite class="small">(<a href="https://www.fundae.es/atencionusuario/faq" target="_blank" rel="noopener">fundae.es · Preguntas frecuentes</a>)</cite></li>
+          <li><strong>Si no lo usas todo:</strong> con menos de 50 personas en plantilla puedes reservar el crédito no dispuesto de un ejercicio y acumularlo hasta los dos siguientes, si lo solicitas antes del 30 de junio del ejercicio en curso. <cite class="small">(<a href="https://www.fundae.es/atencionusuario/faq" target="_blank" rel="noopener">fundae.es · Preguntas frecuentes</a>)</cite></li>
+        </ul>
+        <p class="fine">¿Prefieres que lo miremos contigo? Marca «Quiero que revisemos mi crédito FUNDAE» en el <a href="#pide-piloto">formulario</a>.</p>
+      </div>
+    </div>
+    <p class="fine">*Formación bonificable a través del crédito de formación de FUNDAE (Ley 30/2015, RD 694/2017 y Orden TMS/368/2019), sujeta a la disponibilidad de crédito de cada empresa, a la vinculación con el puesto de trabajo y, en teleformación, a los requisitos de control de accesos, tutorización y evaluación.</p>
+  </div>
+</section>
+
+<!-- 5 · PAPELEO -->
+<section id="papeleo">
+  <div class="wrap">
+    <div class="head">
+      <span class="ek">¿Quién hace el papeleo?</span>
+      <h2>Qué hace falta para bonificar la formación.</h2>
+      <p>Según FUNDAE, la formación se puede gestionar de tres maneras: la propia empresa, una entidad organizadora contratada o un gestor administrativo que solo hace las comunicaciones. <cite class="small">(<a href="https://www.fundae.es/atencionusuario/faq" target="_blank" rel="noopener">fundae.es · Preguntas frecuentes</a>)</cite></p>
+    </div>
+    <div class="cards">
+      <div class="card"><h3>Comunicar el inicio</h3><p>La formación se comunica en la aplicación de bonificaciones de FUNDAE hasta dos días antes de que empiece cada grupo.</p></div>
+      <div class="card"><h3>Cumplir los mínimos</h3><p>Cada curso dura al menos dos horas lectivas y debe estar relacionado con el puesto. En teleformación se exigen control de accesos, tutorización y evaluación.</p></div>
+      <div class="card"><h3>Guardar la documentación</h3><p>La documentación justificativa se conserva cuatro años. SkillUp registra la participación y los controles de aprendizaje de cada persona y exporta esa documentación.</p></div>
+    </div>
+    <p class="fine">Quién realiza las comunicaciones ante FUNDAE en tu caso lo acordamos antes del arranque. <span class="tbc">a confirmar</span><!-- TODO(Marc): decidir y documentar si Brandooers gestiona el trámite, lo hace la empresa o una entidad organizadora/gestor. No afirmar gestión incluida hasta que esté decidido y revisado por la asesoría (Registro Estatal de Entidades de Formación). --></p>
+  </div>
+</section>
+
+<!-- 6 · CONOCIMIENTO -->
+<section id="conocimiento">
+  <div class="wrap">
+    <div class="head">
+      <span class="ek">¿Y si alguien se va?</span>
+      <h2>El conocimiento se queda. Y se multiplica.</h2>
+      <p>La formación que compras se va; esta se queda dentro. En SkillUp, lo que sabe tu equipo queda a la vista y repartido.</p>
+    </div>
+    <div class="cards">
+      <div class="card"><h3>Mapa de competencias</h3><p>Nivel de cada persona en cada competencia, de 0 a 3: novato, en formación, aplica y referente. Solo sube cuando se demuestra.</p></div>
+      <div class="card"><h3>Pirámides de conocimiento</h3><p>Ves quién sostiene cada competencia y el riesgo de dependencia: las habilidades que hoy sabe una sola persona.</p></div>
+      <div class="card"><h3>Referentes internos</h3><p>Quien llega a referente valida a otros y se le desbloquea el rol de coach. Así el conocimiento pasa de una persona al equipo.</p></div>
+    </div>
+    <figure class="shot">
+      <img src="assets/su-panel.png" alt="Panel de empresa de SkillUp con los bloques «Cobertura por competencia», «Riesgo de dependencia» y el botón para guardar la línea base" width="1600" height="1000" loading="lazy" decoding="async">
+      <figcaption>Panel del responsable en SkillUp: cobertura por competencia y riesgo de dependencia. Captura real de la plataforma.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 7 · GARANTÍA -->
+<section id="garantia">
+  <div class="wrap">
+    <div class="head">
+      <span class="ek">Garantía de adopción</span>
+      <h2>Si tu equipo no lo adopta, no pagas.*</h2>
+    </div>
+    <p class="draft" role="note">Condiciones pendientes de revisión legal: borrador</p>
+    <div class="guarantee">
+      <div class="panel"><h3>1 · Se pacta por escrito antes de empezar</h3><p>En el arranque firmamos un anexo de adopción: personas del equipo piloto, competencias y rutas, la línea base de cada persona y los umbrales mínimos de adopción (por ejemplo, activación, uso semanal, progreso de nivel, rutas terminadas o casos validados). Sin anexo firmado, no hay garantía.</p></div>
+      <div class="panel"><h3>2 · Se mide con los datos de la plataforma</h3><p>La única fuente es SkillUp y se mide el avance desde la línea base. Un «no lo veo útil» sin datos no activa la garantía.</p></div>
+      <div class="panel"><h3>3 · Revisión el día 45</h3><p>Revisamos juntos el progreso a mitad del piloto y, si hay riesgo, acordamos cómo corregirlo antes del día 90.</p></div>
+      <div class="panel"><h3>4 · No facturamos el piloto</h3><p>Si al cierre no se alcanzan los umbrales pactados, no facturamos el piloto. La garantía se limita al importe del piloto de 90 días y no cubre otros servicios.</p></div>
+      <div class="panel" style="grid-column:1/-1"><h3>Tu parte</h3><p>Es una garantía de los dos: un responsable único, accesos a tiempo, el tiempo de uso semanal pactado, un referente disponible para validar, respuesta a los avisos en plazo y no cambiar el equipo por encima de lo pactado. Si no se cumple, la garantía no se aplica a las métricas afectadas. Tampoco cubre fuerza mayor ni el uso fuera de las rutas pactadas.</p></div>
+    </div>
+    <p class="fine">*Piloto de 90 días. Si no se alcanzan los umbrales de adopción pactados por escrito antes de empezar, medidos con los datos de la plataforma, no facturamos el piloto. Garantía limitada al importe del piloto. Condiciones en borrador, pendientes de revisión legal. <!-- TODO(legal): sustituir por el texto aprobado y enlazar la plantilla del anexo de adopción publicada. --></p>
+  </div>
+</section>
+
+<!-- 8 · COACHES -->
+<section id="coaches" class="coach">
+  <div class="wrap split" style="margin-top:0;align-items:start">
+    <div>
+      <span class="ek">Para coaches y formadores</span>
+      <h2>¿Formas equipos en empresas? Tú pones el método; nosotros, la tecnología.</h2>
+      <p>SkillUp no te sustituye. Tus equipos practican entre sesiones con el tutor y el roleplay por texto; tú sigues siendo quien valida; y el panel de capacidad enseña a la empresa lo que ha avanzado su gente.</p>
+      <p style="margin-top:12px">Estamos definiendo cómo trabajar con coaches y formadores. Hoy te invitamos a hablar, sin compromiso por ninguna de las dos partes.</p>
+    </div>
+    <div class="fbox">
+      <h3 id="coachT">Hablemos</h3>
+      <form id="coachForm" novalidate aria-labelledby="coachT" style="margin-top:14px">
+        <div class="fields">
+          <div><label class="l" for="kName">Nombre</label><input id="kName" name="name" type="text" autocomplete="name" required></div>
+          <div><label class="l" for="kCompany">Empresa o marca</label><input id="kCompany" name="company" type="text" autocomplete="organization" required></div>
+          <div class="full"><label class="l" for="kEmail">Correo electrónico</label><input id="kEmail" name="email" type="email" autocomplete="email" required></div>
+          <div><label class="l" for="kSize">Tamaño de tu empresa</label>
+            <select id="kSize" name="size" required><option value="">Elige una opción</option><option value="1">Trabajo por mi cuenta</option><option value="2-9">De 2 a 9 personas</option><option value="10-49">De 10 a 49 personas</option><option value="50+">50 personas o más</option></select></div>
+          <div><label class="l" for="kRole">Tu rol</label>
+            <select id="kRole" name="role" required><option value="">Elige una opción</option><option value="coach">Coach</option><option value="formador">Formador o formadora</option><option value="consultor">Consultoría</option><option value="otro">Otro</option></select></div>
+        </div>
+        <input type="hidden" name="utm_source"><input type="hidden" name="utm_medium"><input type="hidden" name="utm_campaign"><input type="hidden" name="utm_content">
+        <label class="check" style="margin-top:16px"><input type="checkbox" name="consent" required><span>He leído la <a href="#privacidad">información sobre protección de datos</a> y acepto que Brandooers use estos datos para contactarme sobre esta solicitud.</span></label>
+        <p class="legal1">Responsable: Boomatik, titular de la marca Brandooers. Finalidad: responder a tu solicitud. <a href="#privacidad">Más información</a>.</p>
+        <button class="btn te" type="submit">Hablemos</button>
+        <div class="msg" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · FAQ -->
+<section id="preguntas">
+  <div class="wrap">
+    <div class="head"><span class="ek">Preguntas frecuentes</span><h2>Lo que nos preguntan antes de empezar.</h2></div>
+    <div class="faq">
+      <details><summary>«Esto se aprende con la experiencia»</summary><p>Sí, y por eso se practica con casos del propio trabajo y con roleplay antes de hacerlo de verdad. Y quien valida es un referente de tu equipo: alguien que ya tiene esa experiencia.</p></details>
+      <details><summary>«¿Y si lo formo y se va?»</summary><p>Las pirámides de conocimiento te enseñan quién sostiene cada competencia y el panel marca el riesgo de dependencia. Los referentes internos forman y validan a otros, así que lo aprendido queda repartido en el equipo y no en una sola persona.</p></details>
+      <details><summary>«No tengo tiempo»</summary><p>Las lecciones son cortas, lo que alguien ya domina se lo salta y el tutor está disponible a cualquier hora. En el piloto pactamos por escrito un tiempo de uso semanal dentro del horario laboral, para que sea realista.</p></details>
+      <details><summary>¿Cuánto cuesta?</summary><p>Depende del equipo y de las competencias, así que lo preparamos contigo; no publicamos una tarifa. La formación es bonificable a través de FUNDAE, sujeta a requisitos, y el piloto tiene garantía de adopción (condiciones en borrador).</p></details>
+      <details><summary>¿La IA sustituye al formador?</summary><p>No. La IA practica con tu equipo; una persona valida que lo domina.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · FORMULARIO PILOTO -->
+<section id="pide-piloto">
+  <div class="wrap split" style="margin-top:0;align-items:start">
+    <div>
+      <span class="ek">Pide un piloto</span>
+      <h2>Cuéntanos qué equipo quieres que demuestre lo que sabe.</h2>
+      <p>Te respondemos para preparar el piloto de 90 días contigo. Solo te pedimos lo imprescindible.</p>
+      <p class="fine">Bonificable a través de FUNDAE, sujeto a requisitos. Si tu equipo no lo adopta, no pagas (condiciones en borrador, pendientes de revisión legal).</p>
+    </div>
+    <div class="fbox">
+      <form id="pilotForm" novalidate aria-label="Pide un piloto">
+        <div class="fields">
+          <div><label class="l" for="pName">Nombre</label><input id="pName" name="name" type="text" autocomplete="name" required></div>
+          <div><label class="l" for="pCompany">Empresa</label><input id="pCompany" name="company" type="text" autocomplete="organization" required></div>
+          <div class="full"><label class="l" for="pEmail">Correo de empresa</label><input id="pEmail" name="email" type="email" autocomplete="email" required></div>
+          <div><label class="l" for="pSize">Tamaño de la empresa</label>
+            <select id="pSize" name="size" required><option value="">Elige una opción</option><option value="1-9">De 1 a 9 personas</option><option value="10-49">De 10 a 49 personas</option><option value="50-249">De 50 a 249 personas</option><option value="250+">250 personas o más</option></select></div>
+          <div><label class="l" for="pRole">Tu rol</label>
+            <select id="pRole" name="role" required><option value="">Elige una opción</option><option value="direccion">Dirección o gerencia</option><option value="rrhh">RR. HH. y personas</option><option value="responsable">Responsable de equipo</option><option value="formacion">Formación y desarrollo</option><option value="otro">Otro</option></select></div>
+        </div>
+        <input type="hidden" name="utm_source"><input type="hidden" name="utm_medium"><input type="hidden" name="utm_campaign"><input type="hidden" name="utm_content">
+        <label class="check" style="margin-top:16px"><input type="checkbox" name="fundae" value="revisar"><span>Quiero que revisemos mi crédito FUNDAE</span></label>
+        <label class="check" style="margin-top:10px"><input type="checkbox" name="consent" required><span>He leído la <a href="#privacidad">información sobre protección de datos</a> y acepto que Brandooers use estos datos para contactarme sobre el piloto.</span></label>
+        <p class="legal1">Responsable: Boomatik, titular de la marca Brandooers. Finalidad: responder a tu solicitud. <a href="#privacidad">Más información</a>.</p>
+        <button class="btn" type="submit">Pide un piloto</button>
+        <div class="msg" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Protección de datos: primera capa. TODO(legal): razón social, NIF, domicilio y correo de privacidad de Boomatik + política completa publicada (hoy no hay página pública de privacidad en el sitio). -->
+<section id="privacidad">
+  <div class="wrap">
+    <h2 style="font-size:clamp(22px,4vw,30px)">Información básica sobre protección de datos</h2>
+    <p class="small" style="max-width:80ch">
+      <strong>Responsable:</strong> Boomatik, titular de la marca Brandooers <span class="tbc">razón social, NIF y domicilio a completar</span>.
+      <strong>Finalidad:</strong> responder a tu solicitud de piloto o de conversación y preparar la propuesta.
+      <strong>Legitimación:</strong> tu consentimiento, que puedes retirar cuando quieras.
+      <strong>Destinatarios:</strong> no se ceden datos a terceros salvo obligación legal. <span class="tbc">proveedores de alojamiento y correo a completar</span>
+      <strong>Derechos:</strong> acceso, rectificación, supresión, oposición, limitación y portabilidad, escribiendo a <a href="mailto:info@brandooers.com">info@brandooers.com</a>. También puedes reclamar ante la Agencia Española de Protección de Datos.
+      <strong>Conservación:</strong> <span class="tbc">plazo a completar</span>.
+    </p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap row">
+    <span>Brandooers · SkillUp</span>
+    <span><a href="#privacidad">Protección de datos</a> · <a href="mailto:info@brandooers.com">info@brandooers.com</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---------- Calculadora FUNDAE (fórmula: fundae.es/formacion/financiacion) ----------
+  var PCT={'1-5':null,'6-9':1,'10-49':.75,'50-249':.6,'250+':.5};
+  function credito(base,size){ if(size==='1-5') return 420; return base*0.007*PCT[size]; }
+  window.__fundaeCredito=credito; // expuesto solo para comprobarlo
+  var eur=new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+  var cSize=document.getElementById('cSize'), cBase=document.getElementById('cBase'), cOut=document.getElementById('cOut'), cHow=document.getElementById('cHow');
+  function calc(){
+    var s=cSize.value, b=parseFloat(String(cBase.value).replace(',','.'));
+    if(s==='1-5'){ cOut.textContent=eur.format(420); cHow.textContent='De 1 a 5 personas: 420 € en vez del porcentaje.'; return; }
+    if(!(b>0)){ cOut.textContent='—'; cHow.textContent='Introduce la suma de bases para calcularlo.'; return; }
+    cOut.textContent=eur.format(credito(b,s));
+    cHow.textContent=eur.format(b)+' × 0,7 % × '+(PCT[s]*100)+' %';
+  }
+  cSize.addEventListener('change',calc); cBase.addEventListener('input',calc);
+  document.getElementById('calc').addEventListener('submit',function(e){e.preventDefault();});
+  calc();
+
+  // ---------- UTM → campos ocultos ----------
+  var qs=new URLSearchParams(location.search), UTM=['utm_source','utm_medium','utm_campaign','utm_content'];
+  UTM.forEach(function(k){ var v=(qs.get(k)||'').slice(0,60); document.querySelectorAll('input[name="'+k+'"]').forEach(function(i){i.value=v;}); });
+
+  // ---------- GA4 ----------
+  // TODO(Marc/web): el sitio no tiene GA4 ni banner de consentimiento de cookies. Cuando existan, poner
+  // window.BD_CONSENT={analytics:true} al aceptar y este evento se disparará solo con consentimiento.
+  function trackLead(kind){ try{ if(window.BD_CONSENT&&window.BD_CONSENT.analytics&&typeof window.gtag==='function') window.gtag('event','generate_lead',{form:kind}); }catch(e){} }
+
+  // ---------- Envío: mismo endpoint de leads que skillup.html y brandooers.html ----------
+  // TODO(dev): /auth/lead solo guarda campos conocidos; UTM y consentimiento viajan dentro de «resumen».
+  // Añadir campos utm_* y consent_ts al endpoint (affiliate/server.mjs) y la sincronización con el CRM de Odoo.
+  function wire(id,source,persona,label){
+    var f=document.getElementById(id), msg=f.querySelector('.msg'), btn=f.querySelector('button[type=submit]');
+    f.addEventListener('submit',function(ev){
+      ev.preventDefault(); msg.className='msg'; msg.textContent='';
+      var v=function(n){ var el=f.elements[n]; return el?String(el.value||'').trim():''; };
+      var bad=[].slice.call(f.querySelectorAll('[required]')).filter(function(el){ return el.type==='checkbox'?!el.checked:!el.value.trim(); });
+      if(!bad.length && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('email'))) bad=[f.elements.email];
+      if(bad.length){ msg.className='msg err'; msg.textContent=bad[0].type==='checkbox'?'Marca la casilla de protección de datos para enviar.':'Revisa los campos: todos son necesarios y el correo debe ser válido.'; bad[0].focus(); return; }
+      var fundae=f.elements.fundae&&f.elements.fundae.checked?'revisar':'';
+      var utm=UTM.map(function(k){return k+'='+(v(k)||'-');}).join('|');
+      var resumen=[label,'empresa '+v('company'),'tamaño '+v('size'),'rol '+v('role'),fundae?'FUNDAE: revisar crédito':'',utm,'consentimiento '+new Date().toISOString()].filter(Boolean).join(' · ');
+      btn.disabled=true;
+      fetch('/auth/lead',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+        name:v('name'),email:v('email'),company:v('company'),size:v('size'),role:v('role'),persona:persona,fundae:fundae,resumen:resumen,source:source})})
+        .then(function(r){return r.json().then(function(d){return{ok:r.ok&&d.ok,d:d};});})
+        .then(function(x){ if(x.ok){ msg.className='msg ok'; msg.textContent='Recibido. Te escribimos al correo que nos has dado.'; f.reset(); trackLead(persona); }
+          else { msg.className='msg err'; msg.textContent=(x.d&&x.d.error)||'No se ha podido enviar. Inténtalo de nuevo.'; } })
+        .catch(function(){ msg.className='msg err'; msg.innerHTML='No se ha podido enviar. Escríbenos a <a href="mailto:info@brandooers.com">info@brandooers.com</a>.'; })
+        .then(function(){ btn.disabled=false; });
+    });
+  }
+  wire('pilotForm','skillup-piloto','emp','PILOTO 90 DÍAS');
+  wire('coachForm','skillup-piloto-coach','coach','COACH/FORMADOR');
+})();
+</script>
+</body>
+</html>
