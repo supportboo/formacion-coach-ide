@@ -23,6 +23,7 @@ import * as propagationSvc from "./services/propagation.js";
 import * as orgSvc from "./services/org.js";
 import * as configSvc from "./services/config.js";
 import * as rewardsSvc from "./services/rewards.js";
+import * as coursePanelSvc from "./services/coursePanel.js";
 import * as fundaeSvc from "./services/fundae.js";
 import * as analyticsSvc from "./services/analytics.js";
 import * as roiSvc from "./services/roi.js";
@@ -1099,6 +1100,37 @@ app.post("/api/propagation/coaching", async (c) => {
       orgId: ctx.orgId, coachId: ctx.userId, coachRole: ctx.role, ...parsed.data,
     });
     return c.json({ id });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+app.post("/api/propagation/grant-coach", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "inspirador")) return c.json({ error: "solo admin/inspirador" }, 403);
+  const parsed = z.object({ coachUserId: z.string().min(1), competencyId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  try {
+    const res = await propagationSvc.grantCoachN4(svcDeps, { orgId: ctx.orgId, granterId: ctx.userId, granterRole: ctx.role, platformAdmin: isPlatformAdmin(ctx), coachUserId: parsed.data.coachUserId, competencyId: parsed.data.competencyId });
+    return c.json(res);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+app.get("/api/propagation/recert-status", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "direccion", "inspirador", "team_leader")) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ recert: await propagationSvc.recertStatus(svcDeps, ctx.orgId) });
+});
+app.post("/api/catalog/course-panel", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "inspirador")) return c.json({ error: "solo admin/inspirador" }, 403);
+  const parsed = z.object({ tema: z.string().min(3).max(200), publico: z.string().max(200).optional(), competencyId: z.string().optional(), confirm: z.boolean().optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  if (!parsed.data.confirm) return c.json({ costGate: true, aviso: "El panel de expertos hace 2 llamadas de IA (coste real). Reenvia con confirm:true para ejecutarlo." });
+  if (rateLimited(`coursepanel:${ctx.orgId}`, 4, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  try {
+    const res = await coursePanelSvc.runCoursePanel(svcDeps, llm, { orgId: ctx.orgId, userId: ctx.userId, tema: parsed.data.tema, publico: parsed.data.publico, competencyId: parsed.data.competencyId });
+    return c.json(res);
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
 app.get("/api/propagation/points", async (c) => {

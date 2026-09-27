@@ -10,6 +10,12 @@
 - Jerarquía de títulos sin saltos (h2 → h3 en recorrido y carrusel), visor de capturas sin `src` vacío.
 - Móvil: el recorrido ya no se queda en dos columnas estrechas a 360 px (las reglas de escritorio izq/der ganaban por especificidad); bocadillos legibles; sin desbordamiento horizontal.
 
+### Reglas de progresión (ya en producción desde el 25-sep, ahora versionadas)
+- **N2 más exigente:** 3 casos aprobados repartidos en al menos 6 semanas + 1 aplicación confirmada en seguimiento. Nadie baja de nivel (solo sube).
+- **Referente (N3):** 3 alumnos llevados a N2 (antes 2). **Coach (N4):** 5 alumnos a N2 y nombramiento por admin/inspirador (`POST /api/propagation/grant-coach`); nadie firma su propia defensa. El nivel 4 pasa a llamarse «Coach» (antes «Custodio»).
+- **Recertificación anual** de N3/N4 (`GET /api/propagation/recert-status`): informa de quién lleva más de un año sin validar; no degrada automáticamente.
+- **Panel de expertos para crear cursos** (`POST /api/catalog/course-panel`): borrador + revisión con veto legal; pide confirmación de coste (2 llamadas de IA), límite de 4 por minuto por empresa y no publica nada solo.
+
 ## 1.0.0 — 2026-09-25 (V1.0 para prueba con equipo real)
 
 ### Nuevo

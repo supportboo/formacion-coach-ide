@@ -125,6 +125,39 @@ export async function assertCanProgress(
   }
 }
 
+/* Rigor V2: N2 no se regala. 3 casos aprobados repartidos en >=6 semanas + 1 aplicacion
+ * confirmada (check-in). Grandfathering: setLevelAtLeast solo sube, nadie baja de nivel. */
+const N2_MIN_CASES = 3;
+const N2_MIN_SPAN_DAYS = 42;
+
+async function meetsN2Bar(
+  deps: SvcDeps, orgId: string, userId: string, competencyId: string,
+): Promise<boolean> {
+  const approvals = await deps.db.select({ at: validation.createdAt })
+    .from(validation)
+    .innerJoin(appliedCase, eq(validation.caseId, appliedCase.id))
+    .where(and(
+      eq(validation.organizationId, orgId),
+      eq(validation.decision, "aprobado"),
+      eq(appliedCase.userId, userId),
+      eq(appliedCase.competencyId, competencyId),
+    ));
+  if (approvals.length < N2_MIN_CASES) return false;
+  const times = approvals.map((a) => new Date(a.at as any).getTime()).sort((x, y) => x - y);
+  const spanDays = (times[times.length - 1]! - times[0]!) / 86400000; // length >= N2_MIN_CASES comprobado arriba
+  if (spanDays < N2_MIN_SPAN_DAYS) return false;
+  const checkins = await deps.db.select({ note: evidence.note }).from(evidence).where(and(
+    eq(evidence.organizationId, orgId),
+    eq(evidence.ownerType, "seguimiento"),
+    eq(evidence.ownerId, competencyId),
+    eq(evidence.createdBy, userId),
+  ));
+  return checkins.some((k) => {
+    try { const d = JSON.parse(String(k.note || "{}")); return d.aplica === "si" || d.aplica === "parcial"; }
+    catch { return false; }
+  });
+}
+
 export interface ValidateInput {
   orgId: string; caseId: string; validatorId: string; validatorRole: string;
   decision: "aprobado" | "rechazado"; feedback?: string;
@@ -156,7 +189,7 @@ export async function validateCase(deps: SvcDeps, input: ValidateInput): Promise
     validatorId: input.validatorId, decision: input.decision, feedback: input.feedback ?? null,
   });
 
-  if (input.decision === "aprobado") {
+  if (input.decision === "aprobado" && await meetsN2Bar(deps, input.orgId, c.userId, c.competencyId)) {
     await setLevelAtLeast(deps, input.orgId, c.userId, c.competencyId, 2);
   }
   await deps.db.insert(auditLog).values({
