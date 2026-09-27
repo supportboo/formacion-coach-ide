@@ -6,6 +6,8 @@ export interface LlmCall {
   system: string; messages: LlmMessage[]; model?: string; maxTokens?: number;
   // Contexto opcional SOLO para el ledger de coste -- no cambia la llamada al modelo.
   orgId?: string | null; userId?: string; kind?: string;
+  // Tiempo máximo de ESTA llamada (por defecto 30 s). Solo para generaciones largas (exámenes).
+  timeoutMs?: number;
 }
 export interface LlmUsage { orgId: string | null; userId?: string; kind: string; model: string; inputTokens: number; outputTokens: number }
 export type UsageRecorder = (u: LlmUsage) => Promise<void>;
@@ -25,7 +27,7 @@ export class AnthropicLlm implements Llm {
       max_tokens: call.maxTokens ?? 1024,
       system: call.system,
       messages: call.messages.map((m) => ({ role: m.role, content: m.content })),
-    });
+    }, call.timeoutMs ? { timeout: call.timeoutMs } : undefined);
     if (this.onUsage) {
       // Coste real devuelto por Anthropic, nunca estimado. Si falla el registro, no rompe la respuesta al usuario.
       this.onUsage({
@@ -67,7 +69,7 @@ export class GeminiLlm implements Llm {
     };
     let lastErr: unknown;
     for (let attempt = 0; attempt < 2; attempt++) {
-      const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 30_000);
+      const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), call.timeoutMs ?? 30_000);
       try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
           method: "POST", signal: ctrl.signal,

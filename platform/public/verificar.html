@@ -62,7 +62,11 @@ function check(code) {
     box.style.display = 'block';
     if (d.valid) {
       box.className = 'result ok';
-      box.innerHTML = '<div class="tag">Certificado válido</div><h2>' + (d.title || '') + '</h2><p>Emitido: ' + new Date(d.issuedAt).toLocaleDateString('es-ES') + '</p>';
+      var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+      box.innerHTML = '<div class="tag">Certificado válido</div><h2>' + esc(d.title) + '</h2>' + (d.holderName ? '<p style="color:#fff;font-size:15px;margin-bottom:4px">' + esc(d.holderName) + '</p>' : '')
+        + '<p>Emitido: ' + new Date(d.issuedAt).toLocaleDateString('es-ES') + (d.score != null ? ' · Nota ' + esc(d.score) + '/100' : '') + '</p>'
+        + '<p>' + (d.accreditation ? 'Acreditado por ' + esc(d.accreditation) : 'Certificado interno de ' + esc(d.issuer || 'Brandooers') + ' (sin acreditación oficial)') + '</p>'
+        + '<p style="margin-top:10px"><a style="color:#67E8F9" href="/app/certificado.html?code=' + encodeURIComponent(code) + '">Ver el certificado</a></p>';
     } else if (d.expired) {
       box.className = 'result warn';
       box.innerHTML = '<div class="tag">Certificado caducado</div><h2>' + (d.title || '') + '</h2><p>Caducó el ' + new Date(d.expiresAt).toLocaleDateString('es-ES') + ' — pide la recertificación.</p>';

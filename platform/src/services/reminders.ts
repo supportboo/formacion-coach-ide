@@ -1,5 +1,6 @@
 import { and, eq, gte, inArray } from "drizzle-orm";
-import { appliedCase, competency, evidence, levelByCompetency } from "../db/schema.js";
+import { annotation, appliedCase, competency, evidence, levelByCompetency } from "../db/schema.js";
+import { retoAvailability } from "./assessment.js";
 import type { SvcDeps } from "./org.js";
 import { listPendingCases } from "./validation.js";
 import { expiringSoon } from "./rewards.js";
@@ -37,10 +38,28 @@ export async function myReminders(deps: SvcDeps, orgId: string, userId: string, 
     }
   }
 
+  // Lo que su responsable le ha asignado y ya toca (test, examen final, roleplay o caso). Programado a futuro no avisa aún.
+  out.push(...(await assignmentReminders(deps, orgId, userId)));
+
   // Seguimiento en el tiempo (R3): lo que validó hace semanas -> "¿cómo lo estás aplicando?".
   // Es lo que convierte formación en resultado demostrable. Sin cron: se calcula al abrir el panel.
   out.push(...(await followUpReminders(deps, orgId, userId)));
 
+  return out;
+}
+
+const RETO_LABEL: Record<string, string> = { test_bloque: "un test de bloque", examen_final: "el examen final", roleplay: "un roleplay", caso: "un caso práctico" };
+async function assignmentReminders(deps: SvcDeps, orgId: string, userId: string): Promise<Reminder[]> {
+  const rows = await deps.db.select({ body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "reto")));
+  const now = new Date();
+  const out: Reminder[] = [];
+  for (const r of rows) {
+    let o: { id?: string; tipo?: string; titulo?: string; by?: string; estado?: string; programadoPara?: string | null };
+    try { o = JSON.parse(String(r.body || "").slice(6).trim()); } catch { continue; }
+    if (!o.id || o.estado === "hecho" || o.estado === "en_validacion" || retoAvailability(o, now) !== "disponible") continue;
+    out.push({ kind: "reto_asignado", refId: o.id, message: `${o.by || "Tu responsable"} te ha asignado ${RETO_LABEL[o.tipo || ""] || "un reto"}: «${o.titulo || ""}».` });
+  }
   return out;
 }
 

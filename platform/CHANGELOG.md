@@ -1,5 +1,25 @@
 # Changelog · SkillUp platform
 
+## 1.2.0 — 2026-09-27
+
+### Evaluación y certificación
+- **Test del bloque** (`/app/evaluacion.html`): al pasar de un bloque al siguiente dentro del curso aparece «Bloque completado» con el test personalizado: 6 preguntas (4 de opción múltiple con escenarios, 1 respuesta breve y 1 caso) hechas SOLO con el contenido de ese bloque y ambientadas con lo que la persona ha escrito en el chat y en los ejercicios de ese bloque y con su perfil. Corrección inmediata (las abiertas con rúbrica), revisión pregunta a pregunta con la respuesta modelo, y repetición con preguntas nuevas (máximo 5 por bloque y día). Nota orientativa para superarlo: 70/100.
+- **Roleplay de control** cada 2 bloques (ajustable por curso y empresa en «Asignar pruebas»; 0 = desactivado): entrevista de 2-4 preguntas sobre su situación real (se salta si ya la conocemos), caso generado con el temario visto y esas respuestas, y cierre con fortalezas, áreas de mejora y valoración orientativa 0-10. Las respuestas de la entrevista se guardan como notas del alumno (el tutor las usa después).
+- **Menú «Roleplays»** (`/app/roleplays.html`): generar un roleplay cuando quieras (de un curso o de un tema libre), con entrevista opcional, e historial con valoración, feedback y lo que contaste; los que quedaron a medias se pueden continuar.
+- **Examen final** al terminar todos los tests de bloque: unas 24 preguntas nuevas de todo el curso (16 de opción múltiple de aplicación, 4 breves y 4 análisis de caso con rúbrica), dificultad alta, 60 minutos (se entrega solo al llegar a cero), **aprobado con 80/100** (constante única en `services/assessment.ts`), 3 intentos con 24 h de espera y preguntas distintas en cada intento; un examen abierto se reanuda, nunca se regenera.
+- **Certificado** (`/app/certificado.html`): diseño propio de Brandooers en A4 apaisado (imprimir o guardar como PDF), con titular, curso, fecha, nota, código único y enlace público de verificación (`/verificar`, que ahora muestra titular, emisor y nota). Dice con claridad «Certificado interno de Brandooers. No constituye una acreditación oficial». Emisor y acreditación configurables (`CERT_ISSUER`, `CERT_ACCREDITATION`) para cuando haya un organismo externo.
+- **Responsables asignan** (`/app/asignar.html`, menú «Asignar pruebas»): test de un bloque, un intento extra del examen final, un roleplay o un caso práctico (reutiliza los retos), con fecha y hora y un mensaje. La persona lo ve en su inicio (como «Programado» hasta la fecha), en recordatorios y por correo; si tiene Google Calendar conectado, se le crea el evento. El responsable ve el estado y el resultado (nota o resumen).
+- **Puntos**: test de bloque 5-15 según la nota (solo suma la mejora sobre tu mejor intento), examen final aprobado 100, roleplay terminado 15 (con 3 o más intervenciones) y 5 por cada respuesta con contenido real en la entrevista (máximo 20); roleplays y entrevistas con tope de 60 puntos al día.
+- El informe de ROI (nivel 2) cuenta también los tests de bloque y el examen final (`test_attempt`, ruta `curso:<curso>:b<n>|final`).
+- Menú: «Roleplays», «Certificados» y, para responsables, «Asignar pruebas».
+
+### Técnico
+- Migración `0020_assessment`: tabla `assessment_attempt` (preguntas con su clave solo en servidor, respuestas, corrección, nota, tiempo) y columnas nuevas en `roleplay_session` (`source`, `topic`, `score`, `feedback`, `interview`). Idempotente.
+- Endpoints: `GET /api/learning/assess/outline`, `POST /api/learning/assess/quiz`, `POST /api/learning/assess/final`, `POST /api/learning/assess/:id/submit`, `POST /api/roleplay/interview`, `POST /api/roleplay/checkpoint`, `GET/POST /api/config/assessment`, `GET /api/certificates/mine`, `GET /api/learning/challenges/assigned`; `POST /api/learning/challenges` admite `test_bloque`/`examen_final`, `programadoPara` y `mensaje`. Zod en todas, límites de peticiones en las que llaman a la IA, todo acotado por empresa.
+- Toda la IA pasa por el `llm` central (tope de gasto, glosario, `orgId`/`userId`/`kind`: `block_quiz`, `final_exam`, `exam_grading`, `roleplay_interview`, `roleplay_brief`). `LlmCall.timeoutMs` para las generaciones largas del examen.
+- RGPD: los intentos de evaluación entran en la exportación y se borran con el derecho al olvido (la nota numérica queda en `test_attempt`).
+- Tests: `tests/assessment.test.ts` (nota y aprobado, intentos y espera, puntos y antitrampas, tope diario, programación, bloques del curso, llamadas a la IA).
+
 ## 1.1.0 — 2026-09-27
 
 ### Nuevo

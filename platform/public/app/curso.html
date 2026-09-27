@@ -258,6 +258,7 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 <script src="/app/api.js"></script>
 <script src="/app/nav.js" defer></script>
 <script src="/app/dictation.js"></script>
+<script src="/app/assess.js"></script>
 <script>
 (function(){
 "use strict";
@@ -391,7 +392,7 @@ function build(){
       +'<div class="cv-player" id="cvPlayer" hidden><div class="cv-frame" id="cvFrame"></div><div class="cv-pbar"><p id="cvPTitle"></p><button class="cv-ib cv-wide-btn" id="cvWide" type="button" aria-pressed="false" aria-label="Ampliar el vídeo junto al texto" title="Ampliar junto al texto">'+ico('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>')+'</button><button class="cv-ib" id="cvFull" type="button" aria-label="Pantalla completa" title="Pantalla completa">'+ico('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>')+'</button><button class="cv-ib" id="cvPClose" type="button" aria-label="Cerrar el vídeo" title="Cerrar el vídeo">'+ico('<path d="M6 6l12 12M18 6 6 18"/>')+'</button></div></div>'
       +'<div class="cv-list" id="cvList"></div></aside>'
     +'<div class="main">'
-      +'<div class="ctx"><svg class="mlogo" viewBox="0 0 100 58">'+EYES.replace('<svg viewBox="0 0 100 58" aria-hidden="true">','').replace('</svg>','')+'</svg><div class="crumb" id="crumb"></div><button class="btn" id="vidBtn" title="Vídeos del curso" aria-controls="cvPanel" aria-expanded="false">Vídeos</button><button class="btn" id="mnBtn">Mis notas</button><button class="btn" id="idxBtn">Índice</button><a class="btn" href="/app/inicio.html">Salir</a></div>'
+      +'<div class="ctx"><svg class="mlogo" viewBox="0 0 100 58">'+EYES.replace('<svg viewBox="0 0 100 58" aria-hidden="true">','').replace('</svg>','')+'</svg><div class="crumb" id="crumb"></div><button class="btn" id="vidBtn" title="Vídeos del curso" aria-controls="cvPanel" aria-expanded="false">Vídeos</button><button class="btn" id="mnBtn">Mis notas</button><button class="btn" id="asBtn" hidden title="Tests y examen final">Tests</button><button class="btn" id="idxBtn">Índice</button><a class="btn" href="/app/inicio.html">Salir</a></div>'
       +'<div class="coachbar" id="coachbar"><div class="av">'+EYES+'</div><div class="tx"><b>'+esc(PERSONA.name)+'</b> · '+esc(PERSONA.role.toLowerCase())+', pregúntame <span style="color:var(--teal2)">›</span></div></div>'
       +'<div class="deckwrap"><div class="track" id="track">'+CARDS.map(function(c){return '<div class="card"><div class="card-in"><span class="kpill"><i></i>'+esc(c.mod)+'</span><div class="prose"><h2>'+esc(c.title)+'</h2>'+c.body+'</div></div></div>';}).join('')+'</div></div>'
       +'<div class="dfoot"><button class="nb" id="prev">‹</button><div class="spine"><span id="fill"></span></div><div class="pos" id="pos"></div><button class="nb primary" id="next">Siguiente</button></div>'
@@ -402,6 +403,8 @@ function build(){
     +'<div class="mn" id="mn"><div class="mn-in"><div class="mn-hd"><b>Mi curso · notas y subrayados</b><button class="x" id="mnX">×</button></div><div class="mn-list" id="mnList"></div></div></div>'
     +'<div class="idx" id="idx"><div class="idx-in"><div class="idx-hd"><b>Índice del curso</b><button class="x" id="idxX">×</button></div><div class="idx-list" id="idxList"></div></div></div>';
   buildIndex(); wireVideos(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
+  // Evaluación (assess.js): test por bloque, roleplay de control cada N bloques y examen final.
+  if(window.SkillUpAssess) SkillUpAssess.init({slug:SLUG,src:SRC,course:COURSE,cards:CARDS.map(function(c){return c.title;})});
 }
 function wireAnnotations(){
   var track=document.getElementById('track'), menu=document.getElementById('selmenu');
@@ -459,12 +462,14 @@ function wireDeck(){
     var cc=document.querySelector('.card:nth-child('+(idx+1)+')');if(cc)cc.scrollTop=0;
     var cm=document.getElementById('ccMsg'); if(cm) cm.textContent=PERSONA.name+': '+NUDGES[idx%NUDGES.length].replace('{t}',CARDS[idx].title);
     if(window._cvSection) window._cvSection(idx);
-    if(window._onSection) window._onSection(idx);};
-  prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===CARDS.length-1){location.href='/app/inicio.html';return;}window._go(idx+1)};
+    if(window._onSection) window._onSection(idx);
+    if(window.SkillUpAssess) SkillUpAssess.onCard(idx);};
+  prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===CARDS.length-1){if(window.SkillUpAssess&&SkillUpAssess.finish())return;location.href='/app/inicio.html';return;}window._go(idx+1)};
   document.getElementById('idxBtn').onclick=function(){document.getElementById('idx').classList.add('open')};
   document.getElementById('idxX').onclick=function(){document.getElementById('idx').classList.remove('open')};
   document.addEventListener('keydown',function(e){var sh=document.getElementById('sheet');if(sh&&sh.classList.contains('open'))return;if(e.key==='ArrowRight')window._go(idx+1);if(e.key==='ArrowLeft')window._go(idx-1);});
-  window.go=window._go; window._go(0);
+  // ?card=N: volver del test/roleplay a la tarjeta donde estabas.
+  window.go=window._go; window._go(Math.max(0,Math.min(CARDS.length-1,parseInt(params.get('card'),10)||0)));
 }
 function go(i){window._go(i);}
 // Panel de vídeos del curso: los mismos vídeos reales de YouTube que videos.html (mismo tema = misma caché),

@@ -1,6 +1,6 @@
 import { and, eq, inArray, ne } from "drizzle-orm";
 import {
-  agentMessage, agentThread, annotation, appliedCase, auditLog, certificate, coaching,
+  agentMessage, agentThread, annotation, appliedCase, assessmentAttempt, auditLog, certificate, coaching,
   enrollment, fundaeParticipation, levelByCompetency, member, onboardingProfile,
   pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
@@ -49,6 +49,8 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       .where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId))),
     roleplays: await deps.db.select().from(roleplaySession)
       .where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId))),
+    assessments: await deps.db.select().from(assessmentAttempt)
+      .where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId))),
     chatThreads: await deps.db.select().from(agentThread)
       .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId))),
   };
@@ -82,6 +84,8 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   await deps.db.delete(teamDna).where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId)));
   await deps.db.delete(teamProfile).where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
   await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
+  // Exam answers are free text; the numeric result stays in testAttempt (ROI) and the certificate.
+  await deps.db.delete(assessmentAttempt).where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId)));
   await deps.db.update(appliedCase).set({ submission: null })
     .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
   await deps.db.insert(auditLog).values({

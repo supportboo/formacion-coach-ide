@@ -70,12 +70,18 @@ function render(){
   topic=t.tema||t.titulo||'la práctica';
   var difChip=t.dificultad?'<span class="chip dif">'+E(t.dificultad)+'</span>':'';
   var hecho=t.estado==='hecho';
-  wrap.innerHTML='<div class="head"><div class="meta"><span class="chip">'+(t.tipo==='caso'?'Caso práctico':'Roleplay')+'</span>'+difChip+(hecho?'<span class="chip" style="color:var(--green)">hecho</span>':'')+'</div>'
+  var TIPO={caso:'Caso práctico',roleplay:'Roleplay',test_bloque:'Test de bloque',examen_final:'Examen final'};
+  var when=t.programadoPara?new Date(t.programadoPara).toLocaleString('es-ES',{dateStyle:'full',timeStyle:'short'}):'';
+  wrap.innerHTML='<div class="head"><div class="meta"><span class="chip">'+E(TIPO[t.tipo]||'Reto')+'</span>'+difChip+(hecho?'<span class="chip" style="color:var(--green)">hecho</span>':'')+(when?'<span class="chip dif">'+E(when)+'</span>':'')+'</div>'
     +'<h1>'+E(t.titulo||'Reto de práctica')+'</h1></div>'
     +'<div class="by">Te lo ha puesto '+E(t.by||'tu responsable')+(t.tema?' · sobre '+E(t.tema):'')+'</div>'
+    +(t.mensaje?'<div class="card" style="border-left:3px solid var(--gold)"><span class="k" style="font-size:17px">su mensaje</span><p style="margin:4px 0 0;font-size:14.5px;line-height:1.5">'+E(t.mensaje)+'</p></div>':'')
     +'<div id="area"></div>';
   var area=document.getElementById('area');
-  if(t.tipo==='caso') renderCaso(area); else renderRoleplay(area);
+  // Programado a futuro: se ve pero no se abre hasta la fecha acordada.
+  if(t.disponibilidad==='programado'&&!hecho){ area.innerHTML='<div class="card"><p style="margin:0;font-size:14.5px">Se abre el <b style="color:var(--ink)">'+E(when)+'</b>. Te avisaremos en tu inicio ese día.</p></div>'; return; }
+  if(t.tipo==='test_bloque'||t.tipo==='examen_final') renderTest(area);
+  else if(t.tipo==='caso') renderCaso(area); else renderRoleplay(area);
 }
 
 /* ---- ROLEPLAY ---- */
@@ -115,6 +121,15 @@ function showSummary(area,s){
     +'<a class="btn" href="/app/inicio.html" style="display:inline-block;text-decoration:none">Volver al inicio</a></div>';
   var resumen='Roleplay «'+topic+'». '+(s.resumen||'')+' Fortalezas: '+((s.fortalezas||[]).join('; '))+'. A mejorar: '+((s.areasDeMejora||[]).join('; '))+'.';
   SkillUp.api('/api/learning/challenges/'+id+'/complete',{method:'POST',body:{resultado:resumen}}).catch(function(){});
+}
+
+/* ---- TEST DE BLOQUE / EXAMEN FINAL (1.2.0) ---- */
+function renderTest(area){
+  var t=RETO, src='/'+String(t.curso||'').replace(/^\//,'').replace(/\.html$/,'')+'.html';
+  var href='/app/evaluacion.html?src='+encodeURIComponent(src)+'&reto='+encodeURIComponent(t.id)+(t.tipo==='examen_final'?'&final=1':'&block='+Number(t.bloque||0));
+  area.innerHTML='<div class="card">'+(t.estado==='hecho'
+    ?'<p class="done">Hecho.</p>'+(t.resultado?'<div class="enun" style="margin-top:10px">'+E(t.resultado)+'</div>':'')
+    :'<p style="margin:0 0 14px;color:var(--muted);font-size:14px">'+(t.tipo==='examen_final'?'Examen final del curso: preguntas nuevas de todo el temario, con tiempo y nota mínima de 80/100. Tu responsable verá el resultado.':'Test personalizado de este bloque: preguntas hechas con lo que has visto y lo que has hablado con tu tutor. Tu responsable verá el resultado.')+'</p><a class="btn" href="'+href+'" style="display:inline-block;text-transform:uppercase;letter-spacing:.06em">'+(t.tipo==='examen_final'?'Empezar el examen':'Empezar el test')+'</a>')+'</div>';
 }
 
 /* ---- CASO ---- */

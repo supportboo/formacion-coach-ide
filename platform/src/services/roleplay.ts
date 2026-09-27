@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { roleplaySession } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import type { Llm } from "../agents/llm.js";
@@ -12,6 +12,8 @@ export interface RoleplayArgs {
   // (dictadas o escritas). Si vienen, mandan sobre el personaje automático. Guardrail: es práctica,
   // la validación sigue siendo humana.
   brief?: string | null;
+  // 1.2.0: curso del que sale (slug), tema legible y entrevista previa (respuestas reales del alumno).
+  source?: string | null; topic?: string | null; interview?: { q: string; a: string }[] | null;
 }
 
 /** Elige un personaje de practica razonable para la competencia (determinista, sin IA: no hace falta gastar en esto). */
@@ -51,6 +53,7 @@ export async function startRoleplay(
   await deps.db.insert(roleplaySession).values({
     id, organizationId: args.orgId, userId: args.userId, competencyId: args.competencyId,
     persona, transcript: [{ role: "assistant", content: opening }],
+    source: args.source ?? null, topic: (args.topic || args.competencyName).slice(0, 200), interview: args.interview ?? null,
   });
   return { sessionId: id, reply: opening, status: "activo" };
 }
@@ -80,7 +83,7 @@ export async function replyRoleplay(
   return { sessionId: args.sessionId, reply, status: "activo" };
 }
 
-export interface RoleplaySummary { fortalezas: string[]; areasDeMejora: string[]; resumen: string }
+export interface RoleplaySummary { fortalezas: string[]; areasDeMejora: string[]; resumen: string; valoracion?: number | null; learnerTurns?: number }
 
 /**
  * Cierra la sesion y pide a la IA un resumen de fortalezas/areas de mejora -- SUGERENCIA para
@@ -93,20 +96,25 @@ export async function closeRoleplay(
   const row = await loadSession(deps, args.orgId, args.userId, args.sessionId);
   const dialogue = row.transcript.map((m) => `${m.role === "assistant" ? "Personaje" : "Alumno"}: ${m.content}`).join("\n");
   const system = `Analiza esta práctica de roleplay para la competencia "${args.competencyName}". ${BASE} ` +
-    "No inventes nada que no esté en la conversación. Responde SOLO JSON: " +
-    '{"fortalezas":["..."],"areasDeMejora":["..."],"resumen":"1-2 frases"}';
+    "No inventes nada que no esté en la conversación. valoracion = nota orientativa de 0 a 10 de cómo aplicó la competencia (exigente: 5 es correcto sin más; si apenas participó, bajo). Responde SOLO JSON: " +
+    '{"fortalezas":["..."],"areasDeMejora":["..."],"resumen":"1-2 frases","valoracion":0}';
   const out = await llm.generate({
     system, messages: [{ role: "user", content: dialogue }], maxTokens: 500,
     orgId: args.orgId, userId: args.userId, kind: "roleplay_summary",
   });
   const summary = firstJson<RoleplaySummary>(out);
+  const v = Number(summary.valoracion);
+  summary.valoracion = Number.isFinite(v) ? Math.max(0, Math.min(10, Math.round(v))) : null;
+  summary.learnerTurns = row.transcript.filter((m) => m.role === "user").length;
   await deps.db.update(roleplaySession)
-    .set({ status: "cerrado", summary: summary.resumen, closedAt: new Date() })
-    .where(eq(roleplaySession.id, args.sessionId));
+    .set({ status: "cerrado", summary: summary.resumen, closedAt: new Date(), score: summary.valoracion,
+      feedback: { fortalezas: summary.fortalezas ?? [], areasDeMejora: summary.areasDeMejora ?? [], resumen: summary.resumen ?? "" } })
+    .where(and(eq(roleplaySession.id, args.sessionId), eq(roleplaySession.organizationId, args.orgId)));
   return summary;
 }
 
 export async function myRoleplays(deps: SvcDeps, orgId: string, userId: string) {
   return deps.db.select().from(roleplaySession)
-    .where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
+    .where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)))
+    .orderBy(desc(roleplaySession.createdAt)).limit(60);
 }

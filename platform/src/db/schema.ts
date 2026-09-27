@@ -477,7 +477,36 @@ export const roleplaySession = pgTable("roleplay_session", {
   summary: text("summary"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   closedAt: timestamp("closed_at"),
+  // 1.2.0 (evaluación): de qué curso sale el roleplay, tema legible, valoración orientativa 0-10,
+  // feedback completo y la entrevista previa (preguntas y respuestas reales del alumno).
+  source: text("source"),
+  topic: text("topic"),
+  score: integer("score"),
+  feedback: jsonb("feedback").$type<Record<string, unknown>>(),
+  interview: jsonb("interview").$type<{ q: string; a: string }[]>(),
 }, (t) => ({ byOrg: index("roleplay_org_idx").on(t.organizationId) }));
+
+/* Evaluación por bloques y examen final de un curso (1.2.0). Las preguntas guardan la clave de
+ * corrección y NUNCA se envían tal cual al cliente. kind: block | final. block = -1 en el final. */
+export const assessmentAttempt = pgTable("assessment_attempt", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  source: text("source").notNull(), // slug del curso
+  kind: text("kind").notNull(),
+  block: integer("block").notNull().default(-1),
+  questions: jsonb("questions").$type<Record<string, unknown>[]>().notNull(),
+  answers: jsonb("answers").$type<unknown[]>(),
+  results: jsonb("results").$type<Record<string, unknown>[]>(),
+  score: integer("score"),
+  passed: boolean("passed"),
+  status: text("status").notNull().default("abierto"), // abierto | corregido | caducado
+  assignmentId: text("assignment_id"),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
+  deadlineAt: timestamp("deadline_at"),
+  submittedAt: timestamp("submitted_at"),
+  gradedAt: timestamp("graded_at"),
+}, (t) => ({ byUser: index("assess_org_user_src_idx").on(t.organizationId, t.userId, t.source) }));
 
 // Foto diaria de las metricas del panel (una por empresa y dia). A diferencia de baselineSnapshot
 // (el "antes" del piloto, capturado a mano una vez), esta se captura sola -- sin cron ni cola de
@@ -508,7 +537,7 @@ export const schema = {
   companyConfig, rewardRule, certificate, rewardGrant, careerPath,
   fundaeAction, fundaeParticipation,
   pricingTier, subscription,
-  baselineSnapshot, aiUsage, roleplaySession, analyticsSnapshot,
+  baselineSnapshot, aiUsage, roleplaySession, analyticsSnapshot, assessmentAttempt,
 };
 
 /* Anotaciones del alumno sobre el curso (subrayar, nota, pregunta, repasar). Por org + usuario. */

@@ -290,10 +290,11 @@ function firstRutaSrc(){ if(RUTA&&RUTA.modulos){ for(var i=0;i<RUTA.modulos.leng
 function approvalBanner(){ if(ME.approved!==false) return ''; return '<div style="background:linear-gradient(90deg,rgba(240,198,69,.14),transparent);border:1px solid rgba(240,198,69,.45);border-radius:14px;padding:14px 16px;margin-bottom:14px;color:var(--ink,#F2EFF5);font-size:14px;line-height:1.5"><b>Tu cuenta está pendiente de aprobación.</b> Puedes preparar tu ruta y conocer la plataforma; los cursos se abrirán en cuanto el administrador te dé el visto bueno.</div>'; }
 function retosSection(){
   if(!RETOS||!RETOS.length) return '';
-  var pend=RETOS.filter(function(r){return r&&r.estado!=='hecho';}).length;
+  var pend=RETOS.filter(function(r){return r&&r.estado!=='hecho'&&r.disponibilidad!=='programado';}).length;
   var items=RETOS.slice().sort(function(a,b){return (a.estado==='hecho'?1:0)-(b.estado==='hecho'?1:0);}).map(function(r){
-    var done=r.estado==='hecho', tag=r.tipo==='caso'?'Caso práctico':'Roleplay';
-    return '<a class="cc" href="/app/reto.html?id='+encodeURIComponent(r.id)+'"'+(done?' style="opacity:.6"':'')+'><span class="rt">'+esc(tag)+(r.dificultad?' · '+esc(r.dificultad):'')+'</span><b>'+esc(r.titulo||'Reto')+'</b><small>'+esc('De '+(r.by||'tu responsable'))+(r.tema?' · '+esc(r.tema):'')+'</small><span class="go" style="color:'+(done?'var(--muted,#968EA4)':'#F0C645')+'">'+(done?'Hecho ✓':'Empezar ›')+'</span></a>';
+    var done=r.estado==='hecho', tag={caso:'Caso práctico',roleplay:'Roleplay',test_bloque:'Test de bloque',examen_final:'Examen final'}[r.tipo]||'Reto';
+    var later=!done&&r.disponibilidad==='programado', when=r.programadoPara?new Date(r.programadoPara).toLocaleString('es-ES',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    return '<a class="cc" href="/app/reto.html?id='+encodeURIComponent(r.id)+'"'+(done||later?' style="opacity:.6"':'')+'><span class="rt">'+esc(tag)+(r.dificultad?' · '+esc(r.dificultad):'')+(when?' · '+esc(when):'')+'</span><b>'+esc(r.titulo||'Reto')+'</b><small>'+esc('De '+(r.by||'tu responsable'))+(r.tema?' · '+esc(r.tema):'')+'</small><span class="go" style="color:'+(done||later?'var(--muted,#968EA4)':'#F0C645')+'">'+(done?'Hecho ✓':(later?'Programado':'Empezar ›'))+'</span></a>';
   }).join('');
   return '<div class="sec-t">Retos de tu responsable'+(pend?' <span style="font:inherit;font-size:12px;color:#F0C645">· '+pend+' pendiente'+(pend>1?'s':'')+'</span>':'')+'</div><div class="grid">'+items+'</div>';
 }

@@ -12,7 +12,7 @@ import { chat } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog } from "./db/schema.js";
+import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import { orgTerms } from "./services/glossary.js";
 import * as aiContent from "./services/aiContent.js";
@@ -46,6 +46,7 @@ import * as followupSvc from "./services/followup.js";
 import * as moderationSvc from "./services/moderation.js";
 import * as curationSvc from "./services/curation.js";
 import * as gcal from "./services/gcal.js";
+import * as assessSvc from "./services/assessment.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
@@ -1131,13 +1132,321 @@ app.post("/api/roleplay/:id/close", async (c) => {
         body: `[roleplay ${competencyName}] ${summary.resumen}${areas ? " · A mejorar: " + areas : ""}`,
       });
     } catch (e) {}
-    return c.json(summary);
+    // Puntos por practicar (1.2.0): solo si hubo conversación de verdad (3+ intervenciones del alumno), con tope diario.
+    const points = (summary.learnerTurns ?? 0) >= 3
+      ? await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "practica:roleplay", assessSvc.POINTS.roleplay, c.req.param("id")).catch(() => 0)
+      : 0;
+    return c.json({ ...summary, points });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
 app.get("/api/roleplay/mine", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   return c.json(await roleplaySvc.myRoleplays(svcDeps, ctx.orgId, ctx.userId));
+});
+
+/* ============================================================
+ * EVALUACIÓN (1.2.0) — test personalizado por bloque, examen final certificable (80 %),
+ * roleplays de control con entrevista previa y puntos por practicar. Todo acotado por empresa.
+ * Las preguntas se guardan con su clave en assessment_attempt y al cliente solo va la versión pública.
+ * ============================================================ */
+const COURSE_TITLES: Record<string, string> = {
+  index: "Guía del Coach", "outbound-sales": "Outbound Sales", "reclutamiento-partners": "Reclutamiento de Partners",
+  "marketing-partners": "Marketing para Partners", "negociacion-partner-manager": "Negociación con Partners",
+  "objeciones-partner-manager": "Objeciones de Partners", "prospeccion-social-selling": "Prospección con IA", "guia-coach-odoo": "Guía del Coach (Odoo)",
+};
+const courseCache = new Map<string, assessSvc.CourseBlock[]>();
+// ponytail: caché por proceso; el contenido de los cursos cambia con cada despliegue (reinicio).
+async function courseBlocks(slug: string): Promise<assessSvc.CourseBlock[] | null> {
+  if (!COURSE_SLUGS.has(slug)) return null;
+  const hit = courseCache.get(slug); if (hit) return hit;
+  try {
+    const blocks = assessSvc.parseCourseBlocks(await readFile(resolve(COURSE_ROOT, slug + ".html"), "utf8"));
+    if (!blocks.length) return null;
+    courseCache.set(slug, blocks); return blocks;
+  } catch { return null; }
+}
+const normSlug = (s: string) => s.replace(/^\//, "").replace(/\.html$/, "").toLowerCase();
+const slugSchema = z.string().max(120).transform(normSlug).refine((s) => COURSE_SLUGS.has(s), "curso no válido");
+const courseSrc = (slug: string) => "/" + slug + ".html";
+
+type Reto = Record<string, unknown> & { id?: string; tipo?: string; estado?: string; programadoPara?: string; curso?: string; bloque?: number; byId?: string; createdAt?: string };
+async function readRetos(orgId: string, userId?: string): Promise<{ rowId: string; userId: string; reto: Reto }[]> {
+  const conds = [eq(annotation.organizationId, orgId), eq(annotation.source, "reto")];
+  if (userId) conds.push(eq(annotation.userId, userId));
+  const rows = await db.select({ id: annotation.id, userId: annotation.userId, body: annotation.body }).from(annotation).where(and(...conds));
+  const out: { rowId: string; userId: string; reto: Reto }[] = [];
+  for (const r of rows) { const b = String(r.body || ""); if (b.indexOf("[reto]") !== 0) continue; try { out.push({ rowId: r.id, userId: r.userId, reto: JSON.parse(b.slice(6).trim()) }); } catch { /* fila rota */ } }
+  return out;
+}
+async function markRetoDone(orgId: string, userId: string, retoId: string, patch: Record<string, unknown>): Promise<void> {
+  const hit = (await readRetos(orgId, userId)).find((x) => x.reto.id === retoId);
+  if (!hit) return;
+  const obj = { ...hit.reto, ...patch, estado: "hecho", completedAt: new Date().toISOString() };
+  await db.update(annotation).set({ body: "[reto] " + JSON.stringify(obj) }).where(and(eq(annotation.id, hit.rowId), eq(annotation.organizationId, orgId)));
+}
+async function canOpenCourses(ctx: AuthCtx): Promise<boolean> { return isPlatformAdmin(ctx) || isApproved(ctx.orgId, ctx.userId); }
+const bestScore = (rows: { score: number | null }[]) => rows.reduce<number | null>((m, a) => (a.score !== null && (m === null || a.score > m) ? a.score : m), null);
+
+app.get("/api/learning/assess/outline", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const sp = slugSchema.safeParse(c.req.query("slug") || "");
+  if (!sp.success) return c.json({ error: "curso no encontrado" }, 404);
+  const slug = sp.data; const blocks = await courseBlocks(slug);
+  if (!blocks) return c.json({ error: "curso no encontrado" }, 404);
+  await assessSvc.expireStaleFinals(svcDeps, ctx.orgId, ctx.userId, slug);
+  const [atts, cfg, retos, rps, certs] = await Promise.all([
+    assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, slug),
+    assessSvc.getAssessConfig(svcDeps, ctx.orgId),
+    readRetos(ctx.orgId, ctx.userId),
+    db.select({ source: roleplaySession.source, status: roleplaySession.status }).from(roleplaySession)
+      .where(and(eq(roleplaySession.organizationId, ctx.orgId), eq(roleplaySession.userId, ctx.userId))),
+    db.select().from(certificate).where(and(eq(certificate.organizationId, ctx.orgId), eq(certificate.userId, ctx.userId))),
+  ]);
+  const now = new Date();
+  const graded = new Set<number>();
+  const perBlock = blocks.map((b) => {
+    const mine = atts.filter((a) => a.kind === "block" && a.block === b.i && a.status === "corregido");
+    if (mine.length) graded.add(b.i);
+    const best = bestScore(mine);
+    return { i: b.i, title: b.title, headings: b.headings, attempts: mine.length, best, passed: best !== null && best >= assessSvc.BLOCK_PASS_MARK };
+  });
+  const finals = atts.filter((a) => a.kind === "final");
+  const extra = retos.filter((r) => r.reto.tipo === "examen_final" && r.reto.curso === slug && assessSvc.retoAvailability(r.reto, now) === "disponible").length;
+  const open = finals.find((a) => a.status === "abierto" && a.deadlineAt && a.deadlineAt > now);
+  const gate = assessSvc.finalExamGate(finals.filter((a) => a !== open).map((a) => ({ startedAt: a.startedAt, passed: a.passed, status: a.status })), extra, now);
+  const cert = certs.find((x) => (x.evidence as { source?: string } | null)?.source === slug);
+  const done = new Set(rps.filter((r) => r.status === "cerrado" && r.source && r.source.startsWith(slug + "#")).map((r) => Number(r.source!.split("#")[1])));
+  return c.json({
+    slug, course: COURSE_TITLES[slug] || slug, blocks: perBlock,
+    roleplayEvery: assessSvc.roleplayEveryFor(cfg, slug), checkpointsDone: [...done].filter(Number.isFinite),
+    passMarks: { block: assessSvc.BLOCK_PASS_MARK, final: assessSvc.FINAL_PASS_MARK },
+    final: {
+      unlocked: assessSvc.finalUnlocked(blocks.length, graded), missing: perBlock.filter((b) => !graded.has(b.i)).map((b) => b.i),
+      minutes: assessSvc.FINAL_MINUTES, maxAttempts: assessSvc.FINAL_MAX_ATTEMPTS, cooldownHours: assessSvc.FINAL_COOLDOWN_HOURS,
+      attempts: finals.length, best: bestScore(finals), passed: finals.some((a) => a.passed), open: open ? { id: open.id, deadlineAt: open.deadlineAt } : null,
+      canStart: !!open || gate.allowed, reason: open ? null : gate.reason ?? null, remaining: gate.remaining,
+      certificate: cert ? { code: cert.code, issuedAt: cert.issuedAt } : null,
+    },
+  });
+});
+
+app.post("/api/learning/assess/quiz", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!(await canOpenCourses(ctx))) return c.json({ error: "cuenta pendiente de aprobación" }, 403);
+  if (rateLimited(`assess:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ slug: slugSchema, block: z.number().int().min(0).max(200), assignmentId: z.string().max(80).optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const { slug, block, assignmentId } = parsed.data;
+  const blocks = await courseBlocks(slug);
+  const b = blocks?.[block];
+  if (!b) return c.json({ error: "bloque no encontrado" }, 404);
+  if ((await assessSvc.countBlockQuizzesToday(svcDeps, ctx.orgId, ctx.userId, slug, block)) >= assessSvc.BLOCK_QUIZ_DAILY_MAX) {
+    return c.json({ error: `Hoy ya has hecho ${assessSvc.BLOCK_QUIZ_DAILY_MAX} tests de este bloque. Repasa el contenido y vuelve mañana.` }, 429);
+  }
+  const course = COURSE_TITLES[slug] || slug;
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, courseSrc(slug), new Set(b.headings));
+    const items = await assessSvc.generateBlockQuiz(llm, { orgId: ctx.orgId, userId: ctx.userId, course, learner, block: b });
+    const id = await assessSvc.createAttempt(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, source: slug, kind: "block", block, items, assignmentId });
+    return c.json({ attemptId: id, kind: "block", course, block: { i: b.i, title: b.title }, passMark: assessSvc.BLOCK_PASS_MARK, items: assessSvc.publicItems(items) });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+});
+
+app.post("/api/learning/assess/final", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!(await canOpenCourses(ctx))) return c.json({ error: "cuenta pendiente de aprobación" }, 403);
+  if (rateLimited(`assessfinal:${ctx.orgId}:${ctx.userId}`, 3, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ slug: slugSchema, assignmentId: z.string().max(80).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const { slug, assignmentId } = parsed.data;
+  const blocks = await courseBlocks(slug);
+  if (!blocks) return c.json({ error: "curso no encontrado" }, 404);
+  await assessSvc.expireStaleFinals(svcDeps, ctx.orgId, ctx.userId, slug);
+  const atts = await assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, slug);
+  const graded = new Set(atts.filter((a) => a.kind === "block" && a.status === "corregido").map((a) => a.block));
+  if (!assessSvc.finalUnlocked(blocks.length, graded)) return c.json({ error: "Antes del examen final haz el test de cada bloque." }, 409);
+  const course = COURSE_TITLES[slug] || slug;
+  const now = new Date();
+  const finals = atts.filter((a) => a.kind === "final");
+  const open = finals.find((a) => a.status === "abierto" && a.deadlineAt && a.deadlineAt > now);
+  if (open) { // reanudar: un examen abierto nunca se regenera (ni coste ni preguntas nuevas a la carta)
+    const row = await assessSvc.getAttempt(svcDeps, ctx.orgId, ctx.userId, open.id);
+    return c.json({ attemptId: open.id, kind: "final", course, resumed: true, deadlineAt: open.deadlineAt, passMark: assessSvc.FINAL_PASS_MARK, items: assessSvc.publicItems((row!.questions as unknown) as assessSvc.Item[]) });
+  }
+  const retos = await readRetos(ctx.orgId, ctx.userId);
+  const extra = retos.filter((r) => r.reto.tipo === "examen_final" && r.reto.curso === slug && assessSvc.retoAvailability(r.reto, now) === "disponible").length;
+  const gate = assessSvc.finalExamGate(finals.map((a) => ({ startedAt: a.startedAt, passed: a.passed, status: a.status })), extra, now);
+  if (!gate.allowed) return c.json({ error: gate.reason, nextAt: gate.nextAt ?? null }, 409);
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, courseSrc(slug));
+    const items = await assessSvc.generateFinalExam(llm, { orgId: ctx.orgId, userId: ctx.userId, course, learner, blocks });
+    const deadlineAt = new Date(Date.now() + assessSvc.FINAL_MINUTES * 60_000); // el reloj empieza cuando ya tienes las preguntas
+    const id = await assessSvc.createAttempt(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, source: slug, kind: "final", block: -1, items, assignmentId, deadlineAt });
+    return c.json({ attemptId: id, kind: "final", course, deadlineAt, passMark: assessSvc.FINAL_PASS_MARK, items: assessSvc.publicItems(items) });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+});
+
+function resultPayload(items: assessSvc.Item[], answers: unknown[], results: assessSvc.ItemResult[]) {
+  return items.map((it, i) => ({
+    type: it.type, q: it.q, options: it.type === "mc" ? it.options : undefined, correct: it.type === "mc" ? it.correct : undefined,
+    ideal: it.type === "open" ? it.ideal : undefined, answer: answers[i] ?? null,
+    earned: results[i]?.earned ?? 0, max: results[i]?.max ?? it.points, feedback: results[i]?.feedback ?? "",
+  }));
+}
+
+app.post("/api/learning/assess/:id/submit", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`assesssub:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ answers: z.array(z.union([z.number().int().min(0).max(9), z.string().max(4000), z.null()])).max(40) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const att = await assessSvc.getAttempt(svcDeps, ctx.orgId, ctx.userId, c.req.param("id"));
+  if (!att) return c.json({ error: "evaluación no encontrada" }, 404);
+  const items = (att.questions as unknown) as assessSvc.Item[];
+  const kind = att.kind === "final" ? "final" : "block";
+  const passMark = kind === "final" ? assessSvc.FINAL_PASS_MARK : assessSvc.BLOCK_PASS_MARK;
+  if (att.status === "corregido") { // idempotente: volver a entregar devuelve la misma nota y no suma puntos
+    return c.json({ score: att.score, passed: att.passed, kind, passMark, items: resultPayload(items, att.answers ?? [], (att.results as unknown as assessSvc.ItemResult[]) ?? []), points: 0 });
+  }
+  if (att.status === "caducado") return c.json({ error: "Se acabó el tiempo de este examen." }, 410);
+  const now = new Date();
+  const firstSubmit = att.submittedAt ?? now;
+  if (att.deadlineAt && firstSubmit.getTime() > att.deadlineAt.getTime() + assessSvc.SUBMIT_GRACE_MS) {
+    await assessSvc.expireStaleFinals(svcDeps, ctx.orgId, ctx.userId, att.source, now);
+    return c.json({ error: "Se acabó el tiempo de este examen." }, 410);
+  }
+  // Las respuestas se fijan en la primera entrega (si la corrección falla y se reintenta, cuentan las mismas).
+  const answers = (att.answers as unknown[] | null) ?? parsed.data.answers.slice(0, items.length);
+  if (!att.submittedAt) {
+    await db.update(assessmentAttempt).set({ answers, submittedAt: now })
+      .where(and(eq(assessmentAttempt.id, att.id), eq(assessmentAttempt.organizationId, ctx.orgId)));
+  }
+  const course = COURSE_TITLES[att.source] || att.source;
+  let grades: Map<number, { score: number; feedback: string }>;
+  try { grades = await assessSvc.gradeOpenAnswers(llm, { orgId: ctx.orgId, userId: ctx.userId, course, items, answers }); }
+  catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+  const scored = assessSvc.scoreAttempt(items, answers, grades);
+  const passed = assessSvc.isPassed(kind, scored.pct);
+  const prevBest = kind === "block"
+    ? bestScore((await assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, att.source)).filter((a) => a.kind === "block" && a.block === att.block && a.status === "corregido" && a.id !== att.id))
+    : null;
+  await assessSvc.saveGraded(svcDeps, ctx.orgId, att.id, { answers, results: scored.results, score: scored.pct, passed });
+  await assessSvc.recordForRoi(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, source: att.source, kind, block: att.block, score: scored.pct, passed }).catch(() => {});
+  let points = 0; let cert: { code: string } | null = null;
+  if (kind === "block") {
+    points = await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "evaluacion:test_bloque", assessSvc.quizPointsDelta(scored.pct, prevBest), att.id);
+  } else if (passed) {
+    points = await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "evaluacion:examen_final", assessSvc.POINTS.finalPass, att.id);
+    cert = await rewardsSvc.issueCertificate(svcDeps, {
+      orgId: ctx.orgId, userId: ctx.userId, title: course,
+      evidence: { kind: "examen_final", source: att.source, score: scored.pct, attemptId: att.id, issuer: env.CERT_ISSUER, accreditation: env.CERT_ACCREDITATION || null },
+    });
+  }
+  if (att.assignmentId) {
+    await markRetoDone(ctx.orgId, ctx.userId, att.assignmentId, { resultado: `Nota ${scored.pct}/100 · ${passed ? "superado" : "no superado"}`, score: scored.pct, attemptId: att.id }).catch(() => {});
+  }
+  return c.json({ score: scored.pct, passed, kind, passMark, earned: scored.earned, total: scored.total, items: resultPayload(items, answers, scored.results), points, certificate: cert ? { code: cert.code } : null });
+});
+
+// Contexto del roleplay: curso (y hasta qué bloque) o tema libre. Devuelve tema, temario y fuente.
+async function roleplayScope(b: { slug?: string; upToBlock?: number; topic?: string }): Promise<{ topic: string; syllabus: string; src: string | null; source: string | null } | null> {
+  if (b.slug) {
+    const blocks = await courseBlocks(b.slug);
+    if (!blocks) return null;
+    const course = COURSE_TITLES[b.slug] || b.slug;
+    const upTo = b.upToBlock !== undefined ? Math.min(b.upToBlock, blocks.length - 1) : blocks.length - 1;
+    const covered = blocks.slice(0, upTo + 1);
+    const recent = b.upToBlock !== undefined ? covered.slice(-3) : covered;
+    const per = Math.floor(6000 / Math.max(1, recent.length));
+    const syllabus = "Bloques vistos: " + covered.map((x) => x.title).join(" · ") + "\n\n" + recent.map((x) => `## ${x.title}\n${x.text.slice(0, per)}`).join("\n\n");
+    const focus = b.topic && b.topic.trim() ? " · " + b.topic.trim() : (b.upToBlock !== undefined ? " · " + recent.slice(-2).map((x) => x.title).join(", ") : "");
+    return { topic: (course + focus).slice(0, 200), syllabus, src: courseSrc(b.slug), source: b.upToBlock !== undefined ? `${b.slug}#${upTo}` : b.slug };
+  }
+  const t = (b.topic || "").trim();
+  return t.length >= 3 ? { topic: t.slice(0, 200), syllabus: t, src: null, source: null } : null;
+}
+const scopeSchema = { slug: slugSchema.optional(), upToBlock: z.number().int().min(0).max(200).optional(), topic: z.string().max(200).optional() };
+
+app.post("/api/roleplay/interview", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas sesiones, espera un momento" }, 429);
+  const parsed = z.object(scopeSchema).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const scope = await roleplayScope(parsed.data);
+  if (!scope) return c.json({ error: "elige un curso o escribe un tema para practicar" }, 400);
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, scope.src);
+    const preguntas = await assessSvc.interviewQuestions(llm, { orgId: ctx.orgId, userId: ctx.userId, topic: scope.topic, syllabus: scope.syllabus, learner, model: env.MODEL_FAST });
+    return c.json({ topic: scope.topic, preguntas });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+});
+
+app.post("/api/roleplay/checkpoint", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas sesiones, espera un momento" }, 429);
+  const parsed = z.object({ ...scopeSchema, interview: z.array(z.object({ q: z.string().max(300), a: z.string().max(2000) })).max(4).optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const scope = await roleplayScope(parsed.data);
+  if (!scope) return c.json({ error: "elige un curso o escribe un tema para practicar" }, 400);
+  const interview = (parsed.data.interview ?? []).map((x) => ({ q: x.q.trim(), a: x.a.trim() })).filter((x) => x.q);
+  // Las respuestas de la entrevista son datos reales del alumno: se guardan como sus notas (memoria del tutor).
+  for (const x of interview) {
+    if (!x.a) continue;
+    await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: scope.src || "roleplay", kind: "insight", cardTitle: "Entrevista", body: `[entrevista] ${x.q} — ${x.a}`.slice(0, 2400) }).catch(() => {});
+  }
+  const interviewPts = await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "practica:entrevista", assessSvc.interviewPoints(interview.map((x) => x.a)));
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, scope.src);
+    const brief = await assessSvc.roleplayBrief(llm, { orgId: ctx.orgId, userId: ctx.userId, topic: scope.topic, syllabus: scope.syllabus, interview, learner });
+    const turn = await roleplaySvc.startRoleplay(svcDeps, llm, {
+      competencyId: "libre", competencyName: scope.topic, brief: brief.brief, source: scope.source, topic: brief.titulo, interview,
+      sector: profile?.sector, puesto: profile?.puesto, empresa: extras.empresa, orgId: ctx.orgId, userId: ctx.userId,
+    });
+    return c.json({ ...turn, titulo: brief.titulo, topic: scope.topic, points: interviewPts });
+  } catch (e) { return c.json({ error: String((e as Error).message), points: interviewPts }, 502); }
+});
+
+app.get("/api/config/assessment", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const cfg = await assessSvc.getAssessConfig(svcDeps, ctx.orgId);
+  return c.json({ ...cfg, defaultEvery: assessSvc.ROLEPLAY_EVERY_DEFAULT, courses: [...COURSE_SLUGS].map((s) => ({ slug: s, name: COURSE_TITLES[s] || s, every: assessSvc.roleplayEveryFor(cfg, s) })) });
+});
+app.post("/api/config/assessment", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin", "direccion") && !isPlatformAdmin(ctx)) return c.json({ error: "solo admin/dirección" }, 403);
+  const parsed = z.object({ roleplayEvery: z.record(z.string().max(120), z.number().int().min(0).max(6)) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const clean: Record<string, number> = {};
+  for (const [k, v] of Object.entries(parsed.data.roleplayEvery)) { const s = normSlug(k); if (COURSE_SLUGS.has(s)) clean[s] = v; }
+  return c.json({ ok: true, ...(await assessSvc.saveAssessConfig(svcDeps, ctx.orgId, { roleplayEvery: clean })) });
+});
+
+// Mis certificados (para pintarlos e imprimirlos). La verificación pública va aparte y devuelve lo mínimo.
+app.get("/api/certificates/mine", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const rows = await db.select().from(certificate).where(and(eq(certificate.organizationId, ctx.orgId), eq(certificate.userId, ctx.userId))).orderBy(desc(certificate.issuedAt));
+  return c.json({
+    holderName: ctx.userName, orgName: ctx.orgName,
+    items: rows.map((r) => {
+      const ev = (r.evidence ?? {}) as { kind?: string; source?: string; score?: number; issuer?: string; accreditation?: string | null };
+      return { code: r.code, title: r.title, issuedAt: r.issuedAt, expiresAt: r.expiresAt, kind: ev.kind ?? null, source: ev.source ?? null, score: ev.score ?? null,
+        issuer: ev.issuer || env.CERT_ISSUER, accreditation: ev.accreditation || env.CERT_ACCREDITATION || null };
+    }),
+  });
 });
 
 /* ============================================================
@@ -1349,9 +1658,14 @@ app.post("/api/rewards/evaluate", async (c) => {
 app.get("/api/certificates/:code/verify", async (c) => {
   const cert = await rewardsSvc.verifyCertificate(svcDeps, c.req.param("code"));
   if (!cert) return c.json({ valid: false }, 404);
+  // Lo mínimo para verificar: a nombre de quién, qué, cuándo y quién lo emite (sin email ni empresa).
+  const [holder] = await db.select({ name: user.name }).from(user).where(eq(user.id, cert.userId));
+  const ev = (cert.evidence ?? {}) as { kind?: string; score?: number; issuer?: string; accreditation?: string | null };
   return c.json({
     valid: !cert.expired, expired: cert.expired,
     title: cert.title, issuedAt: cert.issuedAt, expiresAt: cert.expiresAt,
+    holderName: holder?.name ?? null, issuer: ev.issuer || env.CERT_ISSUER, accreditation: ev.accreditation || env.CERT_ACCREDITATION || null,
+    score: ev.kind === "examen_final" ? ev.score ?? null : null,
   });
 });
 
@@ -1808,30 +2122,85 @@ app.post("/api/learning/challenges", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...CHALLENGE_MANAGERS)) return c.json({ error: "requiere responsable/admin" }, 403);
+  // 1.2.0: además de roleplay/caso, un test de bloque o un intento del examen final, con fecha y mensaje.
   const parsed = z.object({
-    assignedToUserId: z.string().min(1), tipo: z.enum(["roleplay", "caso"]),
-    titulo: z.string().min(1).max(200), brief: z.string().min(1).max(1500),
+    assignedToUserId: z.string().min(1), tipo: z.enum(["roleplay", "caso", "test_bloque", "examen_final"]),
+    titulo: z.string().max(200).optional(), brief: z.string().max(1500).optional(),
     tema: z.string().max(200).optional(), competencyId: z.string().optional(), dificultad: z.string().max(40).optional(),
+    curso: slugSchema.optional(), bloque: z.number().int().min(0).max(200).optional(),
+    programadoPara: z.string().datetime({ offset: true }).optional(), mensaje: z.string().max(600).optional(),
     organizationId: z.string().optional(), // solo el superadmin puede retar en otra empresa
+  }).superRefine((d, k) => {
+    if ((d.tipo === "roleplay" || d.tipo === "caso") && !(d.titulo && d.titulo.trim() && d.brief && d.brief.trim())) k.addIssue({ code: "custom", message: "falta título o instrucciones" });
+    if ((d.tipo === "test_bloque" || d.tipo === "examen_final") && !d.curso) k.addIssue({ code: "custom", message: "falta el curso" });
+    if (d.tipo === "test_bloque" && d.bloque === undefined) k.addIssue({ code: "custom", message: "falta el bloque" });
   }).safeParse(await c.req.json().catch(() => ({})));
-  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
-  const orgId = (isPlatformAdmin(ctx) && parsed.data.organizationId) ? parsed.data.organizationId : ctx.orgId;
-  const [tgt] = await db.select().from(member).where(and(eq(member.organizationId, orgId), eq(member.userId, parsed.data.assignedToUserId)));
+  if (!parsed.success) return c.json({ error: parsed.error.issues[0]?.message || "cuerpo invalido" }, 400);
+  const d = parsed.data;
+  const orgId = (isPlatformAdmin(ctx) && d.organizationId) ? d.organizationId : ctx.orgId;
+  const [tgt] = await db.select().from(member).where(and(eq(member.organizationId, orgId), eq(member.userId, d.assignedToUserId)));
   if (!tgt) return c.json({ error: "esa persona no está en esa organización" }, 400);
+  let titulo = (d.titulo || "").trim();
+  if (d.tipo === "test_bloque" || d.tipo === "examen_final") {
+    const blocks = await courseBlocks(d.curso!);
+    if (!blocks) return c.json({ error: "curso no encontrado" }, 404);
+    if (d.tipo === "test_bloque" && !blocks[d.bloque!]) return c.json({ error: "bloque no encontrado" }, 400);
+    const course = COURSE_TITLES[d.curso!] || d.curso!;
+    if (!titulo) titulo = d.tipo === "examen_final" ? `Examen final · ${course}` : `Test del bloque ${d.bloque! + 1} · ${blocks[d.bloque!]!.title}`.slice(0, 200);
+  }
   const reto = {
-    id: newId(), tipo: parsed.data.tipo, titulo: parsed.data.titulo, brief: parsed.data.brief,
-    tema: parsed.data.tema || "", competencyId: parsed.data.competencyId || "", dificultad: parsed.data.dificultad || "",
+    id: newId(), tipo: d.tipo, titulo, brief: d.brief || "",
+    tema: d.tema || "", competencyId: d.competencyId || "", dificultad: d.dificultad || "",
+    curso: d.curso || "", bloque: d.bloque ?? null, programadoPara: d.programadoPara || null, mensaje: d.mensaje || "",
     by: ctx.userName, byId: ctx.userId, createdAt: new Date().toISOString(), estado: "pendiente",
   };
-  await notesSvc.create(svcDeps, orgId, parsed.data.assignedToUserId, { source: "reto", kind: "insight", body: "[reto] " + JSON.stringify(reto) });
+  await notesSvc.create(svcDeps, orgId, d.assignedToUserId, { source: "reto", kind: "insight", body: "[reto] " + JSON.stringify(reto) });
+  // Aviso a la persona: correo (si hay proveedor) y evento en su Google Calendar si lo tiene conectado. No bloquea.
+  void (async () => {
+    const [u] = await db.select({ email: user.email, name: user.name }).from(user).where(eq(user.id, d.assignedToUserId));
+    const when = reto.programadoPara ? new Date(reto.programadoPara).toLocaleString("es-ES", { timeZone: "Europe/Madrid", dateStyle: "full", timeStyle: "short" }) : "";
+    const link = `${env.APP_URL.replace(/\/$/, "")}/app/reto.html?id=${encodeURIComponent(reto.id)}`;
+    if (u?.email) {
+      await sendMail({
+        to: u.email, subject: `${ctx.userName} te ha asignado: ${titulo}`,
+        text: `Hola${u.name ? " " + u.name : ""}:\n\n${ctx.userName} te ha asignado «${titulo}» en SkillUp.${when ? `\nFecha: ${when}.` : ""}${reto.mensaje ? `\n\nSu mensaje: ${reto.mensaje}` : ""}\n\nEntra aquí: ${link}\n`,
+      }).catch(() => {});
+    }
+    if (reto.programadoPara) {
+      const refresh = await gcalRefresh(orgId, d.assignedToUserId);
+      const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
+      if (access) {
+        const start = new Date(reto.programadoPara);
+        const mins = d.tipo === "examen_final" ? assessSvc.FINAL_MINUTES + 15 : 30;
+        await gcal.insertEvent(access, { summary: `SkillUp · ${titulo}`, description: `${reto.mensaje ? reto.mensaje + "\n\n" : ""}${link}`, startISO: start.toISOString(), endISO: new Date(start.getTime() + mins * 60_000).toISOString() });
+      }
+    }
+  })().catch(() => {});
   return c.json({ id: reto.id });
+});
+
+// Lo que un responsable ha asignado y cómo va (estado y resultado). Admin/dirección ven los de toda la empresa.
+app.get("/api/learning/challenges/assigned", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...CHALLENGE_MANAGERS)) return c.json({ error: "requiere responsable/admin" }, 403);
+  const all = hasRole(ctx, "admin", "direccion") || isPlatformAdmin(ctx);
+  const [rows, people] = await Promise.all([readRetos(ctx.orgId), orgSvc.listMembers(svcDeps, ctx.orgId)]);
+  const names = new Map(people.map((p) => [p.userId, p.name]));
+  const now = new Date();
+  const items = rows.filter((r) => all || r.reto.byId === ctx.userId)
+    .map((r) => ({ ...r.reto, learnerId: r.userId, learnerName: names.get(r.userId) || "", disponibilidad: assessSvc.retoAvailability(r.reto, now) }))
+    .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+  return c.json({ items });
 });
 
 app.get("/api/learning/challenges/mine", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   const items = await notesSvc.list(svcDeps, ctx.orgId, ctx.userId, "reto").catch(() => [] as { body: string | null }[]);
-  const retos = items.map((it) => { const b = String(it.body || ""); if (b.indexOf("[reto]") !== 0) return null; try { return JSON.parse(b.slice(6).trim()); } catch { return null; } }).filter(Boolean);
+  const now = new Date();
+  const retos = items.map((it) => { const b = String(it.body || ""); if (b.indexOf("[reto]") !== 0) return null; try { return JSON.parse(b.slice(6).trim()); } catch { return null; } }).filter(Boolean)
+    .map((r) => ({ ...r, disponibilidad: assessSvc.retoAvailability(r, now) }));
   return c.json({ retos });
 });
 

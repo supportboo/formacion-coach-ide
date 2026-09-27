@@ -18,7 +18,10 @@
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
     help: '<circle cx="12" cy="12" r="9"/><path d="M9.2 9.5a2.8 2.8 0 1 1 3.6 2.7c-.8.3-1.3 1-1.3 1.8v.3"/><circle cx="12" cy="17.2" r="0.6" fill="currentColor" stroke="none"/>',
     pyramid: '<path d="M12 3l9 17H3z"/><path d="M7.5 12h9M9.7 7.5h4.6"/>',
-    exit: '<path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h9"/>'
+    exit: '<path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h9"/>',
+    chat: '<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M17 9h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-4-3h-3"/>',
+    award: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/>',
+    assign: '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M8 12l2.5 2.5L16 9"/>'
   };
   function svg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON[k] || ICON.home) + '</svg>'; }
 
@@ -28,9 +31,12 @@
     ['/app/inicio.html', 'Formaciones', 'route', 'base'],
     ['/app/explorar.html', 'Explorar', 'compass', 'base'],
     ['/app/videos.html', 'Vídeos', 'video', 'base'],
+    ['/app/roleplays.html', 'Roleplays', 'chat', 'base'],
     ['/app/ranking.html', 'Ranking', 'trophy', 'base'],
+    ['/app/certificado.html', 'Certificados', 'award', 'base'],
     ['/app/team-dna.html', 'Team DNA', 'dna', 'base'],
     ['/app/ayuda.html', 'Ayuda', 'help', 'base'],
+    ['/app/asignar.html', 'Asignar pruebas', 'assign', 'manager'],
     ['/app/validar.html', 'Validar casos', 'check', 'manager'],
     ['/app/panel.html', 'Panel de empresa', 'building', 'manager'],
     ['/app/piramides.html', 'Pirámides', 'pyramid', 'manager'],

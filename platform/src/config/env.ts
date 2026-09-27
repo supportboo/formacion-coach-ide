@@ -32,6 +32,10 @@ const schema = z.object({
   STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   APP_URL: z.string().default("http://localhost:8080"), // base para redirects de Stripe Checkout
+  // Certificados de curso (1.2.0). Hoy son internos de Brandooers; cuando haya un organismo externo que los
+  // acredite, se pone su nombre en CERT_ACCREDITATION y aparece en el certificado y en la verificación.
+  CERT_ISSUER: z.string().default("Brandooers"),
+  CERT_ACCREDITATION: z.string().default(""),
   // Emails con acceso de superadmin (todas las organizaciones, no solo la suya). Separados por coma.
   PLATFORM_ADMIN_EMAILS: z.string().default("").transform((v) => v.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)),
   // user.id (better-auth) de los mismos superadmins, para el plugin admin (impersonar perfiles de prueba).
