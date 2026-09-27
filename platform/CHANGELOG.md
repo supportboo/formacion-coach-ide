@@ -1,5 +1,17 @@
 # Changelog · SkillUp platform
 
+## 1.3.0 — 2026-09-28
+
+### Supervisión en directo («En directo», `/app/en-directo.html`)
+- **Tablero en directo** para coach, team leader, admin, dirección y superadmin (con selector de empresa): quién está conectado (latido en 60 s), en qué curso y sección, cuánto tiempo lleva, % leído, inactivos y señales de atasco (≥ 12 min en la misma sección, 2 suspensos del mismo test sin aprobar después, roleplay abierto ≥ 30 min, 7 días sin entrar). Filtros y búsqueda. Inspirador: solo métricas agregadas. Aún no hay equipos en la plataforma: «equipo» = toda la empresa.
+- **Ficha por persona**: progreso por curso (anillos, notas por bloque, examen final, certificados), roleplays, tiempo activo real, racha, sesiones, puntos, mapa de calor día × hora, Team DNA, actividad reciente y la conversación con el tutor.
+- **Vista previa** de la misma página y sección que lee la persona, reproducida con la sesión del responsable en un iframe reducido (no es su pantalla). No se reproducen tests ni roleplays.
+- **Intervención humana**: el responsable escribe en el chat del tutor; llega con nombre y rol, distinto de la IA, en casi tiempo real; el tutor lo tiene en cuenta y no lo contradice. Si no está en el curso, le llega como aviso en su siguiente página.
+- **Métricas tipo Odoo**: activos 24 h / 7 / 30 días, minutos activos y sesiones por día, embudo por curso, bloques más difíciles, tiempo hasta certificarse, roleplays y quién necesita ayuda primero. Cada cifra con definición, n y «Medido / Sin datos».
+- **Resumen con IA** (modelo rápido, caché 15 min) de la persona o de la empresa, solo con datos medidos.
+- **Garantías (ET art. 20.3 y 20 bis, LOPDGDD art. 87-89)**: aviso visible y obligatorio «Tu coach X está siguiendo tu sesión»; aviso informativo único de qué se ve; sin grabación de pantalla, teclado ni cámara; interruptor de empresa para el seguimiento en directo; retención de 90 días; exportación y borrado RGPD; auditoría de cada ficha abierta y cada intervención. La ayuda de supervisión solo la reciben los roles que la usan.
+- Migración `0021_live_supervision` (tabla `activity_event`; columnas nuevas en `agent_thread`, `agent_message` y `company_config`).
+
 ## 1.2.0 — 2026-09-27
 
 ### Evaluación y certificación

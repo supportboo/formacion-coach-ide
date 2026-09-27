@@ -154,15 +154,19 @@ var GUIDE = {
 
 var order=['empleado','responsable','admin'];
 var tabs=document.getElementById('tabs'), profs=document.getElementById('profiles');
+function render(){
 tabs.innerHTML=order.map(function(k){return '<button class="tab" data-k="'+k+'">'+E(GUIDE[k].name)+'</button>';}).join('');
 profs.innerHTML=order.map(function(k){
   var g=GUIDE[k];
   var steps=g.steps.map(function(s,i){
     return '<div class="step"><span class="n">'+(i+1)+'</span><h3>'+E(s.h)+'</h3>'
-      +'<p class="desc">'+E(s.d)+'</p>'+fig(s.img, s.mob, s.annos)+'</div>';
+      +'<p class="desc">'+E(s.d)+'</p>'+(s.img?fig(s.img, s.mob, s.annos):'')+'</div>';
   }).join('');
   return '<section class="prof" data-k="'+k+'"><div class="pintro"><h2>'+E(g.name)+'</h2><p>'+E(g.intro)+'</p></div>'+steps+'</section>';
 }).join('');
+tabs.querySelectorAll('.tab').forEach(function(b){ b.onclick=function(){ show(b.getAttribute('data-k')); }; });
+}
+render();
 
 function show(k){
   order.forEach(function(x){
@@ -172,12 +176,14 @@ function show(k){
   layoutAll();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-if(window.ResizeObserver){ var ro=new ResizeObserver(function(es){ es.forEach(function(e){ layoutFig(e.target); }); });
-  document.querySelectorAll('.fig[data-fig]').forEach(function(f){ ro.observe(f); }); }
+var ro=window.ResizeObserver?new ResizeObserver(function(es){ es.forEach(function(e){ layoutFig(e.target); }); }):null;
+function bindFigs(){
+  if(ro) document.querySelectorAll('.fig[data-fig]').forEach(function(f){ ro.observe(f); });
+  document.querySelectorAll('.fig img').forEach(function(im){ im.addEventListener('load',function(){ layoutFig(im.parentNode); }); });
+}
+bindFigs();
 addEventListener('resize',layoutAll);
-document.querySelectorAll('.fig img').forEach(function(im){ im.addEventListener('load',function(){ layoutFig(im.parentNode); }); });
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutAll);
-tabs.querySelectorAll('.tab').forEach(function(b){ b.onclick=function(){ show(b.getAttribute('data-k')); }; });
 
 // Abrir por defecto en el perfil del usuario.
 (async function(){
@@ -185,6 +191,15 @@ tabs.querySelectorAll('.tab').forEach(function(b){ b.onclick=function(){ show(b.
   try{ var me=await SkillUp.api('/api/org/me'); var r=me&&me.role;
     if(r==='team_leader'||r==='inspirador') def='responsable';
     else if(r==='admin'||r==='direccion'||me.platformAdmin) def='admin';
+    // Guías extra por rol: el servidor decide según el rol REAL de la sesión; el texto no vive en esta página.
+    var cp=(me&&me.capabilities)||{};
+    if(cp['activity.read']||cp['activity.metrics']){
+      var h=await SkillUp.api('/api/analytics/live/help').catch(function(){return null;});
+      if(h&&h.steps&&h.steps.length){
+        GUIDE.live={name:h.name,intro:h.intro,steps:h.steps.map(function(x){return {h:x.h,d:x.d};})};
+        order.push('live'); render(); bindFigs();
+      }
+    }
   }catch(e){}
   show(def);
 })();

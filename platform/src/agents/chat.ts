@@ -24,6 +24,10 @@ export interface ChatInput {
   role: string;
   threadId?: string;
   message: string;
+  /** Texto que el alumno ve de su mensaje (sin instrucciones internas). Lo lee el responsable que le acompaña. */
+  display?: string;
+  /** Curso del hilo (slug), para ordenar las conversaciones en la supervisión. */
+  source?: string;
 }
 
 export interface ChatResult { threadId: string; reply: string }
@@ -47,7 +51,7 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
     threadId = deps.newId();
     await deps.db.insert(agentThread).values({
       id: threadId, organizationId: input.orgId, userId: input.userId,
-      role: input.role, title: input.message.slice(0, 60),
+      role: input.role, title: (input.display ?? input.message).slice(0, 60), source: input.source ?? null,
     });
   }
 
@@ -73,20 +77,19 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   const history = await deps.db.select().from(agentMessage)
     .where(and(eq(agentMessage.threadId, threadId), eq(agentMessage.organizationId, input.orgId)))
     .orderBy(asc(agentMessage.createdAt));
-  const msgs: LlmMessage[] = history.map((m) => ({
-    role: m.sender === "user" ? "user" : "assistant", content: m.content,
-  }));
+  const msgs = historyToLlm(history);
   msgs.push({ role: "user", content: input.message });
+  const humanJoined = history.some((m) => m.sender === "coach");
 
   // 4) generar
   const reply = await deps.llm.generate({
-    system: agent.system(ctx), messages: msgs, model: agent.model,
+    system: agent.system(ctx) + (humanJoined ? HUMAN_COACH_NOTE : ""), messages: mergeTurns(msgs), model: agent.model,
     orgId: input.orgId, userId: input.userId, kind: "chat",
   });
 
   // 5) persistir + auditar
   await deps.db.insert(agentMessage).values([
-    { id: deps.newId(), organizationId: input.orgId, threadId, sender: "user", content: input.message },
+    { id: deps.newId(), organizationId: input.orgId, threadId, sender: "user", content: input.message, display: input.display ?? null },
     { id: deps.newId(), organizationId: input.orgId, threadId, sender: "agent", content: reply },
   ]);
   await deps.db.insert(auditLog).values({
@@ -95,6 +98,28 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   });
 
   return { threadId, reply };
+}
+
+// 1.3.0: un responsable humano (coach, team leader, admin…) puede escribir en este mismo hilo.
+export const HUMAN_COACH_NOTE = "\n\nACOMPAÑAMIENTO HUMANO: en esta conversación también participa una persona real del equipo del alumno (coach, team leader o responsable). Sus mensajes llegan marcados como [Mensaje de <nombre>, <rol>]. No los contradigas ni los corrijas: apoya su indicación, continúa en su línea y, si el alumno le responde a esa persona, deja que sea ella quien conteste lo que le pregunta directamente. Nunca te hagas pasar por esa persona.";
+
+type StoredMsg = { sender: string; content: string; authorName?: string | null; authorRole?: string | null };
+/** Historial guardado → turnos del modelo. Los mensajes humanos del responsable van como contexto marcado. */
+export function historyToLlm(history: StoredMsg[]): LlmMessage[] {
+  return history.map((m) => m.sender === "coach"
+    ? { role: "assistant" as const, content: `[Mensaje de ${m.authorName || "tu responsable"}, ${m.authorRole || "responsable"}] ${m.content}` }
+    : { role: m.sender === "user" ? "user" as const : "assistant" as const, content: m.content });
+}
+
+/** Une turnos seguidos del mismo rol (un mensaje humano justo tras la IA) para cualquier proveedor. */
+export function mergeTurns(msgs: LlmMessage[]): LlmMessage[] {
+  const out: LlmMessage[] = [];
+  for (const m of msgs) {
+    const last = out[out.length - 1];
+    if (last && last.role === m.role) last.content += "\n\n" + m.content;
+    else out.push({ ...m });
+  }
+  return out;
 }
 
 /** Módulos de la ruta del alumno (guardada como nota source='ruta' body '[ruta-plan] <json>'). */
