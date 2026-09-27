@@ -12,6 +12,8 @@
 - **Los tutores usan el perfil de verdad:** al terminar se guarda un resumen («[perfil] …» en las notas de onboarding) que reciben el chat de agentes (`registry.ts`), los tutores de curso, Explorar y el asistente BOO; el coach de voz usa la motivación para su empujón.
 - **Perfiles del equipo para gestores** (`/app/team-dna.html#equipo`, enlazado desde el mapa del equipo): cómo hablar, cómo aprende y qué motiva a cada persona.
 - Endpoints `/api/teamdna/profile/{catalog,me,answers,finish,restart,team}` (Zod, multiempresa, puntuación determinista en servidor, sin IA). Migración `0018_teamdna_profile_v2` (tabla `team_profile`).
+- **Vídeos dentro del curso** (`curso.html`): el botón «Vídeos» ya no saca del curso; abre a la izquierda el panel «Vídeos del curso» con miniaturas (los mismos vídeos reales de YouTube de `videos.html`, misma caché por tema) y los del bloque que estás leyendo arriba con la marca «Este bloque». El vídeo se ve dentro del panel, se puede ampliar junto al texto (vista dividida) o a pantalla completa, y el texto conserva la posición de lectura. PC ≥1100 px: columna entre el texto y el chat; tableta y móvil: se desliza sobre el contenido. Recuerda si lo dejaste abierto (solo en PC), Esc cierra vídeo y panel.
+- **Flechas y notas del mapa de la ruta editables** (`ruta.html`): seleccionar, mover, curvar con el punto central, borrar (botón o Supr) y deshacer (Ctrl+Z o botón, 60 pasos); las notas se editan con doble toque.
 - RGPD: el perfil (y el Team DNA antiguo) entran en la exportación y en el derecho al olvido; el reinicio de onboarding del superadmin también lo borra.
 
 ### Informe de ROI con metodología reconocida (sustituye al de 1.0.0)
