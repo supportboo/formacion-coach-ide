@@ -2,7 +2,7 @@ import { and, eq, inArray, ne } from "drizzle-orm";
 import {
   agentMessage, agentThread, annotation, appliedCase, auditLog, certificate, coaching,
   enrollment, fundaeParticipation, levelByCompetency, member, onboardingProfile,
-  pointsLedger, rewardGrant, roleplaySession, testAttempt, user, validation,
+  pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
@@ -43,6 +43,10 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
     // Course notes/highlights/questions, onboarding answers and roleplay transcripts.
     notes: await deps.db.select().from(annotation)
       .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId))),
+    teamDna: await deps.db.select().from(teamDna)
+      .where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId))),
+    teamProfile: await deps.db.select().from(teamProfile)
+      .where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId))),
     roleplays: await deps.db.select().from(roleplaySession)
       .where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId))),
     chatThreads: await deps.db.select().from(agentThread)
@@ -74,6 +78,9 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   await deps.db.delete(onboardingProfile).where(and(eq(onboardingProfile.organizationId, orgId), eq(onboardingProfile.userId, userId)));
   // Free text: course notes/questions/company summary and roleplay transcripts.
   await deps.db.delete(annotation).where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId)));
+  // Personality/learning profile: personal data with no legal retention duty.
+  await deps.db.delete(teamDna).where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId)));
+  await deps.db.delete(teamProfile).where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
   await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
   await deps.db.update(appliedCase).set({ submission: null })
     .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
