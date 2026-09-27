@@ -519,6 +519,9 @@ export async function humanMessagesSince(deps: SvcDeps, orgId: string, userId: s
 
 /* ---------------------------------------------------------------- métricas de la empresa */
 
+// Fechas en SQL crudo: el driver postgres no acepta Date como parámetro (solo texto) -> ISO + cast explícito.
+const ts = (d: Date) => sql`${d.toISOString()}::timestamptz`;
+
 /** Por usuario y hora: segundos activos, eventos y sesiones que empiezan (hueco > 30 min). */
 async function hourly(deps: SvcDeps, orgId: string, since: Date, userId?: string) {
   const res = await deps.db.execute(sql`
@@ -528,7 +531,7 @@ async function hourly(deps: SvcDeps, orgId: string, since: Date, userId?: string
       select user_id, created_at, active_sec,
              created_at - lag(created_at) over (partition by user_id order by created_at) as gap
       from activity_event
-      where organization_id = ${orgId} and kind not in ('nudge', 'notice') and created_at >= ${since}
+      where organization_id = ${orgId} and kind not in ('nudge', 'notice') and created_at >= ${ts(since)}
         ${userId ? sql`and user_id = ${userId}` : sql``}
     ) t
     group by 1, 2`);
@@ -542,11 +545,11 @@ export async function orgMetrics(deps: SvcDeps, orgId: string, titles: Record<st
     deps.db.select({ userId: member.userId }).from(member).where(eq(member.organizationId, orgId)),
     hourly(deps, orgId, since),
     deps.db.execute(sql`
-      select count(distinct user_id) filter (where created_at >= ${new Date(now.getTime() - 86_400_000)})::int as dau,
-             count(distinct user_id) filter (where created_at >= ${new Date(now.getTime() - 7 * 86_400_000)})::int as wau,
-             count(distinct user_id) filter (where created_at >= ${new Date(now.getTime() - 30 * 86_400_000)})::int as mau
+      select count(distinct user_id) filter (where created_at >= ${ts(new Date(now.getTime() - 86_400_000))})::int as dau,
+             count(distinct user_id) filter (where created_at >= ${ts(new Date(now.getTime() - 7 * 86_400_000))})::int as wau,
+             count(distinct user_id) filter (where created_at >= ${ts(new Date(now.getTime() - 30 * 86_400_000))})::int as mau
       from activity_event where organization_id = ${orgId} and kind not in ('nudge', 'notice')
-        and created_at >= ${new Date(now.getTime() - 30 * 86_400_000)}`),
+        and created_at >= ${ts(new Date(now.getTime() - 30 * 86_400_000))}`),
     deps.db.selectDistinct({ userId: activityEvent.userId, source: activityEvent.source }).from(activityEvent)
       .where(and(eq(activityEvent.organizationId, orgId), sql`${activityEvent.source} is not null`, ne(activityEvent.kind, "nudge"))),
     deps.db.select({ userId: assessmentAttempt.userId, source: assessmentAttempt.source, kind: assessmentAttempt.kind, block: assessmentAttempt.block, score: assessmentAttempt.score, passed: assessmentAttempt.passed, status: assessmentAttempt.status, startedAt: assessmentAttempt.startedAt })
