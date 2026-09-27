@@ -100,6 +100,9 @@ button{font-family:inherit}
 .kwrap{display:inline}
 .kw{border-radius:4px;padding:0 1px;transition:background-color .1s,color .1s}
 .kw.on{background:var(--teal2);color:#08161a;font-weight:600}
+.msgb.h{align-self:flex-start;background:rgba(240,198,69,.08);border:1.5px solid rgba(240,198,69,.5);color:var(--ink);border-bottom-left-radius:4px}
+.msgb.h .hwho{display:flex;align-items:center;gap:7px;margin-bottom:4px;font-weight:800;font-size:12.5px;color:var(--ink);white-space:normal}
+.msgb.h .hbadge{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:rgba(240,198,69,.18);color:var(--gold)}
 .msgb.u{align-self:flex-end;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;border-bottom-right-radius:4px}
 .cp-row{display:flex;gap:7px;padding:11px;border-top:1px solid var(--line)}
 .cp-row .mic{width:42px;border:1px solid var(--line);border-radius:11px;background:var(--glass);color:var(--aub2);cursor:pointer;flex:none;display:grid;place-items:center}
@@ -256,6 +259,7 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 <div class="app" id="app" hidden></div>
 
 <script src="/app/api.js"></script>
+<script src="/app/activity.js"></script>
 <script src="/app/nav.js" defer></script>
 <script src="/app/dictation.js"></script>
 <script src="/app/assess.js"></script>
@@ -463,6 +467,7 @@ function wireDeck(){
     var cm=document.getElementById('ccMsg'); if(cm) cm.textContent=PERSONA.name+': '+NUDGES[idx%NUDGES.length].replace('{t}',CARDS[idx].title);
     if(window._cvSection) window._cvSection(idx);
     if(window._onSection) window._onSection(idx);
+    if(window.SkillUpActivity) SkillUpActivity.section({source:SLUG,index:idx,title:CARDS[idx].title});
     if(window.SkillUpAssess) SkillUpAssess.onCard(idx);};
   prev.onclick=function(){window._go(idx-1)};next.onclick=function(){if(idx===CARDS.length-1){if(window.SkillUpAssess&&SkillUpAssess.finish())return;location.href='/app/inicio.html';return;}window._go(idx+1)};
   document.getElementById('idxBtn').onclick=function(){document.getElementById('idx').classList.add('open')};
@@ -672,6 +677,8 @@ function wireTutor(){
   var vsel=document.getElementById('vsel'),spk=document.getElementById('spk'),mic=document.getElementById('mic'),cpCtx=document.getElementById('cpCtx');
   var threadId=null,greeted=false,voiceOn=true,ttsOn=true,voiceId=(PERSONA&&PERSONA.voice)||null,curAudio=null,interacted=false,userMemory=[],profile=[];
   var userMsgs=0,synthed=false,contextCard='';
+  // Vista previa de un responsable (iframe o ?preview=1): el tutor no habla ni gasta voz.
+  if(window.SkillUpActivity&&SkillUpActivity.preview) voiceOn=false;
   // Historial persistente del asistente, por curso y en el mismo navegador: al cerrar la ventana
   // o cambiar de pestaña no se debe perder. Los mensajes tambien viven en el backend (threadId);
   // aqui guardamos la transcripcion visible y el puntero del hilo para retomarlo tal cual.
@@ -680,7 +687,7 @@ function wireTutor(){
   try{ hist=JSON.parse(localStorage.getItem(HKEY)||'[]'); if(!Array.isArray(hist)) hist=[]; }catch(e){ hist=[]; }
   function setThread(id){ if(!id)return; threadId=id; try{localStorage.setItem(TKEY,id);}catch(e){} }
   function saveTurn(role,txt){ if(!txt)return; hist.push({r:role==='u'?'u':'a',t:String(txt).slice(0,4000)}); if(hist.length>80)hist=hist.slice(-80); try{localStorage.setItem(HKEY,JSON.stringify(hist));}catch(e){} }
-  function restoreHistory(){ if(!hist.length)return false; hist.forEach(function(m){ bubble(m.r,m.t); }); greeted=true; return true; }
+  function restoreHistory(){ if(!hist.length)return false; hist.forEach(function(m){ if(m.r==='h') humanBubble(m,true); else bubble(m.r,m.t); }); greeted=true; return true; }
   // Automejora basada en USO (idea de Marc): conversación a conversación el agente te conoce mejor.
   // Mantiene un CONTEXTO ACUMULADO por alumno que EVOLUCIONA: combina lo que ya sabía con lo nuevo de esta
   // sesión. Se guarda ([sintesis], el último gana) y se inyecta en cada respuesta -> te contesta mejor.
@@ -689,7 +696,7 @@ function wireTutor(){
     if(synthed||userMsgs<5||userMemory.length<4)return; synthed=true;
     var prev=contextCard?(' Lo que ya sabías de él de antes: '+contextCard+'.'):'';
     var sys='[Eres '+PERSONA.name+'. Actualiza en 2-3 frases y en tercera persona el CONTEXTO de ESTE alumno para conocerle mejor la próxima vez: su situación real, qué le cuesta, su objetivo, cómo aprende y cómo prefiere que le traten. Combina lo que ya sabías con lo nuevo de esta conversación; si algo cambió, quédate con lo más reciente.'+prev+' Nuevo de esta conversación: '+userMemory.slice(-8).join(' | ')+'. SOLO con lo que él ha dicho, sin inventar. Texto plano, sin símbolos.] ';
-    SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined}}).then(function(r){
+    SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined,source:SLUG}}).then(function(r){
       var s=(r&&r.reply||'').trim(); if(s.length<12)return;
       contextCard=s;
       try{ SkillUp.api('/api/notes/add',{method:'POST',body:{source:'onboarding',kind:'insight',body:'[sintesis] '+s}}).catch(function(){}); }catch(e){}
@@ -700,6 +707,13 @@ function wireTutor(){
   SkillUp.api('/api/notes/list?source='+encodeURIComponent(SRC)).then(function(d){ (d&&d.items||[]).forEach(function(a){ if(a.kind!=='insight'||!a.body)return; if(a.body.indexOf('[adopcion:')===0){ if(a.body.indexOf('[adopcion:repasar] ')===0){ var rt=a.body.replace('[adopcion:repasar] ','').trim(); if(rt&&toReview.indexOf(rt)<0)toReview.push(rt); } return; } userMemory.push(a.body); scanLearn(a.body); }); reviewNudge(); }).catch(function(){});
   // perfil del onboarding: empresa, rol, objetivo, nivel, cómo aprende -> prepara al tutor y siembra lo que ya sabe de él
   SkillUp.api('/api/notes/list?source=onboarding').then(function(d){ (d&&d.items||[]).forEach(function(a){ if(a.kind!=='insight'||!a.body)return; if(a.body.indexOf('[sintesis]')===0){ if(!contextCard) contextCard=a.body.replace(/^\[sintesis\]\s*/,''); return; } profile.push(a.body); scanLearn(a.body); }); }).catch(function(){});
+  // Mensaje de una persona real (coach, team leader, admin…): con nombre y rol, distinto del estilo de la IA.
+  var humanSeen={};
+  function humanBubble(m,restoring){ var k=m.messageId||m.id; if(k){ if(humanSeen[k])return; humanSeen[k]=1; }
+    var d=document.createElement('div'); d.className='msgb h'; var w=document.createElement('div'); w.className='hwho'; w.textContent=m.n||m.authorName||'Tu responsable';
+    var bd=document.createElement('span'); bd.className='hbadge'; bd.textContent=m.ro||m.authorRole||'Responsable'; w.appendChild(bd); d.appendChild(w); d.appendChild(document.createTextNode(m.t||m.text||''));
+    log.appendChild(d); log.scrollTop=log.scrollHeight;
+    if(!restoring&&k){ hist.push({r:'h',t:String(m.text||'').slice(0,4000),n:m.authorName,ro:m.authorRole,id:k}); if(hist.length>80)hist=hist.slice(-80); try{localStorage.setItem(HKEY,JSON.stringify(hist));}catch(e){} } }
   function bubble(role,txt){var d=document.createElement('div');d.className='msgb '+role;d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
   // Karaoke: crea una burbuja con un prefijo fijo (opcional) + un span "hablado" que se resaltará palabra a palabra.
   function bubbleSpoken(role,prefix){var d=document.createElement('div');d.className='msgb '+role;if(prefix)d.appendChild(document.createTextNode(prefix));var span=document.createElement('span');span.className='kwrap';d.appendChild(span);log.appendChild(d);log.scrollTop=log.scrollHeight;return {el:d,wrap:span};}
@@ -770,7 +784,7 @@ function wireTutor(){
       var mlvl=(function(){try{return localStorage.getItem('skillup-mirror')||'natural';}catch(e){return 'natural';}})();
       var mir=mlvl==='baja'?' Mantén un tono profesional y claro; NO imites su forma de hablar.':(mlvl==='alta'?' ESPEJA bastante cómo habla el alumno: su registro, alguna coletilla y su tono (si te suelta «¿qué tal, tío?», responde de colega), pero sin convertirte en su eco ni caricaturizarlo.':' ESPEJA con MODERACIÓN cómo habla el alumno (adapta un poco el registro y el tono) para resonar, sin exagerar ni imitarlo literalmente.');
       var sys='[Eres '+PERSONA.name+', '+PERSONA.role+' sénior ('+PERSONA.field+'). Hablas cercano, humano y con emoción, con casos y ejemplos reales, sin humo.'+mir+' Escribe conversacional y con RITMO NATURAL: mezcla frases cortas y largas, con SU PUNTUACIÓN CORRECTA (comas, puntos, puntos suspensivos) porque de ahí sale la pausa real al leerlo en voz alta; sin puntuación no hay pausa y suena atropellado. Nunca monótono ni acelerado. Busca ser cercano y sorprender. HAZ PREGUNTAS para conocer su situación real: dónde aplicaría esto, qué le cuesta, qué le ha pasado, cómo se siente; adáptate a cómo escribe. El alumno está en el curso '+COURSE+', en la parte «'+(CARDS[idx]?CARDS[idx].title:'')+'».'+ctx+perf+mem+disc+' Si por su perfil aprende mejor en visual, sugiérele vídeos externos sobre el tema y dile que pulse el botón «Vídeos» de arriba (le abre una búsqueda real); NUNCA inventes enlaces, títulos exactos ni cifras de valoración. Adapta el formato a cómo aprende (ejemplos, práctica o teoría según su estilo). Nunca digas «excelente pregunta», «por supuesto», ni otras muletillas corporativas o serviles; habla como una persona competente, no como un asistente. Responde MUY breve y ágil, 2-4 frases máximo, sin enrollarte ni repetir, y termina casi siempre con una pregunta corta.] ';
-      var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys+t,threadId:threadId||undefined}});setThread(r.threadId);
+      var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys+t,threadId:threadId||undefined,display:t,source:SLUG}});setThread(r.threadId);
       think.innerHTML='';var kw=document.createElement('span');kw.className='kwrap';kw.textContent=r.reply||'—';think.appendChild(kw);saveTurn('a',r.reply||'—');
       log.scrollTop=log.scrollHeight;if(r.reply&&(voiceOn||fromVoice))speak(r.reply,kw);}
     catch(e){think.textContent='Ahora mismo no puedo responder. Inténtalo en un momento.';log.scrollTop=log.scrollHeight;}}
@@ -780,7 +794,7 @@ function wireTutor(){
     prompt:function(text){open();var bb=bubbleSpoken('a',PERSONA.name+': ');bb.wrap.textContent=text;bb.el.classList.add('askpulse');input.focus();if(voiceOn)speak(text,bb.wrap);},
     evalAnswer:async function(exQ,ans){ var sys='[Eres '+PERSONA.name+', '+PERSONA.role+' sénior. El alumno responde a un ejercicio del curso '+COURSE+', parte «'+(CARDS[idx]?CARDS[idx].title:'')+'». Ejercicio: "'+exQ+'". Su respuesta: "'+ans+'". Dale feedback breve y humano: qué está bien, qué afinar, y una pregunta para llevarlo a su caso real. Sin markdown ni símbolos.] ';
       userMemory.push(ans); if(userMemory.length>12)userMemory.shift(); scanLearn(ans); userMsgs++; maybeSynth(); if(cpCtx&&CARDS[idx])cpCtx.innerHTML='Estás en: <b>'+esc(CARDS[idx].title)+'</b>'+(learnedCount()?' · te va conociendo '+learnedCount()+'/'+DISCOVERY.length:'');
-      try{ var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined}}); setThread(r.threadId); if(r.reply&&voiceOn)speak(r.reply); return r.reply||''; }catch(e){ return 'Ahora mismo no puedo revisarlo, inténtalo en un momento.'; } }
+      try{ var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined,display:('Respuesta al ejercicio: '+ans).slice(0,4000),source:SLUG}}); setThread(r.threadId); if(r.reply&&voiceOn)speak(r.reply); return r.reply||''; }catch(e){ return 'Ahora mismo no puedo revisarlo, inténtalo en un momento.'; } }
   };
   // acompañamiento: al cambiar de sección actualiza el contexto; si ya has hablado, el tutor lo comenta
   window._onSection=function(i){ if(!CARDS[i])return; if(cpCtx)cpCtx.innerHTML='Estás en: <b>'+esc(CARDS[i].title)+'</b>'+(learnedCount()?' · te va conociendo '+learnedCount()+'/'+DISCOVERY.length:'');
@@ -809,6 +823,14 @@ function wireTutor(){
     trackEl.addEventListener('mouseout',function(e){ if(e.target.closest('.prose strong, .prose b')) clearTimeout(hoverTimer); });
   }
   restoreHistory(); greet(); if(window._onSection)window._onSection(idx);
+  // Acompañamiento humano (1.3.0): con el chat abierto y la página visible, cada 5 s mira si una persona
+  // del equipo ha escrito en ESTE hilo. Los avisos que llegan por el latido (activity.js) se pintan aquí.
+  var humanAfter=new Date(Date.now()-86400000).toISOString();
+  function pollHuman(){ if(!threadId||document.visibilityState!=='visible'||!chat.classList.contains('open')||(window.SkillUpActivity&&SkillUpActivity.preview))return;
+    SkillUp.api('/api/agent/thread/'+encodeURIComponent(threadId)+'/human?after='+encodeURIComponent(humanAfter)).then(function(d){ (d&&d.messages||[]).forEach(function(m){ humanBubble(m); if(m.at>humanAfter)humanAfter=m.at; }); }).catch(function(){}); }
+  setInterval(pollHuman,5000);
+  if(window.SkillUpActivity) SkillUpActivity.onNudge(function(n){ if(!n.threadId||n.threadId!==threadId)return false; open(); humanBubble(n); return true; });
+  if(params.get('chat')==='1') setTimeout(function(){ open(); pollHuman(); },300);
 }
 
 // arranque

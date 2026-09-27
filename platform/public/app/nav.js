@@ -21,6 +21,7 @@
     exit: '<path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h9"/>',
     chat: '<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M17 9h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-4-3h-3"/>',
     award: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/>',
+    live: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
     assign: '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M8 12l2.5 2.5L16 9"/>'
   };
   function svg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON[k] || ICON.home) + '</svg>'; }
@@ -38,6 +39,7 @@
     ['/app/ayuda.html', 'Ayuda', 'help', 'base'],
     ['/app/asignar.html', 'Asignar pruebas', 'assign', 'manager'],
     ['/app/validar.html', 'Validar casos', 'check', 'manager'],
+    ['/app/en-directo.html', 'En directo', 'live', 'live'],
     ['/app/panel.html', 'Panel de empresa', 'building', 'manager'],
     ['/app/piramides.html', 'Pirámides', 'pyramid', 'manager'],
     ['/app/informe-roi.html', 'Informe de ROI', 'chart', 'manager'],
@@ -124,10 +126,13 @@
     };
 
     // Rol: ocultar destinos que no correspondan.
-    var show = { base: true, manager: false, super: false };
+    var show = { base: true, manager: false, super: false, live: false };
     (window.SkillUp ? SkillUp.api('/api/org/me') : Promise.reject()).then(function (me) {
       if (me && ['team_leader', 'direccion', 'admin', 'inspirador'].indexOf(me.role) !== -1) show.manager = true;
       if (me && me.platformAdmin) { show.manager = true; show.super = true; }
+      // Supervisión en directo: por capacidad real (coach, team leader, admin, dirección; inspirador solo métricas).
+      var cp = (me && me.capabilities) || {};
+      if (cp['activity.read'] || cp['activity.metrics']) show.live = true;
     }).catch(function () { }).finally(function () {
       panel.querySelectorAll('.sunav-item[data-grp]').forEach(function (a) {
         if (!show[a.getAttribute('data-grp')]) a.style.display = 'none';
