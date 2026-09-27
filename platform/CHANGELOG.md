@@ -5,6 +5,11 @@
 ### Nuevo
 - **Anuncio «La capacidad se demuestra» en el hero de la landing** (`skillup.html`): sustituye a la captura de la app. Póster ligero (83 KB) y el vídeo (`assets/skillup-anuncio.mp4`, 1:29, H.264 1080p, 25 MB) solo se descarga al darle al play; reproduce con sonido y controles y vuelve al póster al terminar. La etiqueta «Aprendiendo → Dominado» se oculta mientras suena para no tapar subtítulos ni controles.
 
+### Diseño y accesibilidad de la landing
+- Contraste AA en el texto blanco de los botones y del play (mismo degradado violeta→turquesa un tono más profundo, `--grad-cta`), en los números del recorrido, en la letra pequeña del pie y en los enlaces al pasar el ratón.
+- Jerarquía de títulos sin saltos (h2 → h3 en recorrido y carrusel), visor de capturas sin `src` vacío.
+- Móvil: el recorrido ya no se queda en dos columnas estrechas a 360 px (las reglas de escritorio izq/der ganaban por especificidad); bocadillos legibles; sin desbordamiento horizontal.
+
 ## 1.0.0 — 2026-09-25 (V1.0 para prueba con equipo real)
 
 ### Nuevo

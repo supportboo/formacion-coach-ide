@@ -29,12 +29,13 @@
   --ink:#2D2D2D; --body:#4A4A4A; --mut:#6E6870; --line:#E8E0E5; --line2:#F0EAEE;
   --vi:#8B5CF6; --te:#0891B2; --gold:#E4A900; --coral:#E46E78; --green:#21B799; --silver:#5B899E;
   --grad:linear-gradient(120deg,#8B5CF6,#0891B2);
+  --grad-cta:linear-gradient(120deg,#7C3AED,#0E7490); /* botones con texto blanco: ≥4,5:1 en todo el degradado */
   --grad-flow:linear-gradient(90deg,#E46E78,#0891B2 45%,#21B799 72%,#E4A900);
   --fb:'Inter',system-ui,sans-serif; --fd:'Space Grotesk',var(--fb); --fc:'Caveat',cursive;
   --sh:0 24px 60px rgba(45,32,46,.14); --sh2:0 12px 30px rgba(45,32,46,.10);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:clip}
 body{font-family:var(--fb);background:var(--bg);color:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body:before{content:"";position:fixed;inset:0;z-index:-2;background:
   radial-gradient(48% 40% at 84% 6%,rgba(139,92,246,.10),transparent 70%),
@@ -64,10 +65,10 @@ nav .bar{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-
 .nav-r a.t{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.72);padding:8px 14px;border-radius:100px}
 .nav-r a.t:hover{color:#fff;background:rgba(255,255,255,.10)}
 .btn{font-family:var(--fb);font-size:13px;font-weight:700;padding:12px 22px;border-radius:100px;display:inline-flex;align-items:center;gap:8px;transition:transform .3s,box-shadow .3s,background .3s;cursor:pointer;border:0}
-.btn-grad{background:var(--grad);color:#fff;box-shadow:0 8px 24px rgba(8,145,178,.38)}
+.btn-grad{background:var(--grad-cta);color:#fff;box-shadow:0 8px 24px rgba(8,145,178,.38)}
 .btn-grad:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(8,145,178,.5)}
 .btn-line{background:var(--white);border:1px solid var(--line);color:var(--ink)}
-.btn-line:hover{border-color:var(--vi);color:var(--vi)}
+.btn-line:hover{border-color:#7C3AED;color:#7C3AED}
 @media(max-width:820px){.nav-r a.t{display:none}}
 
 /* Hero */
@@ -94,7 +95,7 @@ nav .bar{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-
 /* Anuncio en el hero: póster ligero, el vídeo solo se descarga al darle al play */
 .vhero{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#12101c;border:1px solid var(--line);box-shadow:var(--sh)}
 .vhero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#12101c}
-.vhero .vplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border:0;border-radius:50%;background:var(--grad);display:grid;place-items:center;cursor:pointer;z-index:3;box-shadow:0 10px 28px rgba(0,0,0,.35);transition:transform .2s,opacity .3s}
+.vhero .vplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border:0;border-radius:50%;background:var(--grad-cta);display:grid;place-items:center;cursor:pointer;z-index:3;box-shadow:0 10px 28px rgba(0,0,0,.35);transition:transform .2s,opacity .3s}
 .vhero .vplay:hover{transform:translate(-50%,-50%) scale(1.07)}
 .vhero .vplay:focus-visible{outline:3px solid #fff;outline-offset:4px}
 .vhero .vplay svg{margin-left:4px}
@@ -171,7 +172,7 @@ section{padding:clamp(72px,11vh,128px) 0;position:relative}
 .jcard{position:relative;width:100%;max-width:420px;background:var(--white);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh2);transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s;cursor:pointer}
 .jcard:hover{transform:translateY(-6px) scale(1.015);box-shadow:var(--sh)}
 .jstep.end .jcard{border:2px dashed var(--gold);background:linear-gradient(180deg,#FFFBF0,#fff)}
-.jbadge{position:absolute;top:-17px;left:22px;width:40px;height:40px;border-radius:50%;color:#fff;font-family:var(--fd);font-weight:700;font-size:16px;display:grid;place-items:center;z-index:4;border:3px solid var(--white);box-shadow:0 6px 16px rgba(45,32,46,.28)}
+.jbadge{position:absolute;top:-17px;left:22px;width:40px;height:40px;border-radius:50%;color:#fff;font-family:var(--fd);font-weight:700;font-size:19px;display:grid;place-items:center;z-index:4;border:3px solid var(--white);box-shadow:0 6px 16px rgba(45,32,46,.28)}
 .jframe{border-radius:16px 16px 0 0;overflow:hidden}
 .jframe .bbar{display:flex;align-items:center;gap:7px;padding:9px 12px;background:var(--warm);border-bottom:1px solid var(--line2)}
 .jframe .dots{display:flex;gap:5px}.jframe .dots i{width:9px;height:9px;border-radius:50%;background:#D9CEd4}
@@ -180,7 +181,7 @@ section{padding:clamp(72px,11vh,128px) 0;position:relative}
 .jframe .shot img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .jframe .shot .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fc);font-size:16px;color:var(--silver);opacity:.7}
 .jmeta{padding:13px 18px 16px}
-.jmeta h4{font-size:16px;font-weight:800;color:var(--ink)}
+.jmeta h3{font-size:16px;font-weight:800;color:var(--ink)}
 .jmeta p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:3px}
 /* Nota manuscrita + flecha FUERA de la captura */
 .jaside{position:relative;min-height:1px}
@@ -199,11 +200,11 @@ section{padding:clamp(72px,11vh,128px) 0;position:relative}
   .journey:before{content:"";position:absolute;left:19px;top:10px;bottom:10px;width:0;border-left:2px dashed #C9AFC4;z-index:0}
   .jsteps{gap:26px}
   .jstep{grid-template-columns:1fr;gap:8px;padding-left:6px}
-  .jstep .jcard{grid-column:1;max-width:100%;margin:0}
-  .jstep .jaside{grid-column:1;order:2;text-align:left!important}
+  .jstep[data-side] .jcard{grid-column:1;max-width:100%;margin:0}   /* [data-side]: gana a la colocación izq/der de escritorio */
+  .jstep[data-side] .jaside{grid-column:1;order:2;text-align:left!important}
   .jstep[data-side="r"] .jnote,.jstep[data-side="r"] .jarrow{color:#0A6E86;margin-left:0}
   .jarrow{display:none}
-  .jbubble{position:static;left:auto;transform:none;opacity:1;max-width:100%;width:auto;margin-top:8px;box-shadow:3px 3px 0 rgba(45,32,46,.12)}
+  .jbubble{position:static;left:auto;transform:none;opacity:1;max-width:100%;width:auto;margin-top:8px;font-size:24px;padding:12px 16px;box-shadow:3px 3px 0 rgba(45,32,46,.12)}
   .jbubble:after,.jbubble:before{display:none}
 }
 @media(max-width:520px){.tnodes{grid-template-columns:1fr}}
@@ -227,11 +228,11 @@ section{padding:clamp(72px,11vh,128px) 0;position:relative}
 .strack::-webkit-scrollbar{display:none}
 .scard{flex:0 0 min(72%,560px);scroll-snap-align:center;background:var(--white);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--sh2)}
 .scard .cap{padding:14px 20px 18px}
-.scard .cap h4{font-size:16px;font-weight:800;color:var(--ink)}
+.scard .cap h3{font-size:16px;font-weight:800;color:var(--ink)}
 .scard .cap p{font-size:13.5px;color:var(--mut);margin-top:3px}
 .sctrl{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 .arrow{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:19px;cursor:pointer;display:grid;place-items:center;transition:.3s;box-shadow:var(--sh2)}
-.arrow:hover{border-color:var(--vi);color:var(--vi);transform:translateY(-2px)}
+.arrow:hover{border-color:#7C3AED;color:#7C3AED;transform:translateY(-2px)}
 
 /* Statement ranking */
 .rank{position:relative;overflow:hidden;background:linear-gradient(120deg,#2b1f2e,#3a2340 55%,#4a2d1a);color:#fff}
@@ -273,7 +274,7 @@ footer .row{display:flex;justify-content:space-between;align-items:center;flex-w
 footer .logo{color:var(--ink)}footer .logo .ide{color:var(--te)}
 footer a:hover{color:var(--ink)}
 footer .fl{display:flex;gap:22px;flex-wrap:wrap;font-size:14px}
-footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-height:1.7}
+footer .cp{margin-top:24px;font-size:12.5px;color:var(--mut);max-width:76ch;line-height:1.7}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}.reveal{opacity:1;transform:none}}
 </style>
 </head>
@@ -359,7 +360,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
         <div class="jstep" data-side="l">
           <div class="jcard"><span class="jbadge" style="background:var(--coral)">1</span>
             <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-onboarding</span><img src="assets/su-onboarding.png" alt="Onboarding de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-            <div class="jmeta"><h4>Onboarding</h4><p>Nos cuentas quién eres y qué quieres conseguir. En 2 minutos.</p></div>
+            <div class="jmeta"><h3>Onboarding</h3><p>Nos cuentas quién eres y qué quieres conseguir. En 2 minutos.</p></div>
             <div class="jbubble">Cuéntanos quién eres y qué quieres. Sin exámenes, sin humo.</div>
           </div>
           <div class="jaside"><span class="jnote">aquí empiezas</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
@@ -367,7 +368,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
         <div class="jstep" data-side="r">
           <div class="jcard"><span class="jbadge" style="background:var(--vi)">2</span>
             <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-dna</span><img src="assets/su-dna.png" alt="Perfil de capacidades / Team DNA en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-            <div class="jmeta"><h4>Tu ADN</h4><p>La plataforma mapea tus fortalezas y tus huecos reales.</p></div>
+            <div class="jmeta"><h3>Tu ADN</h3><p>La plataforma mapea tus fortalezas y tus huecos reales.</p></div>
             <div class="jbubble">Vemos lo que se te da bien y lo que no — no un test de personalidad.</div>
           </div>
           <div class="jaside"><span class="jnote">tu mapa real</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
@@ -375,7 +376,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
         <div class="jstep" data-side="l">
           <div class="jcard"><span class="jbadge" style="background:var(--te)">3</span>
             <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Ruta de aprendizaje a medida en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-            <div class="jmeta"><h4>Tu ruta</h4><p>Un camino a tu medida, no un catálogo infinito de cursos.</p></div>
+            <div class="jmeta"><h3>Tu ruta</h3><p>Un camino a tu medida, no un catálogo infinito de cursos.</p></div>
             <div class="jbubble">Solo lo que tú necesitas, en el orden correcto.</div>
           </div>
           <div class="jaside"><span class="jnote">solo lo tuyo</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
@@ -383,7 +384,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
         <div class="jstep" data-side="r">
           <div class="jcard"><span class="jbadge" style="background:var(--te)">4</span>
             <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en curso en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-            <div class="jmeta"><h4>Lecciones</h4><p>Cortas y aplicables, con el tutor al lado por si atascas.</p></div>
+            <div class="jmeta"><h3>Lecciones</h3><p>Cortas y aplicables, con el tutor al lado por si atascas.</p></div>
             <div class="jbubble">Al grano, y con el tutor pegado por si te trabas.</div>
           </div>
           <div class="jaside"><span class="jnote">al grano</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
@@ -391,23 +392,23 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
         <div class="jstep" data-side="l">
           <div class="jcard"><span class="jbadge" style="background:var(--te)">5</span>
             <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-roleplay</span><img src="assets/su-roleplay.png" alt="Roleplay / reto conversacional en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-            <div class="jmeta"><h4>Roleplays</h4><p>Practicas la conversación difícil antes de tenerla de verdad.</p></div>
+            <div class="jmeta"><h3>Roleplays</h3><p>Practicas la conversación difícil antes de tenerla de verdad.</p></div>
             <div class="jbubble">Ensaya la reunión que temes hasta que te salga sola.</div>
           </div>
           <div class="jaside"><span class="jnote">ensaya sin miedo</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
         </div>
         <div class="jstep" data-side="r">
-          <div class="jcard"><span class="jbadge" style="background:var(--green)">6</span>
+          <div class="jcard"><span class="jbadge" style="background:#15896F">6</span>
             <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-test</span><img src="assets/su-test.png" alt="Test / evaluación con resultado en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-            <div class="jmeta"><h4>Tests</h4><p>Demuestras lo que sabes. Queda registrado en tu panel.</p></div>
+            <div class="jmeta"><h3>Tests</h3><p>Demuestras lo que sabes. Queda registrado en tu panel.</p></div>
             <div class="jbubble">Se pone en verde solo cuando lo demuestras. Eso sí cuenta.</div>
           </div>
           <div class="jaside"><span class="jnote">esto sí cuenta</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M6 8 C30 6 52 18 60 44"/><path d="M60 44 L50 41 M60 44 L56 34"/></svg></div>
         </div>
         <div class="jstep end" data-side="l">
-          <div class="jcard"><span class="jbadge" style="background:var(--gold)">✕</span>
+          <div class="jcard"><span class="jbadge" style="background:var(--gold);color:var(--ink)">✕</span>
             <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ranking</span><img src="assets/su-ranking.png" alt="Ranking / leaderboard de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
-            <div class="jmeta"><h4>Ranking</h4><p>El tesoro: del último al primero. Y de primero, a coach.</p></div>
+            <div class="jmeta"><h3>Ranking</h3><p>El tesoro: del último al primero. Y de primero, a coach.</p></div>
             <div class="jbubble">Del último al número 1. Y de primero, a coach.</div>
           </div>
           <div class="jaside"><span class="jnote">el tesoro ✕</span><svg class="jarrow" width="72" height="52" viewBox="0 0 72 52" aria-hidden="true"><path d="M66 8 C42 6 20 18 12 44"/><path d="M12 44 L22 41 M12 44 L16 34"/></svg></div>
@@ -495,10 +496,10 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
     <div class="head reveal"><span class="ek">Más por dentro</span><h2>Desliza y míralo funcionando.</h2></div>
     <div class="slider reveal">
       <div class="strack" id="strack">
-        <div class="scard"><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Rutas de aprendizaje en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Rutas de aprendizaje</h4><p>El camino a medida, no un catálogo interminable.</p></div></div>
-        <div class="scard"><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Lecciones aplicables</h4><p>Cortas y directas al grano, con el tutor al lado.</p></div></div>
-        <div class="scard"><div class="shot"><span class="ph">su-insights</span><img src="assets/su-insights.png" alt="Insights y analítica en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Insights</h4><p>Qué funciona, qué te frena y dónde poner el foco.</p></div></div>
-        <div class="scard"><div class="shot"><span class="ph">su-equipo</span><img src="assets/su-equipo.png" alt="Vista de equipo en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h4>Vista de equipo</h4><p>Para managers: quién avanza y quién necesita empuje.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Rutas de aprendizaje en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Rutas de aprendizaje</h3><p>El camino a medida, no un catálogo interminable.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Lecciones aplicables</h3><p>Cortas y directas al grano, con el tutor al lado.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-insights</span><img src="assets/su-insights.png" alt="Insights y analítica en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Insights</h3><p>Qué funciona, qué te frena y dónde poner el foco.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-equipo</span><img src="assets/su-equipo.png" alt="Vista de equipo en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Vista de equipo</h3><p>Para managers: quién avanza y quién necesita empuje.</p></div></div>
       </div>
       <div class="sctrl"><button class="arrow" id="sprev" aria-label="Anterior">‹</button><button class="arrow" id="snext" aria-label="Siguiente">›</button></div>
     </div>
@@ -641,7 +642,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
 </script>
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="lb-back" data-lbclose></div>
-  <figure><button class="lb-x" type="button" aria-label="Cerrar" data-lbclose>✕</button><img id="lbImg" src="" alt=""><figcaption id="lbCap"></figcaption></figure>
+  <figure><button class="lb-x" type="button" aria-label="Cerrar" data-lbclose>✕</button><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure>
 </div>
 <script>(function(){var w=document.getElementById('herovid');if(!w)return;var v=w.querySelector('video'),b=w.querySelector('.vplay');
 b.addEventListener('click',function(){w.classList.add('playing');v.controls=true;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');});});
