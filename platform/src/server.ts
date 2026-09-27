@@ -2624,4 +2624,4 @@ app.post("/api/billing/webhook", async (c) => {
 });
 
 // Supervisión en directo (1.3.0): tablero, ficha, intervención humana y métricas de uso.
-registerLiveRoutes(app, COURSE_TITLES);
+registerLiveRoutes(app, COURSE_TITLES, async (slug) => (await courseBlocks(slug))?.length ?? null);

@@ -405,7 +405,7 @@ async function activeDaysAndTime(deps: SvcDeps, orgId: string, userId: string, n
   return { series, heatmap: heatmap(rows), streak: streakDays(days, now), activeMinToday: sum(1), activeMin7d: sum(7), activeMin30d: sum(30), sessions7d: series.slice(-7).reduce((a, d) => a + d.sessions, 0) };
 }
 
-export async function personDetail(deps: SvcDeps, orgId: string, userId: string, titles: Record<string, string>, opts: { live: boolean }, now = new Date()) {
+export async function personDetail(deps: SvcDeps, orgId: string, userId: string, titles: Record<string, string>, opts: { live: boolean; blockCount?: (slug: string) => Promise<number | null> }, now = new Date()) {
   const who = await isMember(deps, orgId, userId);
   if (!who) return null;
   const [events, seen, sig, atts, certs, rps, pts, dna, prof, time, chats] = await Promise.all([
@@ -447,10 +447,11 @@ export async function personDetail(deps: SvcDeps, orgId: string, userId: string,
     signals: stuckSignals({ state, lastSeenAt, blockAttempts: sig.attempts.get(userId) ?? [], openRoleplays: sig.roleplays.get(userId) ?? [] }, now),
     time,
     points: pts[0]?.total ?? 0,
-    courses: [...courses.values()].map((c) => ({
+    courses: await Promise.all([...courses.values()].map(async (c) => ({
       source: c.source, title: c.title, certificate: c.certificate, finals: c.finals,
+      totalBlocks: opts.blockCount ? await opts.blockCount(c.source).catch(() => null) : null, // null = Sin datos
       blocks: [...c.blocks.entries()].sort((a, b) => a[0] - b[0]).map(([i, b]) => ({ block: i, ...b })),
-    })),
+    }))),
     certificates: certs.map((c) => ({ title: c.title, code: c.code, issuedAt: c.issuedAt.toISOString() })),
     roleplays: rps.map((r) => ({ topic: r.topic || r.persona, status: r.status, score: r.score, source: r.source, createdAt: r.createdAt.toISOString(), closedAt: r.closedAt ? r.closedAt.toISOString() : null })),
     profile: dna[0] || prof[0]?.completedAt ? {

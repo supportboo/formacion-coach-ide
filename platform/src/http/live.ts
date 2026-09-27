@@ -45,7 +45,7 @@ async function supervisor(c: Context, cap: Capability): Promise<Sup | Response> 
   return { ...(base as Sup), access };
 }
 
-export function registerLiveRoutes(app: Hono, titles: Record<string, string>) {
+export function registerLiveRoutes(app: Hono, titles: Record<string, string>, blockCount: (slug: string) => Promise<number | null> = async () => null) {
   /* ---------------- alumno: latido + eventos (y respuesta: quién le sigue, avisos, aviso informativo) */
   app.post("/api/analytics/activity", async (c) => {
     const ctx = await getAuthContext(c);
@@ -94,7 +94,7 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>) {
     if (s instanceof Response) return s;
     const learnerId = c.req.param("userId");
     const live = await act.liveEnabled(deps, s.orgId);
-    const d = await act.personDetail(deps, s.orgId, learnerId, titles, { live });
+    const d = await act.personDetail(deps, s.orgId, learnerId, titles, { live, blockCount });
     if (!d) return c.json({ error: "esa persona no está en esta empresa" }, 404);
     // Quien mira queda visible para la persona («Tu coach Marta está siguiendo tu sesión»). Nunca a sí mismo.
     if (live && learnerId !== s.userId) act.watch(s.orgId, learnerId, { userId: s.userId, name: s.userName, role: act.ROLE_LABEL[s.role] || s.role });
