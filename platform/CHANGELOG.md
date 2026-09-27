@@ -1,5 +1,10 @@
 # Changelog · SkillUp platform
 
+## 1.0.1 — 2026-09-27
+
+### Nuevo
+- **Anuncio «La capacidad se demuestra» en el hero de la landing** (`skillup.html`): sustituye a la captura de la app. Póster ligero (83 KB) y el vídeo (`assets/skillup-anuncio.mp4`, 1:29, H.264 1080p, 25 MB) solo se descarga al darle al play; reproduce con sonido y controles y vuelve al póster al terminar. La etiqueta «Aprendiendo → Dominado» se oculta mientras suena para no tapar subtítulos ni controles.
+
 ## 1.0.0 — 2026-09-25 (V1.0 para prueba con equipo real)
 
 ### Nuevo

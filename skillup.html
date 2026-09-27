@@ -91,6 +91,19 @@ nav .bar{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-
 .shot{position:relative;aspect-ratio:16/10;background:linear-gradient(135deg,#efe9ee,#e7eef1)}
 .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
 .shot .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fc);font-size:20px;color:var(--silver);opacity:.7;pointer-events:none}
+/* Anuncio en el hero: póster ligero, el vídeo solo se descarga al darle al play */
+.vhero{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#12101c;border:1px solid var(--line);box-shadow:var(--sh)}
+.vhero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#12101c}
+.vhero .vplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border:0;border-radius:50%;background:var(--grad);display:grid;place-items:center;cursor:pointer;z-index:3;box-shadow:0 10px 28px rgba(0,0,0,.35);transition:transform .2s,opacity .3s}
+.vhero .vplay:hover{transform:translate(-50%,-50%) scale(1.07)}
+.vhero .vplay:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.vhero .vplay svg{margin-left:4px}
+.vhero .vdur{position:absolute;right:14px;bottom:14px;z-index:3;padding:6px 12px;border-radius:100px;background:rgba(18,16,28,.72);color:#fff;font-size:13px;font-weight:700;letter-spacing:.01em;pointer-events:none;transition:opacity .3s}
+.vhero.playing{animation:none}
+.vhero.playing .vplay,.vhero.playing .vdur{opacity:0;pointer-events:none}
+.media .chip-flow{transition:opacity .3s}
+.media:has(.vhero.playing) .chip-flow{opacity:0;pointer-events:none}   /* no tapar subtítulos ni controles */
+@media(max-width:640px){.vhero .vplay{width:64px;height:64px}.vhero .vdur{font-size:12px;right:10px;bottom:10px}}
 .float{animation:float 6.5s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .no-motion .float{animation:none}
@@ -301,10 +314,11 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
         </div>
       </div>
       <div class="media reveal" style="position:relative">
-        <div class="noteout"><span class="note">aquí empiezas</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
-        <div class="browser float">
-          <div class="bbar"><span class="dots"><i></i><i></i><i></i></span><span class="url">skillup.brandooers.com</span></div>
-          <div class="shot"><span class="ph">Tu inicio</span><img src="assets/su-inicio.png" alt="Pantalla de inicio de SkillUp: la ruta del alumno al entrar" loading="eager" onerror="this.style.display='none'"></div>
+        <div class="noteout"><span class="note">dale al play</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
+        <div class="vhero float" id="herovid">
+          <video src="assets/skillup-anuncio.mp4?v=1" poster="assets/skillup-anuncio-poster.jpg?v=1" preload="none" playsinline controlslist="nodownload" aria-label="Anuncio de SkillUp: la capacidad se demuestra"></video>
+          <button class="vplay" type="button" aria-label="Ver el anuncio de SkillUp con sonido, 1 minuto 29 segundos"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+          <span class="vdur" aria-hidden="true">1:29 · con sonido</span>
         </div>
         <span class="chip-flow" style="position:absolute;bottom:-16px;left:-10px"><span class="dot" style="background:var(--coral)"></span>Aprendiendo → <span class="dot" style="background:var(--green)"></span>Dominado</span>
       </div>
@@ -629,5 +643,8 @@ footer .cp{margin-top:24px;font-size:12.5px;color:#a49aa2;max-width:76ch;line-he
   <div class="lb-back" data-lbclose></div>
   <figure><button class="lb-x" type="button" aria-label="Cerrar" data-lbclose>✕</button><img id="lbImg" src="" alt=""><figcaption id="lbCap"></figcaption></figure>
 </div>
+<script>(function(){var w=document.getElementById('herovid');if(!w)return;var v=w.querySelector('video'),b=w.querySelector('.vplay');
+b.addEventListener('click',function(){w.classList.add('playing');v.controls=true;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');});});
+v.addEventListener('ended',function(){w.classList.remove('playing');v.controls=false;v.currentTime=0;v.load();});})();</script>
 </body>
 </html>
