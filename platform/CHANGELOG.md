@@ -14,6 +14,18 @@
 - Endpoints `/api/teamdna/profile/{catalog,me,answers,finish,restart,team}` (Zod, multiempresa, puntuación determinista en servidor, sin IA). Migración `0018_teamdna_profile_v2` (tabla `team_profile`).
 - RGPD: el perfil (y el Team DNA antiguo) entran en la exportación y en el derecho al olvido; el reinicio de onboarding del superadmin también lo borra.
 
+### Informe de ROI con metodología reconocida (sustituye al de 1.0.0)
+- **Niveles 1-4 de Kirkpatrick medidos por la plataforma**: valoración, pruebas superadas, mejora entre intentos, rutas finalizadas, casos aprobados por un referente, aplicación en el puesto, cobertura, tiempo hasta la competencia (mediana), transferencia interna y competencias críticas en riesgo. Cada indicador con fórmula, fuente, periodo, n, certeza (Medido / Estimado con método / Sin datos), intervalo de confianza del 95 % (Wilson) en porcentajes y aviso de muestra pequeña.
+- **Nivel 5 (ROI de Phillips) solo con datos de la empresa**: costes completos (plataforma, horas × coste/hora con cargas, tiempo interno, otros) y métricas de negocio antes/después con grupo de control o % atribuido × % de confianza, primer año como máximo. Sin esos datos el informe dice «Sin datos suficientes para calcular el ROI» y lista lo que falta.
+- **Retirado lo inventado**: los supuestos por defecto (350 € por curso externo, 22 €/h, 2 h/mes ahorradas por competencia, 8.000 € por persona clave) y la afirmación «con FUNDAE el coste neto es 0». La bonificación FUNDAE se muestra aparte y no se resta del ROI.
+- Intangibles listados sin convertir a euros. Sección «Metodología y fuentes» con las referencias leídas.
+- Nueva tabla `roi_study` (migración `0019_roi_study`). Endpoint `POST /api/analytics/roi/inputs` (Zod, solo admin/dirección) sustituye a `/api/analytics/roi/assumptions`.
+- El resumen de IA para dirección solo usa cifras del informe y no da euros si el ROI no es calculable.
+
+### Agentes que aprenden y tienen criterio
+- **Glosario que aprende de las correcciones** (`services/glossary.ts`): si alguien corrige cómo se dice o escribe un término («se dice partner manager», «es Nextdoo, no NextTodo»), el agente lo marca, se guarda para toda la empresa y desde entonces va en el prompt de todas las llamadas a la IA, se corrige en lo que escribe la IA y en el dictado por voz (`GET /api/agent/terms`). Sin tabla nueva (notas `source=glossary`).
+- **Criterio ante información dudosa**: los tutores, el asistente y el roleplay cuestionan con tacto lo que parece falso o ajeno al temario, sin ser rígidos con la realidad de cada empresa.
+
 ## 1.0.1 — 2026-09-27
 
 ### Nuevo

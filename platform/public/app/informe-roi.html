@@ -8,32 +8,41 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app/theme.css">
 <style>
-.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px;margin-bottom:16px;box-shadow:var(--sh)}
-.hero .big{font-size:clamp(38px,11vw,64px);font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0}
+.hero{background:var(--grad);color:#fff;border-radius:20px;padding:24px 22px;margin-bottom:16px;box-shadow:var(--sh)}
+.hero .big{font-size:clamp(34px,10vw,58px);font-weight:900;letter-spacing:-.03em;line-height:1.05;margin:6px 0}
 .hero .sub{font-size:15px;opacity:.95;font-weight:600}
-.hero .tag{display:inline-block;font-size:11px;font-weight:700;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:999px;margin-top:10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.stat{background:var(--warm);border-radius:14px;padding:14px}
-.stat b{display:block;font-size:24px;color:var(--p);letter-spacing:-.02em}
-.stat span{font-size:11px;color:var(--body);font-weight:700;text-transform:uppercase;letter-spacing:.02em}
-.line{margin:12px 0}
-.line summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.line summary::-webkit-details-marker{display:none}
-.line .lbl{font-weight:700;color:var(--ink);font-size:14px}
-.line .amt{font-weight:900;color:var(--p);font-size:18px;white-space:nowrap}
-.bar{height:12px;border-radius:999px;background:var(--line);margin:8px 0 4px;overflow:hidden}
-.bar>i{display:block;height:100%;border-radius:999px;background:var(--grad)}
-.line .why{font-size:12.5px;color:var(--body);background:var(--warm);border-radius:10px;padding:10px 12px;margin-top:8px}
-.line .why .k{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:999px;margin-right:6px}
-.k.hecho{background:rgba(46,160,90,.16);color:var(--green)}
-.k.est{background:rgba(200,150,60,.18);color:var(--gold)}
-.rowflex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.hero .nodata{font-size:clamp(20px,5.5vw,28px);font-weight:900;line-height:1.2;margin:8px 0}
+.hero ul{margin:10px 0 0 18px;font-size:14px;line-height:1.5}
+.tag{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.t-medido{background:rgba(84,199,154,.18);color:var(--green)}
+.t-estimado{background:rgba(240,198,69,.18);color:var(--gold)}
+.t-sin_datos{background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.hero .tag{background:rgba(255,255,255,.2);color:#fff}
+.lvl{font-size:11px;font-weight:800;color:var(--t);text-transform:uppercase;letter-spacing:.04em}
+.m{border-top:1px solid var(--line);padding:12px 0}
+.m:first-of-type{border-top:0}
+.m summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.m summary::-webkit-details-marker{display:none}
+.m .nm{font-weight:700;color:var(--ink);font-size:14px;line-height:1.35}
+.m .vl{text-align:right;white-space:nowrap}
+.m .vl b{display:block;font-size:20px;color:var(--p);letter-spacing:-.02em}
+.m .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.m .why{font-size:12.5px;color:var(--body);background:var(--soft);border-radius:10px;padding:10px 12px;margin-top:8px;line-height:1.5;overflow-wrap:anywhere}
+.m .why b{color:var(--ink)}
+.caveat{color:var(--gold);font-size:12px;margin-top:4px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv span:last-child{font-weight:700;color:var(--ink);text-align:right}
+.miss{margin:6px 0 0 18px;font-size:13.5px;line-height:1.55}
 .narr{white-space:pre-wrap;line-height:1.6;color:var(--body);font-size:15px}
-.field{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:8px}
-.field input{width:100%}
-details.editor summary{cursor:pointer;font-weight:700;color:var(--p);font-size:14px}
-.foot{font-size:11.5px;color:var(--mut);margin-top:6px}
-@media(max-width:520px){.hero{padding:20px 16px}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}
+.imp{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.imp h3{font-size:14px;color:var(--ink);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hint{font-size:12px;color:var(--muted);margin:-6px 0 12px;line-height:1.45}
+details.editor>summary{cursor:pointer;font-weight:800;color:var(--p);font-size:14px}
+.src{font-size:13px;line-height:1.5;margin:0 0 12px}
+.src a{color:var(--t);overflow-wrap:anywhere}
+.foot{font-size:11.5px;color:var(--muted);margin-top:6px}
+@media(max-width:520px){.hero{padding:20px 16px}.m .vl b{font-size:18px}}
 </style>
 </head>
 <body>
@@ -54,90 +63,164 @@ details.editor summary{cursor:pointer;font-weight:700;color:var(--p);font-size:1
 <script src="/app/api.js"></script>
 <script src="/app/nav.js" defer></script>
 <script>
-var EUR=function(n){return (Math.round(n)).toLocaleString('es-ES')+' €';};
 var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+var NUM=function(n,d){return n==null?'—':Number(n).toLocaleString('es-ES',{maximumFractionDigits:d==null?1:d});};
+var EUR=function(n){return n==null?'Sin datos':Math.round(n).toLocaleString('es-ES')+' €';};
+var CERT={medido:'Medido',estimado:'Estimado con método',sin_datos:'Sin datos'};
+var tag=function(c){return '<span class="tag t-'+c+'">'+CERT[c]+'</span>';};
+var LEVELS={1:['Nivel 1 · Reacción','Cómo valoran las personas lo que aprenden.'],2:['Nivel 2 · Aprendizaje','Si adquieren el conocimiento y la habilidad.'],3:['Nivel 3 · Aplicación en el puesto','Si lo usan en su trabajo y se mantiene en el tiempo.'],4:['Nivel 4 · Resultados que mide la plataforma','Efecto organizativo, sin convertir a euros.']};
+var VIEW_ORG=new URLSearchParams(location.search).get('org');
+var REPORT=null;
 
-var VIEW_ORG=new URLSearchParams(location.search).get('org'); // superadmin viendo otra empresa
 (async function(){
   var root=document.getElementById('root');
   var path=VIEW_ORG?('/api/platform/roi/'+encodeURIComponent(VIEW_ORG)):'/api/analytics/roi';
   var d=await SkillUp.api(path).catch(function(e){return {error:e.message||'sin acceso'};});
   if(!d||d.error){ root.innerHTML='<div class="card"><p class="msg">No se pudo cargar el informe de ROI: '+E(d&&d.error||'')+'</p></div>'; return; }
-  var me=await SkillUp.api('/api/org/me').catch(function(){return {};});
-  // Solo se edita/genera narrativa en la propia empresa (los endpoints son de la sesión). Cross-org = solo lectura.
-  var canEdit=!VIEW_ORG && me && (me.role==='admin'||me.role==='direccion'||me.platformAdmin);
-  render(d,canEdit,!VIEW_ORG);
+  var me=VIEW_ORG?{}:await SkillUp.api('/api/org/me').catch(function(){return {};});
+  REPORT=d;
+  render(d,!VIEW_ORG && me && (me.role==='admin'||me.role==='direccion'));
 })();
 
+function metricHtml(m){
+  var val=m.value==null?'<b>Sin datos</b>':'<b>'+NUM(m.value)+(m.unit==='%'?' %':' '+E(m.unit))+'</b>';
+  var ci=m.ci95?' · IC 95 %: '+NUM(m.ci95[0])+'–'+NUM(m.ci95[1])+' %':'';
+  var ev=m.evidence.map(function(id){var s=REPORT.sources.find(function(x){return x.id===id;});return s?E(s.author.split(',')[0])+' ('+E(s.year)+')':'';}).filter(Boolean).join('; ');
+  return '<details class="m"><summary><div><div class="nm">'+E(m.name)+'</div><div class="meta">'+tag(m.certainty)+' n = '+m.n+ci+'</div>'
+    +(m.caveat?'<div class="caveat">'+E(m.caveat)+'</div>':'')+'</div><div class="vl">'+val+'</div></summary>'
+    +'<div class="why"><b>Fórmula:</b> '+E(m.formula)+'<br><b>Fuente:</b> '+E(m.source)+'<br><b>Periodo:</b> '+E(m.period)
+    +(ev?'<br><b>Por qué se mide:</b> '+ev:'')+'</div></details>';
+}
+
 function render(d,canEdit){
-  var maxLine=Math.max(1,d.lines.reduce(function(m,l){return Math.max(m,l.amount);},0));
-  var linesHtml=d.lines.map(function(l){
-    var pct=Math.round(100*l.amount/maxLine);
-    return '<details class="line"><summary><span class="lbl">'+E(l.label)+'</span><span class="amt">'+EUR(l.amount)+'</span></summary>'
-      +'<div class="bar"><i style="width:'+pct+'%"></i></div>'
-      +'<div class="why"><span class="k hecho">Hecho</span>'+E(l.base)+'<br><span class="k est">Estimación</span>Valorado a '+E(l.supuesto)+'</div></details>';
-  }).join('');
-  var f=d.facts;
-  var facts=[
-    ['Personas',f.personas],['Competencias en uso',f.competenciasAplicadas],['Referentes internos',f.referentes],
-    ['Casos validados',f.validacionesAprobadas],['Transferencias internas',f.transferenciasInternas],['Riesgos de dependencia',f.riesgosCriticos]
-  ].map(function(x){return '<div class="stat"><b>'+x[1]+'</b><span>'+E(x[0])+'</span></div>';}).join('');
+  var r=d.roi;
+  var hero='<div class="hero"><div class="sub">'+E(d.orgName)+' · periodo: '+E(d.period.label)+'</div>';
+  if(r.computable){
+    hero+='<div class="big">ROI '+NUM(r.roiPct)+' %</div>'
+      +'<div class="sub">Beneficio atribuido '+EUR(r.beneficios)+' frente a costes completos de '+EUR(r.costes)+' · por cada euro invertido vuelven '+NUM(r.bcr,2)+' €</div>'
+      +'<div style="margin-top:10px"><span class="tag">Estimado con método (Phillips, nivel 5)</span></div>'
+      +(r.missing.length?'<ul>'+r.missing.map(function(x){return '<li>'+E(x)+'</li>';}).join('')+'</ul>':'');
+  } else {
+    hero+='<div class="nodata">Sin datos suficientes para calcular el ROI</div>'
+      +'<div class="sub">Para dar una cifra en euros sin inventarla faltan estos datos de la empresa:</div>'
+      +'<ul>'+r.missing.map(function(x){return '<li>'+E(x)+'</li>';}).join('')+'</ul>'
+      +(canEdit?'<div style="margin-top:12px"><a class="btn btn-grad" href="#datos" style="background:rgba(255,255,255,.18);box-shadow:none">Introducir los datos</a></div>':'');
+  }
+  hero+='<div class="foot" style="color:#fff;opacity:.85;margin-top:10px">'+E(r.formula)+'</div></div>';
 
-  var fundae='<div class="card"><h2>Con FUNDAE</h2><p style="color:var(--body);font-size:14px;line-height:1.5">'+E(d.fundae.mensaje)+'</p>'
-    +(canEdit?'<div class="rowflex" style="margin-top:8px"><label class="field" style="max-width:220px">Crédito FUNDAE anual (€)<input id="fundae" type="number" min="0" step="1000" value="'+(d.fundae.presupuesto!=null?d.fundae.presupuesto:'')+'" placeholder="p. ej. 50000"></label><button class="btn btn-grad" id="saveFundae" style="align-self:flex-end;margin-bottom:8px">Guardar</button></div>':'')+'</div>';
+  var lv='';
+  [1,2,3,4].forEach(function(l){
+    var ms=d.levels.filter(function(m){return m.level===l;});
+    lv+='<div class="card"><div class="lvl">'+LEVELS[l][0]+'</div><p class="msg" style="margin:2px 0 6px">'+LEVELS[l][1]+'</p>'+ms.map(metricHtml).join('')+'</div>';
+  });
 
-  var risk=d.riesgoAbiertoEur>0?'<div class="card" style="border-left:4px solid var(--gold)"><h2>Riesgo que estamos reduciendo</h2>'
-    +'<p style="color:var(--body);font-size:14px;line-height:1.5">Hoy hay <b>'+f.riesgosCriticos+'</b> competencia(s) crítica(s) en manos de una sola persona. Coste potencial estimado si esa persona se va: <b style="color:var(--gold)">'+EUR(d.riesgoAbiertoEur)+'</b>. Cada segundo referente que formamos reduce ese riesgo.</p></div>':'';
+  var costs='<div class="card"><h2>Costes completos del programa</h2>'
+    +d.costs.lines.map(function(l){return '<div class="kv"><span>'+E(l.label)+'</span><span>'+EUR(l.amount)+'</span></div>';}).join('')
+    +'<div class="kv"><span><b>Total</b></span><span>'+(d.costs.total==null?'Sin datos':EUR(d.costs.total))+'</span></div>'
+    +(d.costs.missing.length?'<p class="msg">Falta: '+E(d.costs.missing.join(', '))+'. Si un coste no existe, escribe 0.</p>':'')
+    +'<p class="msg">Dato introducido por la empresa. Se cargan todos los costes (principio 10 de Phillips).</p></div>';
 
-  var editor=canEdit?editorHtml(d.assumptions):'';
+  var imps=d.impacts.length?d.impacts.map(function(i){
+    return '<details class="m"><summary><div><div class="nm">'+E(i.nombre)+'</div><div class="meta">'+tag(i.beneficio==null?'sin_datos':'estimado')+' '+(i.metodo==='grupo_control'?'Aislado con grupo de control':'Aislado con % atribuido × confianza')+'</div></div><div class="vl"><b>'+EUR(i.beneficio)+'</b></div></summary>'
+      +'<div class="why"><b>Antes → después (al mes):</b> '+NUM(i.input.valorAntes,2)+' → '+NUM(i.input.valorDespues,2)+' '+E(i.unidad)+' · fuente: '+E(i.input.fuenteDatos||'sin indicar')
+      +'<br><b>Mejora bruta:</b> '+NUM(i.mejoraMensual,2)+' · <b>aislada:</b> '+NUM(i.mejoraAislada,2)
+      +(i.formula?'<br><b>Cálculo:</b> '+E(i.formula):'')
+      +(i.input.metodoAtribucion?'<br><b>Quién estimó la atribución:</b> '+E(i.input.metodoAtribucion):'')
+      +'<br><b>Valor de una unidad:</b> '+EUR(i.input.valorEuroPorUnidad)+' ('+E(i.input.fuenteValor||'sin fuente')+')'
+      +(i.missing.length?'<br><b>Falta:</b> '+E(i.missing.join(', ')):'')+'</div></details>';
+  }).join(''):'<p class="msg">Todavía no hay ninguna métrica de negocio (ventas, errores, devoluciones, tiempo de respuesta…) medida antes y después. Sin ella no hay nivel 4 en euros ni ROI.</p>';
+  var impacts='<div class="card"><div class="lvl">Nivel 4 · Resultados de negocio</div><h2 style="margin-top:4px">Métricas de negocio de la empresa</h2>'+imps+'</div>';
 
-  root.innerHTML=
-    '<div class="hero"><div class="sub">Lo que SkillUp aporta a '+E(d.orgName)+'</div>'
-      +'<div class="big">'+EUR(d.retornoAnual)+'</div>'
-      +'<div class="sub">de retorno estimado al año'+(d.roiPct!=null?' · ROI '+d.roiPct+'%':'')+'</div>'
-      +'<span class="tag">Estimación honesta · hechos reales + supuestos editables</span></div>'
-    +fundae
-    +'<div class="card"><h2>De dónde sale <span class="hand" style="color:var(--t);font-size:14px">toca cada línea para ver el cálculo</span></h2>'+linesHtml+'</div>'
-    +'<div class="card"><h2>Los hechos <span class="hand" style="color:var(--t);font-size:14px">medidos, no inventados</span></h2><div class="grid">'+facts+'</div></div>'
-    +risk
-    +'<div class="card"><h2>El analista de ROI</h2><p class="msg" id="narrMsg">Pulsa para que el analista lea los datos y escriba el informe para dirección.</p>'
-      +'<button class="btn btn-grad" id="genNarr">Generar informe</button><div class="narr" id="narr" style="margin-top:12px"></div></div>'
-    +editor
-    +'<p class="foot">Hecho = dato real de la plataforma. Estimación = valor en euros calculado con supuestos editables; ajústalos a tu realidad para afinar la cifra. SkillUp no promete resultados: mide capacidad aplicada.</p>';
+  var intang='<div class="card"><h2>Intangibles <span class="hand" style="color:var(--t);font-size:14px">no se convierten a euros</span></h2>'
+    +d.intangibles.map(function(x){return '<div class="kv"><span>'+E(x.label)+' '+tag(x.certainty)+'</span><span>'+E(x.value)+'</span></div>';}).join('')
+    +'<p class="msg">Se informan aparte y no suman al ROI (principio 11 de Phillips).</p></div>';
+
+  var f=d.fundae;
+  var fundae='<div class="card"><h2>FUNDAE</h2><div class="kv"><span>Bonificación aplicada</span><span>'+EUR(f.bonificacion)+'</span></div>'
+    +'<div class="kv"><span>Coste neto para la empresa tras bonificar</span><span>'+EUR(f.costeNetoEmpresa)+'</span></div><p class="msg">'+E(f.nota)+'</p></div>';
+
+  var narr='<div class="card"><h2>Resumen para dirección</h2><p class="msg" id="narrMsg">Un analista de IA redacta el resumen usando solo las cifras de este informe, con su n y su certeza.</p>'
+    +'<button class="btn btn-grad" id="genNarr">Generar resumen</button><div class="narr" id="narr" style="margin-top:12px"></div></div>';
+
+  var method='<div class="card" id="metodo"><h2>Metodología y fuentes</h2>'
+    +'<p class="msg" style="margin-top:0">Niveles 1 a 4 según Kirkpatrick; nivel 5 (ROI) según la ROI Methodology de Phillips. Principios aplicados:</p>'
+    +'<ul class="miss">'+d.principles.map(function(p){return '<li>'+E(p)+'</li>';}).join('')+'</ul>'
+    +'<p class="msg">Certeza: <b>Medido</b> = dato registrado por la plataforma; <b>Estimado con método</b> = cálculo con datos de la empresa y ajuste declarado; <b>Sin datos</b> = no hay medida y no se rellena. Los porcentajes llevan su intervalo de confianza del 95 % (Wilson).</p>'
+    +'<h2 style="margin-top:18px;font-size:16px">Fuentes</h2>'
+    +d.sources.map(function(s){return '<p class="src"><b>'+E(s.author)+' ('+E(s.year)+').</b> '+E(s.title)+'. <a href="'+E(s.url)+'" target="_blank" rel="noopener">'+E(s.url)+'</a><br><span class="msg">'+E(s.usedFor)+'</span></p>';}).join('')
+    +'</div>';
+
+  document.getElementById('root').innerHTML=hero+lv+impacts+costs+intang+fundae+narr+(canEdit?editorHtml(d.inputs):'')+method
+    +'<p class="foot">Generado el '+new Date(d.generatedAt).toLocaleString('es-ES')+(d.inputs.updatedAt?' · datos de la empresa actualizados el '+new Date(d.inputs.updatedAt).toLocaleDateString('es-ES'):'')+'. SkillUp no promete resultados: mide capacidad aplicada.</p>';
 
   var g=document.getElementById('genNarr');
-  if(g) g.onclick=async function(){ g.disabled=true; g.textContent='Escribiendo…'; document.getElementById('narrMsg').style.display='none';
-    try{ var r=await SkillUp.api('/api/analytics/roi/narrative'); document.getElementById('narr').textContent=r.narrative||''; g.textContent='Regenerar'; g.disabled=false; }
-    catch(e){ document.getElementById('narrMsg').style.display=''; document.getElementById('narrMsg').textContent='No se pudo generar: '+(e.message||''); g.textContent='Reintentar'; g.disabled=false; } };
-
-  if(canEdit){
-    var sf=document.getElementById('saveFundae');
-    if(sf) sf.onclick=function(){ var v=document.getElementById('fundae').value; saveAssumptions({presupuestoFundaeAnual:v===''?null:Number(v)}); };
-    bindEditor();
-  }
+  if(VIEW_ORG){ g.style.display='none'; document.getElementById('narrMsg').textContent='Disponible solo dentro de la propia empresa.'; }
+  g.onclick=async function(){ g.disabled=true; g.textContent='Escribiendo…';
+    try{ var x=await SkillUp.api('/api/analytics/roi/narrative'); document.getElementById('narr').textContent=x.narrative||''; document.getElementById('narrMsg').style.display='none'; g.textContent='Regenerar'; }
+    catch(e){ document.getElementById('narrMsg').textContent='No se pudo generar: '+(e.message||''); g.textContent='Reintentar'; }
+    g.disabled=false; };
+  if(canEdit) bindEditor();
 }
 
-function editorHtml(a){
-  var fld=function(id,label,val,step){return '<label class="field">'+E(label)+'<input id="a_'+id+'" type="number" min="0" step="'+(step||'1')+'" value="'+(val!=null?val:'')+'"></label>';};
-  return '<details class="editor card"><summary>Ajustar los supuestos a tu empresa</summary><div style="margin-top:12px">'
-    +fld('costeCursoExternoPorPersona','Coste de un curso externo por persona (€)',a.costeCursoExternoPorPersona)
-    +fld('valorHoraEmpleado','Valor de la hora de un empleado (€)',a.valorHoraEmpleado)
-    +fld('horasMesPorCompetenciaAplicada','Horas/mes que ahorra aplicar una competencia',a.horasMesPorCompetenciaAplicada,'0.5')
-    +fld('costeReemplazoPersonaClave','Coste de reemplazar a una persona clave (€)',a.costeReemplazoPersonaClave,'100')
-    +fld('costeLicenciaSkillUpAnual','Lo que pagas por SkillUp al año (€)',a.costeLicenciaSkillUpAnual)
-    +'<button class="btn btn-grad" id="saveAssum">Guardar supuestos</button></div></details>';
+/* ------------------------------------------------------------ Editor de datos de la empresa */
+var COSTS=[['licencia','Coste de la plataforma en el periodo (€)','Lo facturado por SkillUp en el periodo del estudio.'],
+  ['horasParticipantes','Horas de trabajo dedicadas a formarse','Suma de horas de todas las personas. Escribe 0 si se formaron fuera de su jornada.'],
+  ['costeHoraCargado','Coste por hora con cargas sociales (€)','Salario bruto + Seguridad Social de empresa, dividido entre horas anuales. Pídelo a nóminas.'],
+  ['costesInternos','Tiempo interno: validadores, coordinación (€)','Horas de referentes y responsables × su coste por hora.'],
+  ['otrosCostes','Otros costes (€)','Contenido propio, evaluación, materiales. 0 si no hay.'],
+  ['bonificacionFundae','Bonificación FUNDAE aplicada (€, opcional)','Solo informativo: no se resta del ROI.']];
+function numIn(id,val,step){return '<input id="'+id+'" type="number" inputmode="decimal" step="'+(step||'any')+'" value="'+(val==null?'':val)+'">';}
+function impactForm(i,k){
+  i=i||{sentido:'subir',metodo:'antes_despues',mesesBeneficio:12};
+  var sel=function(id,opts,v){return '<select id="'+id+'">'+opts.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===v?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>';};
+  var txt=function(id,v,ph){return '<input id="'+id+'" type="text" maxlength="200" value="'+E(v||'')+'" placeholder="'+E(ph||'')+'">';};
+  return '<div class="imp" data-k="'+k+'"><h3>Métrica de negocio <button type="button" class="btn btn-gh" data-del="'+k+'" style="padding:6px 12px;font-size:11px">Quitar</button></h3><div class="grid2">'
+    +'<div><label>Nombre</label>'+txt('i'+k+'_nombre',i.nombre,'p. ej. Devoluciones por error')+'</div>'
+    +'<div><label>Unidad</label>'+txt('i'+k+'_unidad',i.unidad,'p. ej. pedidos')+'</div>'
+    +'<div><label>Mejorar es que</label>'+sel('i'+k+'_sentido',[['subir','Suba'],['bajar','Baje']],i.sentido)+'</div>'
+    +'<div><label>Fuente del dato</label>'+txt('i'+k+'_fuenteDatos',i.fuenteDatos,'ERP, CRM, informe de calidad…')+'</div>'
+    +'<div><label>Valor al mes, antes</label>'+numIn('i'+k+'_valorAntes',i.valorAntes)+'</div>'
+    +'<div><label>Valor al mes, después</label>'+numIn('i'+k+'_valorDespues',i.valorDespues)+'</div>'
+    +'<div><label>Cómo se aísla el efecto</label>'+sel('i'+k+'_metodo',[['antes_despues','Estimación de atribución'],['grupo_control','Grupo de control']],i.metodo)+'</div>'
+    +'<div><label>Mejora al mes del grupo no formado</label>'+numIn('i'+k+'_mejoraGrupoControl',i.mejoraGrupoControl)+'</div>'
+    +'<div><label>% de la mejora debido a la formación</label>'+numIn('i'+k+'_atribucionPct',i.atribucionPct,'1')+'</div>'
+    +'<div><label>% de confianza en esa estimación</label>'+numIn('i'+k+'_confianzaPct',i.confianzaPct,'1')+'</div>'
+    +'<div><label>Quién lo estimó y cómo</label>'+txt('i'+k+'_metodoAtribucion',i.metodoAtribucion,'p. ej. media de 4 jefes de equipo')+'</div>'
+    +'<div><label>Valor de 1 unidad (€)</label>'+numIn('i'+k+'_valorEuroPorUnidad',i.valorEuroPorUnidad)+'</div>'
+    +'<div><label>Fuente de ese valor</label>'+txt('i'+k+'_fuenteValor',i.fuenteValor,'contabilidad, margen medio…')+'</div>'
+    +'<div><label>Meses de beneficio (1 a 12)</label>'+numIn('i'+k+'_mesesBeneficio',i.mesesBeneficio==null?12:i.mesesBeneficio,'1')+'</div>'
+    +'</div><p class="hint">Con grupo de control no hace falta atribución ni confianza. Sin grupo de control, pide a quien conoce el trabajo qué parte de la mejora se debe a la formación y con qué seguridad lo dice: el beneficio se multiplica por ambos porcentajes.</p></div>';
+}
+var IMPK=0;
+function editorHtml(inp){
+  var c=inp.costs||{};
+  return '<details class="editor card" id="datos"'+(REPORT.roi.computable?'':' open')+'><summary>Datos de la empresa para el ROI</summary><div style="margin-top:14px">'
+    +'<p class="hint" style="margin-top:0">Solo lo introduce admin o dirección. Nada tiene valor por defecto: un campo vacío es «sin datos».</p>'
+    +'<div class="grid2"><div><label>Inicio del periodo</label><input id="pStart" type="date" value="'+(inp.periodStart||'')+'"></div><div><label>Fin del periodo</label><input id="pEnd" type="date" value="'+(inp.periodEnd||'')+'"></div></div>'
+    +'<h2 style="font-size:16px;margin-top:6px">Costes</h2>'
+    +COSTS.map(function(x){return '<label>'+E(x[1])+'</label>'+numIn('c_'+x[0],c[x[0]])+'<p class="hint">'+E(x[2])+'</p>';}).join('')
+    +'<h2 style="font-size:16px;margin-top:6px">Métricas de negocio</h2><div id="impList">'+(inp.impacts||[]).map(function(i){return impactForm(i,IMPK++);}).join('')+'</div>'
+    +'<button type="button" class="btn btn-gh" id="addImp">Añadir métrica</button>'
+    +'<h2 style="font-size:16px;margin-top:18px">Intangibles</h2><label>Uno por línea</label><textarea id="intang" rows="3" placeholder="p. ej. Mejor clima en el equipo de tienda">'+E((inp.intangibles||[]).join('\n'))+'</textarea>'
+    +'<button class="btn btn-grad btn-block" id="saveInputs">Guardar datos</button><p class="msg" id="saveMsg"></p></div></details>';
 }
 function bindEditor(){
-  var b=document.getElementById('saveAssum'); if(!b) return;
-  b.onclick=function(){
-    var ids=['costeCursoExternoPorPersona','valorHoraEmpleado','horasMesPorCompetenciaAplicada','costeReemplazoPersonaClave','costeLicenciaSkillUpAnual'];
-    var body={}; ids.forEach(function(id){ var v=document.getElementById('a_'+id).value; if(v!=='') body[id]=Number(v); });
-    saveAssumptions(body);
+  document.getElementById('addImp').onclick=function(){ document.getElementById('impList').insertAdjacentHTML('beforeend',impactForm(null,IMPK++)); };
+  document.getElementById('impList').onclick=function(e){ var k=e.target.getAttribute('data-del'); if(k!=null){ var el=document.querySelector('.imp[data-k="'+k+'"]'); if(el) el.remove(); } };
+  document.getElementById('saveInputs').onclick=async function(){
+    var n=function(id){var v=document.getElementById(id).value; return v===''?null:Number(v);};
+    var t=function(id){return document.getElementById(id).value.trim();};
+    var costs={}; COSTS.forEach(function(x){costs[x[0]]=n('c_'+x[0]);});
+    var impacts=[].map.call(document.querySelectorAll('#impList .imp'),function(el){var k=el.getAttribute('data-k'),p='i'+k+'_';
+      return {nombre:t(p+'nombre'),unidad:t(p+'unidad'),sentido:t(p+'sentido'),valorAntes:n(p+'valorAntes'),valorDespues:n(p+'valorDespues'),fuenteDatos:t(p+'fuenteDatos'),
+        metodo:t(p+'metodo'),mejoraGrupoControl:n(p+'mejoraGrupoControl'),atribucionPct:n(p+'atribucionPct'),confianzaPct:n(p+'confianzaPct'),metodoAtribucion:t(p+'metodoAtribucion'),
+        valorEuroPorUnidad:n(p+'valorEuroPorUnidad'),fuenteValor:t(p+'fuenteValor'),mesesBeneficio:n(p+'mesesBeneficio')||12};});
+    var body={periodStart:t('pStart')||null,periodEnd:t('pEnd')||null,costs:costs,impacts:impacts,
+      intangibles:t('intang').split('\n').map(function(s){return s.trim();}).filter(Boolean)};
+    var msg=document.getElementById('saveMsg'); msg.className='msg'; msg.textContent='Guardando…';
+    try{ await SkillUp.api('/api/analytics/roi/inputs',{method:'POST',body:body}); location.reload(); }
+    catch(e){ msg.className='msg err'; msg.textContent='No se pudo guardar: '+(e.message||'revisa los campos'); }
   };
-}
-async function saveAssumptions(body){
-  try{ await SkillUp.api('/api/analytics/roi/assumptions',{method:'POST',body:body}); location.reload(); }
-  catch(e){ alert('No se pudo guardar: '+(e.message||'')); }
 }
 </script>
 <script src="/app/boo-eyes.js"></script>
