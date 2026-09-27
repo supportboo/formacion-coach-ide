@@ -134,6 +134,7 @@ button{font-family:inherit}
 
 <script src="/app/api.js"></script>
 <script src="/app/nav.js" defer></script>
+<script src="/app/dictation.js"></script>
 <script>
 (function(){
 "use strict";
@@ -261,16 +262,15 @@ function wireTutor(){
   spk.addEventListener('click',function(){voiceOn=!voiceOn;spk.classList.toggle('on',voiceOn);if(!voiceOn)stopAudio();});
 
   // dictado
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null;
-  if(SR){mic.onclick=function(){if(rec){try{rec.stop();}catch(e){}return;}rec=new SR();rec.lang='es-ES';rec.interimResults=false;rec.maxAlternatives=1;mic.classList.add('rec');
-    rec.onresult=function(ev){input.value=ev.results[0][0].transcript;};rec.onend=function(){mic.classList.remove('rec');rec=null;if(input.value.trim())send(true);};rec.onerror=function(){mic.classList.remove('rec');rec=null;};
-    try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;}};}
-  else{mic.style.display='none';}
+  // Modo conversación: cuando el tutor termina de hablar, el micro vuelve a escuchar solo.
+  var ttsBusy=0,_spk=speak;speak=async function(a,b){ttsBusy++;try{await _spk(a,b);}finally{ttsBusy--;}};
+  function whenQuiet(fn){setTimeout(function w(){if(ttsBusy||(curAudio&&!curAudio.paused&&!curAudio.ended))return setTimeout(w,300);fn();},250);}
+  var dict=SkillUpDictation.attach(mic,{conversation:true,get:function(){return input.value;},set:function(v){input.value=v;},done:function(){Promise.resolve(send(true)).then(function(){whenQuiet(function(){if(dict)dict.replyDone();});});}});
 
   async function send(fromVoice){var t=input.value.trim();if(!t)return;input.value='';bubble('u',t);var think=bubble('a','…');
     try{var ctx='[El alumno está en la lección «'+LESSON.titulo+'» del curso '+LESSON.curso+'. Ayúdale con eso.] ';
       var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:ctx+t,threadId:threadId||undefined}});
-      threadId=r.threadId;think.textContent=r.reply||'—';if(r.reply&&(voiceOn||fromVoice))speak(r.reply);}
+      threadId=r.threadId;think.textContent=r.reply||'—';if(r.reply&&(voiceOn||fromVoice))await speak(r.reply);}
     catch(e){think.textContent='Ahora mismo no puedo responder. Inténtalo en un momento.';}}
   document.getElementById('snd').onclick=function(){send(false);};
   input.addEventListener('keydown',function(e){if(e.key==='Enter')send(false);});

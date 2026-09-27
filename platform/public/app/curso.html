@@ -207,6 +207,7 @@ mark.uhl{background:rgba(240,198,69,.28);color:inherit;border-radius:2px;padding
 
 <script src="/app/api.js"></script>
 <script src="/app/nav.js" defer></script>
+<script src="/app/dictation.js"></script>
 <script>
 (function(){
 "use strict";
@@ -461,8 +462,7 @@ function wireExercises(){
     ex.innerHTML='<div class="uex-q"><span class="uex-lbl">Tu turno</span>'+esc(q)+'</div><div class="uex-in"><textarea placeholder="Escribe o dicta tu respuesta…"></textarea><button class="uex-mic" title="Dictar">'+ico('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/>')+'</button></div><button class="uex-send">Responder a '+esc(PERSONA.name)+'</button><div class="uex-fb"></div>';
     prose.appendChild(ex);
     var ta=ex.querySelector('textarea'), send=ex.querySelector('.uex-send'), mic=ex.querySelector('.uex-mic'), fb=ex.querySelector('.uex-fb');
-    var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null;
-    if(SR){ mic.onclick=function(){ if(rec){try{rec.stop();}catch(e){}return;} rec=new SR();rec.lang='es-ES';rec.interimResults=false;mic.classList.add('rec'); rec.onresult=function(ev){ta.value=(ta.value?ta.value+' ':'')+ev.results[0][0].transcript;}; rec.onend=function(){mic.classList.remove('rec');rec=null;}; rec.onerror=function(){mic.classList.remove('rec');rec=null;}; try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;} }; } else { mic.style.display='none'; }
+    SkillUpDictation.attach(mic,{append:true,get:function(){return ta.value;},set:function(v){ta.value=v;}});
     send.onclick=async function(){ var a=ta.value.trim(); if(!a)return; send.disabled=true;
       try{SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:i,cardTitle:(CARDS[i]?CARDS[i].title:''),kind:'insight',body:a}}).catch(function(){});}catch(e){}
       var ans=document.createElement('div'); ans.className='uex-ans'; ans.innerHTML='<span class="who">Tu respuesta</span>'+esc(a);
@@ -559,7 +559,9 @@ function wireTutor(){
       requestAnimationFrame(tick);
     } requestAnimationFrame(tick);
   }
-  function greet(){if(greeted)return;greeted=true;bubble('a','Hola, soy '+PERSONA.name+', tu '+PERSONA.role.toLowerCase()+'. Voy contigo por el curso y te iré señalando lo importante. Puedes subrayar o preguntarme sobre cualquier frase, y responder a los ejercicios por texto o por voz. Empecemos: ¿qué te ha traído hasta aquí?'); reviewNudge();}
+  function greet(){if(greeted)return;greeted=true;var gt='Hola, soy '+PERSONA.name+', tu '+PERSONA.role.toLowerCase()+'. Voy contigo por el curso y te iré señalando lo importante. Puedes subrayar o preguntarme sobre cualquier frase, y responder a los ejercicios por texto o por voz. Empecemos: ¿qué te ha traído hasta aquí?';var gb=bubbleSpoken('a','');gb.wrap.textContent=gt;if(voiceOn)speak(gt,gb.wrap); reviewNudge();}
+  // Si el navegador bloquea el sonido automático al entrar, suena en cuanto el alumno toca o pulsa algo (nunca mudo en silencio).
+  function playOrWait(a){return a.play().catch(function(){var go=function(){document.removeEventListener('pointerdown',go,true);document.removeEventListener('keydown',go,true);if(curAudio===a)a.play().catch(function(){});};document.addEventListener('pointerdown',go,true);document.addEventListener('keydown',go,true);});}
   // Auto-personalización por alumno (Nivel 1): el curso recuerda lo que marcaste "necesito repasarlo" y te ayuda a retomarlo (dato real tuyo, sin coste).
   var toReview=[], reviewPosted=false;
   function reviewNudge(){ if(reviewPosted||!greeted||!toReview.length)return; reviewPosted=true;
@@ -582,15 +584,16 @@ function wireTutor(){
         var words=(wrap&&d.chars&&d.chars.length)?buildKaraoke(wrap,d.chars,d.startsSec,d.endsSec):null;
         a.onended=function(){URL.revokeObjectURL(url);if(words)words.forEach(function(w){w.span.classList.remove('on');});};
         if(words)highlightLoop(a,words);
-        await a.play().catch(function(){});return;}
+        await playOrWait(a);return;}
     }catch(e){}
-    try{var r2=await fetch('/api/voice/tts',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:body});if(!r2.ok)return;var url2=URL.createObjectURL(await r2.blob());var a2=new Audio(url2);curAudio=a2;a2.playbackRate=1;a2.onended=function(){URL.revokeObjectURL(url2);};await a2.play().catch(function(){});}catch(e2){}}
+    try{var r2=await fetch('/api/voice/tts',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:body});if(!r2.ok)return;var url2=URL.createObjectURL(await r2.blob());var a2=new Audio(url2);curAudio=a2;a2.playbackRate=1;a2.onended=function(){URL.revokeObjectURL(url2);};await playOrWait(a2);}catch(e2){}}
   (async function(){try{var d=await SkillUp.api('/api/voice/voices');if(d&&d.provider==='elevenlabs'&&d.voices&&d.voices.length){ttsOn=true;var opts=d.voices.slice();if(PERSONA.voice&&!opts.some(function(v){return v.id===PERSONA.voice;}))opts.unshift({id:PERSONA.voice,name:PERSONA.name});voiceId=PERSONA.voice||d.voices[0].id;vsel.innerHTML=opts.map(function(v){return '<option value="'+v.id+'"'+(v.id===voiceId?' selected':'')+'>'+v.name+'</option>';}).join('');vsel.hidden=false;spk.hidden=false;spk.classList.toggle('on',voiceOn);spk.title=voiceOn?'Silenciar al tutor':'Que el tutor te hable';}}catch(e){}})();
   vsel.addEventListener('change',function(){voiceId=vsel.value;});
   spk.addEventListener('click',function(){voiceOn=!voiceOn;spk.classList.toggle('on',voiceOn);spk.title=voiceOn?'Silenciar al tutor':'Que el tutor te hable';if(!voiceOn)stopAudio();});
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null;
-  if(SR){mic.onclick=function(){if(rec){try{rec.stop();}catch(e){}return;}rec=new SR();rec.lang='es-ES';rec.interimResults=false;rec.maxAlternatives=1;mic.classList.add('rec');rec.onresult=function(ev){input.value=ev.results[0][0].transcript;};rec.onend=function(){mic.classList.remove('rec');rec=null;if(input.value.trim())send(true);};rec.onerror=function(){mic.classList.remove('rec');rec=null;};try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;}};}
-  else{mic.style.display='none';}
+  // Modo conversación: cuando el tutor termina de hablar, el micro vuelve a escuchar solo.
+  var ttsBusy=0,_spk=speak;speak=async function(a,b){ttsBusy++;try{await _spk(a,b);}finally{ttsBusy--;}};
+  function whenQuiet(fn){setTimeout(function w(){if(ttsBusy||(curAudio&&!curAudio.paused&&!curAudio.ended))return setTimeout(w,300);fn();},250);}
+  var dict=SkillUpDictation.attach(mic,{conversation:true,get:function(){return input.value;},set:function(v){input.value=v;},done:function(){Promise.resolve(send(true)).then(function(){whenQuiet(function(){if(dict)dict.replyDone();});});}});
   async function send(fromVoice,forced){var t=(forced!=null?forced:input.value.trim());if(!t)return;if(forced==null)input.value='';interacted=true;bubble('u',t);saveTurn('u',t);
     // aprende de lo que escribe: guarda su mensaje como contexto (silencioso, no sale en Mis notas)
     try{SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:idx,cardTitle:(CARDS[idx]?CARDS[idx].title:''),kind:'insight',body:t}}).catch(function(){});}catch(e){}

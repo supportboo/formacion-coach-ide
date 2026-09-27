@@ -234,7 +234,7 @@
       if (!sharedAudio) { sharedAudio = new Audio(); sharedAudio.setAttribute('playsinline', ''); }
       var a = sharedAudio; a.src = url; curAudio = a; a.playbackRate = 1; // ritmo natural (1.12 sonaba acelerada y perdía tono)
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(function () {});
-      a.onended = function () { URL.revokeObjectURL(url); if (curAudio === a) curAudio = null; setSpeaking(false); stopLevel(); };
+      a.onended = function () { URL.revokeObjectURL(url); if (curAudio === a) curAudio = null; setSpeaking(false); stopLevel(); if (micConvo && open) setTimeout(startMic, 350); };
       ensureAnalyser(a);
       await a.play().catch(function () { setSpeaking(false); }); // si el navegador bloquea autoplay, degradamos a solo texto
       if (analyser) levelLoop();
@@ -266,10 +266,18 @@
   var MIC_START_MS = 8000; // desde que se abre el micro hasta empezar a hablar
   var MIC_PAUSE_MS = 5000; // pausa tras hablar antes de dar por terminado
   function armMicSilence(ms) { clearTimeout(micSilence); micSilence = setTimeout(function () { try { rec && rec.stop(); } catch (e) {} }, ms); }
+  // Modo conversación: un toque y queda activo (hablas, responde en voz, vuelve a escucharte). Otro toque lo termina.
+  var micConvo = false;
   if (SR) {
     micBtn.addEventListener('click', function () {
       unlockAudio();
-      if (rec) { clearTimeout(micSilence); try { rec.stop(); } catch (e) {} return; }
+      if (rec || micConvo) { micConvo = false; micBtn.style.boxShadow = ''; clearTimeout(micSilence); if (rec) { try { rec.stop(); } catch (e) {} } return; }
+      micConvo = true; micBtn.style.boxShadow = 'inset 0 0 0 2px #3FD8F0'; startMic();
+    });
+  }
+  function startMic() {
+    if (!SR || rec) return;
+    {
       micFinal = '';
       rec = new SR(); rec.lang = 'es-ES'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
       micBtn.classList.add('rec');
@@ -284,7 +292,7 @@
       };
       rec.onspeechstart = function () { clearTimeout(micSilence); }; // hablando: sin límite hasta que pare
       rec.onspeechend = function () { armMicSilence(MIC_PAUSE_MS); };
-      rec.onend = function () { clearTimeout(micSilence); micBtn.classList.remove('rec'); var had = input.value.trim(); rec = null; if (had) send(true); };
+      rec.onend = function () { clearTimeout(micSilence); micBtn.classList.remove('rec'); var had = input.value.trim(); rec = null; if (had) send(true); else { micConvo = false; micBtn.style.boxShadow = ''; } };
       rec.onerror = function (ev) { clearTimeout(micSilence); micBtn.classList.remove('rec'); rec = null;
         var c = ev && ev.error;
         if (c === 'not-allowed' || c === 'service-not-allowed') bubble('agent', 'Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador, o escríbeme aquí.');
@@ -292,8 +300,9 @@
         else if (c && c !== 'no-speech' && c !== 'aborted') bubble('agent', 'El dictado por voz no está disponible ahora mismo en este navegador. Escríbeme y te respondo.');
       };
       try { rec.start(); armMicSilence(MIC_START_MS); } catch (e) { clearTimeout(micSilence); micBtn.classList.remove('rec'); rec = null; }
-    });
-  } else { micBtn.style.display = 'none'; }
+    }
+  }
+  if (!SR) micBtn.style.display = 'none';
 
   function toggle(v) {
     open = (v == null) ? !open : v;

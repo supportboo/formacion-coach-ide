@@ -81,6 +81,7 @@ button{font-family:inherit}[hidden]{display:none!important}
 </div>
 <script src="/app/api.js"></script>
 <script src="/app/nav.js" defer></script>
+<script src="/app/dictation.js"></script>
 <script>
 (function(){
 "use strict";
@@ -203,8 +204,8 @@ function showPlan(plan){
 }
 
 // dictado
-var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, mic=document.getElementById('mic');
-if(SR){ mic.onclick=function(){ if(rec){try{rec.stop();}catch(e){}return;} rec=new SR();rec.lang='es-ES';rec.interimResults=false;mic.classList.add('rec'); rec.onresult=function(ev){inp.value=(inp.value?inp.value+' ':'')+ev.results[0][0].transcript;autoGrow();}; rec.onend=function(){mic.classList.remove('rec');rec=null;}; rec.onerror=function(){mic.classList.remove('rec');rec=null;}; try{rec.start();}catch(e){mic.classList.remove('rec');rec=null;} }; } else { mic.style.display='none'; }
+var mic=document.getElementById('mic');
+SkillUpDictation.attach(mic,{append:true,get:function(){return inp.value;},set:function(v){inp.value=v;autoGrow();}});
 document.getElementById('snd').onclick=function(){answer();};
 inp.addEventListener('input',autoGrow);
 inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();answer();}});

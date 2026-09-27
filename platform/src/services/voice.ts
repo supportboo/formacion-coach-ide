@@ -18,36 +18,44 @@ function ttsBody(text: string, voiceId: string) {
     : { text, model_id: MODEL, voice_settings: settingsFor(voiceId) };
 }
 
-// Máster «podcast»: voz cercana, cálida y presente, sin efecto (nada de radio ni casco). Duración intacta, así el
-// resaltado palabra a palabra sigue cuadrando.
-//   highpass 80 Hz       fuera rumble
-//   +2 dB @ 140 Hz       cuerpo y calidez
-//   -2,5 dB @ 320 Hz     quita el «barro» de habitación
-//   +2,5 dB @ 3 kHz      presencia: se entiende cada palabra
-//   -2 dB @ 6,5 kHz      suaviza las eses
-//   +2 dB shelf 11 kHz   aire
-//   acompressor 3:1      volumen estable, como un locutor
-//   alimiter             sin picos al llegar al altavoz
-const PODCAST_EQ = [
+// Máster «podcast», MEDIDO (2026-09-27, misma frase, bandas de octava relativas a 800 Hz):
+// el clon de Marc sale fino y chillón frente a Diego/Inés/Álvaro: ~10 dB menos por debajo de 200 Hz y
+// ~11-12 dB más por encima de 6 kHz (eses, siseo). Su cadena lo corrige hasta el equilibrio de las otras
+// (verificado tras aplicarla: graves = Diego, 3-6 kHz y >10 kHz dentro del rango de las demás, -18,7 LUFS).
+// Las demás voces ya salen equilibradas: solo limpieza suave + compresión de locutor, sin realces.
+// Duración intacta (sin atempo), así el resaltado palabra a palabra sigue cuadrando.
+const MARC_EQ = [
+  // Limpieza: el clon trae ruido de sala constante (suelo -42 dB frente a -78 dB de Diego). Con esto baja a -78 dB
+  // sin tocar el timbre (bandas iguales antes y después) ni el volumen: suena a micrófono de estudio.
+  "afftdn=nr=30:nf=-40:tn=1",
+  "agate=threshold=0.012:ratio=4:attack=5:release=150",
+  "highpass=f=70",
+  "lowshelf=f=180:g=6",                  // cuerpo que le falta
+  "equalizer=f=250:t=q:w=1:g=2",         // calidez
+  "equalizer=f=3200:t=q:w=1:g=-5",       // dureza
+  "equalizer=f=6500:t=q:w=0.9:g=-11",    // eses y siseo
+  "highshelf=f=10000:g=-7",              // brillo metálico
+  "deesser=i=0.4",
+];
+const CLEAN_EQ = [
   "highpass=f=80",
-  "equalizer=f=140:t=q:w=0.9:g=2",
-  "equalizer=f=320:t=q:w=1.1:g=-2.5",
-  "equalizer=f=3000:t=q:w=1.2:g=2.5",
-  "equalizer=f=6500:t=q:w=2:g=-2",
-  "highshelf=f=11000:g=2",
-  "acompressor=threshold=-20dB:ratio=3:attack=8:release=160:makeup=2.5",
-  "alimiter=limit=0.93",
-].join(",");
+  "equalizer=f=320:t=q:w=1.1:g=-1.5",    // un punto menos de «habitación»
+];
+const BROADCAST = [
+  "acompressor=threshold=-20dB:ratio=3:attack=8:release=160:makeup=2.5", // volumen estable, como un locutor
+  "alimiter=limit=0.93",                                                  // sin picos en el altavoz
+];
+function eqFor(voiceId: string) { return [...(voiceId === MARC_VOICE ? MARC_EQ : CLEAN_EQ), ...BROADCAST].join(","); }
 
 /** Pasa el MP3 por la cadena podcast. Si ffmpeg no está o falla, devuelve el original: mejor sin EQ que mudo. */
-export function podcastMaster(mp3: Buffer): Promise<Buffer> {
+export function podcastMaster(mp3: Buffer, voiceId: string): Promise<Buffer> {
   return new Promise((resolve) => {
     let done = false;
     const finish = (b: Buffer) => { if (!done) { done = true; resolve(b); } };
     try {
       const ff = spawn(process.env.FFMPEG_PATH || "ffmpeg", [
         "-hide_banner", "-loglevel", "error", "-f", "mp3", "-i", "pipe:0",
-        "-af", PODCAST_EQ, "-f", "mp3", "-c:a", "libmp3lame", "-b:a", "96k", "-ar", "44100", "-ac", "1", "pipe:1",
+        "-af", eqFor(voiceId), "-f", "mp3", "-c:a", "libmp3lame", "-b:a", "96k", "-ar", "44100", "-ac", "1", "pipe:1",
       ]);
       const out: Buffer[] = [];
       const timer = setTimeout(() => { ff.kill("SIGKILL"); finish(mp3); }, 10000);
@@ -115,7 +123,7 @@ export async function synthesize(text: string, voiceId: string): Promise<ArrayBu
       signal: AbortSignal.timeout(20000),
     });
     if (!r.ok) return null;
-    const eq = await podcastMaster(Buffer.from(await r.arrayBuffer()));
+    const eq = await podcastMaster(Buffer.from(await r.arrayBuffer()), voiceId);
     return eq.buffer.slice(eq.byteOffset, eq.byteOffset + eq.byteLength) as ArrayBuffer;
   } catch {
     return null;
@@ -139,7 +147,7 @@ export async function synthesizeWithTimestamps(text: string, voiceId: string): P
     const align = d.alignment || d.normalized_alignment;
     if (!d.audio_base64 || !align) return null;
     return {
-      audioBase64: (await podcastMaster(Buffer.from(d.audio_base64, "base64"))).toString("base64"),
+      audioBase64: (await podcastMaster(Buffer.from(d.audio_base64, "base64"), voiceId)).toString("base64"),
       chars: align.characters || [],
       startsSec: align.character_start_times_seconds || [],
       endsSec: align.character_end_times_seconds || [],
