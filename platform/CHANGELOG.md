@@ -4,6 +4,7 @@
 
 ### Nuevo
 - **Anuncio «La capacidad se demuestra» en el hero de la landing** (`skillup.html`): sustituye a la captura de la app. Póster ligero (83 KB) y el vídeo (`assets/skillup-anuncio.mp4`, 1:29, H.264 1080p, 25 MB) solo se descarga al darle al play; reproduce con sonido y controles y vuelve al póster al terminar. La etiqueta «Aprendiendo → Dominado» se oculta mientras suena para no tapar subtítulos ni controles.
+- **Vídeos dentro del curso** (`curso.html`): el botón «Vídeos» ya no saca del curso; abre a la izquierda el panel «Vídeos del curso» con miniaturas (los mismos vídeos reales de YouTube de `videos.html`, misma caché por tema) y los del bloque que estás leyendo arriba con la marca «Este bloque». El vídeo se ve dentro del panel, se puede ampliar junto al texto (vista dividida) o a pantalla completa, y el texto conserva la posición de lectura. PC ≥1100 px: columna entre el texto y el chat; tableta y móvil: se desliza sobre el contenido. Recuerda si lo dejaste abierto (solo en PC), Esc cierra vídeo y panel.
 
 ### Diseño y accesibilidad de la landing
 - Contraste AA en el texto blanco de los botones y del play (mismo degradado violeta→turquesa un tono más profundo, `--grad-cta`), en los números del recorrido, en la letra pequeña del pie y en los enlaces al pasar el ratón.
