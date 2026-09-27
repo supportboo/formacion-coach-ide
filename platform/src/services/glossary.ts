@@ -82,8 +82,11 @@ export function glossaryPrompt(terms: Term[]): string {
   if (!terms.length) return "";
   const byRight = new Map<string, string[]>();
   for (const t of terms) byRight.set(t.right, [...(byRight.get(t.right) || []), t.wrong]);
-  return "\n\nTERMINOLOGÍA OBLIGATORIA (aprendida de las correcciones del equipo; escríbelo siempre así): "
-    + [...byRight.entries()].map(([r, ws]) => `«${r}» (nunca ${ws.map((w) => `«${w}»`).join(" ni ")})`).join("; ") + ".";
+  // Son solo reglas de ESCRITURA: sin la última frase, el modelo tomaba la lista como contexto y metía «Nextdoo»
+  // o «partner manager» donde no venían a cuento (visto en el resumen de supervisión, 28-09-2026).
+  return "\n\nORTOGRAFÍA DE TÉRMINOS (aprendida de las correcciones del equipo): "
+    + [...byRight.entries()].map(([r, ws]) => `«${r}» (nunca ${ws.map((w) => `«${w}»`).join(" ni ")})`).join("; ")
+    + ". Es solo cómo se escriben: úsalos únicamente si el tema lo requiere; no los menciones ni los asumas como contexto si no vienen al caso.";
 }
 
 /** Saca las marcas [[TERMINO: a => b]] de la respuesta: devuelve el texto limpio y lo aprendido. */
