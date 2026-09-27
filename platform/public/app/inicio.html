@@ -268,7 +268,7 @@ var RM_LBL={on:'Activo ya',wip:'En marcha',next:'Próximamente'};
 function roadmap(){
   return '<div class="roadmap"><span class="rm-t">Cómo evoluciona el contenido</span><p class="rm-sub">De leer a escuchar, ver y crear con tu propio avatar. Lo que está activo ya lo tienes en tus cursos; lo demás llega en este orden.</p>'
     +'<div class="rm-track">'+RM.map(function(s,i){
-      return '<div class="rm-step'+(s.s==='on'?' done':'')+'"'+(s.s==='wip'?' style="opacity:.85"':'')+'><div class="rm-dot">'+(i+1)+'</div><div class="rm-body"><span class="rt">'+esc(s.t)+'</span><small>'+RM_LBL[s.s]+(s.h?' · '+esc(s.h):'')+'</small></div></div>';
+      return '<div class="rm-step'+(s.s==='on'?' done':'')+'"><div class="rm-dot">'+(i+1)+'</div><div class="rm-body"><span class="rt">'+esc(s.t)+'</span><small>'+RM_LBL[s.s]+(s.h?' · '+esc(s.h):'')+'</small></div></div>';
     }).join('')+'</div></div>';
 }
 // Onboarding-2: si el usuario tiene ruta, mostramos SOLO sus modulos (no el catalogo completo).
