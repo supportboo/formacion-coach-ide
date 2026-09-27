@@ -14,6 +14,7 @@ import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
 import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, auditLog } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
+import { orgTerms } from "./services/glossary.js";
 import * as aiContent from "./services/aiContent.js";
 import { rateLimited } from "./util/rateLimit.js";
 import * as catalogSvc from "./services/catalog.js";
@@ -420,6 +421,13 @@ app.post("/api/agent/chat", async (c) => {
 
 // Coach de voz proactivo (BOO): saluda con seguimiento REAL — reconoce, motiva, hace seguimiento y
 // suelta una broma amable. Solo con hechos reales del alumno (nada de fechas ni plazos inventados).
+// Glosario aprendido de la empresa (para que el dictado por voz escriba bien marcas y cargos).
+app.get("/api/agent/terms", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ terms: await orgTerms(db, ctx.orgId).catch(() => []) });
+});
+
 app.get("/api/agent/coach", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
