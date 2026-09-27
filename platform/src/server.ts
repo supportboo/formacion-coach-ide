@@ -1937,53 +1937,48 @@ app.post("/api/config/perks", async (c) => {
   return c.json({ ok: true, perks: await gamificationSvc.savePerks(svcDeps, ctx.orgId, parsed.data.perks) });
 });
 
-// ROI de la empresa: HECHOS de la BD + supuestos editables -> retorno estimado y marco FUNDAE.
+// Informe de ROI (Kirkpatrick niveles 1-4 medidos + Phillips nivel 5 solo con datos de la empresa).
 app.get("/api/analytics/roi", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, ctx.orgId));
-  return c.json({ orgName: o?.name ?? "tu empresa", ...(await roiSvc.computeRoi(svcDeps, ctx.orgId)) });
+  return c.json({ ...(await roiSvc.buildReport(svcDeps, ctx.orgId)), orgName: o?.name ?? "tu empresa" });
 });
 
-// Editar los supuestos de ROI (solo admin/dirección de la empresa).
-app.post("/api/analytics/roi/assumptions", async (c) => {
+// Datos del estudio de ROI que introduce la empresa (costes, métricas de negocio, intangibles). Solo admin/dirección.
+app.post("/api/analytics/roi/inputs", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
-  const num = z.number().nonnegative().max(10_000_000);
-  const parsed = z.object({
-    costeCursoExternoPorPersona: num.optional(), valorHoraEmpleado: num.optional(),
-    horasMesPorCompetenciaAplicada: num.optional(), costeReemplazoPersonaClave: num.optional(),
-    presupuestoFundaeAnual: num.nullable().optional(), costeLicenciaSkillUpAnual: num.optional(),
-  }).safeParse(await c.req.json().catch(() => ({})));
-  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
-  const saved = await roiSvc.saveAssumptions(svcDeps, ctx.orgId, parsed.data);
-  return c.json({ ok: true, assumptions: saved });
+  const parsed = roiSvc.studySchema.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos: " + parsed.error.issues.map((i) => i.path.join(".") + " " + i.message).join("; ") }, 400);
+  await roiSvc.saveStudy(svcDeps, ctx.orgId, ctx.userId, parsed.data);
+  return c.json({ ok: true });
 });
 
-// El agente de ROI redacta el informe para dirección (rate-limited: llama a la IA).
+// El analista redacta el resumen para dirección con las cifras del informe (rate-limited: llama a la IA).
 app.get("/api/analytics/roi/narrative", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   if (rateLimited(`roi:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, ctx.orgId));
-  const r = await roiSvc.computeRoi(svcDeps, ctx.orgId);
+  const r = await roiSvc.buildReport(svcDeps, ctx.orgId);
   try {
     const texto = await roiSvc.roiNarrative(llm, o?.name ?? "tu empresa", r, { orgId: ctx.orgId, userId: ctx.userId });
     return c.json({ narrative: texto });
   } catch (e) { return c.json({ error: "no se pudo generar el informe: " + String((e as Error).message) }, 502); }
 });
 
-// Superadmin: ROI de cualquier empresa (para la consola de control).
+// Superadmin: informe de ROI de cualquier empresa (solo lectura, para la consola de control).
 app.get("/api/platform/roi/:orgId", async (c) => {
   const admin = await getPlatformAdminSession(c);
   if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
   const orgId = c.req.param("orgId");
   const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, orgId));
   if (!o) return c.json({ error: "empresa no encontrada" }, 404);
-  return c.json({ orgName: o.name, ...(await roiSvc.computeRoi(svcDeps, orgId)) });
+  return c.json({ ...(await roiSvc.buildReport(svcDeps, orgId)), orgName: o.name });
 });
 app.get("/api/analytics/completion", async (c) => {
   const ctx = await getAuthContext(c);

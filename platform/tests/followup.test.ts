@@ -4,7 +4,7 @@ import { summarizeCheckins } from "../src/services/followup.js";
 describe("summarizeCheckins — ROI de aplicación, cero cifras inventadas", () => {
   it("sin check-ins devuelve todo a 0/null, nunca un número falso", () => {
     const r = summarizeCheckins([]);
-    expect(r).toEqual({ checkins: 0, aplica: 0, parcial: 0, noAplica: 0, tasaAplicacion: null, sensacionMedia: null });
+    expect(r).toEqual({ checkins: 0, aplica: 0, parcial: 0, noAplica: 0, tasaAplicacion: null, sensacionMedia: null, sensacionN: 0 });
   });
 
   it("cuenta aplica/parcial/no y calcula tasa e (aplica+parcial)/total", () => {

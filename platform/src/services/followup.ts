@@ -38,6 +38,7 @@ export interface ApplicationRoi {
   aplica: number; parcial: number; noAplica: number;
   tasaAplicacion: number | null;    // % que aplica (si o parcial) / total, o null si no hay datos
   sensacionMedia: number | null;    // media de sensación 1-5, o null
+  sensacionN: number;               // cuántos check-ins traen sensación (n de esa media)
 }
 
 /**
@@ -72,5 +73,6 @@ export function summarizeCheckins(notes: (string | null)[]): ApplicationRoi {
     checkins: notes.length, aplica, parcial, noAplica,
     tasaAplicacion: total ? Math.round(((aplica + parcial) / total) * 100) : null,
     sensacionMedia: sensN ? Math.round((sensSum / sensN) * 10) / 10 : null,
+    sensacionN: sensN,
   };
 }

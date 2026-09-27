@@ -6,7 +6,7 @@ Plataforma Brandooers · SkillUp: formación que mide CAPACIDAD aplicada, no asi
 - **Aprendizaje aplicado por rol**: ruta por sector/puesto, test, caso práctico validado por un humano (no autoservicio), coach de voz, juego de rol.
 - **Panel de empresa**: cobertura por competencia, riesgo de dependencia, transferencia interna, autonomía en días.
 - **Pirámides de conocimiento** por competencia (quién sostiene cada una) + **perks configurables** por empresa.
-- **Informe de ROI** con marco FUNDAE y agente de ROI (IA), separando HECHO de ESTIMACIÓN.
+- **Informe de ROI** con método Kirkpatrick (niveles 1-4 medidos, con n e intervalo de confianza) y Phillips (ROI solo con costes completos y métricas de negocio aisladas que aporta la empresa; si faltan, «Sin datos suficientes»). Fuentes citadas en el propio informe.
 - **Gamificación**: puntos por aplicar/enseñar, ranking de temporada, rangos.
 - **Consola de superadmin**: agentes (prompt+herramientas+memoria+cerebro), métricas por empresa, gestión de usuarios y contraseñas.
 - **Panel de ayuda por perfil** con pantallazos reales y guía visual.

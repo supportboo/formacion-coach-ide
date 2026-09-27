@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.1.0 — 2026-09-27
+
+### Informe de ROI con metodología reconocida (sustituye al de 1.0.0)
+- **Niveles 1-4 de Kirkpatrick medidos por la plataforma**: valoración, pruebas superadas, mejora entre intentos, rutas finalizadas, casos aprobados por un referente, aplicación en el puesto, cobertura, tiempo hasta la competencia (mediana), transferencia interna y competencias críticas en riesgo. Cada indicador con fórmula, fuente, periodo, n, certeza (Medido / Estimado con método / Sin datos), intervalo de confianza del 95 % (Wilson) en porcentajes y aviso de muestra pequeña.
+- **Nivel 5 (ROI de Phillips) solo con datos de la empresa**: costes completos (plataforma, horas × coste/hora con cargas, tiempo interno, otros) y métricas de negocio antes/después con grupo de control o % atribuido × % de confianza, primer año como máximo. Sin esos datos el informe dice «Sin datos suficientes para calcular el ROI» y lista lo que falta.
+- **Retirado lo inventado**: los supuestos por defecto (350 € por curso externo, 22 €/h, 2 h/mes ahorradas por competencia, 8.000 € por persona clave) y la afirmación «con FUNDAE el coste neto es 0». La bonificación FUNDAE se muestra aparte y no se resta del ROI.
+- Intangibles listados sin convertir a euros. Sección «Metodología y fuentes» con las referencias leídas.
+- Nueva tabla `roi_study` (migración `0018_roi_study`). Endpoint `POST /api/analytics/roi/inputs` (Zod, solo admin/dirección) sustituye a `/api/analytics/roi/assumptions`.
+- El resumen de IA para dirección solo usa cifras del informe y no da euros si el ROI no es calculable.
+
 ## 1.0.1 — 2026-09-27
 
 ### Nuevo

@@ -561,3 +561,18 @@ export const videoEvent = pgTable("video_event", {
   thumbnail: text("thumbnail").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byYoutubeId: index("video_event_youtube_idx").on(t.youtubeId) }));
+
+// Estudio de ROI (metodología Phillips) de una empresa: SOLO datos que introduce su admin/dirección
+// (costes completos, métricas de negocio antes/después o con grupo de control, aislamiento y
+// confianza, intangibles). Sin fila o con campos vacíos = "sin datos", nunca un valor por defecto.
+// Una fila por empresa (el periodo del estudio va dentro).
+export const roiStudy = pgTable("roi_study", {
+  organizationId: text("organization_id").primaryKey(),
+  periodStart: text("period_start"), // YYYY-MM-DD o null (todo el histórico)
+  periodEnd: text("period_end"),
+  costs: jsonb("costs").$type<Record<string, number | null>>().notNull().default({}),
+  impacts: jsonb("impacts").$type<Record<string, unknown>[]>().notNull().default([]),
+  intangibles: jsonb("intangibles").$type<string[]>().notNull().default([]),
+  updatedBy: text("updated_by"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
