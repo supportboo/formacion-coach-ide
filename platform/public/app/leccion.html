@@ -254,7 +254,7 @@ function wireTutor(){
   function stopAudio(){if(curAudio){try{curAudio.pause();}catch(e){}curAudio=null;}}
   async function speak(text){if(!ttsOn||!voiceId||!text)return;stopAudio();
     try{var r=await fetch('/api/voice/tts',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({text:String(text).slice(0,1200),voiceId:voiceId})});
-      if(!r.ok)return;var url=URL.createObjectURL(await r.blob());var a=new Audio(url);curAudio=a;a.playbackRate=1.06;a.onended=function(){URL.revokeObjectURL(url);if(curAudio===a)curAudio=null;};await a.play().catch(function(){});}catch(e){}}
+      if(!r.ok)return;var url=URL.createObjectURL(await r.blob());var a=new Audio(url);curAudio=a;a.playbackRate=1;a.onended=function(){URL.revokeObjectURL(url);if(curAudio===a)curAudio=null;};await a.play().catch(function(){});}catch(e){}}
   (async function(){try{var d=await SkillUp.api('/api/voice/voices');if(d&&d.provider==='elevenlabs'&&d.voices&&d.voices.length){ttsOn=true;voiceId=d.voices[0].id;
     vsel.innerHTML=d.voices.map(function(v){return '<option value="'+v.id+'">'+v.name+'</option>';}).join('');vsel.hidden=false;spk.hidden=false;}}catch(e){}})();
   vsel.addEventListener('change',function(){voiceId=vsel.value;});
