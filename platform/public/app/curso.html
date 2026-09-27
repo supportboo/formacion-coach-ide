@@ -23,13 +23,14 @@ html,body{height:100%}
 body{margin:0;font-family:var(--ff);color:var(--body);overflow:hidden;background:var(--bg)}
 button{font-family:inherit}
 [hidden]{display:none!important}
-.app{display:flex;height:100dvh;position:relative}
+.app{display:flex;height:100dvh;position:relative;overflow:hidden}
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .ctx{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
 .ctx .mlogo{width:30px;height:18px;flex:none}
 .ctx .crumb{font-size:12.5px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ctx .crumb b{color:var(--aub2)}
 .ctx .btn{color:var(--ink);text-decoration:none;font-size:12.5px;border:1px solid var(--line);border-radius:9px;padding:7px 12px;flex:none;background:var(--glass);cursor:pointer}
+@media(max-width:640px){.ctx{flex-wrap:wrap;gap:6px;row-gap:4px}.ctx .bc-crumbs.bc-inline{flex:1 0 100%;margin:0}.ctx .btn{padding:9px 10px;min-height:38px}.card{padding-bottom:120px}}
 .coachbar{display:flex;align-items:flex-start;gap:9px;padding:10px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);cursor:pointer}
 .coachbar .av{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;background:#1a1020;box-shadow:inset 0 0 0 1px rgba(181,136,168,.35)}
 .coachbar .av svg{width:18px;height:11px}
@@ -105,7 +106,7 @@ button{font-family:inherit}
 .cp-row .mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c}
 .cp-row input{flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:11px;color:#fff;padding:11px 13px;font:inherit;font-size:14px;outline:none}
 .cp-row .snd{width:42px;border:0;border-radius:11px;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;cursor:pointer;flex:none}
-.fab{position:absolute;right:16px;bottom:16px;z-index:12;width:58px;height:58px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:grid;place-items:center;
+.fab{position:absolute;right:16px;bottom:calc(var(--su-bbar,70px) + 12px);z-index:12;width:58px;height:58px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:grid;place-items:center;
   background:radial-gradient(circle at 50% 42%,#1d1128,#0b0611) padding-box,conic-gradient(from 210deg,#22D3EE,#8B5CF6,#EC4899,#FFD700,#22D3EE) border-box;box-shadow:0 10px 26px rgba(139,92,246,.5),0 0 24px rgba(47,211,198,.4)}
 .fab svg{width:32px;height:20px;filter:drop-shadow(0 0 6px rgba(103,232,249,.7)) drop-shadow(0 2px 5px rgba(0,0,0,.55))}
 /* anotaciones: el curso como superficie */

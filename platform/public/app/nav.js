@@ -39,7 +39,11 @@
   ];
 
   var css = '' +
-    '.sunav-fab{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:1200;width:40px;height:56px;border-radius:0 16px 16px 0;border:none;cursor:pointer;background:var(--grad,#8a5f7c);color:#fff;box-shadow:3px 4px 16px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;padding-left:4px}' +
+    // Botón redondo abajo a la izquierda, apilado ENCIMA de «Manos libres» (bottom:16) y su «?» (bottom:62):
+    // zona del pulgar, no tapa el texto (la pestaña a media altura tapaba el inicio de cada línea).
+    // --su-bbar = alto de la barra inferior propia de la página (inicio/lección), para no pisarla.
+    '.sunav-fab{position:fixed;left:14px;bottom:calc(var(--su-bbar,0px) + 106px + env(safe-area-inset-bottom,0px));z-index:1200;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;background:var(--grad,#8a5f7c);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}' +
+    'body:has(#gHelp:not([hidden])) .sunav-fab{display:none}' +
     '.sunav-fab svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round}' +
     '.sunav-ov{position:fixed;inset:0;z-index:1199;background:rgba(10,8,14,.5);opacity:0;pointer-events:none;transition:opacity .2s}' +
     '.sunav-ov.open{opacity:1;pointer-events:auto}' +
@@ -54,7 +58,24 @@
     '.sunav-bub{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--warm,#eee);display:flex;align-items:center;justify-content:center;color:var(--p,#8a5f7c)}' +
     '.sunav-item.active .sunav-bub{background:var(--grad,#8a5f7c);color:#fff}' +
     '.sunav-bub svg{width:18px;height:18px}' +
-    '.sunav-sep{height:1px;background:var(--line,rgba(120,90,120,.14));margin:8px 10px}';
+    '.sunav-sep{height:1px;background:var(--line,rgba(120,90,120,.14));margin:8px 10px}' +
+    '.sunav-item{min-height:48px}' +
+    // Los botones flotantes de «Manos libres» suben por encima de la barra inferior propia de la página.
+    '#gBtn{bottom:calc(var(--su-bbar,0px) + 16px + env(safe-area-inset-bottom,0px))!important}' +
+    '#gHelpBtn{bottom:calc(var(--su-bbar,0px) + 62px + env(safe-area-inset-bottom,0px))!important}' +
+    '#gHelp{bottom:calc(var(--su-bbar,0px) + 66px + env(safe-area-inset-bottom,0px))!important}' +
+    // Hueco al final de la página para que lo último no quede bajo los botones flotantes.
+    'body::after{content:"";display:block;height:calc(96px + env(safe-area-inset-bottom,0px))}' +
+    // Móvil: cabecera que no se come la pantalla, enlaces tocables, sin zoom de iOS en campos.
+    '@media(max-width:640px){' +
+      'body .topbar{position:relative;top:auto}' +
+      'body .topbar nav{flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}' +
+      'body .topbar nav::-webkit-scrollbar{display:none}' +
+      'body .topbar nav>*{white-space:nowrap;flex:none}' +
+      'body .topbar nav a{min-height:40px;display:inline-flex;align-items:center}' +
+      '.bc-crumbs a{display:inline-flex;align-items:center;min-height:36px}' +
+      'input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{font-size:16px}' +
+    '}';
 
   function build() {
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -71,6 +92,17 @@
       rows + '<div class="sunav-sep"></div>' +
       '<a class="sunav-item" href="#" id="sunav-out"><span class="sunav-bub">' + svg('exit') + '</span>Salir</a>';
     document.body.appendChild(ov); document.body.appendChild(panel); document.body.appendChild(fab);
+
+    // Alto de la barra inferior de la propia página (.tabbar y, en la lección, el pie .dfoot encima).
+    function bbar() {
+      var top = innerHeight;
+      [].slice.call(document.querySelectorAll('.tabbar,.dfoot')).map(function (el) { return el.getBoundingClientRect(); })
+        .filter(function (r) { return r.height; }).sort(function (a, b) { return b.bottom - a.bottom; })
+        .forEach(function (r) { if (r.bottom >= top - 2) top = Math.min(top, r.top); }); // barras pegadas desde abajo
+      document.documentElement.style.setProperty('--su-bbar', Math.max(0, Math.round(innerHeight - top)) + 'px');
+    }
+    bbar(); addEventListener('resize', bbar);
+    new MutationObserver(function () { clearTimeout(bbar.t); bbar.t = setTimeout(bbar, 120); }).observe(document.body, { childList: true, subtree: true });
 
     function open() { ov.classList.add('open'); panel.classList.add('open'); }
     function close() { ov.classList.remove('open'); panel.classList.remove('open'); }
