@@ -402,8 +402,8 @@ async function loadMetrics(){
     +mk(m.totals.onlineNow,null,'Conectadas ahora','Latido en los últimos 60 s.',m.members)
     +mk(m.totals.activeMin,null,'Minutos activos','Suma en el periodo; solo tiempo con interacción real.',null,m.totals.activeMin>0)
     +mk(m.totals.sessions,null,'Sesiones','Una sesión termina tras 30 min sin actividad.',null,m.totals.sessions>0)
-    +mk(m.timeToCertifyDays.median!=null?m.timeToCertifyDays.median+' d':'—',null,'Hasta certificarse','Mediana desde el primer test del curso hasta el certificado.',m.timeToCertifyDays.n,m.timeToCertifyDays.n>0)
-    +mk(m.roleplays.avgScore!=null?m.roleplays.avgScore+'/10':'—',null,'Nota media roleplay',m.roleplays.closed+' terminados · '+m.roleplays.abandoned+' sin terminar de '+m.roleplays.started+'.',m.roleplays.scoredN,m.roleplays.scoredN>0)
+    +mk(m.timeToCertifyDays.median!=null?String(m.timeToCertifyDays.median).replace('.',',')+' d':'—',null,'Hasta certificarse','Mediana desde el primer test del curso hasta el certificado.',m.timeToCertifyDays.n,m.timeToCertifyDays.n>0)
+    +mk(m.roleplays.avgScore!=null?String(m.roleplays.avgScore).replace('.',',')+'/10':'—',null,'Nota media roleplay',m.roleplays.closed+' terminados · '+m.roleplays.abandoned+' sin terminar de '+m.roleplays.started+'.',m.roleplays.scoredN,m.roleplays.scoredN>0)
     +'</div>';
   h+='<div class="card ai"><h2>Resumen con IA · '+(m.teamAsOrg?'equipo y empresa':'empresa')+'</h2><div id="aiOrg"><p class="msg">Adopción, quién necesita ayuda primero, bloques más difíciles y qué hacer esta semana. Solo con datos medidos.</p></div><button class="btn" id="aiOrgBtn">Generar resumen</button></div>';
   h+='<div class="cols"><div class="card"><h2>Minutos activos por día</h2>'+bars(m.series,'activeMin','var(--teal2)','Minutos activos por día')+'<div class="def">Tiempo con la página visible e interacción. '+cert(m.totals.activeMin>0)+'</div></div>'

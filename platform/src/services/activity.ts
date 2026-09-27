@@ -671,6 +671,8 @@ export async function summarize(
 
 /* ---------------------------------------------------------------- ayuda (solo responsables) */
 
+export const HELP_INTRO = "Acompaña a tu gente mientras aprende: quién está conectado, dónde se atasca y cómo echarle una mano a tiempo. Siempre de forma transparente: la persona ve cuándo la sigues.";
+
 /** Pasos de ayuda de «En directo» según lo que la persona puede hacer. Un empleado nunca los recibe. */
 export function helpSteps(a: Access): { h: string; d: string }[] {
   const out: { h: string; d: string }[] = [];

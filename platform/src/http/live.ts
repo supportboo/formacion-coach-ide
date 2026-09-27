@@ -154,7 +154,7 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>, bl
   app.get("/api/analytics/live/help", async (c) => {
     const s = await supervisor(c, "activity.metrics");
     if (s instanceof Response) return s;
-    return c.json({ steps: act.helpSteps(s.access) });
+    return c.json({ name: "En directo", intro: act.HELP_INTRO, steps: act.helpSteps(s.access) });
   });
 
   // Ajuste de empresa: seguimiento en directo sí/no (admin de la empresa o superadmin).

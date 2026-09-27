@@ -15,6 +15,13 @@ chat con el asistente IA).
 
 ## Retención
 
+- **Actividad en directo** (`activity_event`, 1.3.0: página, curso, sección, % leído, segundos
+  activos, acciones y avisos recibidos): **90 días como máximo**; se borran solos (de paso, una vez
+  por hora, en `services/activity.ts` `cleanupOld`). Entra en la exportación y en el borrado.
+  Nunca se graba pantalla, teclado ni cámara. La persona ve un aviso con el nombre de quien la
+  sigue y, una vez, un aviso informativo (se repite si ya no queda constancia tras 90 días).
+  Cada ficha abierta y cada mensaje de un responsable quedan en `audit_log`.
+
 - **Identidad + registros de aprendizaje con texto libre** (onboarding, redacción de casos,
   chat): mientras la persona sea miembro activo de la organización. Se borran al procesar una
   solicitud de derecho al olvido (ver abajo).

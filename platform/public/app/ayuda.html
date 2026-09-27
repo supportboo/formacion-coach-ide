@@ -191,13 +191,12 @@ if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutAll);
   try{ var me=await SkillUp.api('/api/org/me'); var r=me&&me.role;
     if(r==='team_leader'||r==='inspirador') def='responsable';
     else if(r==='admin'||r==='direccion'||me.platformAdmin) def='admin';
-    // Supervisión en directo: la ayuda solo existe para quien la puede usar. El texto lo da el servidor según el
-    // rol REAL de la sesión (no está en esta página), así que un empleado no la ve ni en el código de la página.
+    // Guías extra por rol: el servidor decide según el rol REAL de la sesión; el texto no vive en esta página.
     var cp=(me&&me.capabilities)||{};
     if(cp['activity.read']||cp['activity.metrics']){
       var h=await SkillUp.api('/api/analytics/live/help').catch(function(){return null;});
       if(h&&h.steps&&h.steps.length){
-        GUIDE.live={name:'En directo',intro:'Acompaña a tu gente mientras aprende: quién está conectado, dónde se atasca y cómo echarle una mano a tiempo. Siempre de forma transparente: la persona ve cuándo la sigues.',steps:h.steps.map(function(x){return {h:x.h,d:x.d};})};
+        GUIDE.live={name:h.name,intro:h.intro,steps:h.steps.map(function(x){return {h:x.h,d:x.d};})};
         order.push('live'); render(); bindFigs();
       }
     }

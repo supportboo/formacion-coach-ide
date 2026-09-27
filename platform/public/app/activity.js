@@ -119,6 +119,7 @@
   /* ---------- lo que devuelve el servidor: aviso de seguimiento, avisos humanos, aviso informativo ---------- */
   var css = '' +
     '.su-watch{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:1400;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(26,24,32,.94);border:1px solid rgba(63,216,224,.45);color:#F2EFF5;font:600 13px/1.3 Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}' +
+    '.su-watch span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.su-watch button{white-space:nowrap}@media(max-width:420px){.su-watch{font-size:12px;padding:7px 12px}}' +
     '.su-watch i{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:#3FD8E0;box-shadow:0 0 0 0 rgba(63,216,224,.6);animation:suPulse 1.8s infinite}' +
     '.su-watch button{border:0;background:none;color:#3FD8E0;font:800 11px Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:4px 0 4px 6px;min-height:28px}' +
     '@keyframes suPulse{70%{box-shadow:0 0 0 8px rgba(63,216,224,0)}100%{box-shadow:0 0 0 0 rgba(63,216,224,0)}}' +
