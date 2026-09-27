@@ -1,5 +1,19 @@
 # Changelog · SkillUp platform
 
+## 1.1.0 — 2026-09-27
+
+### Nuevo
+- **Team DNA v2: perfil profesional combinado** (`/app/team-dna.html`, sustituye al test de 8 preguntas). 91 ítems en 10 bloques cortos (10-12 min), con barra de progreso, guardado sobre la marcha, reanudación y repetición. Cuatro capas separadas y etiquetadas con honestidad:
+  - **Big Five** (ítems IPIP de dominio público, estructura Mini-IPIP, con ítems inversos): la parte con respaldo científico; decide tono, estructura y ritmo.
+  - **Eneagrama** (45 ítems originales en castellano): tipo + ala + segundo tipo, con motivación de fondo, miedo básico, fortalezas, dónde se atasca, cómo aprende, cómo darle feedback y qué le motiva. Presentado como herramienta de autoconocimiento, no como diagnóstico.
+  - **Hexad** (tipos de jugador, 18 ítems originales) → palancas de gamificación reales de la plataforma (ranking, niveles, certificados, explorar, aportaciones).
+  - **Preferencias pedagógicas** con evidencia (ejemplos resueltos, práctica de recuperación, repaso espaciado, feedback). Sin estilos VAK (neuromito): el formato es solo una preferencia.
+  - **Color** de identidad derivado del eneatipo (no hay test de colores).
+- **Los tutores usan el perfil de verdad:** al terminar se guarda un resumen («[perfil] …» en las notas de onboarding) que reciben el chat de agentes (`registry.ts`), los tutores de curso, Explorar y el asistente BOO; el coach de voz usa la motivación para su empujón.
+- **Perfiles del equipo para gestores** (`/app/team-dna.html#equipo`, enlazado desde el mapa del equipo): cómo hablar, cómo aprende y qué motiva a cada persona.
+- Endpoints `/api/teamdna/profile/{catalog,me,answers,finish,restart,team}` (Zod, multiempresa, puntuación determinista en servidor, sin IA). Migración `0018_teamdna_profile_v2` (tabla `team_profile`).
+- RGPD: el perfil (y el Team DNA antiguo) entran en la exportación y en el derecho al olvido; el reinicio de onboarding del superadmin también lo borra.
+
 ## 1.0.1 — 2026-09-27
 
 ### Nuevo

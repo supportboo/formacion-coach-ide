@@ -540,6 +540,20 @@ export const teamDna = pgTable("team_dna", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (t) => ({ byUser: uniqueIndex("team_dna_user_uidx").on(t.organizationId, t.userId) }));
 
+/* Team DNA v2: perfil combinado (eneagrama + Big Five + Hexad + preferencias pedagógicas).
+ * answers se guarda sobre la marcha (reanudable); result/brief solo al terminar. Una fila por usuario/org. */
+export const teamProfile = pgTable("team_profile", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  answers: jsonb("answers").$type<Record<string, number>>().notNull().default({}),
+  result: jsonb("result").$type<Record<string, unknown>>(),
+  brief: text("brief"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({ byUser: uniqueIndex("team_profile_user_uidx").on(t.organizationId, t.userId) }));
+
 /* Resultados de YouTube cacheados por tema, para no golpear la cuota de la API en cada carga.
  * pinned queda sin usar aun: hueco para cuando haya curacion manual desde la Consola. */
 export const videoCache = pgTable("video_cache", {

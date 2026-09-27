@@ -12,7 +12,7 @@ import { chat } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, auditLog } from "./db/schema.js";
+import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import * as aiContent from "./services/aiContent.js";
 import { rateLimited } from "./util/rateLimit.js";
@@ -38,6 +38,7 @@ import * as voiceSvc from "./services/voice.js";
 import * as notesSvc from "./services/notes.js";
 import * as onboardingSvc from "./services/onboarding.js";
 import * as teamdnaSvc from "./services/teamdna.js";
+import * as teamprofileSvc from "./services/teamprofile.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as followupSvc from "./services/followup.js";
@@ -439,6 +440,8 @@ app.get("/api/agent/coach", async (c) => {
   const mods = plan?.modulos?.length || 0;
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
   const objetivo = (() => { for (const n of all) { if (n.source === "ruta" && String(n.body || "").startsWith("[objetivo]")) return String(n.body).slice("[objetivo]".length).trim().slice(0, 160); } return null; })();
+  const tp = await teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
+  const motiva = tp?.result ? teamprofileSvc.motivationLine(tp.result) : "";
   const name = (ctx.userName || "").split(" ")[0] || "";
   const franja = hour < 6 ? "de madrugada" : hour < 13 ? "por la mañana" : hour < 21 ? "por la tarde" : "de noche";
   const hechos = [
@@ -449,6 +452,7 @@ app.get("/api/agent/coach", async (c) => {
     mods ? `Su ruta de aprendizaje tiene ${mods} módulo${mods > 1 ? "s" : ""}.` : "Aún no ha montado su ruta de aprendizaje.",
     objetivo ? `Su objetivo: ${objetivo}.` : "",
     profile?.puesto ? `Su puesto: ${profile.puesto}.` : "",
+    motiva ? `Lo que le motiva (de su perfil; úsalo para el empujón, sin nombrar el test): ${motiva}` : "",
     place ? `Dice estar ahora en ${place}.` : "",
     `Ahora es ${franja}.`,
   ].filter(Boolean).join(" ");
@@ -539,6 +543,48 @@ app.get("/api/teamdna/team", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!isPlatformAdmin(ctx) && !DNA_MANAGERS.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
   return c.json(await teamdnaSvc.teamAggregate(svcDeps, ctx.orgId));
+});
+
+/* ---------- Team DNA v2: perfil combinado (eneagrama + Big Five + Hexad + pedagogía), determinista ---------- */
+app.get("/api/teamdna/profile/catalog", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ blocks: teamprofileSvc.BLOCKS, likert: teamprofileSvc.LIKERT, total: teamprofileSvc.ALL_IDS.length });
+});
+app.get("/api/teamdna/profile/me", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const row = await teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId);
+  return c.json({ answers: row?.answers ?? {}, completedAt: row?.completedAt ?? null, view: row?.result ? teamprofileSvc.profileView(row.result) : null });
+});
+const profileAnswersBody = z.object({ answers: z.record(z.string().regex(/^[ebhp]\d{1,2}$/), z.number().int().min(0).max(5)) });
+app.post("/api/teamdna/profile/answers", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = profileAnswersBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const answers = await teamprofileSvc.saveAnswers(svcDeps, ctx.orgId, ctx.userId, parsed.data.answers);
+  return c.json({ saved: Object.keys(answers).length, missing: teamprofileSvc.missingItems(answers).length });
+});
+app.post("/api/teamdna/profile/finish", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const out = await teamprofileSvc.finish(svcDeps, ctx.orgId, ctx.userId);
+  if ("missing" in out) return c.json({ error: "faltan respuestas", missing: out.missing }, 400);
+  return c.json({ view: teamprofileSvc.profileView(out.result) });
+});
+app.post("/api/teamdna/profile/restart", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  await teamprofileSvc.restart(svcDeps, ctx.orgId, ctx.userId);
+  return c.json({ ok: true });
+});
+// Perfiles del equipo (gestores): cómo es y cómo aprende cada persona, para acompañarla mejor.
+app.get("/api/teamdna/profile/team", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !DNA_MANAGERS.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ members: await teamprofileSvc.teamProfiles(svcDeps, ctx.orgId) });
 });
 
 app.get("/api/voice/voices", async (c) => {
@@ -1642,6 +1688,7 @@ app.post("/api/platform/users/reset-onboarding", async (c) => {
   const { organizationId: oid, userId: uid } = parsed.data;
   await db.delete(onboardingProfile).where(and(eq(onboardingProfile.organizationId, oid), eq(onboardingProfile.userId, uid)));
   await db.delete(teamDna).where(and(eq(teamDna.organizationId, oid), eq(teamDna.userId, uid)));
+  await db.delete(teamProfile).where(and(eq(teamProfile.organizationId, oid), eq(teamProfile.userId, uid)));
   await db.delete(annotation).where(and(eq(annotation.organizationId, oid), eq(annotation.userId, uid), eq(annotation.source, "ruta")));
   await db.delete(annotation).where(and(eq(annotation.organizationId, oid), eq(annotation.userId, uid), eq(annotation.source, "onboarding")));
   await setAccountState(oid, uid, "aprobado");

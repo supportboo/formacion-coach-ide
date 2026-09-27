@@ -8,73 +8,82 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap">
 <link rel="stylesheet" href="/app/theme.css">
 <style>
-  :root{
-    --f-vision:#a98bff; --f-accion:#f0b743; --f-analisis:#3FD8E0; --f-personas:#54C79A;
-    --f-vision-soft:rgba(169,139,255,.14); --f-accion-soft:rgba(240,183,67,.14);
-    --f-analisis-soft:rgba(63,216,224,.13); --f-personas-soft:rgba(84,199,154,.14);
-  }
-  :root[data-theme="light"]{
-    --f-vision:#6d47e6; --f-accion:#b9770f; --f-analisis:#0d8f96; --f-personas:#1f9d63;
-    --f-vision-soft:rgba(109,71,230,.10); --f-accion-soft:rgba(185,119,15,.12);
-    --f-analisis-soft:rgba(13,143,150,.10); --f-personas-soft:rgba(31,157,99,.12);
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--body);font-family:var(--ff);-webkit-font-smoothing:antialiased;}
-  .wrap{max-width:600px;margin:0 auto;padding:18px 16px 40px;min-height:100%;}
+  .wrap{max-width:640px;margin:0 auto;padding:18px 16px 48px;min-height:100%;}
   .top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
   .top a.back{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;}
   .top .brand{margin-left:auto;font-family:var(--fh);font-weight:800;color:var(--ink);font-size:15px;}
-  h1{font-family:var(--fh);color:var(--ink);font-weight:800;font-size:clamp(24px,7vw,32px);line-height:1.06;margin:.1em 0 .3em;text-wrap:balance;}
-  .lede{color:var(--body);font-size:clamp(15px,4vw,17px);margin:0 0 20px;line-height:1.5;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh);}
-  .btn{font-family:var(--ff);font-weight:700;border:none;border-radius:14px;padding:14px 18px;cursor:pointer;font-size:15px;width:100%;}
-  .btn-primary{background:var(--grad);color:#fff;}
+  h1{font-family:var(--fh);color:var(--ink);font-weight:800;font-size:clamp(24px,7vw,32px);line-height:1.08;margin:.1em 0 .3em;text-wrap:balance;}
+  h2{font-family:var(--fh);color:var(--ink);font-weight:800;font-size:clamp(19px,5.4vw,22px);line-height:1.15;margin:0 0 8px;}
+  .lede{color:var(--body);font-size:clamp(15px,4vw,17px);margin:0 0 18px;line-height:1.55;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--sh);padding:18px;margin-top:12px;}
+  .btn{font-family:var(--ff);font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:none;border-radius:14px;padding:15px 18px;cursor:pointer;font-size:14px;width:100%;color:#fff;}
+  .btn-primary{background:var(--grad);}
+  .btn-primary[disabled]{opacity:.45;cursor:not-allowed;}
   .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink);}
   .btn:active{transform:translateY(1px);}
+  .btn:focus-visible,.lk button:focus-visible,.opt:focus-visible{outline:2px solid var(--teal2);outline-offset:2px;}
+  .cta{display:flex;flex-direction:column;gap:10px;margin-top:20px;}
+  .link{background:none;border:none;color:var(--muted);font:600 13.5px var(--ff);cursor:pointer;padding:10px 0;text-decoration:underline;}
   .center{display:grid;place-items:center;min-height:60vh;text-align:center;gap:8px;}
   .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--teal2);animation:s .8s linear infinite;}
   @keyframes s{to{transform:rotate(360deg)}}
+  .note{color:var(--muted);font-size:13px;line-height:1.55;margin-top:14px;}
 
   /* intro */
-  .intro .card{padding:22px;}
-  .intro ul{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:10px;}
-  .intro li{display:flex;gap:11px;align-items:flex-start;font-size:15px;line-height:1.45;color:var(--body);}
-  .intro li .d{width:9px;height:9px;border-radius:3px;margin-top:5px;flex:0 0 auto;}
+  .layers{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
+  .layers li{display:grid;grid-template-columns:10px 1fr;gap:11px;font-size:15px;line-height:1.45;}
+  .layers li i{width:10px;height:10px;border-radius:3px;margin-top:6px;}
+  .layers b{color:var(--ink);}
 
-  /* quiz */
-  .prog{height:7px;border-radius:999px;background:var(--soft);overflow:hidden;margin-bottom:16px;}
+  /* test */
+  .prog{height:7px;border-radius:999px;background:var(--soft);overflow:hidden;margin:4px 0 8px;}
   .prog>i{display:block;height:100%;border-radius:999px;background:var(--grad);transition:width .25s;}
-  .qnum{font-size:13.5px;font-weight:700;color:var(--muted);letter-spacing:.03em;}
-  .qtext{font-family:var(--fh);color:var(--ink);font-weight:700;font-size:clamp(21px,6vw,26px);line-height:1.2;margin:6px 0 18px;text-wrap:balance;}
-  .opts{display:flex;flex-direction:column;gap:11px;}
-  .opt{display:flex;gap:13px;align-items:center;text-align:left;background:var(--panel);border:1.5px solid var(--line);
-    border-radius:15px;padding:16px 17px;cursor:pointer;color:var(--ink);font-size:clamp(15px,4.2vw,17px);line-height:1.4;font-family:var(--ff);width:100%;}
-  .opt:hover{border-color:var(--teal2);}
-  .opt:active{transform:scale(.99);}
-  .opt .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;background:var(--muted);opacity:.5;}
-  .opt:focus-visible{outline:2px solid var(--teal2);outline-offset:2px;}
-  .backq{margin-top:16px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--ff);}
+  .meta{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.02em;}
+  .scale{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);font-weight:600;margin:14px 2px 4px;}
+  .item{padding:14px 0;border-top:1px solid var(--line);}
+  .item:first-of-type{border-top:0;}
+  .item p{margin:0 0 10px;color:var(--ink);font-size:clamp(15px,4.2vw,16.5px);line-height:1.4;font-weight:600;}
+  .lk{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+  .lk button{height:44px;border-radius:12px;border:1.5px solid var(--line);background:transparent;color:var(--body);font:700 15px var(--ff);cursor:pointer;}
+  .lk button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff;}
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opt{text-align:left;background:transparent;border:1.5px solid var(--line);border-radius:13px;padding:13px 14px;cursor:pointer;color:var(--ink);font:500 15px/1.4 var(--ff);width:100%;}
+  .opt[aria-pressed="true"]{border-color:var(--teal2);background:rgba(63,216,224,.10);}
 
-  /* certificate */
-  .cert-head{display:flex;align-items:baseline;gap:8px 12px;flex-wrap:wrap;margin-bottom:2px;}
-  .cert-head .stamp{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600;}
-  .wheelwrap{display:grid;place-items:center;padding:8px 0 4px;}
-  svg{width:100%;height:auto;max-width:min(440px,92vw);display:block;}
-  .arch{display:flex;align-items:center;gap:10px;font-family:var(--fh);font-weight:800;color:var(--ink);font-size:clamp(23px,6.4vw,28px);margin-top:6px;}
-  .arch .chip{width:16px;height:16px;border-radius:5px;flex:0 0 auto;}
-  .tagline{color:var(--body);font-size:clamp(15px,4vw,17px);margin:.35em 0 0;line-height:1.5;}
-  .near{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
-  .near .n{font-size:13.5px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:6px 13px;display:flex;align-items:center;gap:7px;color:var(--ink);}
-  .near .n .c{width:10px;height:10px;border-radius:50%;}
-  h3.mini{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px;}
-  .weights{display:flex;flex-direction:column;gap:11px;}
-  .wrow{display:grid;grid-template-columns:96px 1fr 46px;gap:10px;align-items:center;font-size:14.5px;}
-  .wrow .lab{font-weight:700;}
-  .track{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;}
-  .fill{height:100%;border-radius:999px;}
-  .pct{font-variant-numeric:tabular-nums;text-align:right;color:var(--muted);font-weight:700;}
-  .cta{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
-  .note{color:var(--muted);font-size:13px;text-align:center;margin-top:14px;line-height:1.55;}
+  /* result */
+  .hero{position:relative;overflow:hidden;border-radius:var(--radius);padding:22px 18px 20px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh);}
+  .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 220px at 100% 0%,var(--pc),transparent 70%);opacity:.28;pointer-events:none;}
+  .hero>*{position:relative;}
+  .kicker{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--pc);}
+  .hero h1{margin:6px 0 4px;}
+  .swatch{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;font-weight:700;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 7px;}
+  .swatch i{width:18px;height:18px;border-radius:50%;background:var(--pc);}
+  .sec h3{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;}
+  .sec p{margin:0;line-height:1.6;font-size:15.5px;}
+  .sec ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .sec li{display:grid;grid-template-columns:8px 1fr;gap:10px;line-height:1.5;font-size:15px;}
+  .sec li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--pc);margin-top:8px;}
+  .sec a{color:var(--teal2);font-weight:700;}
+  .trait{display:grid;grid-template-columns:1fr 40px;gap:4px 10px;align-items:center;margin-bottom:12px;}
+  .trait b{color:var(--ink);font-size:14px;}
+  .trait .pct{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700;font-size:13px;}
+  .trait .track{grid-column:1/3;height:8px;border-radius:999px;background:var(--soft);overflow:hidden;}
+  .trait .track i{display:block;height:100%;border-radius:999px;background:var(--pc);}
+  .trait small{grid-column:1/3;color:var(--body);font-size:13.5px;line-height:1.45;}
+  .gam{border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;}
+  .gam b{color:var(--ink);font-size:16px;}
+
+  /* team */
+  .tm{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-top:10px;}
+  .tm summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:center;padding:14px;}
+  .tm summary::-webkit-details-marker{display:none}
+  .tm summary i{width:14px;height:14px;border-radius:50%;}
+  .tm summary b{color:var(--ink);display:block;font-size:15px;}
+  .tm summary small{color:var(--muted);font-size:12.5px;}
+  .tm summary em{font-style:normal;font-size:12px;font-weight:700;color:var(--muted);}
+  .tm .body{padding:0 14px 14px;display:flex;flex-direction:column;gap:14px;}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 </style>
 </head>
@@ -88,135 +97,174 @@
 <script src="/app/nav.js" defer></script>
 <script src="/app/boo-eyes.js"></script>
 <script>
-const NS="http://www.w3.org/2000/svg";
 const view=document.getElementById("view");
-let CAT=null, ANSWERS=[], STEP=0;
-const famColor=f=>getComputedStyle(document.documentElement).getPropertyValue("--f-"+f).trim()||"#888";
-const famSoft=f=>getComputedStyle(document.documentElement).getPropertyValue("--f-"+f+"-soft").trim()||"transparent";
+const MANAGERS=["admin","direccion","team_leader","inspirador"];
+let CAT=null, ANS={}, VIEW=null, B=0, IS_MANAGER=false;
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+const answered=()=>Object.keys(ANS).length;
+const blockDone=b=>CAT.blocks[b].items.every(it=>it.id in ANS);
+function toTop(){ window.scrollTo(0,0); }
+function fail(msg){ view.innerHTML='<div class="center"><p class="lede">'+esc(msg)+'</p><button class="btn btn-ghost" onclick="location.reload()">Reintentar</button></div>'; }
 
 async function boot(){
   try{
-    const [cat, me] = await Promise.all([
-      SkillUp.api("/api/teamdna/catalog"),
-      SkillUp.api("/api/teamdna/me").catch(()=>({dna:null})),
+    const [cat, me, org] = await Promise.all([
+      SkillUp.api("/api/teamdna/profile/catalog"),
+      SkillUp.api("/api/teamdna/profile/me"),
+      SkillUp.api("/api/org/me").catch(()=>null),
     ]);
-    CAT=cat;
-    if(me && me.dna) renderCert(me.dna, me.archetype);
-    else renderIntro();
-  }catch(e){
-    view.innerHTML='<div class="center"><h1>Ups</h1><p class="lede">No hemos podido cargar tu Team DNA. Recarga la página.</p><button class="btn btn-ghost" onclick="location.reload()">Reintentar</button></div>';
-  }
+    CAT=cat; ANS=me.answers||{}; VIEW=me.view;
+    IS_MANAGER=!!(org && (org.platformAdmin || MANAGERS.indexOf(org.role)>=0));
+    if(location.hash==="#equipo" && IS_MANAGER) return renderTeam();
+    if(answered()>0 && answered()<CAT.total) return renderIntro(true);
+    if(VIEW) return renderResult(VIEW);
+    renderIntro(false);
+  }catch(e){ fail("No hemos podido cargar tu Team DNA. Recarga la página."); }
 }
 
-function renderIntro(){
-  STEP=0; ANSWERS=[];
-  const fams=CAT.families.map(f=>`<li><span class="d" style="background:${famColor(f)}"></span><b style="color:var(--ink);font-weight:700">${esc(CAT.familyLabel[f])}</b>&nbsp;· ${esc(CAT.familySub[f])}</li>`).join("");
+function renderIntro(resume){
+  const n=answered();
   view.innerHTML=`
-    <h1>Descubre tu ADN de aprendizaje</h1>
-    <p class="lede">${CAT.questions.length} preguntas rápidas sobre cómo trabajas. Al final tendrás tu arquetipo y tu certificado. No te encasilla: es un mapa de tus fortalezas y se afina con lo que haces.</p>
-    <div class="card intro"><div style="padding:22px">
-      <div style="font-weight:700;color:var(--ink);margin-bottom:2px">Cuatro familias de fortaleza</div>
-      <ul>${fams}</ul>
-    </div></div>
-    <div class="cta"><button class="btn btn-primary" id="start">Empezar</button></div>`;
-  document.getElementById("start").onclick=()=>renderQuestion();
+    <h1>${resume?"Sigue donde lo dejaste":"Descubre cómo eres y cómo aprendes"}</h1>
+    <p class="lede">${resume?`Llevas ${n} de ${CAT.total} respuestas. Todo lo que contestas se guarda, así que puedes parar cuando quieras.`
+      :`Un perfil completo en ${CAT.blocks.length} bloques cortos (10-12 minutos). Sirve para una cosa: que tus tutores te hablen, te expliquen y te motiven de la forma que mejor te funciona a ti.`}</p>
+    <div class="card"><ul class="layers">
+      <li><i style="background:#3FD8E0"></i><span><b>Tus rasgos (Big Five).</b> El modelo de personalidad con más respaldo científico. Decide el tono, el ritmo y la estructura con la que te hablan.</span></li>
+      <li><i style="background:#A98BFF"></i><span><b>Lo que te mueve (eneagrama).</b> Una herramienta de autoconocimiento para entender tu motivación de fondo y cómo darte feedback. No es un diagnóstico.</span></li>
+      <li><i style="background:#F0B743"></i><span><b>Qué te motiva (tipos de jugador).</b> Qué retos, recompensas o formas de participar te enganchan más.</span></li>
+      <li><i style="background:#54C79A"></i><span><b>Cómo aprendes.</b> Ritmo, ejemplos, práctica y feedback, con base en la investigación sobre aprendizaje.</span></li>
+    </ul></div>
+    <p class="note">Al final tendrás tu perfil con tu color. Tu responsable también lo verá, para acompañarte mejor. Puedes repetirlo cuando quieras.</p>
+    <div class="cta">
+      <button class="btn btn-primary" id="go">${resume?"Continuar":"Empezar"}</button>
+      ${resume&&VIEW?'<button class="btn btn-ghost" id="prev">Ver mi perfil actual</button>':""}
+      ${IS_MANAGER?'<button class="btn btn-ghost" id="team">Perfiles del equipo</button>':""}
+    </div>`;
+  document.getElementById("go").onclick=()=>{ B=0; while(B<CAT.blocks.length-1 && blockDone(B)) B++; renderBlock(); };
+  const p=document.getElementById("prev"); if(p) p.onclick=()=>renderResult(VIEW);
+  const t=document.getElementById("team"); if(t) t.onclick=renderTeam;
 }
 
-function renderQuestion(){
-  const q=CAT.questions[STEP];
-  const pct=Math.round((STEP)/CAT.questions.length*100);
+function renderBlock(){
+  const blk=CAT.blocks[B], last=B===CAT.blocks.length-1;
+  const pct=Math.round(answered()/CAT.total*100);
+  const items=blk.items.map(it=>{
+    if(blk.kind==="choice") return `<div class="item" data-id="${it.id}"><p>${esc(it.text)}</p><div class="opts" role="group" aria-label="${esc(it.text)}">${
+      it.options.map((o,i)=>`<button class="opt" data-v="${i}" aria-pressed="${ANS[it.id]===i}">${esc(o)}</button>`).join("")}</div></div>`;
+    return `<div class="item" data-id="${it.id}"><p>${esc(it.text)}</p><div class="lk" role="group" aria-label="${esc(it.text)}">${
+      [1,2,3,4,5].map(v=>`<button data-v="${v}" aria-pressed="${ANS[it.id]===v}" aria-label="${v}: ${esc(CAT.likert[v-1])}">${v}</button>`).join("")}</div></div>`;
+  }).join("");
   view.innerHTML=`
+    <div class="meta"><span>Bloque ${B+1} de ${CAT.blocks.length}</span><span>${pct}%</span></div>
     <div class="prog"><i style="width:${pct}%"></i></div>
-    <div class="qnum">Pregunta ${STEP+1} de ${CAT.questions.length}</div>
-    <div class="qtext">${esc(q.q)}</div>
-    <div class="opts">${q.options.map((o,i)=>`<button class="opt" data-f="${o.family}"><span class="dot" style="background:${famColor(o.family)};opacity:.9"></span><span>${esc(o.text)}</span></button>`).join("")}</div>
-    ${STEP>0?'<button class="backq" id="bq">← Atrás</button>':""}`;
-  view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
-    ANSWERS[STEP]=b.getAttribute("data-f"); STEP++;
-    if(STEP<CAT.questions.length) renderQuestion(); else submit();
-  });
-  const bq=document.getElementById("bq"); if(bq) bq.onclick=()=>{ STEP--; renderQuestion(); };
-  view.scrollIntoView({block:"start"});
-}
-
-async function submit(){
-  view.innerHTML='<div class="center"><div class="spin"></div><span style="color:var(--muted)">Calculando tu ADN…</span></div>';
-  try{
-    const r=await SkillUp.api("/api/teamdna/answers",{method:"POST",body:{answers:ANSWERS}});
-    renderCert(r.dna, r.archetype);
-  }catch(e){
-    view.innerHTML='<div class="center"><p class="lede">No se pudo guardar. Vuelve a intentarlo.</p><button class="btn btn-ghost" onclick="location.reload()">Reintentar</button></div>';
-  }
-}
-
-function drawWheel(svg, dna){
-  const cx=250,cy=220,R=150;
-  const layout=[
-    {f:"vision",a0:-135},{f:"accion",a0:-45},{f:"analisis",a0:45},{f:"personas",a0:135},
-  ];
-  const arche=CAT.archetypes;
-  const perFam={}; CAT.families.forEach(f=>perFam[f]=arche.filter(a=>a.primary===f).map(a=>a.name));
-  const pt=(ang,r)=>{const a=(ang-90)*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];};
-  const el=(t,at)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);return e;};
-  svg.setAttribute("viewBox","-28 0 556 440"); svg.innerHTML=""; // margen lateral para que no se corten los nombres
-  [0.34,0.67,1].forEach(f=>svg.appendChild(el("circle",{cx,cy,r:R*f,fill:"none",stroke:"var(--line)","stroke-width":1})));
-  layout.forEach(L=>{
-    const col=famColor(L.f), s=L.a0-45, e=L.a0+45;
-    const [x0,y0]=pt(s,R),[x1,y1]=pt(e,R);
-    svg.appendChild(el("path",{d:`M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${R} ${R} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`,fill:"none",stroke:col,"stroke-width":7,"stroke-linecap":"round"}));
-    (perFam[L.f]||[]).forEach((nm,i)=>{
-      const ang=s+18+i*27, [lx,ly]=pt(ang,R+16);
-      const t=el("text",{x:lx.toFixed(1),y:ly.toFixed(1),fill:"var(--body)","font-size":12,"font-family":"Inter,sans-serif","font-weight":"600","text-anchor":lx<cx-6?"end":(lx>cx+6?"start":"middle"),"dominant-baseline":"middle"});
-      t.textContent=nm; svg.appendChild(t);
-    });
-    const [ax,ay]=pt(L.a0,R); svg.appendChild(el("line",{x1:cx,y1:cy,x2:ax,y2:ay,stroke:"var(--line)","stroke-width":1}));
-  });
-  const maxw=Math.max(...CAT.families.map(f=>dna.weights[f]||0))||1;
-  const poly=layout.map(L=>pt(L.a0, 20+(R-32)*((dna.weights[L.f]||0)/maxw))).map(p=>p.map(v=>v.toFixed(1)).join(",")).join(" ");
-  const defs=el("defs",{}); const g=el("radialGradient",{id:"tg",cx:"50%",cy:"50%",r:"60%"});
-  g.appendChild(el("stop",{offset:"0%","stop-color":famColor(dna.primary),"stop-opacity":.5}));
-  g.appendChild(el("stop",{offset:"100%","stop-color":famColor(dna.secondary),"stop-opacity":.25}));
-  defs.appendChild(g); svg.appendChild(defs);
-  svg.appendChild(el("polygon",{points:poly,fill:"url(#tg)",stroke:famColor(dna.primary),"stroke-width":2,"stroke-linejoin":"round"}));
-  layout.forEach(L=>{const [px,py]=pt(L.a0,20+(R-32)*((dna.weights[L.f]||0)/maxw));svg.appendChild(el("circle",{cx:px.toFixed(1),cy:py.toFixed(1),r:4,fill:famColor(L.f)}));});
-  svg.appendChild(el("circle",{cx,cy,r:34,fill:"var(--panel)",stroke:famColor(dna.primary),"stroke-width":2}));
-  const primPct=dna.weights[dna.primary]||0;
-  const t1=el("text",{x:cx,y:cy-3,fill:"var(--ink)","font-size":13,"font-family":"Inter,sans-serif","font-weight":"800","text-anchor":"middle"});t1.textContent=(CAT.familyLabel[dna.primary]||"");svg.appendChild(t1);
-  const t2=el("text",{x:cx,y:cy+14,fill:"var(--muted)","font-size":11,"text-anchor":"middle"});t2.textContent=primPct+"%";svg.appendChild(t2);
-}
-
-function renderCert(dna, archetype){
-  const name=archetype?archetype.name:"Tu arquetipo";
-  const tag=archetype?archetype.tagline:"";
-  const nearNames=(dna.near||[]).map(k=>CAT.archetypes.find(a=>a.key===k)).filter(Boolean);
-  const order=["vision","accion","analisis","personas"];
-  const weightsHtml=order.map(f=>`<div class="wrow"><span class="lab" style="color:${famColor(f)}">${esc(CAT.familyLabel[f])}</span><span class="track"><span class="fill" style="width:${dna.weights[f]||0}%;background:${famColor(f)}"></span></span><span class="pct">${dna.weights[f]||0}%</span></div>`).join("");
-  view.innerHTML=`
-    <div class="cert-head"><h1 style="margin:0">Tu ADN de aprendizaje</h1><span class="stamp">se afina con lo que haces</span></div>
-    <div class="card" style="padding:16px 18px 20px;margin-top:12px">
-      <div class="wheelwrap"><svg id="wheel" role="img" aria-label="Tu rueda de arquetipos"></svg></div>
-      <div class="arch"><span class="chip" style="background:${famColor(dna.primary)}"></span>${esc(name)}</div>
-      <p class="tagline">${esc(tag)}</p>
-      ${nearNames.length?`<div class="near">${nearNames.map(a=>`<span class="n"><span class="c" style="background:${famColor(a.primary)}"></span>Cerca: ${esc(a.name)}</span>`).join("")}</div>`:""}
-      <h3 class="mini">Tus pesos por familia</h3>
-      <div class="weights">${weightsHtml}</div>
+    <h2 style="margin-top:14px">${esc(blk.title)}</h2>
+    <p class="lede" style="margin-bottom:6px">${esc(blk.intro)}</p>
+    ${blk.kind==="likert"?`<div class="scale"><span>1 · ${esc(CAT.likert[0])}</span><span>5 · ${esc(CAT.likert[4])}</span></div>`:""}
+    <div class="card" style="padding:4px 16px">${items}</div>
+    <div class="cta">
+      <button class="btn btn-primary" id="next">${last?"Ver mi perfil":"Siguiente"}</button>
+      ${B>0?'<button class="btn btn-ghost" id="back">Atrás</button>':""}
     </div>
+    <button class="link" id="later">Guardar y seguir en otro momento</button>`;
+  const next=document.getElementById("next");
+  const sync=()=>{ next.disabled=!blockDone(B); };
+  view.querySelectorAll(".item").forEach(row=>{
+    const id=row.getAttribute("data-id");
+    row.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+      ANS[id]=Number(b.getAttribute("data-v"));
+      row.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+      sync();
+    });
+  });
+  sync();
+  next.onclick=async()=>{
+    next.disabled=true;
+    if(!(await save())) { next.disabled=false; return; }
+    if(last) return finish();
+    B++; renderBlock(); toTop();
+  };
+  const back=document.getElementById("back"); if(back) back.onclick=()=>{ save(); B--; renderBlock(); toTop(); };
+  document.getElementById("later").onclick=async()=>{ if(await save()) location.href="/app/inicio.html"; };
+}
+
+async function save(){
+  const part={}; CAT.blocks[B].items.forEach(it=>{ if(it.id in ANS) part[it.id]=ANS[it.id]; });
+  try{ await SkillUp.api("/api/teamdna/profile/answers",{method:"POST",body:{answers:part}}); return true; }
+  catch(e){ alert("No se ha podido guardar. Revisa tu conexión y vuelve a intentarlo."); return false; }
+}
+
+async function finish(){
+  view.innerHTML='<div class="center"><div class="spin"></div><span style="color:var(--muted)">Preparando tu perfil…</span></div>';
+  try{ const r=await SkillUp.api("/api/teamdna/profile/finish",{method:"POST"}); VIEW=r.view; renderResult(VIEW); toTop(); }
+  catch(e){ fail("No se pudo calcular tu perfil. Vuelve a intentarlo."); }
+}
+
+function list(xs){ return "<ul>"+xs.map(x=>"<li><span>"+x+"</span></li>").join("")+"</ul>"; }
+function traits(v){ return v.rasgos.map(t=>`<div class="trait"><b>${esc(t.label)}</b><span class="pct">${t.score}</span><span class="track"><i style="width:${t.score}%"></i></span><small>${esc(t.text)}</small></div>`).join(""); }
+function levers(v){ return list(v.gamificacion.palancas.map(l=>l.href?`<a href="${esc(l.href)}">${esc(l.t)}</a>`:esc(l.t))); }
+
+function renderResult(v){
+  view.innerHTML=`
+    <div class="hero" style="--pc:${esc(v.color.hex)}">
+      <div class="kicker">${esc(v.subtitulo)}</div>
+      <h1>${esc(v.titulo)}</h1>
+      <p class="lede" style="margin:0">${esc(v.tagline)}</p>
+      <span class="swatch"><i></i>Tu color: ${esc(v.color.name)}</span>
+    </div>
+    <div style="--pc:${esc(v.color.hex)}">
+      <div class="card sec"><h3>Quién eres</h3><p>${esc(v.quienEres)}</p></div>
+      <div class="card sec"><h3>Tus fortalezas</h3>${list(v.fortalezas.map(esc))}</div>
+      <div class="card sec"><h3>Cómo aprendes mejor</h3><p style="margin-bottom:12px">${esc(v.aprende)}</p>${list(v.comoAprendes.map(esc))}</div>
+      <div class="card sec"><h3>Así te hablarán tus tutores</h3>${list(v.comoTeHablaran.map(esc))}</div>
+      <div class="card sec"><h3>Qué te motiva</h3><p>${esc(v.motiva)}</p>
+        <div class="gam"><b>Tu tipo de jugador: ${esc(v.gamificacion.tipo)}</b><p style="margin:6px 0 10px;font-size:14.5px">${esc(v.gamificacion.desc)} En segundo lugar: ${esc(v.gamificacion.segundo)}.</p>${levers(v)}</div></div>
+      <div class="card sec"><h3>Dónde puedes atascarte</h3><p>${esc(v.atasco)}</p></div>
+      <div class="card sec"><h3>Tus rasgos</h3>${traits(v)}</div>
+    </div>
+    <p class="note">También puntúas alto en el eneatipo ${v.eneagrama.segundo} (${esc(v.eneagrama.segundoNombre)}). El eneagrama es una herramienta de autoconocimiento y comunicación, no un diagnóstico clínico; los rasgos Big Five son la parte con respaldo científico. Tu color es la identidad visual de tu perfil, no un test. Es una foto de hoy: puedes repetirlo cuando quieras.</p>
     <div class="cta">
       <button class="btn btn-primary" id="toRoute">Ver mi ruta de aprendizaje</button>
+      ${IS_MANAGER?'<button class="btn btn-ghost" id="team">Perfiles del equipo</button>':""}
       <button class="btn btn-ghost" id="redo">Repetir el test</button>
-    </div>
-    <p class="note">Es un mapa de tus fortalezas, no una etiqueta. Cambiará contigo a medida que aprendes, aportas y aplicas.</p>`;
-  drawWheel(document.getElementById("wheel"), dna);
+    </div>`;
   const toRoute=document.getElementById("toRoute");
-  toRoute.onclick=()=>{ location.href="/app/inicio.html"; };  // por defecto (si ya tiene ruta o falla la comprobación)
-  // Justo tras el ADN: si aún no tiene ruta, el botón lleva directo a montarla (reutiliza lo del onboarding),
-  // así "al empezar la ruta" no vuelve a preguntar ni hace pasar por Inicio.
+  toRoute.onclick=()=>{ location.href="/app/inicio.html"; };
   SkillUp.api("/api/learning/route").then(r=>{
-    const has = r && r.plan && r.plan.modulos && r.plan.modulos.length;
+    const has=r && r.plan && r.plan.modulos && r.plan.modulos.length;
     if(!has){ toRoute.textContent="Montar mi ruta de aprendizaje"; toRoute.onclick=()=>{ location.href="/app/ruta-crear.html"; }; }
   }).catch(()=>{});
-  document.getElementById("redo").onclick=()=>renderIntro();
+  const t=document.getElementById("team"); if(t) t.onclick=renderTeam;
+  document.getElementById("redo").onclick=async()=>{
+    if(!confirm("Vas a empezar el test de cero. Tu perfil actual se mantiene hasta que termines el nuevo. ¿Seguimos?")) return;
+    try{ await SkillUp.api("/api/teamdna/profile/restart",{method:"POST"}); ANS={}; B=0; renderBlock(); toTop(); }
+    catch(e){ alert("No se ha podido reiniciar. Vuelve a intentarlo."); }
+  };
+}
+
+async function renderTeam(){
+  view.innerHTML='<div class="center"><div class="spin"></div></div>';
+  let d; try{ d=await SkillUp.api("/api/teamdna/profile/team"); }catch(e){ return fail("No hemos podido cargar los perfiles del equipo."); }
+  const ms=d.members||[], done=ms.filter(m=>m.view);
+  ms.sort((a,b)=>(b.view?1:0)-(a.view?1:0) || String(a.name).localeCompare(String(b.name),"es"));
+  view.innerHTML=`
+    <h1>Perfiles del equipo</h1>
+    <p class="lede">${done.length} de ${ms.length} personas han hecho su perfil. Úsalo para hablar, dar feedback y motivar a cada una a su manera, nunca para etiquetar ni para evaluar. Los textos están escritos tal como los lee cada persona.</p>
+    ${ms.map(m=>{
+      const v=m.view;
+      if(!v) return `<div class="tm"><summary style="cursor:default"><i style="background:var(--line)"></i><span><b>${esc(m.name)}</b><small>Aún no ha hecho su perfil</small></span><em></em></summary></div>`;
+      return `<details class="tm" style="--pc:${esc(v.color.hex)}"><summary><i style="background:${esc(v.color.hex)}"></i><span><b>${esc(m.name)}</b><small>${esc(v.titulo)} · ${esc(v.subtitulo)}</small></span><em>${esc(v.gamificacion.tipo)}</em></summary>
+        <div class="body sec">
+          <p>${esc(v.quienEres)}</p>
+          <div><h3>Cómo hablarle</h3>${list(v.comoTeHablaran.map(esc))}</div>
+          <div><h3>Cómo aprende</h3>${list(v.comoAprendes.map(esc))}</div>
+          <div><h3>Qué le motiva</h3><p>${esc(v.motiva)} Tipo de jugador: ${esc(v.gamificacion.tipo)}, luego ${esc(v.gamificacion.segundo)}.</p></div>
+          <div><h3>Dónde se atasca</h3><p>${esc(v.atasco)}</p></div>
+          <div><h3>Rasgos</h3>${traits(v)}</div>
+        </div></details>`;
+    }).join("")}
+    <div class="cta"><button class="btn btn-ghost" id="mine">Mi perfil</button></div>
+    <p class="note">Los perfiles son autoinformes orientativos: el eneagrama es una herramienta de autoconocimiento, no un diagnóstico.</p>`;
+  document.getElementById("mine").onclick=()=>{ history.replaceState(null,"",location.pathname); if(VIEW) renderResult(VIEW); else renderIntro(answered()>0); toTop(); };
 }
 
 boot();

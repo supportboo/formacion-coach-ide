@@ -6,6 +6,7 @@ import type { SvcDeps } from "./org.js";
 // El arquetipo = familia principal (mayor peso) + secundaria (2ª). Es reversible y evoluciona
 // con el comportamiento real; aquí calculamos la FOTO inicial a partir de preguntas de situación.
 // Doctrina: NO es un test de personalidad clínico (MBTI/DISC); mide qué haces, no quién eres.
+// LEGADO: la UI ya usa Team DNA v2 (teamprofile.ts). Esta foto de 4 familias se conserva porque moderation.ts la lee.
 
 export type Family = "vision" | "accion" | "analisis" | "personas";
 export const FAMILIES: Family[] = ["vision", "accion", "analisis", "personas"];
