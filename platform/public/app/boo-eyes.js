@@ -109,12 +109,18 @@
     + '.boo-guide{position:fixed;z-index:1999;max-width:min(300px,78vw);display:flex;flex-direction:column;gap:8px;background:rgba(22,16,34,.93);backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);border:1px solid rgba(150,120,255,.32);border-radius:18px 18px 4px 18px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px rgba(120,90,255,.18);padding:14px 17px;cursor:pointer;opacity:0;transform:translateY(10px) scale(.96);transition:opacity .35s,transform .35s}'
     + '.boo-guide.show{opacity:1;transform:none}'
     + '.boo-guide p{margin:0;color:#F6F2FC;font-family:"Caveat",cursive;font-size:clamp(27px,4.4vw,36px);line-height:1.28;font-weight:700}'
-    + '.boo-guide{max-width:min(340px,80vw)}';
+    + '.boo-guide{max-width:min(340px,80vw)}'
+    // mantener pulsados los ojos = hablar sin abrir el chat
+    + '.boo-fab{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}'
+    + '.boo-fab.boo-listen{box-shadow:0 0 0 7px rgba(231,76,60,.32),0 0 34px rgba(231,76,60,.65)!important;animation:none!important;transform:scale(1.08)}'
+    + '.boo-say:not(.show){pointer-events:none}'
+    + '.boo-say p{font-family:Inter,system-ui,sans-serif;font-size:15px;font-weight:500;line-height:1.45}';
 
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var fab = document.createElement('button');
   fab.className = 'boo-fab'; fab.setAttribute('aria-label', 'Abrir asistente Brandooers');
+  fab.title = 'Toca para abrir el asistente · mantén pulsado para hablarle directamente';
   fab.innerHTML = EYES; document.body.appendChild(fab);
 
   var panel = document.createElement('div'); panel.className = 'boo-panel';
@@ -353,8 +359,54 @@
       addActions(r.reply || ''); // botones de acceso al curso del tutor que menciona
       // item B: si hablé por voz, me contesta por voz; o si el altavoz está activado.
       if (r.reply && (voiceOn || wasVoice)) playTTS(r.reply);
-    } catch (ex) { thinking.textContent = 'Ahora mismo no puedo responder (el servicio de IA no está disponible). Inténtalo en un momento.'; chat.scrollTop = chat.scrollHeight; }
+      return r.reply || '';
+    } catch (ex) { thinking.textContent = 'Ahora mismo no puedo responder (el servicio de IA no está disponible). Inténtalo en un momento.'; chat.scrollTop = chat.scrollHeight; return null; }
   }
+
+  // Mantener pulsados los ojos = hablar directamente, sin abrir el chat (como un walkie-talkie).
+  // Mientras mantienes, escucha; al soltar, envía. La respuesta sale en voz y en un bocadillo junto a los ojos
+  // (y queda guardada en el chat por si lo abres luego).
+  var sayEl = null, holdRec = null, holdText = '';
+  function hideSay() { if (sayEl) sayEl.classList.remove('show'); }
+  function sayBubble(text, ms) {
+    if (!sayEl) {
+      sayEl = document.createElement('div'); sayEl.className = 'boo-guide boo-say'; sayEl.setAttribute('role', 'status');
+      sayEl.innerHTML = WAVE + '<p></p>'; document.body.appendChild(sayEl);
+      waveEls.push(sayEl.querySelector('.bg-wave'));
+      sayEl.addEventListener('click', hideSay);
+    }
+    sayEl.querySelector('p').textContent = text;
+    positionGuide(sayEl);
+    requestAnimationFrame(function () { sayEl.classList.add('show'); });
+    clearTimeout(sayEl._t); if (ms) sayEl._t = setTimeout(hideSay, ms);
+  }
+  function startHoldTalk() {
+    if (guideEl) { guideDismissed = true; dismissGuide(); }
+    if (!SR) { sayBubble('Este navegador no permite hablarme por voz. Toca los ojos y escríbeme.', 4000); return; }
+    stopAudio(); holdText = '';
+    fab.classList.add('boo-listen');
+    sayBubble('Te escucho…');
+    var fin = '';
+    holdRec = new SR(); holdRec.lang = 'es-ES'; holdRec.continuous = true; holdRec.interimResults = true;
+    holdRec.onresult = function (ev) {
+      var interim = '';
+      for (var i = ev.resultIndex; i < ev.results.length; i++) { var r = ev.results[i]; if (r.isFinal) fin += r[0].transcript + ' '; else interim += r[0].transcript; }
+      holdText = (fin + interim).trim(); if (holdText) sayBubble('«' + holdText + '»');
+    };
+    holdRec.onerror = function (ev) {
+      var c = ev && ev.error;
+      if (c === 'not-allowed' || c === 'service-not-allowed') sayBubble('Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador.', 5000);
+    };
+    holdRec.onend = function () {
+      fab.classList.remove('boo-listen'); holdRec = null;
+      var t = holdText.trim(); holdText = '';
+      if (!t) { sayBubble('No te he oído. Mantén pulsados los ojos mientras hablas.', 3500); return; }
+      sayBubble('…'); input.value = t;
+      send(true).then(function (reply) { sayBubble(reply || 'Ahora mismo no puedo responder. Inténtalo en un momento.', reply ? Math.min(30000, 6000 + reply.length * 60) : 5000); });
+    };
+    try { holdRec.start(); } catch (e) { fab.classList.remove('boo-listen'); holdRec = null; }
+  }
+  function stopHoldTalk() { if (holdRec) { try { holdRec.stop(); } catch (e) { } } else fab.classList.remove('boo-listen'); }
 
   // Burbuja-guía: saluda una vez por página (por pestaña) y explica qué se puede hacer aquí, en voz
   // y en handwriting grande (accesible). Vive anclada a donde estén los ojos en ese momento.
@@ -401,6 +453,8 @@
   // La burbuja-guía desaparece mientras arrastras y vuelve a salir justo donde dejas los ojos.
   (function () {
     var dragging = false, moved = false, startX = 0, startY = 0, origLeft = 0, origTop = 0, justDragged = false;
+    var holdTimer = null, holding = false, HOLD_MS = 450; // quieto y pulsado este tiempo = hablar
+    fab.addEventListener('contextmenu', function (e) { e.preventDefault(); }); // en móvil, mantener no abre el menú
     function applyPos(left, top) {
       left = Math.max(6, Math.min(innerWidth - 70, left));
       top = Math.max(6, Math.min(innerHeight - 70, top));
@@ -411,15 +465,21 @@
       dragging = true; moved = false;
       var r = fab.getBoundingClientRect(); origLeft = r.left; origTop = r.top; startX = e.clientX; startY = e.clientY;
       try { fab.setPointerCapture(e.pointerId); } catch (e2) {}
+      unlockAudio(); // dentro del toque: así la respuesta puede sonar también en móvil
+      clearTimeout(holdTimer); holdTimer = setTimeout(function () { if (dragging && !moved) { holding = true; startHoldTalk(); } }, HOLD_MS);
     });
     fab.addEventListener('pointermove', function (e) {
-      if (!dragging) return; var dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!dragging || holding) return; var dx = e.clientX - startX, dy = e.clientY - startY;
       if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        clearTimeout(holdTimer);
         if (!moved && guideEl) { clearTimeout(guideTimer); guideEl.classList.remove('show'); } // se esconde justo al empezar a arrastrar
         moved = true; applyPos(origLeft + dx, origTop + dy);
       }
     });
+    function endHold() { clearTimeout(holdTimer); if (holding) { holding = false; dragging = false; justDragged = true; stopHoldTalk(); return true; } return false; }
+    fab.addEventListener('pointercancel', function () { endHold(); dragging = false; });
     fab.addEventListener('pointerup', function () {
+      if (endHold()) return;
       if (!dragging) return; dragging = false;
       if (moved) {
         justDragged = true; var r = fab.getBoundingClientRect(); try { localStorage.setItem('skillup-fab-pos', JSON.stringify({ left: r.left, top: r.top })); } catch (e) {}
