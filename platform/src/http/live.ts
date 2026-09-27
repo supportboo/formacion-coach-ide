@@ -3,7 +3,8 @@
 import type { Context, Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db, newId } from "../container.js";
+import { db, llm, newId } from "../container.js";
+import { env } from "../config/env.js";
 import { auditLog, organization, user } from "../db/schema.js";
 import { getAuthContext, getPlatformAdminSession, isPlatformAdmin } from "./context.js";
 import { rateLimited } from "../util/rateLimit.js";
@@ -123,6 +124,37 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>) {
     if (s instanceof Response) return s;
     const days = Math.max(7, Math.min(90, Number(c.req.query("days")) || 30));
     return c.json({ orgId: s.orgId, orgName: s.orgName, teamAsOrg: act.teamResolvedAsOrg(s.access.metrics), ...(await act.orgMetrics(deps, s.orgId, titles, days)) });
+  });
+
+  // Resumen con IA (modelo rápido, caché 15 min por objetivo): persona (activity.read) o empresa/equipo (activity.metrics).
+  app.get("/api/analytics/live/summary", async (c) => {
+    const target = c.req.query("userId") ? "person" : "org";
+    const s = await supervisor(c, target === "person" ? "activity.read" : "activity.metrics");
+    if (s instanceof Response) return s;
+    if (rateLimited(`livesum:${s.orgId}:${s.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+    let facts: string, n: Record<string, number>;
+    if (target === "person") {
+      const learnerId = String(c.req.query("userId"));
+      const d = await act.personDetail(deps, s.orgId, learnerId, titles, { live: await act.liveEnabled(deps, s.orgId) });
+      if (!d) return c.json({ error: "esa persona no está en esta empresa" }, 404);
+      facts = act.personFacts(d);
+      n = { cursos: d.courses.length, roleplays: d.roleplays.length, minutos30d: d.time.activeMin30d };
+    } else {
+      const m = await act.orgMetrics(deps, s.orgId, titles, 30);
+      facts = act.orgFacts(m);
+      n = { personas: m.members, activas30d: m.active.mau, notasDeBloque: m.blockScores.reduce((a, b) => a + b.n, 0) };
+    }
+    try {
+      const r = await act.summarize(llm, { orgId: s.orgId, supervisorId: s.userId, target: target === "person" ? String(c.req.query("userId")) : "org", kind: target, facts, model: env.MODEL_FAST, refresh: c.req.query("refresh") === "1" });
+      return c.json({ ...r, basis: n, teamAsOrg: target === "org" && act.teamResolvedAsOrg(s.access.metrics) });
+    } catch (e) { return c.json({ error: "no se pudo generar el resumen: " + (e as Error).message }, 502); }
+  });
+
+  // Ayuda de la supervisión: solo para quien la puede usar (el texto no está en el HTML público de ayuda).
+  app.get("/api/analytics/live/help", async (c) => {
+    const s = await supervisor(c, "activity.metrics");
+    if (s instanceof Response) return s;
+    return c.json({ steps: act.helpSteps(s.access) });
   });
 
   // Ajuste de empresa: seguimiento en directo sí/no (admin de la empresa o superadmin).

@@ -183,3 +183,44 @@ describe("metrics", () => {
     expect(median([4, 1, 3, 2])).toBe(2.5);
   });
 });
+
+describe("heatmap, AI summaries and help gating", () => {
+  it("heatmap buckets active minutes by Spanish weekday and hour", async () => {
+    const { heatmap } = await import("../src/services/activity.js");
+    const g = heatmap([{ hour: new Date("2026-09-28T08:00:00Z"), activeSec: 600 }]); // lunes 10:00 en Madrid
+    expect(g[0]![10]).toBe(10);
+    expect(g.flat().reduce((a, b) => a + b, 0)).toBe(10);
+  });
+  it("org facts say «Sin datos» instead of inventing", async () => {
+    const { orgFacts } = await import("../src/services/activity.js");
+    const f = orgFacts({
+      days: 30, members: 4, active: { dau: 0, wau: 0, mau: 0 }, totals: { activeMin: 0, sessions: 0, onlineNow: 0 }, series: [], heatmap: [],
+      funnel: [], blockScores: [], timeToCertifyDays: { median: null, n: 0 },
+      roleplays: { started: 0, closed: 0, abandoned: 0, avgScore: null, scoredN: 0 }, struggling: [],
+    } as never);
+    expect(f).toContain("Embudo por curso: Sin datos.");
+    expect(f).toContain("Notas por bloque: Sin datos.");
+    expect(f).toContain("Tiempo hasta certificarse: Sin datos.");
+  });
+  it("summaries are cached per target for 15 min and use the given (fast) model", async () => {
+    const { summarize } = await import("../src/services/activity.js");
+    const calls: { model?: string; kind?: string }[] = [];
+    const llm = { generate: async (c: { model?: string; kind?: string }) => { calls.push(c); return "Cómo va: **bien**"; } };
+    const a = { orgId: "oS", supervisorId: "s", target: "u9", kind: "person" as const, facts: "x", model: "fast-model" };
+    const r1 = await summarize(llm, a);
+    const r2 = await summarize(llm, a);
+    expect(r1.text).toBe("Cómo va: bien");
+    expect(r2.cached).toBe(true);
+    expect(calls).toEqual([expect.objectContaining({ model: "fast-model", kind: "supervision_summary" })]);
+    await summarize(llm, { ...a, refresh: true });
+    expect(calls).toHaveLength(2);
+  });
+  it("supervision help is never given to an employee; inspirador gets metrics only", async () => {
+    const { helpSteps } = await import("../src/services/activity.js");
+    expect(helpSteps(accessFor({ role: "empleado", platformAdmin: false }))).toEqual([]);
+    const insp = helpSteps(accessFor({ role: "inspirador", platformAdmin: false })).map((s) => s.h);
+    expect(insp).toContain("Métricas de uso");
+    expect(insp).not.toContain("Escribir en su chat");
+    expect(helpSteps(accessFor({ role: "coach", platformAdmin: false })).map((s) => s.h)).toContain("Escribir en su chat");
+  });
+});

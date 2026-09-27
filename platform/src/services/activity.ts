@@ -402,7 +402,7 @@ async function activeDaysAndTime(deps: SvcDeps, orgId: string, userId: string, n
   const series = dailySeries(rows, 30, now);
   const days = new Set(series.filter((d) => d.activeMin > 0 || d.sessions > 0).map((d) => d.day));
   const sum = (n: number) => series.slice(-n).reduce((a, d) => a + d.activeMin, 0);
-  return { series, streak: streakDays(days, now), activeMinToday: sum(1), activeMin7d: sum(7), activeMin30d: sum(30), sessions7d: series.slice(-7).reduce((a, d) => a + d.sessions, 0) };
+  return { series, heatmap: heatmap(rows), streak: streakDays(days, now), activeMinToday: sum(1), activeMin7d: sum(7), activeMin30d: sum(30), sessions7d: series.slice(-7).reduce((a, d) => a + d.sessions, 0) };
 }
 
 export async function personDetail(deps: SvcDeps, orgId: string, userId: string, titles: Record<string, string>, opts: { live: boolean }, now = new Date()) {
@@ -571,7 +571,7 @@ export async function orgMetrics(deps: SvcDeps, orgId: string, titles: Record<st
       activeMin: series.reduce((a, d) => a + d.activeMin, 0), sessions: series.reduce((a, d) => a + d.sessions, 0),
       onlineNow: b.people.filter((p) => p.state?.online).length,
     },
-    series,
+    series, heatmap: heatmap(rows),
     funnel: completionFunnel({ started: started.filter((s) => !!s.source && !!titles[s.source!]) as { userId: string; source: string }[], blocks: atts, certs: courseCerts })
       .map((f) => ({ ...f, title: title(f.source) })),
     blockScores: blockScores(atts.filter((a) => a.kind === "block" && a.status === "corregido")).map((x) => ({ ...x, title: title(x.source) })),
@@ -582,6 +582,111 @@ export async function orgMetrics(deps: SvcDeps, orgId: string, titles: Record<st
     },
     struggling: b.people.filter((p) => p.signals.length).slice(0, 10).map((p) => ({ userId: p.userId, name: p.name, signals: p.signals })),
   };
+}
+
+/* ---------------------------------------------------------------- mapa de calor día x hora */
+
+const MADRID_WH = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", hourCycle: "h23" });
+const WD: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+/** Minutos activos por día de la semana (lunes = 0) y hora de España: cuándo se forma la gente. */
+export function heatmap(rows: { hour: Date; activeSec: number }[]): number[][] {
+  const grid = Array.from({ length: 7 }, () => new Array<number>(24).fill(0));
+  for (const r of rows) {
+    const p = MADRID_WH.formatToParts(r.hour);
+    const wd = WD[p.find((x) => x.type === "weekday")?.value || ""], h = Number(p.find((x) => x.type === "hour")?.value);
+    if (wd === undefined || isNaN(h)) continue;
+    grid[wd]![h]! += r.activeSec / 60;
+  }
+  return grid.map((row) => row.map((v) => Math.round(v)));
+}
+
+/* ---------------------------------------------------------------- resúmenes con IA para responsables */
+// Entrada = SOLO datos medidos que ya calcula este módulo (nunca se inventa); lo que falta va como «Sin datos».
+
+type Detail = NonNullable<Awaited<ReturnType<typeof personDetail>>>;
+type Metrics = Awaited<ReturnType<typeof orgMetrics>>;
+const mins = (s: number | null | undefined) => (s == null ? "Sin datos" : `${Math.round(s / 60)} min`);
+
+/** Hechos medidos de una persona, en texto compacto para el modelo. */
+export function personFacts(d: Detail, now = new Date()): string {
+  const L: string[] = [];
+  L.push(`Persona: ${d.person.name} (${ROLE_LABEL[d.person.role] || d.person.role}).`);
+  L.push(`Última actividad: ${d.lastSeenAt ? `hace ${Math.round((now.getTime() - new Date(d.lastSeenAt).getTime()) / 3_600_000)} h` : "Sin datos"}.`);
+  if (d.live) L.push(`Ahora: ${d.live.online ? (d.live.idle ? "conectada pero inactiva" : "conectada y activa") : "desconectada"}; última página ${d.live.page || "Sin datos"}${d.live.sectionTitle ? `, sección «${d.live.sectionTitle}» desde hace ${mins(d.live.sectionSinceSec)}` : ""}.`);
+  L.push(`Tiempo activo medido: hoy ${d.time.activeMinToday} min, 7 días ${d.time.activeMin7d} min, 30 días ${d.time.activeMin30d} min; sesiones 7 días: ${d.time.sessions7d}; racha: ${d.time.streak} días.`);
+  L.push(d.courses.length ? "Cursos:" : "Cursos: Sin datos.");
+  for (const c of d.courses) {
+    const blocks = c.blocks.length ? c.blocks.map((b) => `B${b.block + 1} ${b.best ?? "-"}/100 (${b.attempts} int.${b.passed ? ", aprobado" : ""})`).join("; ") : "sin tests";
+    const fin = c.finals.length ? c.finals.map((f) => `${f.score ?? "-"}/100${f.passed ? " aprobado" : ""}`).join(", ") : "sin examen final";
+    L.push(`- ${c.title}: ${blocks}; final: ${fin}; certificado: ${c.certificate ? "sí" : "no"}.`);
+  }
+  const rp = d.roleplays;
+  L.push(rp.length ? `Roleplays (n=${rp.length}): ${rp.slice(0, 6).map((r) => `${r.topic} · ${r.status}${r.score != null ? ` · ${r.score}/10` : ""}`).join(" | ")}.` : "Roleplays: Sin datos.");
+  L.push(d.signals.length ? `Señales de atasco medidas: ${d.signals.map((s) => s.label).join("; ")}.` : "Señales de atasco: ninguna.");
+  L.push(`Puntos: ${d.points}.`);
+  const msgs = d.chats.flatMap((t) => t.messages.filter((m) => m.sender === "user").map((m) => m.text || "")).slice(-8);
+  L.push(msgs.length ? `Últimas preguntas al tutor: ${msgs.map((m) => `«${m.slice(0, 160)}»`).join(" ")}` : "Conversación con el tutor: Sin datos.");
+  return L.join("\n");
+}
+
+/** Hechos medidos de la empresa (o del equipo, que hoy es la empresa entera). */
+export function orgFacts(m: Metrics): string {
+  const L: string[] = [];
+  L.push(`Personas en la empresa: ${m.members}. Activas: 24 h ${m.active.dau}, 7 días ${m.active.wau}, 30 días ${m.active.mau}. Conectadas ahora: ${m.totals.onlineNow}.`);
+  const half = Math.floor(m.series.length / 2), a = m.series.slice(0, half), b = m.series.slice(half);
+  const s = (xs: typeof m.series) => xs.reduce((x, d) => x + d.activeMin, 0);
+  L.push(`Minutos activos en ${m.days} días: ${m.totals.activeMin} (primera mitad ${s(a)}, segunda mitad ${s(b)}); sesiones: ${m.totals.sessions}.`);
+  L.push(m.funnel.length ? "Embudo por curso (personas): " + m.funnel.map((f) => `${f.title}: empezado ${f.started}, bloque aprobado ${f.blockPassed}, final hecho ${f.finalTaken}, certificado ${f.certified}`).join(" | ") : "Embudo por curso: Sin datos.");
+  L.push(m.blockScores.length ? "Bloques más difíciles (nota media, n): " + m.blockScores.slice(0, 5).map((x) => `${x.title} B${x.block + 1} ${x.avg}/100 (n=${x.n}, aprueba ${x.passRate} %)`).join(" | ") : "Notas por bloque: Sin datos.");
+  L.push(`Tiempo hasta certificarse: ${m.timeToCertifyDays.median != null ? `mediana ${m.timeToCertifyDays.median} días (n=${m.timeToCertifyDays.n})` : "Sin datos"}.`);
+  L.push(`Roleplays en el periodo: empezados ${m.roleplays.started}, terminados ${m.roleplays.closed}, abandonados ${m.roleplays.abandoned}, nota media ${m.roleplays.avgScore ?? "Sin datos"}${m.roleplays.scoredN ? ` (n=${m.roleplays.scoredN})` : ""}.`);
+  L.push(m.struggling.length ? "Personas con señales de atasco: " + m.struggling.map((p) => `${p.name}: ${p.signals.map((x) => x.label).join(", ")}`).join(" | ") : "Personas con señales de atasco: ninguna.");
+  return L.join("\n");
+}
+
+export const SUMMARY_SYSTEM = {
+  person: "Eres el analista de aprendizaje de SkillUp y ayudas a un coach o responsable a acompañar a una persona. Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras. Español de España, claro y directo, de tú al responsable, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Cómo va:» (1-2 frases con las cifras clave), «Dónde se atasca:», «Riesgo de abandono: bajo|medio|alto —» con el motivo medido, «Qué hacer:» (una intervención concreta: qué decirle o hacer hoy, con una frase de ejemplo entre comillas). Máximo 110 palabras en total.",
+  org: "Eres el analista de aprendizaje de SkillUp y ayudas a dirección, admin o team leaders. Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras. Español de España, claro y directo, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Adopción:» (tendencia con cifras: activos y minutos, primera frente a segunda mitad del periodo), «Quién necesita ayuda primero:» (nombres con su señal), «Bloques más difíciles:» (con nota media y n), «Qué hacer:» (2 acciones concretas para esta semana). Máximo 130 palabras en total.",
+} as const;
+
+// ponytail: caché en memoria de proceso, 15 min por objetivo (como el resto de cachés de la plataforma).
+const summaryCache = new Map<string, { text: string; at: number }>();
+export const SUMMARY_TTL_MS = 15 * 60_000;
+export async function summarize(
+  llm: { generate(c: { system: string; messages: { role: "user"; content: string }[]; model?: string; maxTokens?: number; orgId?: string | null; userId?: string; kind?: string }): Promise<string> },
+  a: { orgId: string; supervisorId: string; target: string; kind: "person" | "org"; facts: string; model: string; refresh?: boolean },
+): Promise<{ text: string; generatedAt: string; cached: boolean }> {
+  const key = `${a.orgId}:${a.target}`;
+  const hit = summaryCache.get(key);
+  if (hit && !a.refresh && Date.now() - hit.at < SUMMARY_TTL_MS) return { text: hit.text, generatedAt: new Date(hit.at).toISOString(), cached: true };
+  const out = await llm.generate({
+    system: SUMMARY_SYSTEM[a.kind], model: a.model, maxTokens: 400, orgId: a.orgId, userId: a.supervisorId, kind: "supervision_summary",
+    messages: [{ role: "user", content: "Datos medidos:\n" + a.facts + "\n\nEscribe el resumen." }],
+  });
+  const text = String(out || "").replace(/[*#]+/g, "").trim().slice(0, 1500);
+  summaryCache.set(key, { text, at: Date.now() });
+  return { text, generatedAt: new Date().toISOString(), cached: false };
+}
+
+/* ---------------------------------------------------------------- ayuda (solo responsables) */
+
+/** Pasos de ayuda de «En directo» según lo que la persona puede hacer. Un empleado nunca los recibe. */
+export function helpSteps(a: Access): { h: string; d: string }[] {
+  const out: { h: string; d: string }[] = [];
+  if (a.read) {
+    out.push({ h: "En directo", d: "Menú › En directo. Ves quién está conectado ahora, en qué curso y sección está, cuánto tiempo lleva y las señales de atasco (mucho rato en la misma sección, suspensos repetidos, roleplay sin terminar o días sin entrar). Filtra por conectados, inactivos o con señales, y busca por nombre." });
+    out.push({ h: "Ficha de la persona", d: "Toca una tarjeta: progreso por curso, notas de cada bloque, examen final, certificados, roleplays, tiempo activo real, racha, mapa de calor de cuándo se forma y su conversación con el tutor. Mientras la tienes abierta, la persona ve un aviso con tu nombre: es obligatorio y no se puede ocultar." });
+    out.push({ h: "Vista previa de su página", d: "La tarjeta «Vista previa» abre la misma página y sección que está leyendo, con TU sesión: no es su pantalla ni sus datos, es la misma página recreada. «Abrir en la misma sección» la abre a tamaño completo. No se graba pantalla, teclado ni cámara." });
+  }
+  if (a.intervene) {
+    out.push({ h: "Escribir en su chat", d: "Desde la ficha, escribe en su conversación con el tutor. Tu mensaje le llega con tu nombre y tu rol, distinto de la IA, y el tutor lo tiene en cuenta y te apoya. Si no está en un curso, le aparece como aviso en la siguiente página que abra. Cada mensaje queda registrado." });
+  }
+  if (a.metrics) {
+    out.push({ h: "Métricas de uso", d: "Pestaña Métricas: personas activas (24 h, 7 y 30 días), minutos activos por día, sesiones, embudo por curso (empezado, bloque aprobado, examen final, certificado), nota media por bloque para ver los más difíciles, tiempo hasta certificarse y roleplays. Cada cifra lleva su definición y su n; si no hay datos, lo dice." });
+    out.push({ h: "Resumen con IA", d: "El botón Resumen redacta, solo con los datos medidos, cómo va la persona o la empresa, dónde se atasca, el riesgo de abandono y qué hacer. Se guarda 15 minutos para no gastar de más." });
+  }
+  if (out.length) out.push({ h: "Transparencia y datos", d: "Cada persona recibe una vez un aviso de qué pueden ver sus responsables. La actividad se guarda 90 días como máximo y entra en la exportación y el borrado de datos. El administrador puede desactivar el seguimiento en directo para toda la empresa. Hoy no hay equipos en la plataforma: «tu equipo» es toda la empresa." });
+  return out;
 }
 
 /* ---------------------------------------------------------------- RGPD */
