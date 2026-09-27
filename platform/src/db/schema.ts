@@ -178,6 +178,9 @@ export const agentThread = pgTable("agent_thread", {
   userId: text("user_id").notNull(),
   role: text("role").notNull(),
   title: text("title"),
+  // 1.3.0 (supervisión en directo): curso del que sale el hilo del tutor (slug), para que el responsable
+  // sepa de qué curso es cada conversación. Null en hilos anteriores o del agente general.
+  source: text("source"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("thread_org_idx").on(t.organizationId) }));
 
@@ -185,8 +188,15 @@ export const agentMessage = pgTable("agent_message", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id").notNull(),
   threadId: text("thread_id").notNull().references(() => agentThread.id, { onDelete: "cascade" }),
-  sender: text("sender").notNull(), // user | agent
+  sender: text("sender").notNull(), // user | agent | coach (persona humana: coach, team leader, admin…)
   content: text("content").notNull(),
+  // 1.3.0: lo que el alumno ve de su propio mensaje (sin las instrucciones internas que curso.html antepone
+  // para la IA). Null = mensaje interno (p. ej. la síntesis de memoria) o anterior a 1.3.0.
+  display: text("display"),
+  // Autor humano cuando sender = coach.
+  authorId: text("author_id"),
+  authorName: text("author_name"),
+  authorRole: text("author_role"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byThread: index("msg_thread_idx").on(t.threadId) }));
 
@@ -334,6 +344,8 @@ export const companyConfig = pgTable("company_config", {
   organizationId: text("organization_id").primaryKey(),
   levelLabels: jsonb("level_labels").$type<Record<string, string>>(), // {"2":"Facturador","3":"Referente"}
   salaryLinked: boolean("salary_linked").notNull().default(false),
+  // 1.3.0: los responsables pueden seguir la sesión en directo (siempre con aviso visible al alumno).
+  liveSupervision: boolean("live_supervision").notNull().default(true),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -619,3 +631,26 @@ export const roiStudy = pgTable("roi_study", {
   updatedBy: text("updated_by"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+/* Actividad en directo (1.3.0): latido ligero y eventos de las páginas de aprendizaje. Sin grabación de
+ * pantalla, teclado ni cámara: solo página, curso, sección, % de lectura, tiempo activo y acciones
+ * (vídeo, test, roleplay, mensaje). Se conserva 90 días como máximo (services/activity.ts, RETENTION_DAYS).
+ * kind: hb (latido) | page | section | video | quiz_start | quiz_end | roleplay_start | roleplay_turn |
+ *       roleplay_end | chat_msg | nudge (aviso de un responsable) | notice (el alumno leyó el aviso de supervisión). */
+export const activityEvent = pgTable("activity_event", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  kind: text("kind").notNull(),
+  page: text("page"),
+  source: text("source"),
+  section: integer("section"),
+  sectionTitle: text("section_title"),
+  scrollPct: integer("scroll_pct"),
+  activeSec: integer("active_sec").notNull().default(0),
+  meta: jsonb("meta").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  byOrgTime: index("activity_org_time_idx").on(t.organizationId, t.createdAt),
+  byUserTime: index("activity_org_user_time_idx").on(t.organizationId, t.userId, t.createdAt),
+}));

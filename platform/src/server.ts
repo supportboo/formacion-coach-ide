@@ -47,6 +47,7 @@ import * as moderationSvc from "./services/moderation.js";
 import * as curationSvc from "./services/curation.js";
 import * as gcal from "./services/gcal.js";
 import * as assessSvc from "./services/assessment.js";
+import { registerLiveRoutes } from "./http/live.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
@@ -402,6 +403,8 @@ app.post("/api/gcal/sync", async (c) => {
 const chatBody = z.object({
   message: z.string().min(1).max(20000),
   threadId: z.string().optional(),
+  display: z.string().max(4000).optional(), // lo que el alumno escribió (sin instrucciones internas)
+  source: z.string().max(120).regex(/^[a-z0-9-]+$/i).optional(), // curso del hilo
 });
 
 // Cada usuario habla con su agente de rol. Todo acotado a su organización.
@@ -417,6 +420,7 @@ app.post("/api/agent/chat", async (c) => {
   const res = await chat(chatDeps, {
     orgId: ctx.orgId, orgName: ctx.orgName, userId: ctx.userId, userName: ctx.userName,
     role: ctx.role, threadId: parsed.data.threadId, message: parsed.data.message,
+    display: parsed.data.display, source: parsed.data.source,
   });
   return c.json(res);
 });
@@ -2618,3 +2622,6 @@ app.post("/api/billing/webhook", async (c) => {
   await billingSvc.applyStripeEvent(svcDeps, event);
   return c.json({ received: true });
 });
+
+// Supervisión en directo (1.3.0): tablero, ficha, intervención humana y métricas de uso.
+registerLiveRoutes(app, COURSE_TITLES);

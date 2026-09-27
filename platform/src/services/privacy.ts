@@ -5,6 +5,7 @@ import {
   pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
+import { eraseActivity, exportActivity } from "./activity.js";
 
 /**
  * Derecho de acceso/portabilidad (RGPD art. 15/20): todo lo que sabemos de este usuario
@@ -53,6 +54,8 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       .where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId))),
     chatThreads: await deps.db.select().from(agentThread)
       .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId))),
+    // 1.3.0: actividad en directo (páginas, secciones, tiempo activo, acciones, avisos recibidos). Máx. 90 días.
+    activity: await exportActivity(deps, orgId, userId),
   };
 }
 
@@ -83,6 +86,7 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   // Personality/learning profile: personal data with no legal retention duty.
   await deps.db.delete(teamDna).where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId)));
   await deps.db.delete(teamProfile).where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
+  await eraseActivity(deps, orgId, userId);
   await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
   // Exam answers are free text; the numeric result stays in testAttempt (ROI) and the certificate.
   await deps.db.delete(assessmentAttempt).where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId)));

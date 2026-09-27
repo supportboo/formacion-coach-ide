@@ -148,6 +148,13 @@
       "when": 1790541793824,
       "tag": "0020_assessment",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790548199636,
+      "tag": "0021_live_supervision",
+      "breakpoints": true
     }
   ]
 }
