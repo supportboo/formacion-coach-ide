@@ -77,7 +77,7 @@ button{font-family:inherit}
 .coach-col .msg{background:var(--glass);border:1px solid var(--line);border-radius:14px;border-bottom-left-radius:4px;padding:13px 15px;font-size:13.5px;line-height:1.5;color:#EEE7F3;flex:1;overflow:auto}
 .talkbtn{margin-top:12px;width:100%;border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:11px;padding:11px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .talkbtn svg{width:16px;height:16px}
-.fab{position:absolute;right:16px;bottom:74px;z-index:12;width:58px;height:58px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:grid;place-items:center;
+.fab{position:absolute;right:16px;bottom:calc(var(--su-bbar,120px) + 12px);z-index:12;width:58px;height:58px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:grid;place-items:center;
   background:radial-gradient(circle at 50% 42%,#1d1128,#0b0611) padding-box,conic-gradient(from 210deg,#22D3EE,#8B5CF6,#EC4899,#FFD700,#22D3EE) border-box;box-shadow:0 10px 26px rgba(139,92,246,.5),0 0 24px rgba(47,211,198,.4),0 0 40px rgba(236,111,166,.2)}
 .fab svg{width:32px;height:20px;filter:drop-shadow(0 0 6px rgba(103,232,249,.7)) drop-shadow(0 2px 5px rgba(0,0,0,.55))}
 @media(prefers-reduced-motion:no-preference){.fab{animation:fabGlow 2.8s ease-in-out infinite}@keyframes fabGlow{0%,100%{box-shadow:0 10px 26px rgba(139,92,246,.5),0 0 20px rgba(47,211,198,.4)}50%{box-shadow:0 12px 30px rgba(236,111,166,.6),0 0 36px rgba(47,211,198,.6)}}}
@@ -117,7 +117,7 @@ button{font-family:inherit}
 .boot-status{font-size:13px;color:var(--muted);min-height:18px}
 .boot-btn{margin-top:4px;border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:none}
 @media(prefers-reduced-motion:reduce){.boot-mark .booiris{animation:none}}
-@media(min-width:680px){.rail{display:flex}.tabbar{display:none}.fab{bottom:16px}}
+@media(min-width:680px){.rail{display:flex}.tabbar{display:none}}
 @media(min-width:940px){.coach-col{display:flex}.coachbar{display:none}.fab{display:none}.card-in{max-width:600px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
