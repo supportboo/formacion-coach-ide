@@ -651,6 +651,7 @@ export function orgFacts(m: Metrics): string {
 export const SUMMARY_SYSTEM = {
   person: "Eres el analista de aprendizaje de SkillUp y ayudas a un coach o responsable a acompañar a una persona. Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras. Español de España, claro y directo, de tú al responsable, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Cómo va:» (1-2 frases con las cifras clave), «Dónde se atasca:», «Riesgo de abandono: bajo|medio|alto —» con el motivo medido, «Qué hacer:» (una intervención concreta: qué decirle o hacer hoy, con una frase de ejemplo entre comillas). Máximo 110 palabras en total.",
   org: "Eres el analista de aprendizaje de SkillUp y ayudas a dirección, admin o team leaders. Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras. Español de España, claro y directo, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Adopción:» (tendencia con cifras: activos y minutos, primera frente a segunda mitad del periodo), «Quién necesita ayuda primero:» (nombres con su señal), «Bloques más difíciles:» (con nota media y n), «Qué hacer:» (2 acciones concretas para esta semana). Máximo 130 palabras en total.",
+  platform: "Eres el analista de negocio de SkillUp y ayudas al dueño de la plataforma (vende formación por asientos a empresas). Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras ni euros. Español de España, claro y directo, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Empresas que necesitan atención:» (nombres con su motivo medido), «Cursos a mejorar primero:» (con la cifra que lo justifica), «Costes:» (coste IA frente a ingresos, alertas), «Qué hacer esta semana:» (2 acciones concretas). Máximo 140 palabras en total.",
 } as const;
 
 // ponytail: caché en memoria de proceso, 15 min por objetivo (como el resto de cachés de la plataforma).
@@ -658,9 +659,9 @@ const summaryCache = new Map<string, { text: string; at: number }>();
 export const SUMMARY_TTL_MS = 15 * 60_000;
 export async function summarize(
   llm: { generate(c: { system: string; messages: { role: "user"; content: string }[]; model?: string; maxTokens?: number; orgId?: string | null; userId?: string; kind?: string }): Promise<string> },
-  a: { orgId: string; supervisorId: string; target: string; kind: "person" | "org"; facts: string; model: string; refresh?: boolean },
+  a: { orgId: string | null; supervisorId: string; target: string; kind: keyof typeof SUMMARY_SYSTEM; facts: string; model: string; refresh?: boolean },
 ): Promise<{ text: string; generatedAt: string; cached: boolean }> {
-  const key = `${a.orgId}:${a.target}`;
+  const key = `${a.orgId ?? "platform"}:${a.target}`;
   const hit = summaryCache.get(key);
   if (hit && !a.refresh && Date.now() - hit.at < SUMMARY_TTL_MS) return { text: hit.text, generatedAt: new Date(hit.at).toISOString(), cached: true };
   const out = await llm.generate({

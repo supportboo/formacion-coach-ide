@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SkillUp · Métricas e insights</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/theme.css">
+<style>
+.wrap{max-width:1180px;padding:18px 16px 40px}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}
+.head h1{font-family:var(--fh);color:var(--ink);font-size:clamp(26px,7vw,36px);line-height:1.1;letter-spacing:-.01em}
+.head .org{color:var(--muted);font-size:13.5px;margin-top:2px}
+.head select{width:auto;min-width:200px;margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.chip{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--soft);color:var(--body);border:1px solid var(--line)}
+.chip.gold{color:var(--gold);border-color:rgba(240,198,69,.35)}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.msg{font-size:13.5px;color:var(--muted)}.err{color:var(--red)}
+.sig{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.sec-t{font-family:var(--fh);color:var(--ink);font-size:20px;margin:22px 0 10px}
+.sum{white-space:pre-line;font-size:14px;color:var(--body);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="/app/inicio.html" class="blogo" style="text-decoration:none">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58" aria-hidden="true"><defs>
+    <linearGradient id="mg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></linearGradient>
+    <linearGradient id="mg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F0C645"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
+    <radialGradient id="mi1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="mi2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
+    </defs>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#mg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#mi1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#mg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#mi2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>ers<span class="sk">Métricas e insights</span></a>
+  <nav><a href="/app/en-directo.html" id="navLive">En directo</a><a href="/app/dashboard.html">← Mi panel</a></nav>
+</div>
+<div class="wrap">
+  <div class="head">
+    <div><h1>Métricas e insights</h1><div class="org" id="orgName">Cargando…</div></div>
+    <select id="orgSel" hidden aria-label="Empresa"></select>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="links" id="links"></div>
+  <div class="dx-tabs" role="tablist">
+    <button class="dx-tab on" data-t="m" role="tab" aria-selected="true">Métricas</button>
+    <button class="dx-tab" data-t="i" role="tab" aria-selected="false">Insights</button>
+  </div>
+  <section id="vM">
+    <div class="dx-lead"><b>Métricas:</b> solo datos medidos. Cada cifra lleva su definición, su periodo y su muestra (n); si no hay datos, lo dice.</div>
+    <div class="bar"><span id="per"></span></div>
+    <div id="m"><p class="msg">Cargando…</p></div>
+  </section>
+  <section id="vI" hidden>
+    <div class="dx-lead"><b>Insights:</b> interpretación y acciones sacadas solo de las métricas de la otra pestaña. Cada una enlaza a su dato y a lo que puedes hacer.</div>
+    <div id="i"><p class="msg">Cargando…</p></div>
+  </section>
+</div>
+
+<script src="/app/api.js"></script>
+<script src="/app/dash.js"></script>
+<script>
+(function(){
+'use strict';
+var D=SkillDash, E=D.E, nf=D.nf, api=SkillUp.api;
+var qs=new URLSearchParams(location.search);
+var ORG=qs.get('orgId')||'', DAYS=Number(qs.get('days'))||30, H=null, ME=null;
+var ROLE={empleado:'Empleado',coach:'Coach',team_leader:'Team Leader',inspirador:'Inspirador',admin:'Admin',direccion:'Dirección',superadmin:'Soporte SkillUp'};
+var ST={hecha:['Hecha','green'],en_validacion:['En validación',''],vencida:['Vencida','red'],programada:['Programada',''],pendiente:['Pendiente','gold']};
+var TIPO={test_bloque:'Test de bloque',examen_final:'Examen final',roleplay:'Roleplay',caso:'Caso práctico'};
+function q(extra){ var p=[]; if(ORG)p.push('orgId='+encodeURIComponent(ORG)); if(extra)p.push(extra); return p.length?'?'+p.join('&'):''; }
+function withOrg(href){ return ORG?href+(href.indexOf('?')>=0?'&':'?')+'orgId='+encodeURIComponent(ORG):href; }
+function ago(iso){ if(!iso)return 'nunca'; var s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000); if(s<3600)return 'hace '+Math.max(1,Math.floor(s/60))+' min'; if(s<86400)return 'hace '+Math.floor(s/3600)+' h'; return 'hace '+Math.floor(s/86400)+' d'; }
+function pct(a,b){ return b?Math.round(a/b*100):null; }
+function card(id,title,body,right){ return '<div class="dx-card" id="'+id+'"><h2>'+E(title)+'<span class="sp"></span>'+(right||'')+'</h2>'+body+'</div>'; }
+function trackNote(){ return 'El seguimiento de uso empezó el 28-09-2026 ('+H.trackingDays+' días): antes de esa fecha, Sin datos.'; }
+
+async function boot(){
+  var me=await api('/api/org/me').catch(function(){return null;}), porgs=null;
+  if(!me){ porgs=await api('/api/platform/orgs').catch(function(){return null;}); if(porgs) me={platformAdmin:true,capabilities:{'activity.metrics':'global','activity.read':'global'}}; }
+  ME=me||{capabilities:{}};
+  if(!(ME.capabilities||{})['activity.metrics']){ document.getElementById('m').innerHTML='<p class="msg">Esta sección es para coaches, responsables y dirección.</p>'; document.getElementById('orgName').textContent=''; return; }
+  if(ME.platformAdmin){ var o=porgs||await api('/api/platform/orgs').catch(function(){return {orgs:[]};}), sel=document.getElementById('orgSel');
+    if(porgs&&!ORG&&o.orgs&&o.orgs[0]) ORG=o.orgs[0].id;
+    sel.innerHTML=(porgs?'':'<option value="">Mi empresa</option>')+((o&&o.orgs)||[]).map(function(x){return '<option value="'+E(x.id)+'"'+(x.id===ORG?' selected':'')+'>'+E(x.name)+'</option>';}).join('');
+    sel.hidden=false; sel.onchange=function(){ ORG=sel.value; history.replaceState(null,'',ORG?'?orgId='+encodeURIComponent(ORG):location.pathname); load(); }; }
+  document.querySelectorAll('.dx-tab').forEach(function(b){ b.onclick=function(){ tab(b.getAttribute('data-t')); }; });
+  if(qs.get('tab')==='insights') tab('i');
+  load();
+}
+function tab(t){ document.querySelectorAll('.dx-tab').forEach(function(b){ var on=b.getAttribute('data-t')===t; b.classList.toggle('on',on); b.setAttribute('aria-selected',on); });
+  document.getElementById('vM').hidden=t!=='m'; document.getElementById('vI').hidden=t!=='i'; }
+function goto(id){ tab('m'); var el=document.getElementById(id); if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); el.style.borderColor='var(--teal2)'; setTimeout(function(){el.style.borderColor='';},1800); } }
+
+async function load(){
+  document.getElementById('per').innerHTML=D.period(DAYS);
+  document.querySelectorAll('#per [data-days]').forEach(function(b){ b.onclick=function(){ DAYS=Number(b.getAttribute('data-days')); load(); }; });
+  try{ H=await api('/api/analytics/home'+q('days='+DAYS)); }catch(e){ document.getElementById('m').innerHTML='<p class="msg err">'+E(e.message)+'</p>'; return; }
+  document.getElementById('orgName').textContent=(H.orgName||'')+' · '+(ROLE[H.role]||H.role);
+  var chips='';
+  if(H.readOnly) chips+='<span class="chip gold">Modo solo lectura: soporte de SkillUp viendo esta empresa (queda registrado)</span>';
+  if(H.teamAsOrg) chips+='<span class="chip">Todavía no hay equipos en la plataforma: ves a toda la empresa</span>';
+  chips+='<span class="chip">'+E(trackNote())+'</span>';
+  document.getElementById('chips').innerHTML=chips;
+  var L=[];
+  if(H.canFollow) L.push('<a class="dx-btn" href="'+withOrg('/app/en-directo.html')+'">En directo</a>');
+  if(H.view==='empresa') L.push('<a class="dx-btn" href="'+(H.readOnly?'/app/informe-roi.html?org='+encodeURIComponent(H.orgId):'/app/informe-roi.html')+'">Informe de ROI</a>');
+  if(H.canAssign&&!H.readOnly) L.push('<a class="dx-btn" href="/app/asignar.html">Asignar pruebas</a>');
+  if(!H.readOnly) L.push('<a class="dx-btn gh" href="/app/feedback.html">Enviar sugerencia a Brandooers</a>');
+  document.getElementById('links').innerHTML=L.join('');
+  if(H.view==='empresa') { metricsCompany(); insightsCompany(); } else { metricsTeam(); insightsTeam(); }
+}
+
+/* ---------------- tablas comunes ---------------- */
+var PCOLS=[
+  {k:'name',label:'Persona',fmt:function(p){ return '<b style="color:var(--ink)">'+E(p.name)+'</b> <span style="font-size:11.5px;color:var(--muted)">'+E(ROLE[p.role]||p.role)+'</span>'+(p.signals.length?'<div class="sig">'+p.signals.map(function(s){return '<span class="dx-pill gold">'+E(s.label)+'</span>';}).join('')+'</div>':''); }},
+  {k:'courses',label:'Cursos',num:true},{k:'blocksPassed',label:'Bloques aprobados',num:true},
+  {k:'avgBlockScore',label:'Nota media bloques',num:true,fmt:function(p){ return p.avgBlockScore==null?'Sin datos':p.avgBlockScore+'/100 <span style="color:var(--muted);font-size:11px">n='+p.scoredN+'</span>'; }},
+  {k:'certificates',label:'Certificados',num:true},{k:'lastSeenAt',label:'Última actividad',fmt:function(p){ return p.lastSeenAt?ago(p.lastSeenAt):'Sin datos'; }}
+];
+function peopleCard(){
+  var rows=H.people.slice();
+  function draw(){ document.getElementById('ptbl').innerHTML=D.table('pt',PCOLS,rows,{cards:true,empty:'No hay personas en la empresa.'}); D.sortable(document.getElementById('ptbl'),'pt',PCOLS,rows,draw); }
+  setTimeout(function(){ draw(); var b=document.querySelector('[data-csv="people"]'); if(b) b.onclick=function(){ D.csv('personas.csv',['Persona','Rol','Cursos','Bloques aprobados','Nota media bloques','n notas','Certificados','Última actividad','Señales'],H.people.map(function(p){return [p.name,ROLE[p.role]||p.role,p.courses,p.blocksPassed,p.avgBlockScore==null?'Sin datos':p.avgBlockScore,p.scoredN,p.certificates,p.lastSeenAt||'Sin datos',p.signals.map(function(s){return s.label;}).join(' | ')];})); }; });
+  return card('m-personas','Progreso por persona','<div id="ptbl"></div><div class="dx-def">Cursos = cursos con algún test hecho. Bloques aprobados = bloques distintos superados. Nota media = media de los tests de bloque corregidos (n = tests). Última actividad = último evento registrado (desde el 28-09-2026). Señales de atasco: 12 min en la misma sección, 2 suspensos seguidos del mismo bloque, roleplay abierto 30 min o 7 días sin entrar.</div>',D.cert('m',H.people.length)+D.csvBtn('people'));
+}
+function testsCard(){
+  var t=H.tests, c=H.testCounts||{};
+  var cols=[{k:'learnerName',label:'Persona',fmt:function(x){return '<b style="color:var(--ink)">'+E(x.learnerName||'—')+'</b>';}},{k:'titulo',label:'Prueba',fmt:function(x){return E(x.titulo||'—')+' <span style="font-size:11px;color:var(--muted)">'+E(TIPO[x.tipo]||x.tipo)+'</span>';}},
+    {k:'programadoPara',label:'Fecha',fmt:function(x){return x.programadoPara?new Date(x.programadoPara).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'}):'Sin fecha';}},
+    {k:'status',label:'Estado',fmt:function(x){var s=ST[x.status]||[x.status,''];return '<span class="dx-pill '+s[1]+'">'+s[0]+'</span>';}},{k:'score',label:'Nota',num:true,fmt:function(x){return x.score==null?'—':x.score+'/100';}}];
+  setTimeout(function(){ var b=document.querySelector('[data-csv="tests"]'); if(b) b.onclick=function(){ D.csv('pruebas-asignadas.csv',['Persona','Prueba','Tipo','Fecha','Estado','Nota'],t.map(function(x){return [x.learnerName,x.titulo,TIPO[x.tipo]||x.tipo,x.programadoPara||'',(ST[x.status]||[x.status])[0],x.score==null?'':x.score];})); }; });
+  return card('m-pruebas','Pruebas asignadas ('+(H.assignedScope==='empresa'?'toda la empresa':'las que has asignado tú')+')',
+    '<div class="dx-kpis">'+D.kpi(c.vencida||0,'Vencidas','Tenían fecha, pasó hace más de 24 h y no están hechas.')+D.kpi((c.pendiente||0)+(c.programada||0),'Pendientes o programadas')+D.kpi(c.en_validacion||0,'En validación')+D.kpi(c.hecha||0,'Hechas')+'</div>'+D.table('tt',cols,t,{cards:true,empty:'No hay pruebas asignadas.'}),D.cert('m',t.length)+D.csvBtn('tests'));
+}
+
+/* ---------------- admin / dirección ---------------- */
+function metricsCompany(){
+  var c=H.company, s=c.series, a=c.active, mem=c.seats.members, h='';
+  h+='<h2 class="sec-t">Adopción</h2><div class="dx-kpis">'
+    +D.kpi(mem,'Personas en la empresa',c.seats.planSeats!=null?'Asientos del plan: '+c.seats.planSeats+' ('+(c.seats.planStatus||'sin estado')+').':'Plan: Sin datos.')
+    +D.kpi(a.wau+' / '+mem,'Activas en 7 días',trackNote(),D.cert('m',mem))
+    +D.kpi(a.mau+' / '+mem,'Activas en 30 días',pct(a.mau,mem)+' % de la plantilla.',D.cert('m',mem))
+    +D.kpi(nf(c.totals.activeMin,0),'Minutos activos · '+DAYS+' días','Suma de tiempo con interacción real en las páginas de aprendizaje.',D.cert('m'),'min')+'</div>';
+  h+='<div class="dx-grid2">'+card('m-adop','Personas activas por día',D.lines(s,[{key:'users',label:'Personas activas',color:'var(--teal2)'}]),D.cert('m'))
+    +card('m-min','Minutos activos por día',D.bars(s,'activeMin',{label:'Minutos activos',color:'var(--aub2)',fmt:function(v){return nf(v,0)+' min';}}),D.cert('m'))+'</div>';
+  h+='<h2 class="sec-t" id="m-resultados">Resultados de aprendizaje</h2><div class="dx-kpis">'
+    +D.kpi(c.certificates,'Certificados emitidos','Desde el inicio. Examen final aprobado con 80 o más.',D.cert('m',c.certificates))
+    +D.kpi(c.timeToCertifyDays.median==null?null:nf(c.timeToCertifyDays.median),'Días hasta certificarse (mediana)','Desde el primer test del curso hasta el certificado.',c.timeToCertifyDays.n?D.cert('m',c.timeToCertifyDays.n):D.cert('s'),'días')
+    +D.kpi(c.cases.approved,'Casos prácticos aprobados','Validados por un referente humano. Pendientes: '+c.cases.pending+'; rechazados: '+c.cases.rejected+'.',D.cert('m',c.cases.approved+c.cases.pending+c.cases.rejected))
+    +D.kpi(c.roleplays.closed+' / '+c.roleplays.started,'Roleplays terminados · '+DAYS+' días','Abandonados: '+c.roleplays.abandoned+'. Nota media orientativa: '+(c.roleplays.avgScore==null?'Sin datos':nf(c.roleplays.avgScore)+'/10 (n='+c.roleplays.scoredN+')')+'.',D.cert('m',c.roleplays.started))+'</div>';
+  h+='<div class="dx-grid2">'+card('m-embudo','Embudo por curso',D.funnel(c.funnel)+'<div class="dx-def">Personas distintas: empezado (abrió el curso o hizo un test) → algún bloque aprobado → examen final corregido → certificado.</div>',D.cert('m')+D.csvBtn('funnel'))
+    +card('m-cert','Certificados por día',D.bars(s,'certificates',{label:'Certificados',color:'var(--gold)'}),D.cert('m'))+'</div>';
+  var bcols=[{k:'title',label:'Curso'},{k:'block',label:'Bloque',num:true,fmt:function(b){return b.block+1;}},{k:'avg',label:'Nota media',num:true,fmt:function(b){return b.avg+'/100';}},{k:'passRate',label:'Aprueban',num:true,fmt:function(b){return b.passRate+' %';}},{k:'n',label:'n',num:true}];
+  h+=card('m-bloques','Nota por bloque (de más difícil a más fácil)',D.table('bt',bcols,c.blockScores,{cards:true,empty:'Sin tests de bloque corregidos.'})+'<div class="dx-def">Solo tests corregidos. Un bloque con nota media por debajo de 70 y n ≥ 3 se marca como difícil.</div>',D.cert('m',c.blockScores.reduce(function(x,b){return x+b.n;},0))+D.csvBtn('blocks'));
+  h+='<h2 class="sec-t">Personas</h2>'+peopleCard();
+  h+='<h2 class="sec-t">Perfil del equipo y ROI</h2><div class="dx-grid2">'
+    +card('m-dna','Team DNA',  '<div class="dx-kpis">'+D.kpi(c.teamDna.quick+' / '+mem,'Test rápido hecho')+D.kpi(c.teamDna.full+' / '+mem,'Perfil completo')+'</div><div class="dx-def">Cobertura del perfil de fortalezas. Hoy lo ven sus responsables en la ficha de la persona.</div>',D.cert('m',mem))
+    +card('m-roi','ROI',roiLine(c.roi)+roiMetric(c.roi.aplicacion)+roiMetric(c.roi.cobertura)+'<div class="dx-def">Periodo del estudio: '+E(c.roi.period)+'. '+E('Método Kirkpatrick y Phillips: los euros solo aparecen si la empresa introduce costes y métricas de negocio.')+'</div>',c.roi.computable?D.cert('e'):D.cert('s'))+'</div>';
+  h+=testsCard();
+  var m=document.getElementById('m'); m.innerHTML=h;
+  m.querySelector('[data-csv="funnel"]').onclick=function(){ D.csv('embudo-cursos.csv',['Curso','Empezado','Bloque aprobado','Examen final','Certificado'],c.funnel.map(function(f){return [f.title,f.started,f.blockPassed,f.finalTaken,f.certified];})); };
+  m.querySelector('[data-csv="blocks"]').onclick=function(){ D.csv('notas-por-bloque.csv',['Curso','Bloque','Nota media','% aprueban','n'],c.blockScores.map(function(b){return [b.title,b.block+1,b.avg,b.passRate,b.n];})); };
+}
+function roiLine(r){
+  if(r.computable) return '<p style="font-size:15px;color:var(--ink);margin:0 0 8px"><b>ROI estimado: '+nf(r.roiPct)+' %</b> · por cada euro invertido vuelven '+nf(r.bcr,2)+' €.</p>';
+  return '<p style="font-size:14px;color:var(--body);margin:0 0 8px">ROI en euros: <b>no calculable todavía</b>. Faltan '+r.missing+' dato'+(r.missing===1?'':'s')+' de costes o de negocio. No se inventa ninguna cifra.</p>';
+}
+function roiMetric(x){ if(!x)return ''; return '<div style="font-size:13px;margin:6px 0;color:var(--body)">'+E(x.name)+': <b style="color:var(--ink)">'+(x.value==null?'Sin datos':nf(x.value)+' '+E(x.unit))+'</b> '+(x.value==null?D.cert('s'):D.cert('m',x.n))+'</div>'; }
+
+function insightsCompany(){
+  var c=H.company, h='';
+  h+=card('i-acts','Las 3 acciones de esta semana',c.actions.length?c.actions.map(function(a){ var src={escribir:'m-personas',curso:'m-bloques',validar:'m-resultados',pruebas:'m-pruebas',adopcion:'m-adop'}[a.kind];
+      return '<div class="dx-ins warn"><p>'+E(a.text)+'</p><div class="src">Sale de: <a href="#" data-goto="'+src+'" style="color:var(--teal2)">la métrica</a></div><div class="acts">'+(H.readOnly?'':'<a class="dx-btn" href="'+E(withOrg(a.href))+'">'+({escribir:'Escribirle',curso:'Ver el curso',validar:'Validar casos',pruebas:'Ver pruebas',adopcion:'Abrir En directo'}[a.kind])+'</a>')+'</div></div>'; }).join('')
+    :'<div class="dx-empty">No hay nada urgente según las métricas de hoy.</div>');
+  h+=card('i-apoyo','Dónde puedes apoyar',supportList());
+  var r=c.roi;
+  h+=card('i-roi','Retorno de la formación','<div class="dx-ins '+(r.computable?'':'warn')+'">'+roiLine(r)+'<div class="src">Sale de: <a href="#" data-goto="m-roi" style="color:var(--teal2)">ROI</a> · informe con método Kirkpatrick y Phillips</div><div class="acts"><a class="dx-btn" href="'+(H.readOnly?'/app/informe-roi.html?org='+encodeURIComponent(H.orgId):'/app/informe-roi.html')+'">'+(r.computable?'Ver el informe':'Completar los datos del ROI')+'</a></div></div>');
+  h+=aiCard();
+  if(!H.readOnly) h+=card('i-fb','¿Echas algo en falta?','<p class="msg" style="margin:0 0 10px">Cuéntanos qué te ayudaría a acompañar mejor a tu equipo.</p><a class="dx-btn" href="/app/feedback.html">Enviar sugerencia a Brandooers</a>');
+  paintInsights(h);
+}
+function supportList(){
+  var out='', c=H.company;
+  var ppl=H.needHelp.slice(0,6);
+  out+=ppl.length?ppl.map(function(p){ return '<div class="dx-ins"><p><b>'+E(p.name)+'</b>: '+p.signals.map(function(s){return E(s.label);}).join(', ')+'.</p><div class="src">Sale de: <a href="#" data-goto="m-personas" style="color:var(--teal2)">progreso por persona</a></div><div class="acts">'
+      +(H.canFollow?'<a class="dx-btn" href="'+E(withOrg('/app/en-directo.html?persona='+encodeURIComponent(p.userId)))+'">'+(H.canIntervene?'Escribirle':'Ver su ficha')+'</a>':'')+(H.canAssign&&!H.readOnly?'<a class="dx-btn gh" href="/app/asignar.html">Asignar prueba</a>':'')+'</div></div>'; }).join('')
+    :'<div class="dx-empty">Nadie con señales de atasco ahora mismo.</div>';
+  var cs=(c&&c.courses||[]).filter(function(x){return x.reasons.length;}).slice(0,3);
+  if(cs.length) out+='<p class="msg" style="margin:12px 0 8px">Cursos donde más gente se queda:</p>'+cs.map(function(x){ return '<div class="dx-ins"><p><b>'+E(x.title)+'</b>: '+E(x.reasons.join('; '))+'. Certifican '+x.certified+' de '+x.started+'.</p><div class="src">Sale de: <a href="#" data-goto="m-embudo" style="color:var(--teal2)">embudo por curso</a> y <a href="#" data-goto="m-bloques" style="color:var(--teal2)">nota por bloque</a></div></div>'; }).join('');
+  return out;
+}
+function aiCard(){
+  return card('i-ai','Resumen con IA','<p class="msg" style="margin:0 0 10px">Lo redacta un modelo rápido solo con las métricas medidas; se guarda 15 minutos.</p><div id="aiOut" class="sum"></div><button class="dx-btn" id="aiBtn" type="button">Generar resumen</button>');
+}
+function paintInsights(h){
+  var el=document.getElementById('i'); el.innerHTML=h;
+  el.querySelectorAll('[data-goto]').forEach(function(a){ a.onclick=function(e){ e.preventDefault(); goto(a.getAttribute('data-goto')); }; });
+  var b=document.getElementById('aiBtn'); if(b) b.onclick=async function(){ b.disabled=true; b.textContent='Generando…';
+    try{ var r=await api('/api/analytics/live/summary'+q(b.dataset.done?'refresh=1':'')); document.getElementById('aiOut').textContent=r.text+'\n\n'+(r.cached?'Guardado':'Generado')+' '+new Date(r.generatedAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+' · base: '+Object.keys(r.basis||{}).map(function(k){return k+' '+r.basis[k];}).join(', ');
+      b.dataset.done='1'; b.textContent='Regenerar'; }catch(e){ document.getElementById('aiOut').textContent=e.message; b.textContent='Generar resumen'; } b.disabled=false; };
+}
+
+/* ---------------- team leader / coach ---------------- */
+function metricsTeam(){
+  var c=H.testCounts||{}, sig=H.needHelp.length, active7=H.people.filter(function(p){return p.lastSeenAt&&Date.now()-new Date(p.lastSeenAt).getTime()<7*864e5;}).length, h='';
+  h+='<div class="dx-kpis">'+D.kpi(H.members,'Personas','Toda la empresa: aún no hay equipos.')
+    +D.kpi(H.onlineNow,'Conectadas ahora','Latido en el último minuto.',D.cert('m',H.members))
+    +D.kpi(active7+' / '+H.members,'Activas en 7 días',trackNote(),D.cert('m',H.members))
+    +D.kpi(sig,'Con señales de atasco','Ver definición en la tabla.',D.cert('m',H.members))
+    +D.kpi(c.vencida||0,'Pruebas vencidas')
+    +D.kpi(H.pendingValidations.n,'Casos que puedes validar','Entregados y pendientes de un referente (tú lo eres en esas competencias).',D.cert('m',H.pendingValidations.n))+'</div>';
+  h+=peopleCard()+testsCard();
+  document.getElementById('m').innerHTML=h;
+}
+function insightsTeam(){
+  var h='', c=H.testCounts||{};
+  h+=card('i-help','Quién necesita ayuda hoy',supportList());
+  var over=H.tests.filter(function(t){return t.status==='vencida';});
+  if(over.length) h+=card('i-over','Pruebas vencidas',over.slice(0,6).map(function(t){ return '<div class="dx-ins bad"><p><b>'+E(t.learnerName)+'</b> no ha hecho «'+E(t.titulo)+'» (era para el '+new Date(t.programadoPara).toLocaleDateString('es-ES')+').</p><div class="src">Sale de: <a href="#" data-goto="m-pruebas" style="color:var(--teal2)">pruebas asignadas</a></div><div class="acts">'+(H.canFollow?'<a class="dx-btn" href="'+E(withOrg('/app/en-directo.html?persona='+encodeURIComponent(t.learnerId)))+'">Escribirle</a>':'')+(H.canAssign&&!H.readOnly?'<a class="dx-btn gh" href="/app/asignar.html">Reprogramar</a>':'')+'</div></div>'; }).join(''));
+  var done=H.tests.filter(function(t){return t.status==='hecha'&&t.score!=null;});
+  if(done.length) h+=card('i-res','Resultados de lo que asignaste',done.slice(0,6).map(function(t){ return '<div class="dx-ins '+(t.score<80?'warn':'')+'"><p><b>'+E(t.learnerName)+'</b> · «'+E(t.titulo)+'»: <b>'+t.score+'/100</b>'+(t.score<80?' (por debajo de 80: puede necesitar repaso)':'')+'.</p><div class="src">Sale de: <a href="#" data-goto="m-pruebas" style="color:var(--teal2)">pruebas asignadas</a></div></div>'; }).join(''));
+  if(H.pendingValidations.n) h+=card('i-val','Validaciones pendientes','<div class="dx-ins warn"><p>'+H.pendingValidations.n+' caso'+(H.pendingValidations.n>1?'s esperan':' espera')+' tu validación'+(H.pendingValidations.people.length?': '+E(H.pendingValidations.people.join(', ')):'')+'. Sin ella no suben de nivel.</p><div class="acts"><a class="dx-btn" href="/app/validar.html">Validar casos</a></div></div>');
+  h+=aiCard();
+  if(!H.readOnly) h+=card('i-fb','¿Echas algo en falta?','<a class="dx-btn" href="/app/feedback.html">Enviar sugerencia a Brandooers</a>');
+  paintInsights(h);
+}
+boot();
+})();
+</script>
+<script src="/app/nav.js" defer></script>
+</body>
+</html>

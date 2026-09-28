@@ -21,7 +21,7 @@ body{display:flex;min-height:100dvh}
 .navb svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .side .foot{margin-top:auto;padding-top:10px;border-top:1px solid var(--line)}
 /* Contenido */
-.main{flex:1;min-width:0;padding:26px 30px 60px;max-width:1080px}
+.main{flex:1;min-width:0;padding:26px 30px 60px;max-width:1440px}
 .sec{display:none}.sec.on{display:block;animation:fade .25s both}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}}
 .h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
@@ -70,10 +70,9 @@ details.ag pre{white-space:pre-wrap;font-size:12.5px;color:var(--body);margin-to
 <aside class="side">
   <div class="brand">Brand<svg width="30" height="18" viewBox="0 0 100 58"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>ers<span class="sk">Consola</span></div>
   <div class="grp">Visión</div>
-  <button class="navb on" data-sec="resumen"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Resumen</button>
+  <button class="navb on" data-sec="resumen"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Métricas e insights</button>
   <button class="navb" data-sec="empresas"><svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V7l6-4 6 4v14"/><path d="M10 9h.01M14 9h.01M10 13h.01M14 13h.01"/></svg>Empresas</button>
-  <button class="navb" data-sec="insights"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><circle cx="9" cy="12" r="1.5"/><circle cx="14" cy="8" r="1.5"/><circle cx="19" cy="13" r="1.5"/><path d="M9 12l5-4 5 5"/></svg>Insights</button>
-  <button class="navb" data-sec="metricas"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="7"/><rect x="12" y="6" width="3" height="11"/><rect x="17" y="13" width="3" height="4"/></svg>Métricas</button>
+  <button class="navb" data-sec="metricas"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="7"/><rect x="12" y="6" width="3" height="11"/><rect x="17" y="13" width="3" height="4"/></svg>Competencias</button>
   <div class="grp">Personas</div>
   <button class="navb" data-sec="usuarios"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 4-6 7-6s7 2 7 6"/><path d="M17 11l2 2 4-4"/></svg>Usuarios y roles</button>
   <button class="navb" data-sec="perfiles"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="15" width="7" height="7" rx="1.5"/><rect x="14" y="15" width="7" height="7" rx="1.5"/></svg>Perfiles de prueba</button>
@@ -91,6 +90,7 @@ details.ag pre{white-space:pre-wrap;font-size:12.5px;color:var(--body);margin-to
 <main class="main" id="main"><div class="note" style="margin-top:40px">Comprobando acceso de superadmin…</div></main>
 <script src="/app/api.js"></script>
 <script src="/app/dictation.js"></script>
+<script src="/app/dash.js"></script>
 <script>
 (function(){
 "use strict";
@@ -102,28 +102,102 @@ function pct(n){ return Math.round(Number(n)||0)+'%'; }
 function tip(t){ return '<span class="tip" data-tip="'+E(t)+'">i</span>'; }
 function hdr(title,tt,sub){ return '<div class="h"><h1>'+E(title)+tip(tt)+'</h1></div><p class="sub">'+E(sub)+'</p>'; }
 
-/* ---------- RESUMEN ---------- */
+/* ---------- MÉTRICAS E INSIGHTS (cockpit de la plataforma) ---------- */
+var CK={days:30,data:null,tab:'m'};
+var RISK={alto:'red',medio:'gold',bajo:'green'};
+function usd(v){ return v==null?'Sin datos':SkillDash.nf(v,2)+' $'; }
+function eur(v){ return v==null?'Sin datos':SkillDash.nf(v,2)+' €'; }
+function ago(iso){ if(!iso)return 'Sin datos'; var d=Math.floor((Date.now()-new Date(iso).getTime())/864e5); return d<=0?'hoy':d===1?'ayer':'hace '+d+' días'; }
+function orgLinks(o){ var id=encodeURIComponent(o.orgId);
+  return '<div class="rowflex" style="gap:6px;flex-wrap:wrap"><a class="dx-btn sm" href="/app/metricas.html?orgId='+id+'">Ver como su admin</a><a class="dx-btn gh sm" href="/app/en-directo.html?orgId='+id+'">En directo</a><a class="dx-btn gh sm" href="/app/informe-roi.html?org='+id+'">ROI</a><button class="dx-btn gh sm" type="button" data-open="'+E(o.orgId)+'">Ficha</button></div>'; }
 async function resumen(box){
-  box.innerHTML=hdr('Resumen','Foto rápida de toda la plataforma: empresas, usuarios y coste real de IA (nunca estimado).','Cómo va todo, de un vistazo. Los datos son en vivo de todas las empresas cliente.')
-    +'<div class="tiles" id="tiles"><div class="note">Cargando…</div></div>'
-    +'<div class="two"><div class="card"><h2>Evolución de riesgos críticos '+tip('Suma de competencias críticas sin cobertura en todas las empresas, día a día. Baja = mejor.')+'</h2><div id="chart"><p class="msg">Cargando…</p></div></div>'
-    +'<div class="card"><h2>Pregunta al orquestador '+tip('Un agente que responde SOLO con los datos reales de todas las empresas. No ejecuta acciones.')+'</h2><div id="orq"></div></div></div>';
-  var summary=await SkillUp.api('/api/platform/summary').catch(function(){return [];});
-  var cost=await SkillUp.api('/api/platform/cost?days=30').catch(function(){return {total:{usd:0},orchestrator:{usd:0}};});
-  var users=await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};});
-  DATA.summary=summary; DATA.users=(users&&users.users)||[];
-  var nUsers=new Set(DATA.users.map(function(u){return u.userId;})).size;
-  var totUsd=cost&&cost.total?(cost.total.usd!=null?cost.total.usd:cost.total):0;
-  var orqUsd=cost&&cost.orchestrator?(cost.orchestrator.usd!=null?cost.orchestrator.usd:cost.orchestrator):0;
-  document.getElementById('tiles').innerHTML=
-     tile(Array.isArray(summary)?summary.length:0,'Empresas','teal')
-    +tile(nUsers,'Usuarios','aub')
-    +tile(money(totUsd),'Coste IA · 30 días','gold')
-    +tile(money(orqUsd),'Solo orquestador','');
-  var hist=await SkillUp.api('/api/platform/history?days=90').catch(function(){return [];});
-  var pts=(Array.isArray(hist)?hist:[]).map(function(h){return {day:h.day,r:h.criticalRisks!=null?h.criticalRisks:(h.critical_risks||0)};});
-  document.getElementById('chart').innerHTML=SkillUp.lineChart(pts,'r',{color:'#3FD8E0',label:'Riesgos críticos',format:function(v){return String(v);}});
+  box.innerHTML=hdr('Métricas e insights','Todo lo que pasa en todas las empresas. Métricas = datos medidos; Insights = qué significan y qué hacer.','La plataforma de un vistazo: qué empresas van bien, cuáles necesitan atención, qué cursos arreglar y cuánto cuesta la IA frente a lo que se cobra.')
+    +'<div class="dx-tabs" role="tablist"><button class="dx-tab'+(CK.tab==='m'?' on':'')+'" data-t="m" role="tab">Métricas</button><button class="dx-tab'+(CK.tab==='i'?' on':'')+'" data-t="i" role="tab">Insights</button></div>'
+    +'<div id="ckM"'+(CK.tab==='m'?'':' hidden')+'><div class="dx-lead"><b>Métricas:</b> solo datos medidos de todas las empresas, con su definición, periodo y n. Aquí no hay opiniones.</div><div style="margin-bottom:12px" id="ckPer"></div><div id="ckMb"><p class="msg">Cargando…</p></div></div>'
+    +'<div id="ckI"'+(CK.tab==='i'?'':' hidden')+'><div class="dx-lead"><b>Insights:</b> interpretación y acciones sacadas solo de las métricas. Cada una enlaza a su dato y a la acción.</div><div id="ckIb"><p class="msg">Cargando…</p></div></div>';
+  box.querySelectorAll('.dx-tab').forEach(function(b){ b.onclick=function(){ ckTab(b.getAttribute('data-t')); }; });
+  await ckLoad();
+}
+function ckTab(t){ CK.tab=t; document.querySelectorAll('.dx-tab').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-t')===t); });
+  var m=document.getElementById('ckM'), i=document.getElementById('ckI'); if(m)m.hidden=t!=='m'; if(i)i.hidden=t!=='i'; }
+function ckGoto(id){ ckTab('m'); var el=document.getElementById(id); if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); el.style.borderColor='var(--teal2)'; setTimeout(function(){el.style.borderColor='';},1800); } }
+async function ckLoad(){
+  var D=SkillDash; document.getElementById('ckPer').innerHTML=D.period(CK.days);
+  document.querySelectorAll('#ckPer [data-days]').forEach(function(b){ b.onclick=function(){ CK.days=Number(b.getAttribute('data-days')); ckLoad(); }; });
+  var d; try{ d=await SkillUp.api('/api/platform/cockpit?days='+CK.days); }catch(e){ document.getElementById('ckMb').innerHTML='<p class="msg err">'+E(e.message)+'</p>'; return; }
+  CK.data=d; ckMetrics(d); ckInsights(d);
+}
+function ckCard(id,title,body,right){ return '<div class="dx-card" id="'+id+'"><h2>'+E(title)+'<span class="sp"></span>'+(right||'')+'</h2>'+body+'</div>'; }
+function ckMetrics(d){
+  var D=SkillDash, t=d.totals, s=d.series, h='';
+  var track='Seguimiento de uso desde el 28-09-2026 ('+d.trackingDays+' días): antes, Sin datos.';
+  h+='<div class="dx-kpis">'+D.kpi(t.companies,'Empresas cliente','Sin contar la empresa de perfiles de prueba.',D.cert('m'))
+    +D.kpi(t.active7+' / '+t.seats,'Personas activas en 7 días',track,D.cert('m',t.seats))
+    +D.kpi(t.active30+' / '+t.seats,'Personas activas en 30 días',track,D.cert('m',t.seats))
+    +D.kpi(t.atRisk,'Empresas en riesgo alto de baja','Ver la regla bajo la tabla de empresas.',D.cert('m',t.companies))
+    +D.kpi(t.revenueEur==null?null:D.nf(t.revenueEur,2),'Ingresos al mes por planes','Asientos × precio del plan de cada empresa con plan activo. No son facturas de Stripe.',t.revenueEur==null?D.cert('s'):D.cert('e',t.revenueN),'€')
+    +D.kpi(D.nf(t.aiUsd30,2),'Coste IA · 30 días','Tokens reales del registro de uso × precio de lista. Orquestador: '+usd(t.aiUsdPlatformOnly)+'.',D.cert('m'),'$')
+    +D.kpi(t.costAlerts,'Empresas con alerta de coste','Coste IA por encima del 20 % de lo que pagan, o IA sin pagar.',D.cert('e'))
+    +D.kpi(d.health.calls30,'Llamadas a la IA · 30 días',null,D.cert('m'))+'</div>';
+  h+='<div class="dx-grid2">'+ckCard('ck-act','Personas activas por día',D.lines(s,[{key:'users',label:'Personas activas',color:'var(--teal2)'}]),D.cert('m'))
+    +ckCard('ck-min','Minutos activos por día',D.bars(s,'activeMin',{color:'var(--aub2)',fmt:function(v){return D.nf(v,0)+' min';}}),D.cert('m'))
+    +ckCard('ck-cert','Certificados emitidos por día',D.bars(s,'certificates',{color:'var(--gold)'}),D.cert('m'))
+    +ckCard('ck-cost','Coste IA frente a ingresos (por día)',D.bars(s,'aiEur',{color:'var(--teal2)',ref:'revenueEur',refLabel:'Ingresos por día (plan mensual / 30)',fmt:function(v){return D.nf(v,2)+' €';}})
+      +'<div class="dx-leg"><span><i style="background:var(--teal2)"></i>Coste IA en € (estimado)</span><span><i style="background:var(--gold)"></i>Ingresos por día (estimado)</span></div><div class="dx-def">'+E(d.rules.cost)+'</div>',D.cert('e'))+'</div>';
+  var cols=[
+    {k:'name',label:'Empresa',fmt:function(o){return '<div style="min-width:230px"><b style="color:var(--ink)">'+E(o.name)+'</b>'+(o.test?' <span class="dx-pill">prueba</span>':'')+(o.status!=='activa'?' <span class="dx-pill">'+E(o.status)+'</span>':'')+'<div style="margin-top:8px">'+orgLinks(o)+'</div></div>';}},
+    {k:'healthScore',label:'Salud',num:true,fmt:function(o){return o.health.score==null?'Sin datos':'<b style="color:'+(o.health.score>=60?'var(--green)':o.health.score>=35?'var(--gold)':'var(--red)')+'">'+o.health.score+'</b><div style="font-size:10.5px;color:var(--muted)">A '+(o.health.adoption==null?'—':o.health.adoption)+' · P '+o.health.progress+' · R '+o.health.recency+'</div>';}},
+    {k:'churnRank',label:'Riesgo de baja',fmt:function(o){return '<span class="dx-pill '+RISK[o.churn.level]+'">'+o.churn.level+'</span>'+(o.churn.reasons.length?'<div style="font-size:11.5px;color:var(--muted);margin-top:3px">'+E(o.churn.reasons.join('; '))+'</div>':'');}},
+    {k:'active30',label:'Uso',fmt:function(o){return '<div style="min-width:120px"><b style="color:var(--ink)">'+o.active7+'</b> / '+o.active30+' de '+o.seats+'</div><div style="font-size:11px;color:var(--muted)">activas 7 d / 30 d · '+D.nf(o.activeMin30,0)+' min en 30 d</div>';}},
+    {k:'trendSum',label:'Min. por día ('+d.days+' d)',fmt:function(o){return D.spark(o.trend);}},
+    {k:'certificates',label:'Aprendizaje',fmt:function(o){return '<div style="min-width:130px"></div>'+o.coursesInProgress+' cursos en curso<div style="font-size:11px;color:var(--muted)">'+o.blocksPassed+' bloques aprobados · '+o.certificates+' certificados</div>';}},
+    {k:'lastActivityAt',label:'Última actividad',fmt:function(o){return ago(o.lastActivityAt);}},
+    {k:'aiCostPct',label:'Economía',fmt:function(o){return '<div style="min-width:150px"></div>'+(o.plan?E(o.plan.tierLabel)+' · '+E(o.plan.status):'Sin plan')+'<div style="font-size:11px;color:var(--muted)">'+eur(o.revenueEur)+'/mes · IA 30 d '+usd(o.aiUsd30)+' · '+(o.aiCostPct==null?'ratio Sin datos':D.nf(o.aiCostPct)+' %')+'</div>'+(o.costAlert?'<span class="dx-pill red">alerta de coste</span>':'');}},
+  ];
+  var rows=d.companies.slice().sort(function(a,b){return (a.test?1:0)-(b.test?1:0);}).map(function(o){ return Object.assign({},o,{healthScore:o.health.score,churnRank:{alto:0,medio:1,bajo:2}[o.churn.level],trendSum:o.trend.reduce(function(a,b){return a+b;},0)}); });
+  h+=ckCard('ck-emp','Empresas (de menos a más sana)','<div id="ckEmp"></div><div class="dx-def">'+E(d.rules.health)+'</div><div class="dx-def">'+E(d.rules.churn)+'</div><div class="dx-def">Cada acceso a otra empresa queda registrado y es de solo lectura.</div>',D.cert('m',d.companies.length)+D.csvBtn('emp'));
+  var ccols=[{k:'title',label:'Curso',fmt:function(c){return '<b style="color:var(--ink)">'+E(c.title)+'</b>'+(c.reasons.length?'<div style="font-size:11.5px;color:var(--muted);margin-top:3px">'+E(c.reasons.join('; '))+'</div>':'');}},
+    {k:'started',label:'Embudo',fmt:function(c){return '<b style="color:var(--ink)">'+c.started+'</b> → '+c.blockPassed+' → '+c.finalTaken+' → <b style="color:var(--ink)">'+c.certified+'</b><div style="font-size:11px;color:var(--muted)">empiezan → bloque → final → certificado</div>';}},
+    {k:'completionPct',label:'Completan',num:true,fmt:function(c){return c.completionPct+' %';}},
+    {k:'worst',label:'Bloque más difícil',fmt:function(c){return c.worstBlock?'B'+(c.worstBlock.block+1)+' · '+c.worstBlock.avg+'/100 (n='+c.worstBlock.n+')':'Sin datos';}},
+    {k:'finalPct',label:'Aprueban el final',num:true,fmt:function(c){return c.finals.n?Math.round(c.finals.passed/c.finals.n*100)+' % (n='+c.finals.n+')':'Sin datos';}},
+    {k:'roleplays',label:'Roleplays',num:true},{k:'priority',label:'Prioridad',num:true}];
+  var crows=d.courses.map(function(c){return Object.assign({},c,{finalPct:c.finals.n?c.finals.passed/c.finals.n:null,worst:c.worstBlock?c.worstBlock.avg:null});});
+  h+=ckCard('ck-cursos','Cursos: cuál arreglar primero','<div id="ckCur"></div><div class="dx-def">Personas distintas en todas las empresas. '+E(d.rules.courses)+'</div>',D.cert('m')+D.csvBtn('cur'));
+  h+='<div class="dx-grid2">'+ckCard('ck-bloques','Bloques más difíciles',D.table('ckb',[{k:'title',label:'Curso'},{k:'block',label:'Bloque',num:true,fmt:function(b){return b.block+1;}},{k:'avg',label:'Nota media',num:true},{k:'passRate',label:'Aprueban',num:true,fmt:function(b){return b.passRate+' %';}},{k:'n',label:'n',num:true}],d.hardestBlocks,{cards:true,empty:'Sin tests de bloque corregidos.'}),D.cert('m'))
+    +ckCard('ck-salud','Salud técnica','<div class="dx-kpis" style="grid-template-columns:1fr 1fr">'+D.kpi(null,'Errores de la aplicación','La plataforma no guarda los errores en base de datos (solo en el registro del servidor).',D.cert('s'))+D.kpi(d.health.calls30,'Llamadas a IA · 30 días',null,D.cert('m'))+'</div>'
+      +D.table('ckp',[{k:'model',label:'Modelo que respondió'},{k:'calls',label:'Llamadas',num:true},{k:'pct',label:'%',num:true,fmt:function(p){return p.pct+' %';}}],d.health.providers,{empty:'Sin llamadas en 30 días.'})
+      +'<div class="dx-def">El cambio a proveedor de reserva no se registra aparte: lo indica el modelo que respondió (Gemini = reserva cuando el principal es Anthropic).</div>')+'</div>';
+  h+=ckCard('ck-aprende','Qué aprende el sistema de verdad',D.table('ckl',[{k:'label',label:'Dato'},{k:'n',label:'Cantidad',num:true,fmt:function(x){return D.nf(x.n,0)+(x.of?' / '+x.of:'');}},{k:'use',label:'Para qué se usa'}],d.learning.items,{cards:true})+'<div class="dx-def">Recuento de todas las empresas cliente. Lo que no se usa para personalizar se dice.</div>',D.cert('m'));
+  var mb=document.getElementById('ckMb'); mb.innerHTML=h;
+  function bindOpen(){ mb.querySelectorAll('[data-open]').forEach(function(b){ b.onclick=function(){ navigate('empresas/'+b.getAttribute('data-open')); }; }); }
+  function drawEmp(){ document.getElementById('ckEmp').innerHTML=D.table('cke',cols,rows,{cards:true}); D.sortable(mb,'cke',cols,rows,drawEmp); bindOpen(); }
+  function drawCur(){ document.getElementById('ckCur').innerHTML=D.table('ckc',ccols,crows,{cards:true,empty:'Aún no hay cursos empezados.'}); D.sortable(mb,'ckc',ccols,crows,drawCur); }
+  drawEmp(); drawCur();
+  mb.querySelector('[data-csv="emp"]').onclick=function(){ D.csv('empresas.csv',['Empresa','Salud','Adopción %','Progreso %','Recencia %','Riesgo','Motivos','Plantilla','Activas 7 d','Activas 30 d','Min. activos 30 d','Cursos en curso','Bloques aprobados','Certificados','Última actividad','Plan','Estado plan','€/mes','Coste IA 30 d $','IA / ingresos %','Alerta coste'],
+    d.companies.map(function(o){return [o.name,o.health.score,o.health.adoption,o.health.progress,o.health.recency,o.churn.level,o.churn.reasons.join(' | '),o.seats,o.active7,o.active30,o.activeMin30,o.coursesInProgress,o.blocksPassed,o.certificates,o.lastActivityAt||'',o.plan?o.plan.tierLabel:'',o.plan?o.plan.status:'',o.revenueEur==null?'':o.revenueEur,o.aiUsd30,o.aiCostPct==null?'':o.aiCostPct,o.costAlert?'sí':'no'];})); };
+  mb.querySelector('[data-csv="cur"]').onclick=function(){ D.csv('cursos.csv',['Curso','Empiezan','Aprueban un bloque','Hacen el final','Certificados','% completan','Bloque más difícil','Nota media','n','Finales aprobados','Finales','Roleplays','Prioridad','Motivos'],
+    d.courses.map(function(c){return [c.title,c.started,c.blockPassed,c.finalTaken,c.certified,c.completionPct,c.worstBlock?c.worstBlock.block+1:'',c.worstBlock?c.worstBlock.avg:'',c.worstBlock?c.worstBlock.n:'',c.finals.passed,c.finals.n,c.roleplays,c.priority,c.reasons.join(' | ')];})); };
+}
+function ckInsights(d){
+  var D=SkillDash, h='';
+  h+=ckCard('ck-ai','Resumen del negocio (IA)','<p class="msg" style="margin:0 0 10px">Lo redacta un modelo rápido solo con estas métricas; se guarda 15 minutos.</p><div id="ckAi" style="white-space:pre-line;font-size:14px;line-height:1.6;color:var(--body)"></div><button class="dx-btn" type="button" id="ckAiBtn">Generar resumen</button>');
+  var att=d.companies.filter(function(o){return !o.test&&(o.churn.level!=='bajo'||o.costAlert);});
+  h+=ckCard('ck-att','Empresas que necesitan atención',att.length?att.map(function(o){ return '<div class="dx-ins '+(o.churn.level==='alto'||o.costAlert?'bad':'warn')+'"><p><b>'+E(o.name)+'</b> · salud '+(o.health.score==null?'Sin datos':o.health.score)+' · riesgo '+o.churn.level+'. '+E(o.churn.reasons.join('; '))+(o.costAlert?(o.churn.reasons.length?'; ':'')+'coste IA '+usd(o.aiUsd30)+' frente a '+eur(o.revenueEur)+' al mes':'')+'.</p><div class="src">Sale de: <a href="#" data-goto="ck-emp" style="color:var(--teal2)">tabla de empresas</a></div><div class="acts">'+orgLinks(o)+'</div></div>'; }).join('')
+    :'<div class="dx-empty">Ninguna empresa con alertas según las reglas.</div>');
+  var cs=d.courses.filter(function(c){return c.reasons.length;}).slice(0,3);
+  h+=ckCard('ck-fix','Cursos a mejorar primero',cs.length?cs.map(function(c){ return '<div class="dx-ins warn"><p><b>'+E(c.title)+'</b>: '+E(c.reasons.join('; '))+'. Certifican '+c.certified+' de '+c.started+' ('+c.completionPct+' %).</p><div class="src">Sale de: <a href="#" data-goto="ck-cursos" style="color:var(--teal2)">cursos</a> y <a href="#" data-goto="ck-bloques" style="color:var(--teal2)">bloques más difíciles</a></div></div>'; }).join('')
+    :'<div class="dx-empty">Aún no hay datos suficientes de cursos.</div>');
+  var perf=(d.learning.items.filter(function(x){return x.key==='perfil';})[0]||{}), notes=(d.learning.items.filter(function(x){return x.key==='notas';})[0]||{});
+  h+=ckCard('ck-sys','Personalización: lo que falta','<div class="dx-ins"><p>Hay <b>'+D.nf(perf.n||0,0)+'</b> perfiles Team DNA y <b>'+D.nf(notes.n||0,0)+'</b> notas de alumnos que hoy no llegan al tutor. Conectar el perfil al tutor haría que explique a cada persona según su forma de aprender.</p><div class="src">Sale de: <a href="#" data-goto="ck-aprende" style="color:var(--teal2)">qué aprende el sistema</a></div></div>');
+  h+=ckCard('ck-orq','Pregunta al orquestador','<div id="orq"></div>');
+  var ib=document.getElementById('ckIb'); ib.innerHTML=h;
+  ib.querySelectorAll('[data-goto]').forEach(function(a){ a.onclick=function(e){ e.preventDefault(); ckGoto(a.getAttribute('data-goto')); }; });
+  ib.querySelectorAll('[data-open]').forEach(function(b){ b.onclick=function(){ navigate('empresas/'+b.getAttribute('data-open')); }; });
   wireOrq(document.getElementById('orq'));
+  var b=document.getElementById('ckAiBtn'); b.onclick=async function(){ b.disabled=true; b.textContent='Generando…';
+    try{ var r=await SkillUp.api('/api/platform/cockpit/summary'+(b.dataset.done?'?refresh=1':'')); document.getElementById('ckAi').textContent=r.text+'\n\n'+(r.cached?'Guardado':'Generado')+' '+new Date(r.generatedAt).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+' · base: '+r.basis.empresas+' empresas, '+r.basis.cursos+' cursos, '+r.basis.llamadasIA30d+' llamadas a IA';
+      b.dataset.done='1'; b.textContent='Regenerar'; }catch(e){ document.getElementById('ckAi').textContent=e.message; b.textContent='Generar resumen'; } b.disabled=false; };
 }
 function tile(v,l,cls){ return '<div class="tile"><div class="v '+(cls||'')+'">'+E(String(v))+'</div><div class="l">'+E(l)+'</div></div>'; }
 function wireOrq(box){
@@ -144,23 +218,6 @@ function renderProposal(prop, bub){
   no.onclick=function(){ c.textContent='Cancelado.'; c.style.borderColor='var(--line)'; row.remove(); };
   row.appendChild(ok); row.appendChild(no); c.appendChild(row);
   return prop;
-}
-
-/* ---------- INSIGHTS ---------- */
-async function insights(box){
-  box.innerHTML=hdr('Insights','El sistema aprende de todo lo que pasa: cada conversación con el tutor, cada nota, subrayado y comentario alimenta el conocimiento de cada alumno y de su empresa.','Datos vivos de la app y de qué está aprendiendo el sistema.')
-    +'<div class="tiles" id="itiles"><div class="note">Cargando…</div></div><div class="note" id="ilearn"></div>';
-  var d=await SkillUp.api('/api/platform/insights').catch(function(){return {};});
-  document.getElementById('itiles').innerHTML=
-     tile(d.conversaciones||0,'Conversaciones con tutores','teal')
-    +tile(d.mensajes||0,'Mensajes intercambiados','')
-    +tile(d.notasCurso||0,'Notas y aprendizajes','aub')
-    +tile(d.roleplays||0,'Roleplays practicados','gold')
-    +tile(d.casos||0,'Casos prácticos','')
-    +tile(d.documentos||0,'Documentos de conocimiento','teal')
-    +tile(d.retos||0,'Retos asignados','aub')
-    +tile(d.usuarios||0,'Personas','');
-  document.getElementById('ilearn').innerHTML='El sistema está aprendiendo de <b style="color:var(--teal2)">'+(d.conversaciones||0)+'</b> conversaciones y <b style="color:var(--teal2)">'+(d.notasCurso||0)+'</b> notas y comentarios de tus usuarios. Cuanto más usan la plataforma, mejor conoce a cada persona y mejor personaliza sus tutores.';
 }
 
 /* ---------- EMPRESAS ---------- */
@@ -330,7 +387,7 @@ async function empresaDetail(box,orgId){
   box.innerHTML='<div class="h"><h1>'+E(o.name)+'</h1></div><p class="sub"><span class="mono">'+E(o.slug||'')+'</span></p>'
     +'<div class="tiles">'+tile(mem.length,'Miembros','teal')+tile(o.status||'activa','Estado','')
       +'<div class="tile"><div class="v aub" style="font-size:15px;line-height:1.3">'+(s?E((s.tier||'—')+' · '+(s.status||''))+(s.seats?'<br><span class="l" style="margin:0">'+s.seats+' asientos</span>':''):'sin suscripción')+'</div><div class="l">Suscripción ligada</div></div></div>'
-    +'<div class="rowflex" style="gap:8px;flex-wrap:wrap;margin-bottom:16px"><a class="btn" style="padding:8px 16px;font-size:12px" href="/app/en-directo.html?orgId='+encodeURIComponent(o.id)+'">En directo</a>'+oact(o,'archivada','Archivar')+oact(o,'inactiva','Desactivar')+oact(o,'activa','Activar')+'<button class="btn btn-danger" style="padding:8px 16px;font-size:12px" data-del="'+E(o.id)+'">Eliminar empresa</button></div>'
+    +'<div class="rowflex" style="gap:8px;flex-wrap:wrap;margin-bottom:16px"><a class="dx-btn" href="/app/metricas.html?orgId='+encodeURIComponent(o.id)+'">Ver como su admin</a><a class="dx-btn" href="/app/en-directo.html?orgId='+encodeURIComponent(o.id)+'">En directo</a><a class="dx-btn" href="/app/informe-roi.html?org='+encodeURIComponent(o.id)+'">Informe de ROI</a>'+oact(o,'archivada','Archivar')+oact(o,'inactiva','Desactivar')+oact(o,'activa','Activar')+'<button class="btn btn-danger" style="padding:8px 16px;font-size:12px" data-del="'+E(o.id)+'">Eliminar empresa</button></div>'
     +'<div class="card scroll"><h2>Miembros '+tip('Cambia rol, activa/desactiva o elimina personas de esta empresa.')+'</h2><div id="mtbl">'+(mem.length?userRowsHTML(mem):'<p class="msg">Sin miembros.</p>')+'</div></div>';
   if(mem.length) bindUserRows(document.getElementById('mtbl'));
   box.querySelectorAll('button[data-st]').forEach(function(b){ b.onclick=async function(){ b.disabled=true; try{ await SkillUp.api('/api/platform/orgs/status',{method:'POST',body:{organizationId:o.id,status:b.getAttribute('data-st')}}); DATA.orgs=null; reRender(); }catch(e){ b.disabled=false; alert('No se pudo: '+(e.message||'')); } }; });
@@ -508,8 +565,8 @@ async function perfiles(box){
   }); }; });
 }
 
-var SECTIONS={resumen:resumen,empresas:empresas,insights:insights,metricas:metricas,usuarios:usuarios,perfiles:perfiles,agentes:agentes,conocimiento:conocimiento,retos:retos,ajustes:ajustes};
-var TITLES={resumen:'Resumen',empresas:'Empresas',insights:'Insights',metricas:'Métricas',usuarios:'Usuarios y roles',perfiles:'Perfiles de prueba',agentes:'Agentes tutores',conocimiento:'Conocimiento',retos:'Retos y práctica',ajustes:'Ajustes'};
+var SECTIONS={resumen:resumen,empresas:empresas,metricas:metricas,usuarios:usuarios,perfiles:perfiles,agentes:agentes,conocimiento:conocimiento,retos:retos,ajustes:ajustes};
+var TITLES={resumen:'Métricas e insights',empresas:'Empresas',metricas:'Competencias',usuarios:'Usuarios y roles',perfiles:'Perfiles de prueba',agentes:'Agentes tutores',conocimiento:'Conocimiento',retos:'Retos y práctica',ajustes:'Ajustes'};
 
 // Métricas: toda la data de la plataforma. null = "sin datos" (nunca un 0 que parezca resultado).
 function nz(v,suf){ return (v===null||v===undefined)?'<span style="color:var(--muted)">sin datos</span>':(E(String(v))+(suf||'')); }
@@ -522,14 +579,13 @@ function bars(lb){
   }).join('')+'</div>';
 }
 async function metricas(box){
-  box.innerHTML=hdr('Métricas de plataforma','Toda la data real de todas las empresas: aprendizaje, aplicación (ROI), capacidad, coaches, industrias y puntos. Sin cifras inventadas.','Los números que venden: qué se aplica de verdad y cómo evoluciona cada empresa.')
+  box.innerHTML=hdr('Competencias y aplicación','Capacidad por competencia, coaches, casos validados y aplicación en el puesto de cada empresa. La salud, el uso y los costes están en Métricas e insights.','Qué se aplica de verdad en el puesto y quién sostiene cada competencia, por empresa.')
     +'<div class="tiles" id="mtiles"><div class="note">Cargando…</div></div>'
     +'<div class="card" id="morgs"><h2>Por empresa</h2><p class="msg">Cargando…</p></div>';
   var d=await SkillUp.api('/api/platform/metrics').catch(function(){return null;});
   if(!d){ document.getElementById('mtiles').innerHTML='<p class="msg">No pude cargar las métricas.</p>'; return; }
   var t=d.totals||{};
   document.getElementById('mtiles').innerHTML=[
-    tile(t.orgs,'Empresas'),tile(t.members,'Personas'),tile(t.activeLearners,'Activas'),
     tile(t.coaches,'Coaches (referentes)','teal'),tile(t.casesApproved,'Casos validados','teal'),
     tile(t.roleplays,'Roleplays'),tile(t.applicationCheckins,'Check-ins de aplicación','gold'),
     tile(t.bestPracticesInBrain,'Buenas prácticas en el cerebro'),tile(t.questionsAsked,'Preguntas al tutor'),
@@ -578,7 +634,7 @@ function wireVoiceJarvis(){
   document.body.appendChild(tip); document.body.appendChild(fab);
   function say(t){ tip.textContent=t; tip.style.display='block'; }
   function speak(t){ try{ var u=new SpeechSynthesisUtterance(t); u.lang='es-ES'; u.rate=1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){} }
-  if(!SR){ fab.title='Tu navegador no permite dictado por voz; usa «Pregunta al orquestador».'; fab.onclick=function(){ say('Este navegador no permite hablar. Usa el chat de «Pregunta al orquestador» en Resumen.'); }; return; }
+  if(!SR){ fab.title='Tu navegador no permite dictado por voz; usa «Pregunta al orquestador».'; fab.onclick=function(){ say('Este navegador no permite hablar. Usa «Pregunta al orquestador» en Métricas e insights › Insights.'); }; return; }
   var rec=null, heard='', busy=false;
   function start(){ if(busy)return; heard=''; try{ rec=new SR(); }catch(e){ return; } rec.lang='es-ES'; rec.interimResults=true; rec.continuous=true;
     rec.onresult=function(e){ var s=''; for(var i=0;i<e.results.length;i++) s+=e.results[i][0].transcript; heard=s; say('🎙️ '+s); };
