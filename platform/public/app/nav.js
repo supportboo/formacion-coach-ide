@@ -39,6 +39,7 @@
     ['/app/certificado.html', 'Certificados', 'award', 'base'],
     ['/app/team-dna.html', 'Team DNA', 'dna', 'base'],
     ['/app/ayuda.html', 'Ayuda', 'help', 'base'],
+    ['/app/privacidad.html', 'Tus datos', 'check', 'base'],
     ['/app/asignar.html', 'Asignar pruebas', 'assign', 'manager'],
     ['/app/validar.html', 'Validar casos', 'check', 'manager'],
     ['/app/metricas.html', 'Métricas e insights', 'chart', 'live'],
