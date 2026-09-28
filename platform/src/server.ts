@@ -44,6 +44,7 @@ import * as teamdnaSvc from "./services/teamdna.js";
 import * as teamprofileSvc from "./services/teamprofile.js";
 import * as resourcesSvc from "./services/resources.js";
 import * as adaptSvc from "./services/adapt.js";
+import * as pathSvc from "./services/path.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as langSvc from "./services/lang.js";
@@ -287,6 +288,7 @@ app.post("/api/learning/route/build", async (c) => {
     const r = rows.find((x) => String(x.body || "").startsWith("[nivel]"));
     return r ? String(r.body).slice("[nivel]".length).trim() : null;
   })().catch(() => null);
+  const especialidad = await pathSvc.getSpecialty(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
   const catalogo = AVAILABLE_COURSES.map((x) => `- src:"${x.src}" | ${x.name}: ${x.desc}`).join("\n");
   const perfil = [profile?.sector && `sector ${profile.sector}`, profile?.puesto && `puesto ${profile.puesto}`, nivel && `se ve a sí mismo: ${nivel}`].filter(Boolean).join(", ");
   const system =
@@ -294,6 +296,7 @@ app.post("/api/learning/route/build", async (c) => {
     "Selecciona y ORDENA solo los cursos del catalogo que de verdad sirvan a lo que pide (courseSrc debe ser EXACTAMENTE uno de los \"src\" del catalogo). " +
     "Si pide algo que NINGUN curso cubre, añade como mucho 2 modulos nuevos con courseSrc:null (se prepararan aparte). No metas cursos que no ha pedido para rellenar. " +
     "Entre 2 y 6 modulos. " + (perfil ? "Perfil del alumno: " + perfil + ". " : "") +
+    (especialidad ? `Su especialidad elegida es "${COURSE_TITLES[especialidad] || especialidad}" (src "/${especialidad}.html"): si encaja con lo que pide, ese curso va en la ruta y pesa más. ` : "") +
     (nivel ? `Ajusta la PROFUNDIDAD a su nivel declarado (${nivel}): si tiene soltura o experiencia, salta lo básico y empieza más arriba; si empieza, incluye los fundamentos. ` : "") +
     "Español de España, claro, sin inventar. Responde SOLO JSON valido, sin markdown.\n" +
     "Catalogo disponible:\n" + catalogo + "\n\n" +
@@ -1337,6 +1340,54 @@ async function markRetoDone(orgId: string, userId: string, retoId: string, patch
 }
 async function canOpenCourses(ctx: AuthCtx): Promise<boolean> { return isPlatformAdmin(ctx) || isApproved(ctx.orgId, ctx.userId); }
 const bestScore = (rows: { score: number | null }[]) => rows.reduce<number | null>((m, a) => (a.score !== null && (m === null || a.score > m) ? a.score : m), null);
+
+// --- Itinerario a especialista: base → especialidad → especialista → coach que atrae a compañeros a su área. ---
+const SPECIALTIES = [...COURSE_SLUGS].filter((s) => !pathSvc.COACH_COURSES.has(s));
+app.get("/api/learning/path", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const specialty = await pathSvc.getSpecialty(svcDeps, ctx.orgId, ctx.userId);
+  const slug = specialty && SPECIALTIES.includes(specialty) ? specialty : null;
+  let pct = 0, certified = false;
+  if (slug) {
+    const [blocks, atts, certs] = await Promise.all([
+      courseBlocks(slug),
+      assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, slug),
+      db.select().from(certificate).where(and(eq(certificate.organizationId, ctx.orgId), eq(certificate.userId, ctx.userId))),
+    ]);
+    certified = certs.some((x) => (x.evidence as { source?: string } | null)?.source === slug);
+    const passed = (blocks ?? []).filter((b) => {
+      const best = bestScore(atts.filter((a) => a.kind === "block" && a.block === b.i && a.status === "corregido"));
+      return best !== null && best >= assessSvc.BLOCK_PASS_MARK;
+    }).length;
+    pct = pathSvc.coursePct(passed, blocks?.length ?? 0, certified);
+  }
+  const coach = await creditsSvc.canSpend(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, role: ctx.role, platformAdmin: isPlatformAdmin(ctx) }).catch(() => false);
+  const stage = pathSvc.stageOf({ specialty: slug, pct, certified, coach });
+  return c.json({
+    stage, stages: pathSvc.STAGES, specialty: slug ? { slug, title: COURSE_TITLES[slug] || slug, pct, certified } : null,
+    options: SPECIALTIES.map((s) => ({ slug: s, title: COURSE_TITLES[s] || s })),
+    coachCourse: { slug: "index", title: COURSE_TITLES["index"] || "Guía del Coach" },
+    invites: slug ? { sent: await pathSvc.invitesSent(svcDeps, ctx.orgId, ctx.userId, slug), goal: pathSvc.INVITE_GOAL } : null,
+  });
+});
+const specialtyBody = z.object({ slug: z.string().refine((s) => SPECIALTIES.includes(s)) });
+app.post("/api/learning/path/specialty", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = specialtyBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "especialidad no válida" }, 400);
+  await pathSvc.setSpecialty(svcDeps, ctx.orgId, ctx.userId, parsed.data.slug);
+  return c.json({ ok: true });
+});
+app.post("/api/learning/path/invite", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`invite:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const slug = await pathSvc.getSpecialty(svcDeps, ctx.orgId, ctx.userId);
+  if (!slug || !SPECIALTIES.includes(slug)) return c.json({ error: "elige antes tu especialidad" }, 400);
+  return c.json({ sent: await pathSvc.recordInvite(svcDeps, ctx.orgId, ctx.userId, slug), goal: pathSvc.INVITE_GOAL });
+});
 
 app.get("/api/learning/assess/outline", async (c) => {
   const ctx = await getAuthContext(c);

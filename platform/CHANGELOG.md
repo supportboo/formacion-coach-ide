@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.11.0 — 2026-09-28
+
+### Itinerario a especialista
+- Tarjeta «Tu camino» en Inicio con cuatro etapas: Base → Especialidad → Especialista → Coach.
+- Base: el alumno elige su especialidad entre los cursos temáticos (Outbound, Reclutamiento, Marketing, Negociación, Objeciones, Prospección y social selling); se puede cambiar. La ruta de aprendizaje le da peso a la especialidad elegida.
+- Especialidad: avance medido con los bloques aprobados del curso (100 % con el certificado).
+- Especialista: al terminar, el siguiente paso es la Guía del Coach.
+- Coach (nivel Coach N4 o rol coach/admin/dirección): invitación lista para copiar y enviar a compañeros, con el objetivo de atraer a 2 a su área; se cuenta cada invitación copiada.
+- `GET /api/learning/path`, `POST /api/learning/path/specialty`, `POST /api/learning/path/invite`. Sin tablas nuevas: notas `[especialidad]` e `[invitacion]` del propio alumno.
+
 ## 1.10.0 — 2026-09-28
 
 ### Bienvenida y Team DNA en un solo recorrido

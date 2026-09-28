@@ -7,6 +7,7 @@ Plataforma Brandooers · SkillUp: formación que mide CAPACIDAD aplicada, no asi
 - **Panel de empresa**: cobertura por competencia, riesgo de dependencia, transferencia interna, autonomía en días.
 - **Pirámides de conocimiento** por competencia (quién sostiene cada una) + **perks configurables** por empresa.
 - **Informe de ROI** con método Kirkpatrick (niveles 1-4 medidos, con n e intervalo de confianza) y Phillips (ROI solo con costes completos y métricas de negocio aisladas que aporta la empresa; si faltan, «Sin datos suficientes»). Fuentes citadas en el propio informe.
+- **Itinerario a especialista (1.11.0)**: base → especialidad → especialista → coach que atrae a 2 compañeros a su área, con el avance real de cada etapa.
 - **Onboarding unificado (1.10.0)**: bienvenida y Team DNA forman un solo recorrido; con 5 minutos del DNA ya hay un perfil que personaliza tutor, contenido y recursos, y el tiempo y el trato elegidos se usan de verdad.
 - **Contenido vivo (1.9.0)**: cada sección abre con un bloque «Para ti» (ejemplo y práctica) hecho con lo que el alumno ya ha contado; lo que responde en un bloque se usa en el siguiente.
 - **Recursos del curso (1.8.0)**: vídeos, podcasts, libros y herramientas verificados y puntuados por un agente de calidad (calidad, valor y relevancia), en una página tipo Netflix y al final de cada sección; ordenados según cómo aprende cada persona y su tiempo, con afiliación solo detrás del control de calidad.
