@@ -150,10 +150,24 @@ var GUIDE = {
        img:'admin-informe-roi.jpg', annos:[{t:'el retorno, en euros', tx:41.4, ty:20.8, lx:88.5, ly:30, w:20},
                 {t:'tu crédito FUNDAE', tx:32.5, ty:54.6, lx:11.5, ly:70, w:21}]},
       {h:'Tu panel', d:'Tu punto de entrada con lo esencial del día a día.', img:'admin-dashboard.jpg'}
+    ]},
+  // Resumen de la norma de formación programada por las empresas (RD 694/2017, Ley 30/2015, RD 1189/2025 y web/FAQ de
+  // FUNDAE), revisado el 2026-09-28. No aplica la Orden TMS/368/2019 (es para formación subvencionada, no bonificada).
+  fundae: { name:'FUNDAE', intro:'Cómo pagar SkillUp con el crédito de formación de tu empresa. Es un resumen de la norma vigente; ante cualquier duda, manda lo que diga FUNDAE.',
+    steps:[
+      {h:'Formación online (teleformación)', d:'No hay máximo de alumnos por grupo: lo que se exige es al menos 1 tutor por cada 80 alumnos, con formación o experiencia demostrable en formación online. Con 80 personas basta un coach; con 160, dos. La plataforma debe registrar la actividad, tener chat o mensajería, controles de aprendizaje y guía del curso: SkillUp ya lo hace. Máximo bonificable: 7,50 € por alumno y hora.'},
+      {h:'Formación presencial', d:'Máximo 30 alumnos por grupo. Si sois más, el mismo curso se imparte en varios grupos y cada uno se comunica a FUNDAE con su fecha, horario, lugar y formador, así que pueden ser días o salas distintos. Máximo bonificable: 9 € por alumno y hora (materias generales) o 13 € (especialización o dirección). Una clase por vídeo en directo cuenta como presencial si es en los dos sentidos y los alumnos están identificados.'},
+      {h:'Formación mixta', d:'Combina las dos. Si la parte presencial es el 20 % o menos de las horas, cuenta como online. Cada parte cumple las reglas de su modalidad.'},
+      {h:'Duración y quién la termina', d:'Cada curso dura al menos 2 horas y no más de 8 al día (salvo que todo se haga en una sola jornada). Termina el curso quien completa el 75 % de las horas (presencial) o el 75 % de los controles de aprendizaje (online).'},
+      {h:'Antes de empezar', d:'Informa a la representación de los trabajadores, si la hay: tiene 15 días para opinar y, si te lo saltas, se pierde la bonificación. Comunica el inicio de cada grupo a FUNDAE al menos 2 días naturales antes; los cambios de fecha, horario, lugar o una cancelación, con 1 día natural.'},
+      {h:'Al terminar', d:'Comunica el final del grupo antes de aplicarte la bonificación y siempre antes del boletín de cotización de diciembre. Entrega el diploma en 2 meses como máximo. La formación es siempre gratis para la persona que la hace.'},
+      {h:'Qué hay que guardar (4 años)', d:'Facturas y justificación contable, control de asistencia, registros de actividad de la plataforma, controles de aprendizaje, el cuestionario de calidad de cada alumno que termine, el currículo del tutor y los justificantes de entrega de diplomas. SkillUp te exporta los datos de la plataforma desde la pantalla FUNDAE.'},
+      {h:'Cuánto puedes bonificar', d:'Lo bonificable es lo menor entre tu crédito disponible, el coste real y el máximo por hora (máximo × alumnos × horas). Tu empresa pone una parte mínima según plantilla: de 1 a 5 personas, nada; de 6 a 9, el 5 %; de 10 a 49, el 10 %; de 50 a 249, el 20 %; 250 o más, el 40 %. Cuentan también los sueldos de las horas de formación dentro de la jornada.'},
+      {h:'Fuentes', d:'Real Decreto 694/2017 (arts. 4, 12, 13, 15 y 16), Ley 30/2015 (art. 9), Real Decreto 1189/2025 y la web y preguntas frecuentes de FUNDAE (fundae.es). Revisado en septiembre de 2026.'}
     ]}
 };
 
-var order=['empleado','responsable','admin'];
+var order=['empleado','responsable','admin','fundae'];
 var tabs=document.getElementById('tabs'), profs=document.getElementById('profiles');
 function render(){
 tabs.innerHTML=order.map(function(k){return '<button class="tab" data-k="'+k+'">'+E(GUIDE[k].name)+'</button>';}).join('');
