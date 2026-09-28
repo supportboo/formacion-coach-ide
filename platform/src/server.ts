@@ -47,6 +47,7 @@ import * as adaptSvc from "./services/adapt.js";
 import * as pathSvc from "./services/path.js";
 import * as factsSvc from "./services/learnerFacts.js";
 import * as companyProfileSvc from "./services/companyProfile.js";
+import * as microSvc from "./services/micropractice.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as langSvc from "./services/lang.js";
@@ -643,7 +644,7 @@ app.get("/api/notes/list", async (c) => {
   return c.json({ items });
 });
 const noteBody = z.object({ source: z.string().min(1).max(300), card: z.number().int().min(0).optional(), cardTitle: z.string().max(300).optional(), kind: z.enum(["highlight", "note", "question", "review", "insight"]), quote: z.string().max(2000).optional(), body: z.string().max(4000).optional() });
-const BIENVENIDA_LABEL: Record<string, string> = { rol: "Mi puesto", objetivo: "Lo que quiero conseguir", freno: "Lo que me frena al aprender", nivel: "Mi nivel", ritmo: "Tiempo por semana", trato: "Cómo quiero que me hable el tutor" };
+const BIENVENIDA_LABEL: Record<string, string> = { rol: "Mi puesto", objetivo: "La situación que quiero resolver", freno: "Lo que me frena al aprender", nivel: "Mi nivel", ritmo: "Tiempo por semana", trato: "Cómo quiero que me hable el tutor", intentado: "Lo que ya he probado" };
 app.post("/api/notes/add", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
@@ -655,7 +656,7 @@ app.post("/api/notes/add", async (c) => {
   const d = parsed.data, body = String(d.body || "").trim();
   if (d.kind === "insight" && body) {
     if (d.source.startsWith("/") && !body.startsWith("[")) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, body, { type: "practica", ref: d.cardTitle ?? undefined, scope: d.source });
-    const m = d.source === "onboarding" ? body.match(/^\[(rol|objetivo|freno|nivel|ritmo|trato)\]\s*([\s\S]+)/) : null;
+    const m = d.source === "onboarding" ? body.match(/^\[(rol|objetivo|freno|nivel|ritmo|trato|intentado)\]\s*([\s\S]+)/) : null;
     if (m) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, `${BIENVENIDA_LABEL[m[1]!]}: ${m[2]}`, { type: "bienvenida" });
   }
   return c.json({ id });
@@ -1353,6 +1354,38 @@ async function markRetoDone(orgId: string, userId: string, retoId: string, patch
 }
 async function canOpenCourses(ctx: AuthCtx): Promise<boolean> { return isPlatformAdmin(ctx) || isApproved(ctx.orgId, ctx.userId); }
 const bestScore = (rows: { score: number | null }[]) => rows.reduce<number | null>((m, a) => (a.score !== null && (m === null || a.score > m) ? a.score : m), null);
+
+// --- Bienvenida v2 (1.14.0): si la empresa ya tiene ficha validada no se pregunta su web; micropráctica con entregable. ---
+app.get("/api/learning/company-ready", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const cp = await companyProfileSvc.get(svcDeps, ctx.orgId).catch(() => null);
+  return c.json({ ready: !!cp?.validatedAt });
+});
+const microBody = z.object({ situacion: z.string().trim().min(3).max(600), rol: z.string().trim().max(600).default("") });
+app.post("/api/learning/micropractice", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`micro:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = microBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const empresa = await companyProfileSvc.promptFor(svcDeps, ctx.orgId).catch(() => null);
+  const sc = await microSvc.scenario(ctx.orgId, ctx.userId, parsed.data.situacion, parsed.data.rol, empresa);
+  return sc ? c.json(sc) : c.json({ error: "no disponible" }, 503);
+});
+const microEval = z.object({ escenario: z.string().trim().min(10).max(1500), pregunta: z.string().trim().min(3).max(600), respuesta: z.string().trim().min(2).max(3000), situacion: z.string().trim().max(600).default("") });
+app.post("/api/learning/micropractice/eval", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`microeval:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = microEval.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  // Su respuesta alimenta la ficha viva como práctica (declarado, con cita literal).
+  factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, d.respuesta, { type: "practica", ref: "Micropráctica de bienvenida", scope: "bienvenida" });
+  const ev = await microSvc.evaluate(ctx.orgId, ctx.userId, { escenario: d.escenario, pregunta: d.pregunta }, d.respuesta, d.situacion);
+  return ev ? c.json(ev) : c.json({ error: "no disponible" }, 503);
+});
 
 // --- Ficha viva del alumno (1.12.0): «Así estoy adaptando tu formación». Solo el propio alumno la ve y la gestiona. ---
 app.get("/api/learning/facts", async (c) => {

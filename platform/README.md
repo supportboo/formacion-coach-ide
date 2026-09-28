@@ -7,6 +7,7 @@ Plataforma Brandooers · SkillUp: formación que mide CAPACIDAD aplicada, no asi
 - **Panel de empresa**: cobertura por competencia, riesgo de dependencia, transferencia interna, autonomía en días.
 - **Pirámides de conocimiento** por competencia (quién sostiene cada una) + **perks configurables** por empresa.
 - **Informe de ROI** con método Kirkpatrick (niveles 1-4 medidos, con n e intervalo de confianza) y Phillips (ROI solo con costes completos y métricas de negocio aisladas que aporta la empresa; si faltan, «Sin datos suficientes»). Fuentes citadas en el propio informe.
+- **Bienvenida v2 (1.14.0)**: empieza por la situación real que la persona quiere resolver y termina con una micropráctica que le deja algo utilizable desde el primer minuto.
 - **Ficha de la empresa (1.13.0)**: oferta, públicos, terminología, herramientas y límites que valida un responsable; tutor y contenido vivo la usan para que ningún alumno tenga que explicar el contexto.
 - **Ficha viva (1.12.0)**: memoria del alumno con fuente, cita literal y estado de cada dato; alimenta tutor y contenido vivo, y el alumno la ve, corrige o retira en «Así estoy adaptando tu formación». Privada del alumno.
 - **Itinerario a especialista (1.11.0)**: base → especialidad → especialista → coach que atrae a 2 compañeros a su área, con el avance real de cada etapa.

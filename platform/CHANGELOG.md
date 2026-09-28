@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.14.0 — 2026-09-28
+
+### Bienvenida v2: primero algo útil
+- Empieza por la situación real que la persona quiere resolver en las próximas semanas (con ejemplos para elegir), en lugar de «¿qué quieres aprender?». Se guarda como su objetivo, así tutor y ruta siguen funcionando igual.
+- Nueva pregunta: qué ha probado ya y qué pasó.
+- Si la empresa ya tiene ficha validada, no se pregunta su web a cada alumno.
+- Micropráctica de un minuto antes del DNA: un escenario breve con su situación, responde y sale con un entregable que puede usar ya (preguntas para su próxima conversación, un guion o una lista), más qué hizo bien y una mejora concreta. Se evalúan conductas, nunca personalidad, y no acredita nivel. Su respuesta alimenta la ficha viva y el entregable queda en sus notas.
+- Textos nuevos traducidos a inglés, catalán, portugués y francés.
+- `GET /api/learning/company-ready`, `POST /api/learning/micropractice` y `/micropractice/eval`.
+
 ## 1.13.0 — 2026-09-28
 
 ### Ficha de la empresa, validada por un responsable
