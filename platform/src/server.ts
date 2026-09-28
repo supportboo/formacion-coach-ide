@@ -45,6 +45,7 @@ import * as teamprofileSvc from "./services/teamprofile.js";
 import * as resourcesSvc from "./services/resources.js";
 import * as adaptSvc from "./services/adapt.js";
 import * as pathSvc from "./services/path.js";
+import * as factsSvc from "./services/learnerFacts.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as langSvc from "./services/lang.js";
@@ -638,6 +639,7 @@ app.get("/api/notes/list", async (c) => {
   return c.json({ items });
 });
 const noteBody = z.object({ source: z.string().min(1).max(300), card: z.number().int().min(0).optional(), cardTitle: z.string().max(300).optional(), kind: z.enum(["highlight", "note", "question", "review", "insight"]), quote: z.string().max(2000).optional(), body: z.string().max(4000).optional() });
+const BIENVENIDA_LABEL: Record<string, string> = { rol: "Mi puesto", objetivo: "Lo que quiero conseguir", freno: "Lo que me frena al aprender", nivel: "Mi nivel", ritmo: "Tiempo por semana", trato: "Cómo quiero que me hable el tutor" };
 app.post("/api/notes/add", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
@@ -645,6 +647,13 @@ app.post("/api/notes/add", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   if (parsed.data.source === ACCOUNT_SOURCE) return c.json({ error: "source reservado" }, 400);
   const id = await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, parsed.data);
+  // Ficha viva (1.12.0): las respuestas del alumno (Tu turno, Para ti) y su bienvenida alimentan su ficha, en segundo plano.
+  const d = parsed.data, body = String(d.body || "").trim();
+  if (d.kind === "insight" && body) {
+    if (d.source.startsWith("/") && !body.startsWith("[")) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, body, { type: "practica", ref: d.cardTitle ?? undefined, scope: d.source });
+    const m = d.source === "onboarding" ? body.match(/^\[(rol|objetivo|freno|nivel|ritmo|trato)\]\s*([\s\S]+)/) : null;
+    if (m) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, `${BIENVENIDA_LABEL[m[1]!]}: ${m[2]}`, { type: "bienvenida" });
+  }
   return c.json({ id });
 });
 app.delete("/api/notes/:id", async (c) => {
@@ -1340,6 +1349,32 @@ async function markRetoDone(orgId: string, userId: string, retoId: string, patch
 }
 async function canOpenCourses(ctx: AuthCtx): Promise<boolean> { return isPlatformAdmin(ctx) || isApproved(ctx.orgId, ctx.userId); }
 const bestScore = (rows: { score: number | null }[]) => rows.reduce<number | null>((m, a) => (a.score !== null && (m === null || a.score > m) ? a.score : m), null);
+
+// --- Ficha viva del alumno (1.12.0): «Así estoy adaptando tu formación». Solo el propio alumno la ve y la gestiona. ---
+app.get("/api/learning/facts", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const facts = await factsSvc.list(svcDeps, ctx.orgId, ctx.userId, false);
+  return c.json({ layers: factsSvc.LAYERS.map((k) => ({ key: k, label: factsSvc.LAYER_LABEL[k] })), facts });
+});
+const factPatch = z.object({ text: z.string().trim().min(1).max(240).optional(), active: z.boolean().optional(), confirm: z.boolean().optional() });
+app.patch("/api/learning/facts/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = factPatch.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  if (!(await factsSvc.patch(svcDeps, ctx.orgId, ctx.userId, c.req.param("id"), parsed.data))) return c.json({ error: "dato no encontrado" }, 404);
+  return c.json({ ok: true });
+});
+const factAdd = z.object({ layer: z.enum(factsSvc.LAYERS), text: z.string().trim().min(3).max(240) });
+app.post("/api/learning/facts", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`facts:${ctx.orgId}:${ctx.userId}`, 30, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = factAdd.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  return c.json({ id: await factsSvc.addByLearner(svcDeps, ctx.orgId, ctx.userId, parsed.data.layer, parsed.data.text) });
+});
 
 // --- Itinerario a especialista: base → especialidad → especialista → coach que atrae a compañeros a su área. ---
 const SPECIALTIES = [...COURSE_SLUGS].filter((s) => !pathSvc.COACH_COURSES.has(s));

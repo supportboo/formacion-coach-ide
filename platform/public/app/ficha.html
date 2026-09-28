@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Así te conozco</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/assess.css">
+<style>
+.fact{border-top:1px solid var(--line);padding:12px 0;display:grid;gap:6px}
+.fact:first-of-type{border-top:0;padding-top:4px}
+.fact .tx{color:var(--ink);font-size:15px;line-height:1.45}
+.fact .ev{color:var(--muted);font-size:12.5px;font-style:italic}
+.fact .acts{display:flex;flex-wrap:wrap;gap:8px}
+.fact .acts button{min-height:40px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--body);font:700 12.5px Inter,system-ui,sans-serif;padding:8px 12px;cursor:pointer}
+.fact .acts button:hover{border-color:var(--aub2);color:var(--ink)}
+.fact.off .tx{opacity:.55;text-decoration:line-through}
+.fact input,.addf input,.addf select{width:100%;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;padding:8px 10px}
+.addf{display:grid;gap:10px;grid-template-columns:minmax(0,200px) minmax(0,1fr) auto;align-items:center}
+@media(max-width:620px){.addf{grid-template-columns:1fr}}
+details summary{cursor:pointer;color:var(--muted);font-weight:700;min-height:40px;display:flex;align-items:center}
+</style>
+</head>
+<body>
+<div class="top"><span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>     <linearGradient id="blg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <linearGradient id="blg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <radialGradient id="bli1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>     <radialGradient id="bli2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>     </defs>     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>   </svg>ers<span class="sk">SkillUp</span></span><a class="back" href="/app/inicio.html">Volver</a></div>
+<main class="wrap" id="wrap">
+<h1 class="pt">Así estoy adaptando tu formación</h1>
+<p class="lead">Esto es lo que sé de ti y uso para prepararte ejemplos, prácticas y recursos. Solo lo ves tú: tu empresa ve las capacidades que acreditas, no esta ficha. Corrige lo que no sea exacto o deja de usar lo que no quieras que tenga en cuenta.</p>
+<div id="list" aria-live="polite"><div class="card"><p class="muted" style="margin:0">Cargando…</p></div></div>
+<div class="card"><h2 style="margin:0 0 10px;font-size:17px">Añade algo que quieres que tenga en cuenta</h2>
+  <form class="addf" id="addf"><select id="addLayer" aria-label="Tipo de dato"></select><input id="addText" maxlength="240" placeholder="Por ejemplo: esta semana preparo una reunión con un posible partner de Valencia" aria-label="Qué quieres que tenga en cuenta"><button class="btn" type="submit">AÑADIR</button></form>
+  <p class="muted" id="addMsg" style="margin:8px 0 0" aria-live="polite"></p></div>
+<p class="muted">Cuando corriges o retiras un dato, los bloques «Para ti» se rehacen con lo nuevo la próxima vez que abras cada sección. Lo que ya respondiste y tus notas de evaluación no cambian.</p>
+</main>
+<script src="/app/i18n.js"></script>
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var ST={declarado:['Lo dijiste','teal'],observado:['Lo vi en una práctica','teal'],inferido:['Deducido','warn'],confirmado:['Confirmado por ti','ok'],desactualizado:['Ya no vale','bad']};
+var SRC={bienvenida:'la bienvenida',tutor:'tu conversación con el tutor',practica:'una práctica',para_ti:'un bloque «Para ti»',test:'un test',validacion:'una validación',alumno:'ti'};
+var LAYERS=[], FACTS=[];
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function when(d){try{return new Date(d).toLocaleDateString('es-ES',{day:'numeric',month:'short'});}catch(e){return '';}}
+function factHtml(f){
+  var st=ST[f.status]||[f.status,'teal'];
+  return '<div class="fact'+(f.active?'':' off')+'" data-id="'+esc(f.id)+'"><span class="tx">'+esc(f.text)+'</span>'
+    +'<div class="row"><span class="chip '+st[1]+'">'+esc(st[0])+'</span><span class="muted">De '+esc(SRC[f.sourceType]||f.sourceType)+(f.sourceRef?' · '+esc(f.sourceRef):'')+' · '+when(f.updatedAt)+'</span></div>'
+    +(f.evidence&&f.sourceType!=='alumno'?'<span class="ev">«'+esc(f.evidence)+'»</span>':'')
+    +'<div class="acts">'+(f.active&&f.status!=='confirmado'?'<button type="button" data-a="confirm">Es correcto</button>':'')
+    +(f.active?'<button type="button" data-a="edit">Corregir</button><button type="button" data-a="off">No lo uses</button>':'<button type="button" data-a="on">Vuelve a usarlo</button>')+'</div></div>';
+}
+function render(){
+  var on=FACTS.filter(function(f){return f.active&&f.status!=='desactualizado';}), off=FACTS.filter(function(f){return !f.active||f.status==='desactualizado';});
+  var html=LAYERS.map(function(l){ var xs=on.filter(function(f){return f.layer===l.key;}); return xs.length?'<div class="card"><h2 style="margin:0 0 6px;font-size:17px">'+esc(l.label)+'</h2>'+xs.map(factHtml).join('')+'</div>':''; }).join('');
+  if(!html) html='<div class="card"><p style="margin:0">Todavía sé muy poco de ti. Cuanto más me cuentes en las prácticas y al tutor, más se parecerán los ejemplos a tu día a día.</p></div>';
+  if(off.length) html+='<div class="card"><details><summary>Datos que no uso ('+off.length+')</summary>'+off.map(factHtml).join('')+'</details></div>';
+  document.getElementById('list').innerHTML=html;
+}
+function load(){ SkillUp.api('/api/learning/facts').then(function(d){ LAYERS=d.layers||[]; FACTS=d.facts||[];
+  document.getElementById('addLayer').innerHTML=LAYERS.map(function(l){return '<option value="'+l.key+'">'+esc(l.label)+'</option>';}).join(''); render(); })
+  .catch(function(){ document.getElementById('list').innerHTML='<div class="card"><p style="margin:0">No se ha podido cargar tu ficha. Recarga la página.</p></div>'; }); }
+function patch(id,body){ return SkillUp.api('/api/learning/facts/'+encodeURIComponent(id),{method:'PATCH',body:body}).then(load); }
+document.getElementById('list').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return; var box=b.closest('.fact'), id=box.dataset.id, a=b.dataset.a;
+  if(a==='confirm') patch(id,{confirm:true}); else if(a==='off') patch(id,{active:false}); else if(a==='on') patch(id,{active:true});
+  else if(a==='save'){ var v=box.querySelector('input').value.trim(); if(v) patch(id,{text:v}); }
+  else if(a==='edit'){ var f=FACTS.filter(function(x){return x.id===id;})[0];
+    box.querySelector('.acts').innerHTML='<input maxlength="240" aria-label="Corrige el dato" value="'+esc(f.text)+'"><button type="button" data-a="save">Guardar</button><button type="button" data-a="cancel">Cancelar</button>'; box.querySelector('input').focus(); }
+  else if(a==='cancel') render();
+});
+document.getElementById('addf').addEventListener('submit',function(e){ e.preventDefault(); var t=document.getElementById('addText'), m=document.getElementById('addMsg'); if(t.value.trim().length<3)return;
+  SkillUp.api('/api/learning/facts',{method:'POST',body:{layer:document.getElementById('addLayer').value,text:t.value.trim()}}).then(function(){ t.value=''; m.textContent='Añadido. Lo tendré en cuenta desde ahora.'; load(); })
+  .catch(function(){ m.textContent='No se ha podido añadir. Inténtalo de nuevo.'; }); });
+load();
+})();
+</script>
+</body>
+</html>

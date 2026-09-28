@@ -622,6 +622,29 @@ export const teamProfile = pgTable("team_profile", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (t) => ({ byUser: uniqueIndex("team_profile_user_uidx").on(t.organizationId, t.userId) }));
 
+/* Ficha viva del alumno (1.12.0): lo que sabemos de él para adaptar su formación, cada dato con fuente, evidencia y
+ * estado. PRIVADA del alumno: no se muestra a responsables ni entra en métricas de empresa (las capacidades acreditadas
+ * viven en level_by_competency). El alumno la ve, la confirma, la corrige o retira datos en /app/ficha.html. */
+export const learnerFact = pgTable("learner_fact", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  // contexto | objetivo | caso | competencia | preferencia | estrategia | aplicacion | ensenanza
+  layer: text("layer").notNull(),
+  text: text("text").notNull(),
+  // declarado | observado | inferido | confirmado | desactualizado
+  status: text("status").notNull().default("declarado"),
+  // bienvenida | tutor | practica | para_ti | test | validacion | alumno
+  sourceType: text("source_type").notNull(),
+  sourceRef: text("source_ref"),
+  evidence: text("evidence"),
+  scope: text("scope"),
+  active: boolean("active").notNull().default(true),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({ byUser: index("learner_fact_user_idx").on(t.organizationId, t.userId, t.active) }));
+
 /* Resultados de YouTube cacheados por tema, para no golpear la cuota de la API en cada carga.
  * pinned queda sin usar aun: hueco para cuando haya curacion manual desde la Consola. */
 export const videoCache = pgTable("video_cache", {

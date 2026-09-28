@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.12.0 — 2026-09-28
+
+### Ficha viva del alumno (memoria con evidencias)
+- Nueva tabla `learner_fact`: lo que sabemos de cada alumno para adaptar su formación, por capas (su trabajo, objetivos, casos que tiene entre manos, competencias, preferencias, lo que le ayuda, lo que ha aplicado, a quién ayuda). Cada dato lleva fuente, fecha, cita literal y estado: declarado, observado, confirmado o desactualizado.
+- Se alimenta sola en segundo plano con lo que escribe el alumno (respuestas de «Tu turno» y «Para ti», su bienvenida y sus mensajes al tutor). Reglas en código: sin cita literal de su texto no entra ningún dato; nada de rasgos psicológicos; «confirmado» solo lo pone él.
+- El tutor y el bloque «Para ti» usan la ficha como fuente principal. Corregir o retirar un dato rehace los bloques «Para ti» la siguiente vez; las respuestas y notas de evaluación no cambian.
+- Pantalla `/app/ficha.html`, «Así estoy adaptando tu formación»: el alumno ve cada dato con su origen, lo confirma, lo corrige, deja de usarlo o añade algo. Enlazada desde cada bloque «Para ti» y desde «Tus datos».
+- Privada del alumno: no la ven responsables ni entra en métricas de empresa. Incluida en la exportación y el borrado de datos (RGPD).
+- Recursos: la comisión de afiliación ya no cambia el orden; manda la utilidad para aprender.
+
 ## 1.11.0 — 2026-09-28
 
 ### Itinerario a especialista

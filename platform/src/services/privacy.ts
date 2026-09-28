@@ -1,7 +1,7 @@
 import { and, eq, inArray, ne } from "drizzle-orm";
 import {
   agentMessage, agentThread, annotation, appliedCase, assessmentAttempt, auditLog, certificate, coaching,
-  enrollment, feedback, fundaeParticipation, levelByCompetency, member, onboardingProfile,
+  enrollment, feedback, fundaeParticipation, learnerFact, levelByCompetency, member, onboardingProfile,
   pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
@@ -46,6 +46,9 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId))),
     teamDna: await deps.db.select().from(teamDna)
       .where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId))),
+    // 1.12.0: ficha viva (lo que sabemos de él para adaptar su formación, con fuente y evidencia).
+    learnerFacts: await deps.db.select().from(learnerFact)
+      .where(and(eq(learnerFact.organizationId, orgId), eq(learnerFact.userId, userId))),
     teamProfile: await deps.db.select().from(teamProfile)
       .where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId))),
     roleplays: await deps.db.select().from(roleplaySession)
@@ -89,6 +92,7 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   // Personality/learning profile: personal data with no legal retention duty.
   await deps.db.delete(teamDna).where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId)));
   await deps.db.delete(teamProfile).where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
+  await deps.db.delete(learnerFact).where(and(eq(learnerFact.organizationId, orgId), eq(learnerFact.userId, userId)));
   await eraseActivity(deps, orgId, userId);
   // Ratings and suggestions carry free text and conversation snapshots.
   await deps.db.delete(feedback).where(and(eq(feedback.organizationId, orgId), eq(feedback.userId, userId)));

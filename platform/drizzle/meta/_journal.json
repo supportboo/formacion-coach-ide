@@ -176,6 +176,13 @@
       "when": 1790578934978,
       "tag": "0024_pricing_credits",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1790622552510,
+      "tag": "0025_learner_fact",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,7 @@ import { env } from "../config/env.js";
 import type { SvcDeps } from "./org.js";
 import { firstJson } from "./aiContent.js";
 import { getOnboardingProfile } from "./learning.js";
+import * as factsSvc from "./learnerFacts.js";
 
 export interface Adapted {
   paraTi: string;
@@ -36,7 +37,10 @@ export async function learnerContext(deps: SvcDeps, orgId: string, userId: strin
   if (prof?.sector) lines.push(`Sector: ${prof.sector}`);
   const empresa = onb.find((r) => String(r.body || "").startsWith("[Empresa "));
   if (empresa) lines.push(`Su empresa: ${cut(String(empresa.body).replace(/^\[Empresa [^\]]*\]\s*/, ""), 400)}`);
-  for (const m of MARKERS) {
+  // Ficha viva primero (1.12.0); los marcadores sueltos solo si aún no tiene ficha (alumnos anteriores).
+  const ficha = factsSvc.summarize(await factsSvc.list(deps, orgId, userId).catch(() => []));
+  if (ficha) lines.push("Su ficha viva (cada dato con su estado):\n" + ficha);
+  for (const m of ficha ? ["[perfil]"] : MARKERS) {
     const r = onb.find((x) => String(x.body || "").startsWith(m));
     if (r) lines.push(`${m} ${cut(String(r.body).slice(m.length).trim(), m === "[perfil]" ? 900 : 400)}`);
   }

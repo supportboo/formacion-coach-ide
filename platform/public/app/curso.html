@@ -257,6 +257,7 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 .su-pt h5{margin:4px 0 0;font-size:14.5px;color:var(--ink)}
 .su-pt p{margin:0;font-size:14.5px}.su-pt ol{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14.5px}
 .su-pt .pt-q{display:grid;gap:8px;border-top:1px solid rgba(180,150,205,.18);padding-top:10px}
+.su-pt .pt-why{font-size:12.5px;color:var(--teal2);text-decoration:none;font-weight:700;justify-self:start;min-height:32px;display:inline-flex;align-items:center}
 .su-pt textarea{width:100%;min-height:70px;border-radius:10px;border:1px solid rgba(180,150,205,.3);background:var(--panel);color:var(--ink);font:inherit;padding:10px}
 .su-pt button{justify-self:start;border:0;border-radius:10px;min-height:40px;padding:8px 14px;font:800 12px Inter,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));cursor:pointer}
 .su-pt .pt-sk{height:64px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.1),rgba(255,255,255,.04));background-size:200% 100%;animation:ptsk 1.2s linear infinite}
@@ -570,7 +571,7 @@ function wireAdapt(){
     var ej='<h5>Ejemplo: '+esc(a.ejemplo.titulo||'')+'</h5><p>'+esc(a.ejemplo.situacion||'')+'</p>'+list(a.ejemplo.pasos);
     var pr='<h5>Tu práctica'+(a.practica.minutos?' · '+Number(a.practica.minutos)+' min':'')+'</h5>'+list(a.practica.pasos);
     box.innerHTML='<span class="pt-lbl">Para ti</span><p class="pt-intro">'+esc(a.paraTi)+'</p>'+(a.primero==='practica'?pr+ej:ej+pr)
-      +'<div class="pt-q"><label for="ptq'+i+'"><b>'+esc(a.pregunta)+'</b></label><textarea id="ptq'+i+'" placeholder="Escribe o dicta tu respuesta…"></textarea><button type="button">Enviar</button></div>';
+      +'<div class="pt-q"><label for="ptq'+i+'"><b>'+esc(a.pregunta)+'</b></label><textarea id="ptq'+i+'" placeholder="Escribe o dicta tu respuesta…"></textarea><button type="button">Enviar</button></div>'+'<a class="pt-why" href="/app/ficha.html">¿Por qué estos ejemplos? Mira lo que sé de ti →</a>';
     var ta=box.querySelector('textarea'), b=box.querySelector('button');
     b.onclick=function(){ var v=ta.value.trim(); if(!v)return; b.disabled=true;
       SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:i,cardTitle:(CARDS[i]?CARDS[i].title:''),kind:'insight',body:v}}).then(function(){

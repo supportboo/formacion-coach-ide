@@ -1,3 +1,4 @@
+import * as factsSvc from "../services/learnerFacts.js";
 import { and, asc, desc, eq } from "drizzle-orm";
 import type { DB } from "../db/index.js";
 import { agentMessage, agentThread, annotation, auditLog, levelByCompetency } from "../db/schema.js";
@@ -58,7 +59,7 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   // 2) recuperar contexto RAG de la org + perfil (sector/puesto) para personalizar como ya hace aiContent
   const hits = await retrieve(deps.store, deps.emb, input.orgId, input.message, 5);
   const profile = await getOnboardingProfile({ db: deps.db, newId: deps.newId }, input.orgId, input.userId);
-  const [ruta, avance, estilo, freno, objetivo, empresaResumen, perfil, trato] = await Promise.all([
+  const [ruta, avance, estilo, freno, objetivo, empresaResumen, perfil, trato, facts] = await Promise.all([
     learnerRoute(deps.db, input.orgId, input.userId),
     learnerProgress(deps.db, input.orgId, input.userId),
     learnerStyle(deps.db, input.orgId, input.userId),
@@ -67,11 +68,12 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
     companySummary(deps.db, input.orgId, input.userId),
     onboardingMarker(deps.db, input.orgId, input.userId, "[perfil]"), // Team DNA v2 (teamprofile.ts)
     onboardingMarker(deps.db, input.orgId, input.userId, "[trato]"), // cómo quiere que le hable el tutor (bienvenida)
+    factsSvc.list({ db: deps.db, newId: deps.newId }, input.orgId, input.userId).catch(() => []), // ficha viva (1.12.0)
   ]);
   const ctx: AgentContext = {
     orgName: input.orgName, userName: input.userName,
     contextSnippets: hits.map((h) => h.content),
-    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo, freno, objetivo, empresaResumen, perfil, trato,
+    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo, freno, objetivo, empresaResumen, perfil, trato, ficha: factsSvc.summarize(facts) || null,
   };
 
   // 3) historial reciente del hilo
@@ -94,6 +96,9 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
     { id: deps.newId(), organizationId: input.orgId, threadId, sender: "user", content: input.message, display: input.display ?? null },
     { id: messageId, organizationId: input.orgId, threadId, sender: "agent", content: reply },
   ]);
+  // Ficha viva: solo lo que escribió el alumno (display), nunca las instrucciones internas que antepone el visor.
+  const own = (input.display ?? (input.message.startsWith("[") ? "" : input.message)).trim();
+  if (own.length >= 40) factsSvc.extractLater({ db: deps.db, newId: deps.newId }, input.orgId, input.userId, own, { type: "tutor", ref: input.source ?? undefined });
   await deps.db.insert(auditLog).values({
     id: deps.newId(), organizationId: input.orgId, userId: input.userId,
     action: "agent.chat", meta: { role: input.role, threadId, retrieved: hits.length },
