@@ -20,6 +20,7 @@ export interface AgentContext {
   freno?: string | null; // barrera declarada en onboarding ([freno]): anticipar con tacto, nunca ignorar
   objetivo?: string | null; // qué quiere conseguir de verdad ([objetivo]): conectar cada respuesta con ese ROI
   empresaResumen?: string | null; // resumen real de la web de su empresa (a quién vende / qué vende)
+  empresaFicha?: string | null; // ficha de empresa validada por un responsable (1.13.0)
   ficha?: string | null; // ficha viva (1.12.0): datos con estado (declarado/observado/confirmado); los «declarado» no son hechos comprobados
   perfil?: string | null; // Team DNA v2: resumen de su perfil (eneagrama + Big Five + Hexad + pedagogía), nota [perfil]
 }
@@ -49,6 +50,7 @@ function withContext(role: string, mission: string) {
       (ctx.empresaResumen ? `Su empresa, en real: ${ctx.empresaResumen}. Usa ESTO en los ejemplos (a quién venden, qué venden), no un caso genérico del sector.\n` : "") +
       (ctx.objetivo ? `Lo que quiere conseguir de verdad: "${ctx.objetivo}". Conecta cada respuesta con ese resultado (dile por qué esto le acerca) para que sienta el retorno.\n` : "") +
       (ctx.perfil ? `Su perfil de aprendizaje y comunicación: ${ctx.perfil}\nHáblale y motívale según ese perfil (tono, ritmo, formato, tipo de feedback); el nivel de exigencia es el mismo para todos.\n` : "") +
+      (ctx.empresaFicha ? `Contexto de su empresa (validado por un responsable; respétalo, sobre todo los límites y las herramientas):\n${ctx.empresaFicha}\n` : "") +
       (ctx.ficha ? `Lo que sabemos de él (su ficha viva; usa sus casos y objetivos en los ejemplos, sin tratar lo «declarado» como comprobado):\n${ctx.ficha}\n` : "") +
       (ctx.trato ? `Cómo quiere que le hables: "${ctx.trato}". Respétalo en el tono (si pide que le retes, reta con respeto; si pide tacto, suaviza sin quitar exigencia).
 ` : "") +

@@ -46,6 +46,7 @@ import * as resourcesSvc from "./services/resources.js";
 import * as adaptSvc from "./services/adapt.js";
 import * as pathSvc from "./services/path.js";
 import * as factsSvc from "./services/learnerFacts.js";
+import * as companyProfileSvc from "./services/companyProfile.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as langSvc from "./services/lang.js";
@@ -363,6 +364,9 @@ app.post("/api/learning/resources", async (c) => {
   ]);
   // Formato preferido: del perfil completo o, si aún no lo ha terminado, de lo ya respondido del DNA.
   const formato = tp?.result?.pedagogy?.formato ?? teamprofileSvc.pedagogyOf(tp?.answers ?? {}).formato ?? null;
+  // Herramientas excluidas por la ficha validada de esta empresa (además de la lista global).
+  const cp = await companyProfileSvc.get(svcDeps, ctx.orgId).catch(() => null);
+  if (cp?.validatedAt) groups.tool = (groups.tool ?? []).filter((t) => !companyProfileSvc.isExcluded(cp.profile, t));
   return c.json({ groups, order: resourcesSvc.tabOrder(formato), forYou: resourcesSvc.forYou(groups, formato, ritmo), lang });
 });
 
@@ -1876,6 +1880,34 @@ app.put("/api/config/company", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   await configSvc.setCompanyConfig(svcDeps, ctx.orgId, parsed.data);
   return c.json({ ok: true });
+});
+
+// --- Ficha de la empresa (1.13.0): la prepara y la valida un responsable; solo la validada llega a tutor, «Para ti» y recursos. ---
+const PROFILE_ROLES = ["admin", "direccion", "team_leader", "inspirador"] as const;
+app.get("/api/config/company/profile", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...PROFILE_ROLES)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await companyProfileSvc.get(svcDeps, ctx.orgId));
+});
+app.put("/api/config/company/profile", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...PROFILE_ROLES)) return c.json({ error: "sin permiso" }, 403);
+  const parsed = companyProfileSvc.profileSchema.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  await companyProfileSvc.save(svcDeps, ctx.orgId, ctx.userId, parsed.data);
+  return c.json({ ok: true });
+});
+app.post("/api/config/company/profile/draft", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...PROFILE_ROLES)) return c.json({ error: "sin permiso" }, 403);
+  if (rateLimited(`profdraft:${ctx.orgId}`, 5, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ url: z.string().trim().min(4).max(300) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "falta la web" }, 400);
+  const draft = await companyProfileSvc.draftFromWeb(parsed.data.url).catch(() => null);
+  return draft ? c.json({ draft }) : c.json({ error: "no se ha podido leer esa web" }, 422);
 });
 
 app.post("/api/config/reward-rules", async (c) => {

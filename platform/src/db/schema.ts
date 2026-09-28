@@ -349,6 +349,11 @@ export const companyConfig = pgTable("company_config", {
   salaryLinked: boolean("salary_linked").notNull().default(false),
   // 1.3.0: los responsables pueden seguir la sesión en directo (siempre con aviso visible al alumno).
   liveSupervision: boolean("live_supervision").notNull().default(true),
+  // 1.13.0: ficha de la empresa (oferta, públicos, terminología, herramientas, prioridades, límites). Solo cuenta para
+  // tutor, «Para ti» y recursos cuando un responsable la ha validado (profileValidatedAt).
+  profile: jsonb("profile").$type<Record<string, unknown>>(),
+  profileValidatedAt: timestamp("profile_validated_at"),
+  profileValidatedBy: text("profile_validated_by"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

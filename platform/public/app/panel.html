@@ -25,6 +25,7 @@ details[open] summary:before{content:"▾ "}
 .qcard .qres{font-size:11.5px;padding:5px 11px;white-space:nowrap}
 .rk{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--mut)}
 .rk .inline-input{width:100%;min-width:0;margin:0}
+#cardProfile .inline-input{width:100%;min-width:0;margin:0;font:inherit}
 .plans{display:grid;grid-template-columns:1fr;gap:12px}
 @media(min-width:720px){.plans{grid-template-columns:1fr 1fr}}
 .plan{background:var(--warm);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
@@ -203,6 +204,22 @@ details[open] summary:before{content:"▾ "}
       <input class="inline-input" id="lvl3" placeholder="Nivel 3 (p. ej. «Referente»)">
       <label style="display:flex;gap:9px;align-items:flex-start;font-size:14px;margin-top:4px"><input type="checkbox" id="salaryLinked" style="margin-top:3px"><span>Los puntos cuentan para nómina o incentivos.<br><small class="msg">Recomendación: no atarlos a nómina el primer año.</small></span></label>
       <button class="btn btn-grad" id="btnCfg" style="align-self:flex-start">Guardar ajustes</button><div id="cfgMsg" class="msg"></div>
+    </div>
+  </div>
+
+  <div class="card" id="cardProfile">
+    <h2>Ficha de la empresa</h2>
+    <p class="msg" style="margin-top:0">Lo que tus tutores necesitan saber de la empresa para que ningún alumno tenga que explicarlo. Solo se usa cuando la guardas y validas.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:620px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="inline-input" id="cpUrl" placeholder="Web de la empresa (para preparar un borrador)" style="flex:1 1 240px"><button class="btn" id="cpDraft" type="button">Preparar borrador</button></div>
+      <label class="msg" for="cpOferta">Qué ofrecéis</label><textarea class="inline-input" id="cpOferta" rows="3" maxlength="1500"></textarea>
+      <label class="msg" for="cpPublicos">A quién os dirigís</label><textarea class="inline-input" id="cpPublicos" rows="2" maxlength="1000"></textarea>
+      <label class="msg" for="cpTerm">Términos propios (separados por comas)</label><textarea class="inline-input" id="cpTerm" rows="2" maxlength="1500"></textarea>
+      <label class="msg" for="cpAut">Herramientas que usáis (separadas por comas)</label><input class="inline-input" id="cpAut">
+      <label class="msg" for="cpExc">Herramientas que no se deben recomendar (separadas por comas)</label><input class="inline-input" id="cpExc">
+      <label class="msg" for="cpComp">Competencias prioritarias (separadas por comas)</label><input class="inline-input" id="cpComp">
+      <label class="msg" for="cpLim">Límites: qué no se puede decir ni prometer</label><textarea class="inline-input" id="cpLim" rows="2" maxlength="1500"></textarea>
+      <button class="btn btn-grad" id="cpSave" type="button" style="align-self:flex-start">Guardar y validar</button><div id="cpMsg" class="msg" aria-live="polite"></div>
     </div>
   </div>
 
@@ -497,6 +514,23 @@ details[open] summary:before{content:"▾ "}
     try { await SkillUp.api('/api/config/company', { method: 'PUT', body: { levelLabels: labels, salaryLinked: document.getElementById('salaryLinked').checked } }); m.textContent = 'Ajustes guardados.'; }
     catch (ex) { m.textContent = ex.message; }
   });
+
+  // 1.13.0: ficha de la empresa (validada por un responsable)
+  (function(){
+    function csv(v){ return v.split(',').map(function(x){return x.trim();}).filter(Boolean).slice(0,40); }
+    function fill(p){ document.getElementById('cpOferta').value=p.oferta||''; document.getElementById('cpPublicos').value=p.publicos||''; document.getElementById('cpTerm').value=p.terminologia||'';
+      document.getElementById('cpAut').value=(p.herramientasAutorizadas||[]).join(', '); document.getElementById('cpExc').value=(p.herramientasExcluidas||[]).join(', ');
+      document.getElementById('cpComp').value=(p.competenciasPrioritarias||[]).join(', '); document.getElementById('cpLim').value=p.limites||''; }
+    var m=document.getElementById('cpMsg');
+    SkillUp.api('/api/config/company/profile').then(function(d){ fill(d.profile||{});
+      m.textContent=d.validatedAt?('Validada el '+new Date(d.validatedAt).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})+'. Los tutores la están usando.'):'Sin validar: los tutores aún no la usan.'; }).catch(function(){ document.getElementById('cardProfile').hidden=true; });
+    document.getElementById('cpDraft').addEventListener('click',async function(){ var b=this, u=document.getElementById('cpUrl').value.trim(); if(!u)return; b.disabled=true; m.textContent='Leyendo la web…';
+      try{ var r=await SkillUp.api('/api/config/company/profile/draft',{method:'POST',body:{url:u}}); fill(r.draft); m.textContent='Borrador preparado desde la web. Revísalo, completa lo que falte y pulsa «Guardar y validar».'; }
+      catch(ex){ m.textContent=ex.message||'No se ha podido leer esa web.'; } b.disabled=false; });
+    document.getElementById('cpSave').addEventListener('click',async function(){ var body={ oferta:document.getElementById('cpOferta').value, publicos:document.getElementById('cpPublicos').value, terminologia:document.getElementById('cpTerm').value,
+      herramientasAutorizadas:csv(document.getElementById('cpAut').value), herramientasExcluidas:csv(document.getElementById('cpExc').value), competenciasPrioritarias:csv(document.getElementById('cpComp').value), limites:document.getElementById('cpLim').value };
+      try{ await SkillUp.api('/api/config/company/profile',{method:'PUT',body:body}); m.textContent='Guardada y validada. Los tutores la usan desde ahora.'; } catch(ex){ m.textContent=ex.message||'No se ha podido guardar.'; } });
+  })();
 
   // P7: rúbricas — cargar competencias en el selector
   SkillUp.api('/api/catalog/competencies').then(function (cs) {

@@ -183,6 +183,13 @@
       "when": 1790622552510,
       "tag": "0025_learner_fact",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1790623142207,
+      "tag": "0026_company_profile",
+      "breakpoints": true
     }
   ]
 }

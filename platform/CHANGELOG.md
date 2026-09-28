@@ -1,5 +1,14 @@
 # Changelog · SkillUp platform
 
+## 1.13.0 — 2026-09-28
+
+### Ficha de la empresa, validada por un responsable
+- Nueva tarjeta «Ficha de la empresa» en el Panel (admin, dirección, team leader, inspirador): qué ofrece, a quién se dirige, términos propios, herramientas que usa, herramientas que no se deben recomendar, competencias prioritarias y límites (qué no se puede decir ni prometer).
+- «Preparar borrador» la rellena desde la web de la empresa; solo cuenta cuando un responsable pulsa «Guardar y validar» (queda registrado quién y cuándo).
+- La ficha validada llega al tutor y al bloque «Para ti» (y cambiarla rehace los bloques). Así ningún alumno tiene que explicar el contexto de su empresa.
+- Recursos: además de la lista global, se retiran las herramientas que la empresa marque como no recomendables.
+- `GET/PUT /api/config/company/profile`, `POST /api/config/company/profile/draft`. Migración `0026`: columnas `profile`, `profile_validated_at`, `profile_validated_by` en `company_config`.
+
 ## 1.12.0 — 2026-09-28
 
 ### Ficha viva del alumno (memoria con evidencias)
