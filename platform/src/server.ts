@@ -43,6 +43,7 @@ import * as onboardingSvc from "./services/onboarding.js";
 import * as teamdnaSvc from "./services/teamdna.js";
 import * as teamprofileSvc from "./services/teamprofile.js";
 import * as resourcesSvc from "./services/resources.js";
+import * as adaptSvc from "./services/adapt.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as langSvc from "./services/lang.js";
@@ -358,6 +359,20 @@ app.post("/api/learning/resources", async (c) => {
   ]);
   const formato = tp?.result?.pedagogy?.formato ?? null;
   return c.json({ groups, order: resourcesSvc.tabOrder(formato), forYou: resourcesSvc.forYou(groups, formato, ritmo), lang });
+});
+
+// --- Contenido vivo: bloque «Para ti» de cada sección con lo que el alumno ya ha contado (ejemplo + práctica + pregunta).
+// El núcleo del curso no cambia; se regenera solo cuando cambia lo que sabemos de él. ---
+const adaptBody = z.object({ src: z.string().trim().min(1).max(200), card: z.number().int().min(0).max(1000), title: z.string().trim().min(1).max(300), text: z.string().max(6000).default("") });
+app.post("/api/learning/adapt", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`adapt:${ctx.orgId}:${ctx.userId}`, 30, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = adaptBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  const block = await adaptSvc.forSection(svcDeps, ctx.orgId, ctx.userId, d.src, d.card, d.title, d.text).catch((e) => { console.warn("[adapt] failed", String(e).slice(0, 200)); return null; });
+  return block ? c.json(block) : c.json({ error: "no disponible" }, 503);
 });
 
 app.get("/api/learning/videos/home", async (c) => {

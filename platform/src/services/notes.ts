@@ -16,10 +16,10 @@ export function list(deps: SvcDeps, orgId: string, userId: string, source: strin
     .orderBy(desc(annotation.createdAt));
 }
 
-/** Todas las anotaciones del usuario (para la vista "Mi curso"), de todos los cursos. */
+/** Todas las anotaciones del usuario (para la vista "Mi curso"), de todos los cursos. Sin los bloques «Para ti» generados. */
 export function listAll(deps: SvcDeps, orgId: string, userId: string) {
   return deps.db.select().from(annotation)
-    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId)))
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), ne(annotation.kind, "adapt")))
     .orderBy(desc(annotation.createdAt));
 }
 

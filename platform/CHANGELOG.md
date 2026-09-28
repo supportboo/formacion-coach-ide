@@ -1,5 +1,13 @@
 # Changelog · SkillUp platform
 
+## 1.9.0 — 2026-09-28
+
+### Contenido vivo: bloque «Para ti» en cada sección
+- Al abrir cada sección aparece arriba un bloque «Para ti»: una frase que la conecta con su objetivo, un ejemplo resuelto ambientado en su realidad y una práctica paso a paso para aplicarlo a su caso esta semana. Termina con una pregunta para conocerle mejor.
+- Se construye solo con lo que el alumno ha dicho: bienvenida (puesto, empresa, objetivo, nivel, freno), su perfil del Team DNA (orden ejemplo o práctica primero, porqué o cómo, tipo de práctica, tono), la síntesis del tutor y sus respuestas anteriores en el curso. Si falta un dato, plantea una situación típica de su puesto sin presentarla como suya; nunca inventa clientes ni cifras.
+- Se regenera cuando cambia lo que sabemos de él: lo que responde en un bloque ya se usa en el siguiente. El texto de la sección no cambia (cuadra con lo declarado a FUNDAE).
+- `POST /api/learning/adapt`. Guardado por alumno y sección (anotación `adapt`), fuera de «Mi curso» y de las métricas de equipo.
+
 ## 1.8.0 — 2026-09-28
 
 ### Recursos del curso tipo Netflix, con podcasts, herramientas y afiliación

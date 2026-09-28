@@ -250,6 +250,17 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 }
 @media(max-width:768px){.cv-panel{width:100vw}.cv-wide-btn{display:none}}
 @media(prefers-reduced-motion:reduce){.cv-panel,.cv-panel.open,.cv-item{transition:none}}
+/* Contenido vivo: bloque «Para ti» al principio de cada sección */
+.su-pt{margin:0 0 22px;border:1px solid rgba(63,216,224,.35);border-radius:14px;padding:16px 18px;background:rgba(63,216,224,.06);display:grid;gap:10px}
+.su-pt .pt-lbl{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--teal2)}
+.su-pt .pt-intro{font-size:15px;color:var(--ink);margin:0}
+.su-pt h5{margin:4px 0 0;font-size:14.5px;color:var(--ink)}
+.su-pt p{margin:0;font-size:14.5px}.su-pt ol{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14.5px}
+.su-pt .pt-q{display:grid;gap:8px;border-top:1px solid rgba(180,150,205,.18);padding-top:10px}
+.su-pt textarea{width:100%;min-height:70px;border-radius:10px;border:1px solid rgba(180,150,205,.3);background:var(--panel);color:var(--ink);font:inherit;padding:10px}
+.su-pt button{justify-self:start;border:0;border-radius:10px;min-height:40px;padding:8px 14px;font:800 12px Inter,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));cursor:pointer}
+.su-pt .pt-sk{height:64px;border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.1),rgba(255,255,255,.04));background-size:200% 100%;animation:ptsk 1.2s linear infinite}
+@keyframes ptsk{to{background-position:-200% 0}}@media(prefers-reduced-motion:reduce){.su-pt .pt-sk{animation:none}}
 /* Recursos del curso al final de cada sección */
 .su-res{margin-top:28px;border-top:1px solid rgba(180,150,205,.18);padding-top:18px;display:grid;gap:12px}
 .su-res h4{margin:0;font-size:16px;color:var(--ink)}
@@ -423,7 +434,7 @@ function build(){
     +'<div class="selmenu" id="selmenu"><button data-a="hl">Subrayar</button><button data-a="note">Nota</button><button data-a="ask">Preguntar</button><button data-a="advise">Consejo</button><button data-a="example">Ejemplo</button></div>'
     +'<div class="mn" id="mn"><div class="mn-in"><div class="mn-hd"><b>Mi curso · notas y subrayados</b><button class="x" id="mnX">×</button></div><div class="mn-list" id="mnList"></div></div></div>'
     +'<div class="idx" id="idx"><div class="idx-in"><div class="idx-hd"><b>Índice del curso</b><button class="x" id="idxX">×</button></div><div class="idx-list" id="idxList"></div></div></div>';
-  buildIndex(); wireVideos(); wireResources(); wireTranslate(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
+  buildIndex(); wireVideos(); wireResources(); wireAdapt(); wireTranslate(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
   // Evaluación (assess.js): test por bloque, roleplay de control cada N bloques y examen final.
   if(window.SkillUpAssess) SkillUpAssess.init({slug:SLUG,src:SRC,course:COURSE,cards:CARDS.map(function(c){return c.title;})});
 }
@@ -532,6 +543,7 @@ function wireDeck(){
     var cm=document.getElementById('ccMsg'); if(cm) cm.textContent=PERSONA.name+': '+NUDGES[idx%NUDGES.length].replace('{t}',CARDS[idx].title);
     if(window._cvSection) window._cvSection(idx);
     if(window._resSection) window._resSection(idx);
+    if(window._adaptSection) window._adaptSection(idx);
     if(window._txSection) window._txSection(idx);
     if(window._onSection) window._onSection(idx);
     if(window.SkillUpActivity) SkillUpActivity.section({source:SLUG,index:idx,title:CARDS[idx].title});
@@ -548,6 +560,34 @@ function go(i){window._go(i);}
 // en miniatura al lado del texto. Se reproducen dentro del panel, se amplían junto al texto o a pantalla completa.
 // Los del bloque actual suben arriba por coincidencia de palabras del título (nunca se inventa un vídeo).
 var USER_ID='';
+// Contenido vivo: al abrir cada sección, un bloque «Para ti» con un ejemplo y una práctica hechos con lo que el alumno
+// ya ha contado (bienvenida, su DNA, lo que habló con el tutor y lo que respondió antes). Su respuesta a la pregunta
+// se guarda y el bloque siguiente ya la tiene en cuenta. El texto de la sección no cambia.
+function wireAdapt(){
+  var done={};
+  function list(a){return '<ol>'+(a||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol>';}
+  function render(box,a,i){
+    var ej='<h5>Ejemplo: '+esc(a.ejemplo.titulo||'')+'</h5><p>'+esc(a.ejemplo.situacion||'')+'</p>'+list(a.ejemplo.pasos);
+    var pr='<h5>Tu práctica'+(a.practica.minutos?' · '+Number(a.practica.minutos)+' min':'')+'</h5>'+list(a.practica.pasos);
+    box.innerHTML='<span class="pt-lbl">Para ti</span><p class="pt-intro">'+esc(a.paraTi)+'</p>'+(a.primero==='practica'?pr+ej:ej+pr)
+      +'<div class="pt-q"><label for="ptq'+i+'"><b>'+esc(a.pregunta)+'</b></label><textarea id="ptq'+i+'" placeholder="Escribe o dicta tu respuesta…"></textarea><button type="button">Enviar</button></div>';
+    var ta=box.querySelector('textarea'), b=box.querySelector('button');
+    b.onclick=function(){ var v=ta.value.trim(); if(!v)return; b.disabled=true;
+      SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:i,cardTitle:(CARDS[i]?CARDS[i].title:''),kind:'insight',body:v}}).then(function(){
+        box.querySelector('.pt-q').innerHTML='<p>Anotado. Lo usaré en los próximos bloques para que los ejemplos se parezcan cada vez más a tu día a día.</p>';
+      }).catch(function(){ b.disabled=false; });
+    };
+  }
+  window._adaptSection=function(i){
+    if(done[i]||!CARDS[i])return; var card=document.querySelector('.card:nth-child('+(i+1)+')'); var prose=card&&card.querySelector('.prose'); if(!prose)return;
+    var text=(prose.innerText||'').trim(); if(text.length<200)return; done[i]=1;
+    var box=document.createElement('section'); box.className='su-pt'; box.setAttribute('aria-live','polite');
+    box.innerHTML='<span class="pt-lbl">Para ti</span><div class="pt-sk"></div>'; prose.insertBefore(box,prose.firstChild);
+    SkillUp.api('/api/learning/adapt',{method:'POST',body:{src:SRC,card:i,title:CARDS[i].title,text:text.slice(0,5000)}}).then(function(a){ render(box,a,i); })
+      .catch(function(){ box.remove(); done[i]=0; });
+  };
+  if(typeof idx==='number') window._adaptSection(idx);
+}
 // Recursos del curso (vídeos, podcasts, libros, herramientas): se piden al abrir el curso con su temario, en segundo
 // plano. Cada sección enseña los 3 que mejor casan con ella y enlaza a la página completa tipo Netflix.
 function wireResources(){

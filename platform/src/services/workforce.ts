@@ -32,7 +32,7 @@ export async function agentsKnowledge(deps: SvcDeps, orgId: string): Promise<Age
   const skip = new Set(["onboarding", "ruta", "cuenta", "reto"]);
   for (const r of rows) {
     const src = String(r.source || "");
-    if (!src || skip.has(src)) continue; // solo cursos = tutores
+    if (!src || skip.has(src) || r.kind === "adapt") continue; // solo cursos = tutores; «Para ti» es contenido generado, no actividad
     let a = byAgent.get(src); if (!a) { a = { concepts: new Set(), interactions: 0 }; byAgent.set(src, a); }
     a.interactions += 1;
     const body = String(r.body || "");
@@ -59,6 +59,7 @@ export async function orgWorkforce(deps: SvcDeps, orgId: string): Promise<Workfo
   const seedByUser = new Map<string, WorkforceMember["archetype"]>(); // de lo que el usuario respondió en su onboarding real
   for (const m of members) { byUser.set(m.userId, { ann: 0, contrib: 0, applied: 0 }); wordsByUser.set(m.userId, new Set()); }
   for (const r of rows) {
+    if (r.kind === "adapt") continue; // bloque «Para ti» generado: no es actividad del alumno
     if (r.source === "onboarding") {
       // Semilla honesta: mientras no hay comportamiento real, partimos de lo que la persona
       // dijo de sí misma en el onboarding (nunca un test nuevo de personalidad, solo su propia
