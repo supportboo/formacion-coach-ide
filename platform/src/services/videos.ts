@@ -42,6 +42,18 @@ export function qualityScore(v: Pick<VideoItem, "views" | "likes" | "subscribers
   return Math.round(score * 10) / 10;
 }
 
+/** Completa hasta `min` vídeos: primero los que pasan la barra alta; si no llegan (temas de nicho), los siguientes
+ * mejor puntuados con un suelo razonable (1.000 vistas, 300 suscriptores u ocultos). Siempre del idioma pedido y
+ * ordenados por calidad; nunca se inventa nada. Medido en producción (28-09): con la barra alta sola salía 1 vídeo. */
+export function pickQuality(items: VideoItem[], lang: Lang, min = 8, floorViews = 1000): VideoItem[] {
+  const ok = items.filter((v) => v.durationSeconds >= MIN_DURATION);
+  const strict = ok.filter((v) => passesQuality(v, lang));
+  if (strict.length >= min) return strict;
+  const rest = ok.filter((v) => !strict.includes(v) && v.views >= floorViews && (v.subscribers < 0 || v.subscribers >= 300))
+    .sort((a, b) => q(b) - q(a));
+  return strict.concat(rest).slice(0, 50);
+}
+
 export function passesQuality(v: VideoItem, lang: Lang): boolean {
   return v.durationSeconds >= MIN_DURATION && v.views >= MIN_VIEWS[lang] && (v.subscribers < 0 || v.subscribers >= MIN_SUBS[lang]);
 }
@@ -105,6 +117,10 @@ async function channelSubs(key: string, channelIds: string[]): Promise<Record<st
 
 // Cuota por llamada (unidades YouTube Data API v3): search.list 100 + videos.list 1 + channels.list 1 = 102 u.
 async function searchAndStats(topic: string, order: "date" | "viewCount", lang: Lang, max = 50): Promise<VideoItem[]> {
+  // Novedades: un vídeo reciente casi nunca tiene aún 10.000 vistas; suelo más bajo pero siempre por calidad.
+  return pickQuality(await searchRaw(topic, order, lang, max), lang, 8, order === "date" ? 300 : 1000);
+}
+async function searchRaw(topic: string, order: "date" | "viewCount", lang: Lang, max: number): Promise<VideoItem[]> {
   const key = env.YOUTUBE_API_KEY;
   if (!key) return [];
   // videoDuration=medium (4-20 min) ya excluye Shorts (máx 3 min desde oct-2024). relevanceLanguage + regionCode
@@ -146,7 +162,7 @@ async function searchAndStats(topic: string, order: "date" | "viewCount", lang: 
     };
     it.quality = qualityScore(it);
     return it;
-  }).filter((v) => passesQuality(v, lang));
+  });
 }
 
 async function readCache(deps: SvcDeps, topic: string, sortType: string): Promise<VideoItem[] | null> {
