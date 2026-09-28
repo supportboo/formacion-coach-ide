@@ -18,26 +18,30 @@ const MARC_MODEL = "eleven_multilingual_v2";
 // (más lento de sintetizar). La voz de Marc sigue sin voice_settings (su panel manda) también en catalán.
 const CA_MODEL = "eleven_v3";
 export function ttsBody(text: string, voiceId: string, lang = "es") {
-  if (lang === "ca") return voiceId === MARC_VOICE ? { text, model_id: CA_MODEL } : { text, model_id: CA_MODEL, voice_settings: settingsFor(voiceId) };
+  if (lang === "ca") return { text, model_id: CA_MODEL, voice_settings: settingsFor(voiceId) };
   return voiceId === MARC_VOICE
-    ? { text, model_id: MARC_MODEL }
+    ? { text, model_id: MARC_MODEL, voice_settings: MARC_SETTINGS }
     : { text, model_id: MODEL, voice_settings: settingsFor(voiceId) };
 }
 
-// Voz de Marc = la MISMA cadena «Iron Man» de BOO Manager (src/app/api/boo/speak/route.ts, 2026-09-28: Marc pidió que
-// suene igual que allí). No es un efecto robótico: la voz tratada como transmisión de radio, limitada en banda y con el
-// eco cortísimo de un casco. Sustituye al máster «podcast» del 27-09. Delante va solo la limpieza de ruido de sala del
-// clon (suelo -42 dB -> -78 dB, medido sin cambiar el timbre). Duración intacta: el resaltado palabra a palabra cuadra.
+// Voz de Marc (2026-09-28, 2.ª vuelta). La cadena «Iron Man» de BOO Manager le quitaba los graves (highpass 185 Hz +
+// lowpass 7,8 kHz: banda de 125 Hz de -4,8 a -9,6 dB) y Marc pidió «más graves, tono conversacional». MEDIDO sobre su
+// muestra de ElevenLabs (octavas relativas a 1 kHz): 125 Hz +2,5 dB y 250 Hz +5,9 (a la par del máster igualado con
+// Diego/Inés), 2-4 kHz como el original (se entiende cada palabra), 8 kHz -0,7 (eses domadas). Del Manager queda solo un
+// eco de casco muy corto y suave: presencia, no radio. Duración intacta (el resaltado palabra a palabra cuadra).
 const MARC_EQ = [
-  "afftdn=nr=30:nf=-40:tn=1",
+  "afftdn=nr=30:nf=-40:tn=1",                          // ruido de sala del clon (-42 dB -> -78 dB)
   "agate=threshold=0.012:ratio=4:attack=5:release=150",
-  "highpass=f=185",                      // quita el pecho: deja de sonar «en la habitación»
-  "lowpass=f=7800",                      // la mete en el canal de comunicaciones
-  "equalizer=f=340:t=q:w=1.2:g=-3",      // saca el barro que tapa las consonantes
-  "equalizer=f=2700:t=q:w=1.4:g=4",      // presencia: se entiende cada palabra
-  "equalizer=f=5200:t=q:w=1.6:g=2.5",    // filo metálico
-  "acompressor=threshold=-18dB:ratio=4:attack=6:release=120:makeup=3",
-  "aecho=0.85:0.7:11:0.13",              // el casco; más largo suena a cuarto de baño
+  "highpass=f=65",
+  "lowshelf=f=180:g=8",                  // cuerpo y graves
+  "equalizer=f=110:t=q:w=1:g=2",         // pecho
+  "equalizer=f=320:t=q:w=1.2:g=-1.5",    // sin «habitación»
+  "equalizer=f=2700:t=q:w=1.4:g=2.5",    // presencia
+  "equalizer=f=6500:t=q:w=0.9:g=-7",     // eses y siseo
+  "highshelf=f=10000:g=-4",
+  "deesser=i=0.3",
+  "acompressor=threshold=-18dB:ratio=3:attack=8:release=140:makeup=3",
+  "aecho=0.8:0.5:11:0.06",               // el toque de BOO Manager, muy sutil
   "alimiter=limit=0.95",
 ];
 const CLEAN_EQ = [
@@ -93,11 +97,15 @@ const VOICE_PROFILES: Record<string, { speed?: number; stability?: number }> = {
   "WsvUasyBVDfzPhE0B6jC": { speed: 1.08, stability: 0.40 }, // Diego (comercial): ágil, directo, con chispa
   "fjMC3Wxp5QfFT9wNGQOI": { speed: 1.08, stability: 0.42 }, // Álvaro (m): resolutivo, al grano
   "jQrhxsqzG6CPKo3ll0w9": { speed: 1.08, stability: 0.42 }, // Natalia (f): dinámica, motivadora
-  // Marc (tú) no va aquí: usa los ajustes de su panel de ElevenLabs (ver MARC_VOICE).
+  // Marc (tú) no va aquí: tiene sus propios ajustes (MARC_SETTINGS).
   "oHMibLgDqXK3fjgFVtJ6": { speed: 1.05, stability: 0.47 }, // Inés (f): cálida y clara
   "iuYybvSfclFoJ9ab2Im6": { speed: 1.04, stability: 0.48 }, // Estela (f): serena pero sin arrastrar
 };
-function settingsFor(voiceId: string) { return { ...DEFAULT_SETTINGS, ...(VOICE_PROFILES[voiceId] || {}) }; }
+// Marc (2026-09-28): «tono conversacional, emocional». Antes usaba los ajustes de su panel (más planos); ahora menos
+// estabilidad = entonación más viva, style = más expresión, sin speed (1.0: su ritmo natural, ni lento ni atropellado).
+// Si suena exagerado o tiembla, subir stability de 0.05 en 0.05; si suena plano, subir style.
+const MARC_SETTINGS = { stability: 0.32, similarity_boost: 0.85, style: 0.45, use_speaker_boost: true };
+function settingsFor(voiceId: string) { return voiceId === MARC_VOICE ? MARC_SETTINGS : { ...DEFAULT_SETTINGS, ...(VOICE_PROFILES[voiceId] || {}) }; }
 
 function envVoices(): VoiceOpt[] | null {
   const raw = env.ELEVENLABS_EXTRA_VOICES?.trim();

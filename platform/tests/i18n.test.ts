@@ -57,8 +57,8 @@ describe("idioma: regla en el prompt", () => {
 describe("voz por idioma", () => {
   it("catalán usa eleven_v3 (v2/v2.5 no lo hablan); el resto conserva su modelo", () => {
     expect(ttsBody("hola", "WsvUasyBVDfzPhE0B6jC", "en").model_id).toBe("eleven_turbo_v2_5");
-    expect(ttsBody("hola", "bkcxugbRtulPFV1CinBX", "fr")).toEqual({ text: "hola", model_id: "eleven_multilingual_v2" });
-    expect(ttsBody("hola", "bkcxugbRtulPFV1CinBX", "ca")).toEqual({ text: "hola", model_id: "eleven_v3" });
+    expect(ttsBody("hola", "bkcxugbRtulPFV1CinBX", "fr")).toMatchObject({ text: "hola", model_id: "eleven_multilingual_v2", voice_settings: { style: 0.45 } });
+    expect(ttsBody("hola", "bkcxugbRtulPFV1CinBX", "ca")).toMatchObject({ text: "hola", model_id: "eleven_v3", voice_settings: { style: 0.45 } });
     expect(ttsBody("hola", "WsvUasyBVDfzPhE0B6jC", "ca").model_id).toBe("eleven_v3");
   });
 });
