@@ -19,7 +19,17 @@ interface Sup { orgId: string; orgName: string; userId: string; userName: string
  * Responsable que consulta: su propia empresa, o cualquiera si es superadmin (?orgId=). El superadmin puede no
  * tener organización activa, por eso se resuelve también desde su sesión de plataforma.
  */
-async function supervisor(c: Context, cap: Capability): Promise<Sup | Response> {
+// ponytail: registro de accesos del superadmin a otra empresa, uno por empresa y ruta cada 10 min por proceso
+// (el tablero se refresca cada 5 s; no queremos una fila por refresco). Pasar a Redis si hay varias instancias.
+const lastAccess = new Map<string, number>();
+export function auditPlatformAccess(orgId: string, userId: string, path: string, now = Date.now()): void {
+  const k = `${userId}:${orgId}:${path.replace(/\/person\/[^/]+/, "/person")}`;
+  if (now - (lastAccess.get(k) ?? 0) < 600_000) return;
+  lastAccess.set(k, now);
+  db.insert(auditLog).values({ id: newId(), organizationId: orgId, userId, action: "platform.view", meta: { path } }).catch(() => {});
+}
+
+export async function supervisor(c: Context, cap: Capability): Promise<Sup | Response> {
   const ctx = await getAuthContext(c);
   const pa = ctx ? isPlatformAdmin(ctx) : false;
   let base: Omit<Sup, "access" | "orgId" | "orgName"> & { orgId?: string; orgName?: string } | null = null;
@@ -37,6 +47,7 @@ async function supervisor(c: Context, cap: Capability): Promise<Sup | Response> 
     const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, q));
     if (!o) return c.json({ error: "empresa no encontrada" }, 404);
     base.orgId = q; base.orgName = o.name;
+    auditPlatformAccess(q, base.userId, c.req.path);
   }
   if (!base.orgId) return c.json({ error: "elige una empresa" }, 400);
   const access = act.accessFor({ role: ctx?.role ?? "empleado", platformAdmin: base.superadmin });
@@ -102,12 +113,14 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>, bl
     if (c.req.query("poll") !== "1") {
       await db.insert(auditLog).values({ id: newId(), organizationId: s.orgId, userId: s.userId, action: "supervision.view", meta: { learnerId, role: s.role } });
     }
-    return c.json({ ...d, liveEnabled: live, canIntervene: !!s.access.intervene, watchers: act.watchersOf(s.orgId, learnerId) });
+    return c.json({ ...d, liveEnabled: live, canIntervene: !!s.access.intervene && !(s.superadmin && c.req.query("orgId")), watchers: act.watchersOf(s.orgId, learnerId) });
   });
 
   app.post("/api/analytics/live/person/:userId/message", async (c) => {
     const s = await supervisor(c, "activity.intervene");
     if (s instanceof Response) return s;
+    // El superadmin entra en otra empresa en modo solo lectura: ve todo, no escribe a su gente.
+    if (s.superadmin && c.req.query("orgId")) return c.json({ error: "modo solo lectura: el soporte de SkillUp no escribe a la gente de una empresa" }, 403);
     if (rateLimited(`intervene:${s.orgId}:${s.userId}`, 20, 60_000)) return c.json({ error: "demasiados mensajes seguidos, espera un momento" }, 429);
     const parsed = act.interveneSchema.safeParse(await c.req.json().catch(() => ({})));
     if (!parsed.success) return c.json({ error: "escribe un mensaje (máximo 1.500 caracteres)" }, 400);

@@ -47,7 +47,8 @@ import * as moderationSvc from "./services/moderation.js";
 import * as curationSvc from "./services/curation.js";
 import * as gcal from "./services/gcal.js";
 import * as assessSvc from "./services/assessment.js";
-import { registerLiveRoutes } from "./http/live.js";
+import { auditPlatformAccess, registerLiveRoutes } from "./http/live.js";
+import { registerDashboardRoutes } from "./http/dashboards.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
@@ -1867,23 +1868,6 @@ app.post("/api/platform/users/set-password", async (c) => {
   return c.json({ email: u.email, password: pwd, generated: !parsed.data.newPassword });
 });
 
-// Insights de plataforma: de qué aprende el sistema (conversaciones, notas, prácticas, documentos).
-app.get("/api/platform/insights", async (c) => {
-  const admin = await getPlatformAdminSession(c);
-  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
-  const one = async (tbl: any, where?: any): Promise<number> => {
-    const q = db.select({ c: count() }).from(tbl);
-    const rows = where ? await q.where(where) : await q;
-    return rows[0] ? Number(rows[0].c) : 0;
-  };
-  const [usuarios, empresas, conversaciones, mensajes, notasTotal, roleplays, casos, documentos, retos, notasCurso] = await Promise.all([
-    one(user), one(organization), one(agentThread), one(agentMessage), one(annotation),
-    one(roleplaySession), one(appliedCase), one(ragDocument),
-    one(annotation, eq(annotation.source, "reto")), one(annotation, eq(annotation.kind, "insight")),
-  ]);
-  return c.json({ usuarios, empresas, conversaciones, mensajes, notasTotal, notasCurso, roleplays, casos, documentos, retos });
-});
-
 // Revisión de los tutores: qué instrucciones lleva cada agente por rol.
 // Herramientas/capacidades REALES de cada agente (lo que el código les da: RAG, contexto, casos…).
 const AGENT_MEMORIA = [
@@ -2406,6 +2390,7 @@ app.get("/api/platform/roi/:orgId", async (c) => {
   const orgId = c.req.param("orgId");
   const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, orgId));
   if (!o) return c.json({ error: "empresa no encontrada" }, 404);
+  auditPlatformAccess(orgId, admin.userId, c.req.path);
   return c.json({ ...(await roiSvc.buildReport(svcDeps, orgId)), orgName: o.name });
 });
 app.get("/api/analytics/completion", async (c) => {
@@ -2625,3 +2610,4 @@ app.post("/api/billing/webhook", async (c) => {
 
 // Supervisión en directo (1.3.0): tablero, ficha, intervención humana y métricas de uso.
 registerLiveRoutes(app, COURSE_TITLES, async (slug) => (await courseBlocks(slug))?.length ?? null);
+registerDashboardRoutes(app, COURSE_TITLES, (orgId) => readRetos(orgId));

@@ -39,6 +39,7 @@
     ['/app/ayuda.html', 'Ayuda', 'help', 'base'],
     ['/app/asignar.html', 'Asignar pruebas', 'assign', 'manager'],
     ['/app/validar.html', 'Validar casos', 'check', 'manager'],
+    ['/app/metricas.html', 'Métricas e insights', 'chart', 'live'],
     ['/app/en-directo.html', 'En directo', 'live', 'live'],
     ['/app/panel.html', 'Panel de empresa', 'building', 'manager'],
     ['/app/piramides.html', 'Pirámides', 'pyramid', 'manager'],

@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.4.0 — 2026-09-28
+
+### Métricas e insights por rol (una entrada de menú, dos pestañas)
+- **Métricas** = solo datos medidos (definición, periodo, n, «Medido / Estimado / Sin datos»), gráficos por día con selector 7/30/90 días, tablas ordenables y exportables a CSV. **Insights** = interpretación y acciones sacadas solo de esas métricas, cada una con enlace a su dato y a la acción.
+- **Superadmin** (Consola › «Métricas e insights», sustituye a «Resumen» e «Insights»): salud 0-100 por empresa (40 % adopción + 35 % progreso + 25 % recencia, fórmula a la vista), riesgo de baja con motivo, uso, aprendizaje, economía (coste IA de 30 días frente a lo que paga cada empresa, alerta > 20 % o IA sin pagar), gráficos globales (activas, minutos, certificados, coste IA frente a ingresos), cursos por prioridad de mejora, bloques más difíciles, salud técnica (errores: Sin datos; modelo que respondió) y «qué aprende el sistema de verdad» (se corrige la afirmación falsa de que las notas y el Team DNA personalizan al tutor). Resumen del negocio con IA (modelo rápido, caché 15 min, 6/min). «Ver como su admin», En directo, ROI y ficha de cada empresa en modo solo lectura; cada acceso a otra empresa queda en `audit_log` (`platform.view`). «Métricas» pasa a llamarse «Competencias».
+- **Admin / dirección** (`/app/metricas.html`): adopción, resultados por curso, bloque y persona, certificados, tiempo hasta certificarse, práctica, casos, Team DNA, ROI (euros solo si la empresa los introduce), pruebas asignadas, las 3 acciones de la semana, dónde apoyar y «Enviar sugerencia a Brandooers».
+- **Team leader / coach**: quién necesita ayuda hoy, progreso por persona, pruebas asignadas (vencidas, resultados), validaciones pendientes y acciones rápidas. Aún no hay equipos: se ve toda la empresa y se dice.
+- En directo acepta `?persona=` y `?tab=metrics`; el superadmin no puede escribir a la gente de otra empresa (solo lectura).
+- Endpoints: `GET /api/platform/cockpit`, `GET /api/platform/cockpit/summary`, `GET /api/analytics/home`. Sin migraciones. Tests: `tests/dashboards.test.ts`.
+
 ## 1.3.0 — 2026-09-28
 
 ### Supervisión en directo («En directo», `/app/en-directo.html`)
