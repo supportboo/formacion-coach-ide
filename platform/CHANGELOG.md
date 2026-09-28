@@ -1,5 +1,14 @@
 # Changelog · SkillUp platform
 
+## 1.15.0 — 2026-09-28
+
+### Circuito de módulo: ajustar, practicar, entregar, aplicar
+- Al empezar un curso, «Ajusta el curso a tu nivel · 1 minuto»: micropráctica con el tema del curso; su nivel provisional queda en la ficha viva como «observado» para ese curso (no toca la acreditación N1-N4). Se puede aparcar con «Ahora no».
+- Bloque «Para ti»: la espera enseña con qué datos reales se está preparando (su caso, su objetivo, cómo prefiere aprender), sin progreso inventado; y la sección siguiente se prepara por adelantado mientras lee la actual.
+- Al terminar cada módulo, «Cierre del módulo»: un entregable hecho con su realidad (guion, lista o plan) y una siguiente acción para esta semana, con «Lo aplicaré esta semana» o «Necesito repasarlo». Misma caché que «Para ti» (se rehace si cambia lo que sabemos de él).
+- Inicio, «¿Qué tal fue?»: a los 3 días de comprometerse a aplicar algo, pregunta si lo hizo (sí, a medias, todavía no) y qué pasó; la respuesta entra en la ficha viva como aplicación.
+- `POST /api/learning/module-close`, `GET /api/learning/applied/pending`, `POST /api/learning/applied`; la micropráctica devuelve un nivel provisional.
+
 ## 1.14.0 — 2026-09-28
 
 ### Bienvenida v2: primero algo útil

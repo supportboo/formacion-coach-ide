@@ -1373,7 +1373,8 @@ app.post("/api/learning/micropractice", async (c) => {
   const sc = await microSvc.scenario(ctx.orgId, ctx.userId, parsed.data.situacion, parsed.data.rol, empresa);
   return sc ? c.json(sc) : c.json({ error: "no disponible" }, 503);
 });
-const microEval = z.object({ escenario: z.string().trim().min(10).max(1500), pregunta: z.string().trim().min(3).max(600), respuesta: z.string().trim().min(2).max(3000), situacion: z.string().trim().max(600).default("") });
+const microEval = z.object({ escenario: z.string().trim().min(10).max(1500), pregunta: z.string().trim().min(3).max(600), respuesta: z.string().trim().min(2).max(3000), situacion: z.string().trim().max(600).default(""),
+  course: z.object({ src: z.string().trim().min(1).max(200), title: z.string().trim().min(1).max(200) }).optional() });
 app.post("/api/learning/micropractice/eval", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
@@ -1384,7 +1385,48 @@ app.post("/api/learning/micropractice/eval", async (c) => {
   // Su respuesta alimenta la ficha viva como práctica (declarado, con cita literal).
   factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, d.respuesta, { type: "practica", ref: "Micropráctica de bienvenida", scope: "bienvenida" });
   const ev = await microSvc.evaluate(ctx.orgId, ctx.userId, { escenario: d.escenario, pregunta: d.pregunta }, d.respuesta, d.situacion);
+  // Diagnóstico de curso (1.15.0): nivel provisional «observado» en su ficha para ese curso; no toca la acreditación N1-N4.
+  if (ev?.nivel && d.course) await factsSvc.applyOps(svcDeps, ctx.orgId, ctx.userId, [{ op: "add", layer: "competencia",
+    text: `En «${d.course.title}»: nivel ${ev.nivel} en la micropráctica de inicio (estimación provisional)`, evidence: d.respuesta.slice(0, 200) }],
+    { type: "test", ref: d.course.title, scope: d.course.src }).catch(() => 0);
   return ev ? c.json(ev) : c.json({ error: "no disponible" }, 503);
+});
+
+// --- Circuito de módulo (1.15.0): cierre con entregable y siguiente acción, y «¿Lo aplicaste? ¿Qué pasó?». ---
+const closeBody = z.object({ src: z.string().trim().min(1).max(200), module: z.number().int().min(0).max(200), name: z.string().trim().min(1).max(200), sections: z.array(z.string().max(200)).max(40).default([]) });
+app.post("/api/learning/module-close", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`close:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = closeBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  const out = await adaptSvc.forModuleClose(svcDeps, ctx.orgId, ctx.userId, d.src, d.module, d.name, d.sections).catch(() => null);
+  return out ? c.json(out) : c.json({ error: "no disponible" }, 503);
+});
+// Compromisos «Lo aplicaré» de hace 3 días o más que aún no tienen respuesta de qué pasó.
+app.get("/api/learning/applied/pending", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const rows = await db.select({ source: annotation.source, card: annotation.card, cardTitle: annotation.cardTitle, body: annotation.body, createdAt: annotation.createdAt })
+    .from(annotation).where(and(eq(annotation.organizationId, ctx.orgId), eq(annotation.userId, ctx.userId), eq(annotation.kind, "insight"),
+      sql`(${annotation.body} like '[adopcion:aplicar]%' or ${annotation.body} like '[aplicado:%')`));
+  const closed = new Set(rows.filter((r) => String(r.body).startsWith("[aplicado:")).map((r) => r.source + "#" + r.card));
+  const cutoff = Date.now() - 3 * 864e5;
+  const pending = rows.filter((r) => String(r.body).startsWith("[adopcion:aplicar]") && !closed.has(r.source + "#" + r.card) && new Date(r.createdAt).getTime() <= cutoff)
+    .slice(0, 5).map((r) => ({ source: r.source, card: r.card, title: r.cardTitle || String(r.body).replace("[adopcion:aplicar]", "").trim() }));
+  return c.json({ pending });
+});
+const appliedBody = z.object({ source: z.string().trim().min(1).max(200), card: z.number().int().min(0).max(1000), title: z.string().trim().max(300).default(""), result: z.enum(["si", "parcial", "no"]), text: z.string().trim().max(2000).default("") });
+app.post("/api/learning/applied", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = appliedBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: d.source, card: d.card, cardTitle: d.title, kind: "insight", body: `[aplicado:${d.result}] ${d.title}` });
+  if (d.text.length >= 15) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, `Sobre «${d.title}», lo que pasó al aplicarlo: ${d.text}`, { type: "practica", ref: d.title, scope: d.source });
+  return c.json({ ok: true });
 });
 
 // --- Ficha viva del alumno (1.12.0): «Así estoy adaptando tu formación». Solo el propio alumno la ve y la gestiona. ---

@@ -56,6 +56,14 @@ button{font-family:inherit}[hidden]{display:none!important}
 .hero p{margin:0 0 14px;font-size:14.5px;line-height:1.55;color:var(--body);max-width:60ch}
 .hero .fc{font-family:var(--fc);color:var(--teal2)}
 .btn{border:0;border-radius:12px;padding:11px 18px;font-weight:800;font-size:13.5px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));text-decoration:none;display:inline-block}
+/* «¿Qué tal fue?»: seguimiento de lo que se comprometió a aplicar */
+.applied{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--panel);display:grid;gap:10px;margin-bottom:22px}
+.applied .it{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:10px}.applied .it:first-of-type{border-top:0;padding-top:0}
+.applied p{margin:0;font-size:14.5px;color:var(--body)}
+.applied .ch{display:flex;flex-wrap:wrap;gap:8px}
+.applied .ch button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:20px;min-height:40px;padding:8px 14px;font:600 13px var(--ff,Inter),sans-serif;cursor:pointer}
+.applied .ch button[aria-pressed="true"]{border-color:var(--teal2);color:var(--teal2)}
+.applied textarea{width:100%;min-height:64px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;padding:10px}
 /* Itinerario a especialista */
 .path{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--panel);display:grid;gap:12px;margin-bottom:22px}
 .path ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
@@ -63,8 +71,8 @@ button{font-family:inherit}[hidden]{display:none!important}
 .path li.done{color:var(--body);border-color:var(--teal2)}.path li.on{color:var(--ink);border-color:var(--gold)}
 .path p{margin:0;font-size:14.5px;color:var(--body)}.path b.pt{font-family:var(--fh);font-size:18px;color:var(--ink)}
 .path .chips{display:flex;flex-wrap:wrap;gap:8px}
-.path .chips button,.path .act{border:1px solid var(--line);background:var(--soft,rgba(255,255,255,.05));color:var(--ink);border-radius:20px;min-height:40px;padding:8px 14px;font:600 13px var(--ff,Inter),sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
-.path .chips button:hover,.path .act:hover{border-color:var(--aub2)}
+.path .chips button,.path .act,.applied .act{border:1px solid var(--line);background:var(--soft,rgba(255,255,255,.05));color:var(--ink);border-radius:20px;min-height:40px;padding:8px 14px;font:600 13px var(--ff,Inter),sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.path .chips button:hover,.path .act:hover,.applied .act:hover{border-color:var(--aub2)}
 .path .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.path .bar i{display:block;height:100%;background:var(--teal2)}
 .path textarea{width:100%;min-height:74px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;padding:10px}
 .sec-t{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:6px 0 12px}
@@ -463,6 +471,7 @@ function start(){
         +'<div class="excard" id="exCard" hidden><span class="fc">Así es el contenido de Brandooers</span><video id="exVideo" controls preload="none" playsinline></video><p class="excap">Ejemplo real: la intro de Outbound Sales, con el avatar del propio equipo.</p></div>'
         +'<div class="bizrow">'+bizPanel(ONB)+roadmap()+'</div>'
         +'<div id="usageBox" class="usagebox" hidden></div>'
+        +'<div id="appliedHost"></div>'
         +'<div id="pathHost"></div>'
         +retosSection()
         +'<div id="skipHost">'+skipSection()+'</div>'
@@ -608,6 +617,31 @@ SkillUp.session().then(function(s){
   }
   function load(h){ SkillUp.api('/api/learning/path').then(function(d){ if(d&&d.stage) render(h,d); }).catch(function(){}); }
   (function wait(n){ var h=document.getElementById('pathHost'); if(h) load(h); else if(n<100) setTimeout(function(){wait(n+1);},300); })(0);
+})();
+</script>
+<script>
+// «¿Qué tal fue?» (1.15.0): lo que se comprometió a aplicar hace unos días vuelve para cerrar el circuito.
+(function(){
+  function e(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function render(h,items){
+    if(!items.length){ h.innerHTML=''; return; }
+    h.innerHTML='<div class="sec-t">¿Qué tal fue?</div><div class="applied">'+items.map(function(x,k){
+      return '<div class="it" data-k="'+k+'"><p>Dijiste que aplicarías <b>'+e(x.title)+'</b>. ¿Lo hiciste?</p>'
+        +'<div class="ch"><button type="button" data-r="si" aria-pressed="false">Sí</button><button type="button" data-r="parcial" aria-pressed="false">A medias</button><button type="button" data-r="no" aria-pressed="false">Todavía no</button></div>'
+        +'<label for="ap'+k+'" class="sr-only" style="position:absolute;left:-9999px">Qué pasó</label><textarea id="ap'+k+'" placeholder="¿Qué pasó? Con quién, qué funcionó, qué no (opcional)"></textarea>'
+        +'<button type="button" class="act" data-save="1" style="justify-self:start">Guardar</button></div>';
+    }).join('')+'</div>';
+    h.querySelectorAll('.it').forEach(function(it){
+      var x=items[+it.dataset.k], res=null;
+      it.querySelectorAll('[data-r]').forEach(function(b){ b.onclick=function(){ res=b.dataset.r; it.querySelectorAll('[data-r]').forEach(function(o){o.setAttribute('aria-pressed',String(o===b));}); }; });
+      it.querySelector('[data-save]').onclick=function(){ if(!res){ it.querySelector('.ch button').focus(); return; } var btn=this; btn.disabled=true;
+        SkillUp.api('/api/learning/applied',{method:'POST',body:{source:x.source,card:x.card,title:x.title,result:res,text:it.querySelector('textarea').value.trim()}})
+          .then(function(){ it.innerHTML='<p>Gracias. '+(res==='no'?'Lo dejamos pendiente: cuando tengas ocasión, practícalo antes en un roleplay.':'Lo tengo en cuenta para tus próximos ejemplos.')+'</p>'; })
+          .catch(function(){ btn.disabled=false; }); };
+    });
+  }
+  (function wait(n){ var h=document.getElementById('appliedHost'); if(h) SkillUp.api('/api/learning/applied/pending').then(function(d){ render(h,(d&&d.pending)||[]); }).catch(function(){});
+    else if(n<100) setTimeout(function(){wait(n+1);},300); })(0);
 })();
 </script>
 </body>

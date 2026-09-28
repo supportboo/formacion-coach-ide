@@ -70,26 +70,62 @@ export function valid(x: unknown): x is Adapted {
   return !!a && typeof a.paraTi === "string" && !!a.ejemplo && Array.isArray(a.ejemplo.pasos) && !!a.practica && Array.isArray(a.practica.pasos) && typeof a.pregunta === "string";
 }
 
-/** Bloque «Para ti» de una sección, cacheado por alumno + sección + estado de lo que sabemos de él. */
-export async function forSection(deps: SvcDeps, orgId: string, userId: string, src: string, card: number, title: string, text: string): Promise<Adapted | null> {
-  const ctx = await learnerContext(deps, orgId, userId, src);
-  const hash = contextHash(ctx);
-  const source = "adapt:" + src.slice(0, 120);
+/** Caché por alumno + pieza + estado de lo que sabemos de él: se regenera solo cuando ese estado cambia, y guarda una
+ * única versión por pieza (la anterior se sustituye). La usan el bloque «Para ti» y el cierre de módulo. */
+async function cached<T>(deps: SvcDeps, orgId: string, userId: string, source: string, card: number, title: string, hash: string, make: () => Promise<T | null>): Promise<T | null> {
   const [hit] = await deps.db.select({ body: annotation.body }).from(annotation)
     .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, source), eq(annotation.card, card), eq(annotation.quote, hash)))
     .limit(1);
-  if (hit?.body) { try { return JSON.parse(hit.body) as Adapted; } catch { /* regenerate */ } }
-
-  const { llm } = await import("../container.js");
-  const out = await llm.generate({
-    system: SYS, model: env.MODEL_SENIOR, maxTokens: 1100, kind: "adapt", orgId, userId,
-    messages: [{ role: "user", content: `SECCIÓN: ${title}\n${text.slice(0, 3000)}\n\nLO QUE SABEMOS DEL ALUMNO:\n${ctx || "(todavía nada: solo sabemos que ha empezado el curso)"}` }],
-  });
-  let parsed: unknown; try { parsed = firstJson(out); } catch { return null; }
-  if (!valid(parsed)) return null;
-  const a: Adapted = { ...parsed, primero: parsed.primero === "practica" ? "practica" : "ejemplo" };
-  // Una sola versión por alumno y sección: la anterior se sustituye.
+  if (hit?.body) { try { return JSON.parse(hit.body) as T; } catch { /* regenerate */ } }
+  const made = await make();
+  if (!made) return null;
   await deps.db.delete(annotation).where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, source), eq(annotation.card, card)));
-  await deps.db.insert(annotation).values({ id: deps.newId(), organizationId: orgId, userId, source, card, cardTitle: title.slice(0, 300), kind: "adapt", quote: hash, body: JSON.stringify(a) });
-  return a;
+  await deps.db.insert(annotation).values({ id: deps.newId(), organizationId: orgId, userId, source, card, cardTitle: title.slice(0, 300), kind: "adapt", quote: hash, body: JSON.stringify(made) });
+  return made;
+}
+
+async function generate(system: string, content: string, orgId: string, userId: string, maxTokens: number): Promise<unknown> {
+  const { llm } = await import("../container.js");
+  const out = await llm.generate({ system, model: env.MODEL_SENIOR, maxTokens, kind: "adapt", orgId, userId, messages: [{ role: "user", content }] });
+  try { return firstJson(out); } catch { return null; }
+}
+
+/** Bloque «Para ti» de una sección, cacheado por alumno + sección + estado de lo que sabemos de él. */
+export async function forSection(deps: SvcDeps, orgId: string, userId: string, src: string, card: number, title: string, text: string): Promise<Adapted | null> {
+  const ctx = await learnerContext(deps, orgId, userId, src);
+  return cached(deps, orgId, userId, "adapt:" + src.slice(0, 120), card, title, contextHash(ctx), async () => {
+    const parsed = await generate(SYS, `SECCIÓN: ${title}
+${text.slice(0, 3000)}
+
+LO QUE SABEMOS DEL ALUMNO:
+${ctx || "(todavía nada: solo sabemos que ha empezado el curso)"}`, orgId, userId, 1100);
+    return valid(parsed) ? { ...parsed, primero: parsed.primero === "practica" ? "practica" : "ejemplo" } : null;
+  });
+}
+
+/* ---------------------------------- Cierre de módulo (1.15.0) ---------------------------------- */
+
+export interface ModuleClose { entregable: { titulo: string; items: string[] }; siguiente: string }
+
+const CLOSE_SYS = `Eres el formador sénior de SkillUp. El alumno acaba de terminar un módulo de un curso muy práctico.
+Prepara el CIERRE: un entregable que pueda usar YA en su realidad aplicando lo del módulo (3-5 elementos: un guion, una lista de comprobación, unas preguntas o un plan corto) y UNA siguiente acción concreta para esta semana.
+Usa SOLO hechos de «LO QUE SABEMOS» (sus casos, su empresa, su objetivo); si falta un dato, plantea el entregable para una situación típica de su puesto sin presentarla como suya. Nunca inventes clientes ni cifras. Español de España, tuteo, directo.
+Devuelve SOLO JSON: {"entregable":{"titulo":"…","items":["…","…","…"]},"siguiente":"…"}`;
+
+export function validClose(x: unknown): x is ModuleClose {
+  const c = x as ModuleClose;
+  return !!c && !!c.entregable && typeof c.entregable.titulo === "string" && Array.isArray(c.entregable.items) && c.entregable.items.length >= 2
+    && c.entregable.items.every((i) => typeof i === "string") && typeof c.siguiente === "string" && c.siguiente.length > 5;
+}
+
+export async function forModuleClose(deps: SvcDeps, orgId: string, userId: string, src: string, moduleIdx: number, moduleName: string, sections: string[]): Promise<ModuleClose | null> {
+  const ctx = await learnerContext(deps, orgId, userId, src);
+  return cached(deps, orgId, userId, "adapt-close:" + src.slice(0, 110), moduleIdx, moduleName, contextHash(ctx), async () => {
+    const parsed = await generate(CLOSE_SYS, `MÓDULO: ${moduleName}
+SECCIONES: ${sections.join(" · ").slice(0, 1500)}
+
+LO QUE SABEMOS DEL ALUMNO:
+${ctx || "(todavía nada)"}`, orgId, userId, 800);
+    return validClose(parsed) ? { entregable: { titulo: parsed.entregable.titulo, items: parsed.entregable.items.slice(0, 5) }, siguiente: parsed.siguiente } : null;
+  });
 }

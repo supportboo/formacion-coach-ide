@@ -257,6 +257,9 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 .su-pt h5{margin:4px 0 0;font-size:14.5px;color:var(--ink)}
 .su-pt p{margin:0;font-size:14.5px}.su-pt ol{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14.5px}
 .su-pt .pt-q{display:grid;gap:8px;border-top:1px solid rgba(180,150,205,.18);padding-top:10px}
+.su-pt .pt-prep{margin:0;padding-left:18px;display:grid;gap:3px;font-size:13.5px;color:var(--muted)}
+.su-pt .pt-acts{display:flex;flex-wrap:wrap;gap:8px}
+.su-pt .pt-acts button.ghost{background:transparent;border:1.5px solid rgba(180,150,205,.3)}
 .su-pt .pt-why{font-size:12.5px;color:var(--teal2);text-decoration:none;font-weight:700;justify-self:start;min-height:32px;display:inline-flex;align-items:center}
 .su-pt textarea{width:100%;min-height:70px;border-radius:10px;border:1px solid rgba(180,150,205,.3);background:var(--panel);color:var(--ink);font:inherit;padding:10px}
 .su-pt button{justify-self:start;border:0;border-radius:10px;min-height:40px;padding:8px 14px;font:800 12px Inter,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));cursor:pointer}
@@ -435,7 +438,8 @@ function build(){
     +'<div class="selmenu" id="selmenu"><button data-a="hl">Subrayar</button><button data-a="note">Nota</button><button data-a="ask">Preguntar</button><button data-a="advise">Consejo</button><button data-a="example">Ejemplo</button></div>'
     +'<div class="mn" id="mn"><div class="mn-in"><div class="mn-hd"><b>Mi curso · notas y subrayados</b><button class="x" id="mnX">×</button></div><div class="mn-list" id="mnList"></div></div></div>'
     +'<div class="idx" id="idx"><div class="idx-in"><div class="idx-hd"><b>Índice del curso</b><button class="x" id="idxX">×</button></div><div class="idx-list" id="idxList"></div></div></div>';
-  buildIndex(); wireVideos(); wireResources(); wireAdapt(); wireTranslate(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
+  window.SUFacts=SkillUp.api('/api/learning/facts').then(function(d){return (d&&d.facts)||[];}).catch(function(){return [];});
+  buildIndex(); wireVideos(); wireResources(); wireAdapt(); wireModuleCircuit(); wireTranslate(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
   // Evaluación (assess.js): test por bloque, roleplay de control cada N bloques y examen final.
   if(window.SkillUpAssess) SkillUpAssess.init({slug:SLUG,src:SRC,course:COURSE,cards:CARDS.map(function(c){return c.title;})});
 }
@@ -545,6 +549,7 @@ function wireDeck(){
     if(window._cvSection) window._cvSection(idx);
     if(window._resSection) window._resSection(idx);
     if(window._adaptSection) window._adaptSection(idx);
+    if(window._closeSection) window._closeSection(idx);
     if(window._txSection) window._txSection(idx);
     if(window._onSection) window._onSection(idx);
     if(window.SkillUpActivity) SkillUpActivity.section({source:SLUG,index:idx,title:CARDS[idx].title});
@@ -565,13 +570,23 @@ var USER_ID='';
 // ya ha contado (bienvenida, su DNA, lo que habló con el tutor y lo que respondió antes). Su respuesta a la pregunta
 // se guarda y el bloque siguiente ya la tiene en cuenta. El texto de la sección no cambia.
 function wireAdapt(){
-  var done={};
+  var done={}, cache={};
   function list(a){return '<ol>'+(a||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol>';}
+  function lc(t){t=String(t||'');return t.charAt(0).toLowerCase()+t.slice(1);}
+  // La espera cuenta con qué datos REALES se prepara el bloque (los de su ficha viva), sin progreso inventado.
+  function prepLines(facts){
+    var on=(facts||[]).filter(function(f){return f.active&&f.status!=='desactualizado';});
+    function by(l){return on.filter(function(f){return f.layer===l;})[0];}
+    var out=[], c=by('caso'), o=by('objetivo'), p=by('preferencia');
+    if(c) out.push('Tu caso: '+c.text); if(o) out.push('Tu objetivo: '+o.text); if(p) out.push('Cómo prefieres aprender: '+lc(p.text));
+    return out;
+  }
   function render(box,a,i){
     var ej='<h5>Ejemplo: '+esc(a.ejemplo.titulo||'')+'</h5><p>'+esc(a.ejemplo.situacion||'')+'</p>'+list(a.ejemplo.pasos);
     var pr='<h5>Tu práctica'+(a.practica.minutos?' · '+Number(a.practica.minutos)+' min':'')+'</h5>'+list(a.practica.pasos);
     box.innerHTML='<span class="pt-lbl">Para ti</span><p class="pt-intro">'+esc(a.paraTi)+'</p>'+(a.primero==='practica'?pr+ej:ej+pr)
-      +'<div class="pt-q"><label for="ptq'+i+'"><b>'+esc(a.pregunta)+'</b></label><textarea id="ptq'+i+'" placeholder="Escribe o dicta tu respuesta…"></textarea><button type="button">Enviar</button></div>'+'<a class="pt-why" href="/app/ficha.html">¿Por qué estos ejemplos? Mira lo que sé de ti →</a>';
+      +'<div class="pt-q"><label for="ptq'+i+'"><b>'+esc(a.pregunta)+'</b></label><textarea id="ptq'+i+'" placeholder="Escribe o dicta tu respuesta…"></textarea><button type="button">Enviar</button></div>'
+      +'<a class="pt-why" href="/app/ficha.html">¿Por qué estos ejemplos? Mira lo que sé de ti →</a>';
     var ta=box.querySelector('textarea'), b=box.querySelector('button');
     b.onclick=function(){ var v=ta.value.trim(); if(!v)return; b.disabled=true;
       SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:i,cardTitle:(CARDS[i]?CARDS[i].title:''),kind:'insight',body:v}}).then(function(){
@@ -579,15 +594,74 @@ function wireAdapt(){
       }).catch(function(){ b.disabled=false; });
     };
   }
+  function textOf(i){ var card=document.querySelector('.card:nth-child('+(i+1)+')'); var prose=card&&card.querySelector('.prose'); return prose?(prose.innerText||'').trim():''; }
+  // Una petición por sección y visita; la del servidor queda en caché por alumno y estado de su ficha.
+  function fetchBlock(i){
+    if(!cache[i]) cache[i]=SkillUp.api('/api/learning/adapt',{method:'POST',body:{src:SRC,card:i,title:CARDS[i].title,text:textOf(i).slice(0,5000)}});
+    return cache[i];
+  }
   window._adaptSection=function(i){
     if(done[i]||!CARDS[i])return; var card=document.querySelector('.card:nth-child('+(i+1)+')'); var prose=card&&card.querySelector('.prose'); if(!prose)return;
-    var text=(prose.innerText||'').trim(); if(text.length<200)return; done[i]=1;
+    if(textOf(i).length<200)return; done[i]=1;
     var box=document.createElement('section'); box.className='su-pt'; box.setAttribute('aria-live','polite');
-    box.innerHTML='<span class="pt-lbl">Para ti</span><div class="pt-sk"></div>'; prose.insertBefore(box,prose.firstChild);
-    SkillUp.api('/api/learning/adapt',{method:'POST',body:{src:SRC,card:i,title:CARDS[i].title,text:text.slice(0,5000)}}).then(function(a){ render(box,a,i); })
-      .catch(function(){ box.remove(); done[i]=0; });
+    box.innerHTML='<span class="pt-lbl">Para ti</span><p class="pt-intro">Preparando tu ejemplo y tu práctica de esta sección…</p><div class="pt-sk"></div>';
+    prose.insertBefore(box,prose.firstChild);
+    (window.SUFacts||Promise.resolve([])).then(function(facts){
+      var lines=prepLines(facts); if(!box.querySelector('.pt-sk'))return;
+      if(lines.length) box.querySelector('.pt-intro').insertAdjacentHTML('afterend','<ul class="pt-prep">'+lines.map(function(l){return '<li>'+esc(l)+'</li>';}).join('')+'</ul>');
+      else box.querySelector('.pt-intro').textContent='Preparando un ejemplo de tu puesto. Cuanto más me cuentes, más se parecerá a tu día a día.';
+    });
+    fetchBlock(i).then(function(a){ render(box,a,i);
+      // Anticipación: la siguiente sección ya queda preparada mientras lees esta.
+      if(CARDS[i+1]&&textOf(i+1).length>=200) fetchBlock(i+1).catch(function(){ cache[i+1]=null; });
+    }).catch(function(){ box.remove(); done[i]=0; cache[i]=null; });
   };
   if(typeof idx==='number') window._adaptSection(idx);
+}
+// Circuito de módulo (1.15.0): al empezar el curso, un ajuste de nivel de 1 minuto; al terminar cada módulo, un
+// entregable con su realidad y una siguiente acción; lo que se compromete a aplicar vuelve en Inicio como «¿Qué pasó?».
+function wireModuleCircuit(){
+  var mods=[]; CARDS.forEach(function(c,i){ var last=mods[mods.length-1]; if(!last||last.name!==c.mod) mods.push({name:c.mod||COURSE,start:i,end:i}); else last.end=i; });
+  var closed={};
+  function list(a){return '<ol>'+(a||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol>';}
+  function cardProse(i){ var card=document.querySelector('.card:nth-child('+(i+1)+')'); return card&&card.querySelector('.prose'); }
+  window._closeSection=function(i){
+    var mi=-1; mods.forEach(function(m,k){ if(m.end===i) mi=k; }); if(mi<0||closed[i]||mods.length<2) return;
+    var prose=cardProse(i); if(!prose) return; closed[i]=1; var m=mods[mi];
+    var box=document.createElement('section'); box.className='su-pt'; box.setAttribute('aria-live','polite');
+    box.innerHTML='<span class="pt-lbl">Cierre del módulo</span><p class="pt-intro">Preparando tu entregable de «'+esc(m.name)+'» con lo que sé de ti…</p><div class="pt-sk"></div>';
+    prose.appendChild(box);
+    var titles=CARDS.slice(m.start,m.end+1).map(function(c){return c.title;});
+    SkillUp.api('/api/learning/module-close',{method:'POST',body:{src:SRC,module:mi,name:m.name.slice(0,200),sections:titles}}).then(function(r){
+      box.innerHTML='<span class="pt-lbl">Cierre del módulo</span><h5>'+esc(r.entregable.titulo)+'</h5>'+list(r.entregable.items)
+        +'<p><b>Tu siguiente acción:</b> '+esc(r.siguiente)+'</p><div class="pt-acts"><button type="button" data-a="aplicar">Lo aplicaré esta semana</button><button type="button" data-a="repasar" class="ghost">Necesito repasarlo</button></div>';
+      box.querySelector('.pt-acts').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; var st=b.dataset.a;
+        SkillUp.api('/api/notes/add',{method:'POST',body:{source:SRC,card:i,cardTitle:m.name,kind:'insight',body:'[adopcion:'+st+'] '+m.name}}).catch(function(){});
+        box.querySelector('.pt-acts').innerHTML='<p>'+(st==='aplicar'?'Anotado. En unos días te preguntaré en Inicio qué tal fue.':'Sin problema: vuelve a las secciones cuando quieras, los ejemplos seguirán adaptados a ti.')+'</p>'; });
+    }).catch(function(){ box.remove(); closed[i]=0; });
+  };
+  // Ajuste de nivel al empezar el curso (una vez; «Ahora no» lo aparca en este navegador).
+  var SKIP='skillup-diag-skip:'+SRC; var skipped=false; try{ skipped=localStorage.getItem(SKIP)==='1'; }catch(e){}
+  if(!skipped) (window.SUFacts||Promise.resolve([])).then(function(facts){
+    var has=(facts||[]).some(function(f){return f.layer==='competencia'&&f.scope===SRC;}); if(has) return;
+    var prose=cardProse(0); if(!prose) return;
+    var box=document.createElement('section'); box.className='su-pt';
+    box.innerHTML='<span class="pt-lbl">Ajusta el curso a tu nivel · 1 minuto</span><p class="pt-intro">Una micropráctica rápida para que los ejemplos no se queden cortos ni te sobren. No es un examen.</p><div class="pt-acts"><button type="button" data-a="go">Empezar</button><button type="button" data-a="no" class="ghost">Ahora no</button></div>';
+    prose.insertBefore(box,prose.firstChild);
+    box.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return;
+      if(b.dataset.a==='no'){ try{ localStorage.setItem(SKIP,'1'); }catch(x){} box.remove(); return; }
+      if(b.dataset.a==='go'){ b.disabled=true;
+        SkillUp.api('/api/learning/micropractice',{method:'POST',body:{situacion:'Aplicar en su trabajo lo que enseña el curso «'+COURSE+'»',rol:''}}).then(function(sc){
+          box.innerHTML='<span class="pt-lbl">Ajusta el curso a tu nivel</span><p>'+esc(sc.escenario)+'</p><div class="pt-q"><label for="diagA"><b>'+esc(sc.pregunta)+'</b></label><textarea id="diagA" placeholder="Escribe o dicta tu respuesta…"></textarea><button type="button" data-a="send">Enviar</button></div>';
+          box.dataset.esc=sc.escenario; box.dataset.preg=sc.pregunta;
+        }).catch(function(){ b.disabled=false; }); }
+      if(b.dataset.a==='send'){ var v=box.querySelector('textarea').value.trim(); if(!v)return; b.disabled=true;
+        SkillUp.api('/api/learning/micropractice/eval',{method:'POST',body:{escenario:box.dataset.esc,pregunta:box.dataset.preg,respuesta:v,situacion:'Aplicar lo del curso «'+COURSE+'»',course:{src:SRC,title:COURSE.slice(0,200)}}}).then(function(ev){
+          box.innerHTML='<span class="pt-lbl">Ajusta el curso a tu nivel</span><p>'+esc(ev.bien)+'</p><p>'+esc(ev.mejorar)+'</p><h5>'+esc(ev.entregable.titulo)+'</h5>'+list(ev.entregable.items)
+            +'<p class="pt-intro">Listo: ajustaré los ejemplos y las prácticas del curso a tu nivel.</p>';
+        }).catch(function(){ b.disabled=false; }); }
+    });
+  });
 }
 // Recursos del curso (vídeos, podcasts, libros, herramientas): se piden al abrir el curso con su temario, en segundo
 // plano. Cada sección enseña los 3 que mejor casan con ella y enlaza a la página completa tipo Netflix.
