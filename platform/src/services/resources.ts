@@ -6,7 +6,7 @@
 import { and, eq } from "drizzle-orm";
 import { videoCache } from "../db/schema.js";
 import { env } from "../config/env.js";
-import { AFFILIATE_BOOST, TOOL_AFFILIATES } from "../config/affiliates.js";
+import { AFFILIATE_BOOST, EXCLUDED_TOOL_DOMAINS, TOOL_AFFILIATES } from "../config/affiliates.js";
 import type { SvcDeps } from "./org.js";
 import type { Lang } from "./lang.js";
 import * as videosSvc from "./videos.js";
@@ -160,6 +160,12 @@ async function podcasts(term: string, lang: Lang): Promise<Podcast[]> {
   return (d?.results ?? []).filter((p) => p.collectionViewUrl && p.trackCount > 0);
 }
 
+/** Herramientas que compiten con el producto del cliente: fuera aunque el agente las proponga. */
+export function excludedTool(url: string): boolean {
+  let host = ""; try { host = new URL(url).hostname.replace(/^www\./, ""); } catch { return true; }
+  return [...EXCLUDED_TOOL_DOMAINS].some((d) => host === d || host.endsWith("." + d));
+}
+
 /** La web de la herramienta tiene que existir (2xx/3xx; 401/403/405 = existe pero bloquea bots). */
 async function siteExists(url: string): Promise<boolean> {
   if (!/^https:\/\//.test(url)) return false;
@@ -189,7 +195,7 @@ async function llmJson(system: string, content: string, maxTokens: number): Prom
 
 const PROPOSE_SYS = `Eres documentalista experto en formación profesional B2B. Para el curso que te doy propón:
 - hasta 8 libros publicados de verdad, de autores con experiencia contrastada, que ayuden a aplicar el curso (obras de referencia y guías prácticas; nada de autoayuda genérica). Si conoces con seguridad el título de su edición en castellano, añádelo en "title_es".
-- hasta 6 herramientas de software reales que un profesional use para aplicar lo del curso, con la URL oficial de su web (https).
+- hasta 6 herramientas de software reales que un profesional use para aplicar lo del curso, con la URL oficial de su web (https). NUNCA propongas herramientas que compitan con un ERP todo en uno (CRM, email marketing, automatización comercial, secuencias de prospección, gestión de proyectos, base de conocimiento, facturación, helpdesk, web o tienda online, RR. HH.): el alumno trabaja en un fabricante de ERP.
 Solo lo que puedas nombrar con seguridad: todo se verifica y lo que no existe se descarta.
 Devuelve SOLO JSON: {"books":[{"title":"título original","author":"nombre y apellido","title_es":"…"}],"tools":[{"name":"…","url":"https://…","what":"para qué sirve, en 10 palabras"}]}`;
 
@@ -224,7 +230,7 @@ export async function build(deps: SvcDeps, topic: string, outline: string, lang:
     const doc = await findWork(b.title, b.author);
     if (doc) books.push({ doc, es: lang === "es" ? await spanishFor(doc, b.author, b.title_es) : null });
   }
-  const toolsIn = (proposal?.tools ?? []).slice(0, 6).filter((t) => t?.name && t?.url);
+  const toolsIn = (proposal?.tools ?? []).slice(0, 6).filter((t) => t?.name && t?.url && !excludedTool(t.url));
   const toolsOk = (await Promise.all(toolsIn.map(async (t) => ((await siteExists(t.url)) ? t : null)))).filter((t): t is NonNullable<typeof t> => !!t);
   const seen = new Set<string>();
   const vids = [...(vidPool?.masValorados ?? []), ...(vidPool?.masVistos ?? [])]

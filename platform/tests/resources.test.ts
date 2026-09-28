@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  amazonUrl, authorMatches, dedupeBy, videoTopics, countFor, forYou, keep, rank, scoreBook, scorePodcast, scoreVideo, tabOrder,
+  amazonUrl, authorMatches, dedupeBy, excludedTool, videoTopics, countFor, forYou, keep, rank, scoreBook, scorePodcast, scoreVideo, tabOrder,
   type Kind, type Resource,
 } from "../src/services/resources.js";
 
@@ -87,5 +87,13 @@ describe("candidate gathering", () => {
   });
   it("drops podcasts repeated under the same name", () => {
     expect(dedupeBy([{ n: "Ventas B2B" }, { n: "ventas b2b " }, { n: "Otro" }], (x) => x.n.trim().toLowerCase())).toHaveLength(2);
+  });
+});
+
+describe("client-competing tools", () => {
+  it("never recommends tools that compete with the client's ERP", () => {
+    expect(excludedTool("https://www.lemlist.com/")).toBe(true);
+    expect(excludedTool("https://app.apollo.io/")).toBe(true);
+    expect(excludedTool("https://www.linkedin.com/sales/")).toBe(false);
   });
 });

@@ -96,13 +96,16 @@ button{font-family:inherit}[hidden]{display:none!important}a{color:inherit}
       +(r.evidence&&r.evidence.length?'<span class="ev">'+esc(r.evidence.join(' · '))+'</span>':'')
       +(r.affiliate?'<span class="aff">Enlace de afiliado</span>':'')+'</div></a>';
   }
+  // Texto que exige el contrato de Amazon Afiliados cuando hay libros con enlace de afiliado.
+  function amazonNote(){ var any=((DATA.groups.book)||[]).some(function(r){return r.affiliate;});
+    return any?'<p class="empty" style="font-size:12px">En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.</p>':''; }
   function row(title,items){return items.length?'<section class="row"><h2 class="rh">'+esc(title)+'</h2><div class="track">'+items.map(card).join('')+'</div></section>':'';}
   function render(){
     tabs.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.k===TAB);b.setAttribute('aria-selected',b.dataset.k===TAB);});
     var g=DATA.groups;
     if(TAB==='all'){
       var html=row(LABEL.forYou,DATA.forYou||[])+DATA.order.map(function(k){return row(LABEL[k],g[k]||[]);}).join('');
-      rows.innerHTML=html||'<p class="empty">Todavía no hay recursos para este curso. Vuelve a intentarlo en unos minutos.</p>';
+      rows.innerHTML=(html||'<p class="empty">Todavía no hay recursos para este curso. Vuelve a intentarlo en unos minutos.</p>')+amazonNote();
     } else {
       var items=g[TAB]||[];
       rows.innerHTML=items.length?'<div class="grid">'+items.map(card).join('')+'</div>':'<p class="empty">No hay '+esc(LABEL[TAB].toLowerCase())+' para este curso todavía.</p>';

@@ -8,3 +8,13 @@ export const TOOL_AFFILIATES: Record<string, { url: string; program: string }> =
 
 /** Cuánto sube en el orden un recurso rentabilizable que ya ha pasado el control de calidad. */
 export const AFFILIATE_BOOST = 8;
+
+// Herramientas que compiten con el producto del cliente (hoy, el primer cliente es un fabricante de ERP: Odoo) y que por
+// tanto nunca se recomiendan. ponytail: lista global mientras haya un solo cliente; pasar a ajustes por empresa al llegar
+// el segundo con otro sector.
+export const EXCLUDED_TOOL_DOMAINS = new Set([
+  "lemlist.com", "apollo.io", "clay.com", "notion.so", "notion.com", "hubspot.com", "salesforce.com", "pipedrive.com",
+  "zoho.com", "monday.com", "clickup.com", "asana.com", "mailchimp.com", "brevo.com", "activecampaign.com", "zendesk.com",
+  "freshworks.com", "shopify.com", "wix.com", "squarespace.com", "holded.com", "quipu.com", "sage.com", "netsuite.com",
+  "sap.com", "dynamics.microsoft.com", "bitrix24.com", "trello.com", "airtable.com", "calendly.com", "typeform.com",
+]);
