@@ -1,6 +1,7 @@
 // Rutas de la supervisión en directo (1.3.0). Todo bajo prefijos que nginx ya enruta: /api/analytics/* y
 // /api/agent/*. Permisos por capacidad (auth/capabilities.ts): activity.metrics | activity.read | activity.intervene.
 import type { Context, Hono } from "hono";
+import * as teams from "../services/teams.js";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db, llm, newId } from "../container.js";
@@ -13,7 +14,7 @@ import type { Capability } from "../auth/capabilities.js";
 
 const deps = { db, newId };
 
-interface Sup { orgId: string; orgName: string; userId: string; userName: string; role: string; superadmin: boolean; access: act.Access }
+interface Sup { orgId: string; orgName: string; userId: string; userName: string; role: string; superadmin: boolean; access: act.Access; allowed: teams.Allowed }
 
 /**
  * Responsable que consulta: su propia empresa, o cualquiera si es superadmin (?orgId=). El superadmin puede no
@@ -32,7 +33,7 @@ export function auditPlatformAccess(orgId: string, userId: string, path: string,
 export async function supervisor(c: Context, cap: Capability): Promise<Sup | Response> {
   const ctx = await getAuthContext(c);
   const pa = ctx ? isPlatformAdmin(ctx) : false;
-  let base: Omit<Sup, "access" | "orgId" | "orgName"> & { orgId?: string; orgName?: string } | null = null;
+  let base: Omit<Sup, "access" | "orgId" | "orgName" | "allowed"> & { orgId?: string; orgName?: string } | null = null;
   if (ctx) base = { orgId: ctx.orgId, orgName: ctx.orgName, userId: ctx.userId, userName: ctx.userName, role: pa ? "superadmin" : ctx.role, superadmin: pa };
   else {
     const s = await getPlatformAdminSession(c);
@@ -53,7 +54,9 @@ export async function supervisor(c: Context, cap: Capability): Promise<Sup | Res
   const access = act.accessFor({ role: ctx?.role ?? "empleado", platformAdmin: base.superadmin });
   const need = cap === "activity.metrics" ? access.metrics : cap === "activity.read" ? access.read : access.intervene;
   if (!need) return c.json({ error: "sin permiso" }, 403);
-  return { ...(base as Sup), access };
+  // Alcance real (auditoría 28-09): «team» = personas asignadas + las que acompaña como coach; sin asignaciones, nadie.
+  const allowed = await teams.allowedLearners({ db, newId }, base.orgId, base.userId, base.superadmin ? "global" : need);
+  return { ...(base as Sup), access, allowed };
 }
 
 export function registerLiveRoutes(app: Hono, titles: Record<string, string>, blockCount: (slug: string) => Promise<number | null> = async () => null) {
@@ -93,10 +96,10 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>, bl
     const live = await act.liveEnabled(deps, s.orgId);
     const b = await act.board(deps, s.orgId);
     return c.json({
-      orgId: s.orgId, orgName: s.orgName, live, access: s.access, teamAsOrg: act.teamResolvedAsOrg(s.access.read),
+      orgId: s.orgId, orgName: s.orgName, live, access: s.access, teamAsOrg: false, teamOnly: s.allowed !== null,
       canConfigure: s.superadmin || ["admin"].includes(s.role),
       // Con el seguimiento en directo desactivado solo se ve la última conexión y las señales, no qué hace ahora.
-      ...b, people: live ? b.people : b.people.map((p) => ({ ...p, state: p.state ? { ...p.state, page: null, source: null, section: null, sectionTitle: null, scrollPct: null, sectionSinceSec: null, lastActions: [] } : null })),
+      ...b, people: (live ? b.people : b.people.map((p) => ({ ...p, state: p.state ? { ...p.state, page: null, source: null, section: null, sectionTitle: null, scrollPct: null, sectionSinceSec: null, lastActions: [] } : null }))).filter((p) => teams.canSee(s.allowed, p.userId)),
     });
   });
 
@@ -104,6 +107,7 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>, bl
     const s = await supervisor(c, "activity.read");
     if (s instanceof Response) return s;
     const learnerId = c.req.param("userId");
+    if (!teams.canSee(s.allowed, learnerId)) return c.json({ error: "esa persona no está en tu equipo" }, 403);
     const live = await act.liveEnabled(deps, s.orgId);
     const d = await act.personDetail(deps, s.orgId, learnerId, titles, { live, blockCount });
     if (!d) return c.json({ error: "esa persona no está en esta empresa" }, 404);
@@ -125,6 +129,7 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>, bl
     const parsed = act.interveneSchema.safeParse(await c.req.json().catch(() => ({})));
     if (!parsed.success) return c.json({ error: "escribe un mensaje (máximo 1.500 caracteres)" }, 400);
     const learnerId = c.req.param("userId");
+    if (!teams.canSee(s.allowed, learnerId)) return c.json({ error: "esa persona no está en tu equipo" }, 403);
     if (!(await act.isMember(deps, s.orgId, learnerId))) return c.json({ error: "esa persona no está en esta empresa" }, 404);
     if (learnerId === s.userId) return c.json({ error: "no puedes escribirte a ti mismo" }, 400);
     try {
@@ -136,7 +141,9 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>, bl
     const s = await supervisor(c, "activity.metrics");
     if (s instanceof Response) return s;
     const days = Math.max(7, Math.min(90, Number(c.req.query("days")) || 30));
-    return c.json({ orgId: s.orgId, orgName: s.orgName, teamAsOrg: act.teamResolvedAsOrg(s.access.metrics), ...(await act.orgMetrics(deps, s.orgId, titles, days)) });
+    const m = await act.orgMetrics(deps, s.orgId, titles, days);
+    // Con alcance de equipo, los nombres solo de su equipo; los totales quedan agregados y anónimos.
+    return c.json({ orgId: s.orgId, orgName: s.orgName, teamAsOrg: false, teamOnly: s.allowed !== null, ...m, struggling: m.struggling.filter((p) => teams.canSee(s.allowed, p.userId)) });
   });
 
   // Resumen con IA (modelo rápido, caché 15 min por objetivo): persona (activity.read) o empresa/equipo (activity.metrics).
@@ -148,18 +155,20 @@ export function registerLiveRoutes(app: Hono, titles: Record<string, string>, bl
     let facts: string, n: Record<string, number>;
     if (target === "person") {
       const learnerId = String(c.req.query("userId"));
+      if (!teams.canSee(s.allowed, learnerId)) return c.json({ error: "esa persona no está en tu equipo" }, 403);
       const d = await act.personDetail(deps, s.orgId, learnerId, titles, { live: await act.liveEnabled(deps, s.orgId) });
       if (!d) return c.json({ error: "esa persona no está en esta empresa" }, 404);
       facts = act.personFacts(d);
       n = { cursos: d.courses.length, roleplays: d.roleplays.length, minutos30d: d.time.activeMin30d };
     } else {
-      const m = await act.orgMetrics(deps, s.orgId, titles, 30);
+      const m0 = await act.orgMetrics(deps, s.orgId, titles, 30);
+      const m = { ...m0, struggling: m0.struggling.filter((p) => teams.canSee(s.allowed, p.userId)) };
       facts = act.orgFacts(m);
       n = { personas: m.members, activas30d: m.active.mau, notasDeBloque: m.blockScores.reduce((a, b) => a + b.n, 0) };
     }
     try {
       const r = await act.summarize(llm, { orgId: s.orgId, supervisorId: s.userId, target: target === "person" ? String(c.req.query("userId")) : "org", kind: target, facts, model: env.MODEL_FAST, refresh: c.req.query("refresh") === "1" });
-      return c.json({ ...r, basis: n, teamAsOrg: target === "org" && act.teamResolvedAsOrg(s.access.metrics) });
+      return c.json({ ...r, basis: n, teamAsOrg: false });
     } catch (e) { return c.json({ error: "no se pudo generar el resumen: " + (e as Error).message }, 502); }
   });
 

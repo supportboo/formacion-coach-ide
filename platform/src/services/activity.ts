@@ -36,11 +36,6 @@ export function accessFor(ctx: CapCtx): Access {
     intervene: scopeOf(ctx, "activity.intervene"),
   };
 }
-/**
- * La plataforma aún no tiene equipos (no hay relación responsable -> persona en el esquema), así que el
- * alcance «team» se resuelve como toda la empresa. Se devuelve como aviso a la UI; nunca se inventan equipos.
- */
-export function teamResolvedAsOrg(scope: Scope | null): boolean { return scope === "team"; }
 
 /* ---------------------------------------------------------------- entrada del alumno */
 

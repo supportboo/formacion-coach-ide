@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { can, scopeOf } from "../src/auth/capabilities.js";
 import {
   accessFor, beaconSchema, blockScores, completionFunnel, dailySeries, dayKey, isOnline, liveState, median, retentionCutoff,
-  RETENTION_DAYS, streakDays, stuckSignals, teamResolvedAsOrg, visibleText, watch, watchersOf, WATCH_TTL_MS, type EvRow,
+  RETENTION_DAYS, streakDays, stuckSignals, visibleText, watch, watchersOf, WATCH_TTL_MS, type EvRow,
 } from "../src/services/activity.js";
 import { historyToLlm, mergeTurns } from "../src/agents/chat.js";
 
@@ -39,10 +39,6 @@ describe("capabilities: live supervision", () => {
   });
   it("superadmin is global", () => {
     expect(accessFor({ role: "empleado", platformAdmin: true })).toEqual({ metrics: "global", read: "global", intervene: "global" });
-  });
-  it("team scope is resolved as the whole org (no team structure yet)", () => {
-    expect(teamResolvedAsOrg("team")).toBe(true);
-    expect(teamResolvedAsOrg("org")).toBe(false);
   });
 });
 

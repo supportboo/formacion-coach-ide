@@ -81,17 +81,21 @@ export function scoreExam(correctAnswers: string[], answers: string[]): number {
 }
 
 /** Sesión de examen en memoria de proceso: guarda la respuesta correcta sin exponerla al cliente. */
-const examSessions = new Map<string, { correctAnswers: string[]; expiresAt: number }>();
+// Sesión de examen ligada a empresa + alumno + competencia (auditoría 28-09): quien entrega tiene que ser quien lo generó
+// y la nota solo cuenta para la competencia del examen, nunca para otra que mande el navegador.
+export interface ExamOwner { orgId: string; userId: string; competencyId: string }
+const examSessions = new Map<string, { correctAnswers: string[]; owner: ExamOwner; expiresAt: number }>();
 const EXAM_TTL_MS = 30 * 60_000;
 
-export function storeExamSession(id: string, correctAnswers: string[]): void {
-  examSessions.set(id, { correctAnswers, expiresAt: Date.now() + EXAM_TTL_MS });
+export function storeExamSession(id: string, correctAnswers: string[], owner: ExamOwner): void {
+  examSessions.set(id, { correctAnswers, owner, expiresAt: Date.now() + EXAM_TTL_MS });
 }
-export function takeExamSession(id: string): string[] | null {
+export function takeExamSession(id: string, who: { orgId: string; userId: string }): { correctAnswers: string[]; competencyId: string } | null {
   const s = examSessions.get(id);
+  if (!s || s.owner.orgId !== who.orgId || s.owner.userId !== who.userId) return null; // de otra persona: ni se consume
   examSessions.delete(id); // de un solo uso
-  if (!s || s.expiresAt < Date.now()) return null;
-  return s.correctAnswers;
+  if (s.expiresAt < Date.now()) return null;
+  return { correctAnswers: s.correctAnswers, competencyId: s.owner.competencyId };
 }
 
 function shuffle<T>(arr: T[]): T[] {

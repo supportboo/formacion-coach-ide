@@ -230,7 +230,7 @@ async function loadBoard(){
   try{ BOARD=await api('/api/analytics/live'+q()); }catch(e){ document.getElementById('vLive').innerHTML='<p class="msg err">'+E(e.message)+'</p>'; return; }
   document.getElementById('orgName').textContent=BOARD.orgName||'';
   var chips='<span class="chip teal">Seguimiento transparente: la persona ve un aviso con tu nombre</span>';
-  if(BOARD.teamAsOrg) chips+='<span class="chip">Todavía no hay equipos en la plataforma: ves a toda la empresa</span>';
+  if(BOARD.teamOnly&&!(BOARD.people||[]).length) chips+='<span class="chip">Tu equipo está vacío: pide a un administrador que te asigne personas en Panel › Equipos</span>';
   if(!BOARD.live) chips+='<span class="chip gold">Seguimiento en directo desactivado en esta empresa</span>';
   document.getElementById('chips').innerHTML=chips;
   renderBoard();
@@ -398,7 +398,7 @@ async function loadMetrics(){
   var m; try{ m=await api('/api/analytics/live/metrics'+q('days='+METRIC_DAYS)); }catch(e){ el.innerHTML='<p class="msg err">'+E(e.message)+'</p>'; return; }
   document.getElementById('orgName').textContent=m.orgName||'';
   var h='<div class="bar">'+[7,30,90].map(function(d){return '<button class="fchip'+(METRIC_DAYS===d?' on':'')+'" data-d="'+d+'">'+d+' días</button>';}).join('')+'</div>';
-  if(m.teamAsOrg) h+='<div class="chips"><span class="chip">Todavía no hay equipos: las métricas son de toda la empresa</span></div>';
+  if(m.teamOnly) h+='<div class="chips"><span class="chip">Totales de toda la empresa, anónimos; los nombres solo de tu equipo</span></div>';
   h+='<div class="kpis">'
     +mk(m.active.dau,m.members,'Activas 24 h','Personas con alguna actividad en las últimas 24 h.',m.members)
     +mk(m.active.wau,m.members,'Activas 7 días','Personas distintas con actividad en 7 días.',m.members)
@@ -409,7 +409,7 @@ async function loadMetrics(){
     +mk(m.timeToCertifyDays.median!=null?String(m.timeToCertifyDays.median).replace('.',',')+' d':'—',null,'Hasta certificarse','Mediana desde el primer test del curso hasta el certificado.',m.timeToCertifyDays.n,m.timeToCertifyDays.n>0)
     +mk(m.roleplays.avgScore!=null?String(m.roleplays.avgScore).replace('.',',')+'/10':'—',null,'Nota media roleplay',m.roleplays.closed+' terminados · '+m.roleplays.abandoned+' sin terminar de '+m.roleplays.started+'.',m.roleplays.scoredN,m.roleplays.scoredN>0)
     +'</div>';
-  h+='<div class="card ai"><h2>Resumen con IA · '+(m.teamAsOrg?'equipo y empresa':'empresa')+'</h2><div id="aiOrg"><p class="msg">Adopción, quién necesita ayuda primero, bloques más difíciles y qué hacer esta semana. Solo con datos medidos.</p></div><button class="btn" id="aiOrgBtn">Generar resumen</button></div>';
+  h+='<div class="card ai"><h2>Resumen con IA · '+'empresa'+'</h2><div id="aiOrg"><p class="msg">Adopción, quién necesita ayuda primero, bloques más difíciles y qué hacer esta semana. Solo con datos medidos.</p></div><button class="btn" id="aiOrgBtn">Generar resumen</button></div>';
   h+='<div class="cols"><div class="card"><h2>Minutos activos por día</h2>'+bars(m.series,'activeMin','var(--teal2)','Minutos activos por día')+'<div class="def">Tiempo con la página visible e interacción. '+cert(m.totals.activeMin>0)+'</div></div>'
     +'<div class="card"><h2>Personas activas por día</h2>'+bars(m.series,'users','var(--aub2)','Personas activas por día')+'<div class="def">Personas distintas con actividad cada día. '+cert(m.series.some(function(d){return d.users>0;}))+'</div></div></div>';
   h+='<div class="cols"><div class="card"><h2>Cuándo se forma el equipo</h2>'+heat(m.heatmap)+'<div class="def">Minutos activos por día de la semana y hora de España.</div></div>'

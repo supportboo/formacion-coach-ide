@@ -223,6 +223,16 @@ details[open] summary:before{content:"▾ "}
     </div>
   </div>
 
+  <div class="card" id="cardTeams">
+    <h2>Equipos</h2>
+    <p class="msg" style="margin-top:0">Quién forma el equipo de cada coach o team leader. En «Mi equipo» solo verán a estas personas (y a quienes acompañan como coach).</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label class="msg" for="tmMgr">Responsable</label><select class="inline-input" id="tmMgr"></select>
+      <div id="tmList" style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto"></div>
+      <button class="btn btn-grad" id="tmSave" type="button" style="align-self:flex-start">Guardar equipo</button><div id="tmMsg" class="msg" aria-live="polite"></div>
+    </div>
+  </div>
+
   <div class="card" id="cardRubrics">
     <h2>Rúbricas de validación</h2>
     <p class="msg" style="margin-top:0">Los criterios con los que un referente valida un caso de esa competencia. Uno por línea.</p>
@@ -530,6 +540,22 @@ details[open] summary:before{content:"▾ "}
     document.getElementById('cpSave').addEventListener('click',async function(){ var body={ oferta:document.getElementById('cpOferta').value, publicos:document.getElementById('cpPublicos').value, terminologia:document.getElementById('cpTerm').value,
       herramientasAutorizadas:csv(document.getElementById('cpAut').value), herramientasExcluidas:csv(document.getElementById('cpExc').value), competenciasPrioritarias:csv(document.getElementById('cpComp').value), limites:document.getElementById('cpLim').value };
       try{ await SkillUp.api('/api/config/company/profile',{method:'PUT',body:body}); m.textContent='Guardada y validada. Los tutores la usan desde ahora.'; } catch(ex){ m.textContent=ex.message||'No se ha podido guardar.'; } });
+  })();
+
+  // 1.16.0: equipos — admin y dirección asignan personas a cada responsable
+  (function(){
+    var MGR=['coach','team_leader','inspirador'], D=null, sel=document.getElementById('tmMgr'), list=document.getElementById('tmList'), m=document.getElementById('tmMsg');
+    function name(x){ return SkillUp.escHtml(x.name||x.email||'Sin nombre'); }
+    function render(){ var id=sel.value, mine={}; D.links.forEach(function(l){ if(l.managerUserId===id) mine[l.learnerUserId]=1; });
+      list.innerHTML=D.members.filter(function(x){return x.userId!==id;}).map(function(x){ return '<label style="display:flex;gap:9px;align-items:center;font-size:14px"><input type="checkbox" value="'+SkillUp.escHtml(x.userId)+'"'+(mine[x.userId]?' checked':'')+'><span>'+name(x)+'</span></label>'; }).join(''); }
+    SkillUp.api('/api/org/teams').then(function(d){ D=d; var mg=d.members.filter(function(x){return MGR.indexOf(x.role)>=0;});
+      if(!mg.length){ m.textContent='Aún no hay coaches ni team leaders en la empresa.'; document.getElementById('tmSave').hidden=true; return; }
+      sel.innerHTML=mg.map(function(x){ return '<option value="'+SkillUp.escHtml(x.userId)+'">'+name(x)+'</option>'; }).join(''); render(); sel.addEventListener('change',render);
+    }).catch(function(){ document.getElementById('cardTeams').hidden=true; });
+    document.getElementById('tmSave').addEventListener('click',async function(){ var id=sel.value, ids=[].map.call(list.querySelectorAll('input:checked'),function(i){return i.value;});
+      try{ var r=await SkillUp.api('/api/org/teams/'+encodeURIComponent(id),{method:'PUT',body:{learnerIds:ids}});
+        D.links=D.links.filter(function(l){return l.managerUserId!==id;}).concat(ids.map(function(x){return {managerUserId:id,learnerUserId:x};}));
+        m.textContent='Equipo guardado: '+r.saved+' persona'+(r.saved===1?'':'s')+'.'; } catch(ex){ m.textContent=ex.message||'No se ha podido guardar.'; } });
   })();
 
   // P7: rúbricas — cargar competencias en el selector

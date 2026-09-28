@@ -9,9 +9,14 @@ export interface AuthCtx {
   orgId: string; orgName: string; userId: string; userName: string; userEmail: string; role: string;
 }
 
-/** Superadmin de la plataforma (todas las organizaciones), por email en PLATFORM_ADMIN_EMAILS. No es un rol de member. */
-export function isPlatformAdmin(ctx: Pick<AuthCtx, "userEmail">): boolean {
-  return env.PLATFORM_ADMIN_EMAILS.includes(ctx.userEmail.toLowerCase());
+/** Superadmin de la plataforma (todas las organizaciones). No es un rol de member.
+ * Auditoría 28-09: el correo solo no basta (alguien podría registrarse con un correo de la lista antes que su dueño).
+ * Hace falta correo de PLATFORM_ADMIN_EMAILS **y** id de usuario provisionado en PLATFORM_ADMIN_USER_IDS; sin lista de
+ * ids no hay superadmin fuera de desarrollo (falla cerrado). */
+export function isPlatformAdmin(ctx: Pick<AuthCtx, "userEmail" | "userId">): boolean {
+  if (!env.PLATFORM_ADMIN_EMAILS.includes(ctx.userEmail.toLowerCase())) return false;
+  if (env.PLATFORM_ADMIN_USER_IDS.length === 0) return env.DEV_AUTH;
+  return env.PLATFORM_ADMIN_USER_IDS.includes(ctx.userId);
 }
 
 // Estado de cuenta (nota canónica única source='cuenta', body='[cuenta] <estado>'):
@@ -38,12 +43,12 @@ export async function getPlatformAdminSession(c: Context): Promise<{ userId: str
   if (env.DEV_AUTH) {
     const email = c.req.header("x-user-email");
     const userId = c.req.header("x-user-id");
-    if (!email || !userId || !env.PLATFORM_ADMIN_EMAILS.includes(email.toLowerCase())) return null;
+    if (!email || !userId || !isPlatformAdmin({ userEmail: email, userId })) return null;
     return { userId, userEmail: email };
   }
   const s = await auth.api.getSession({ headers: c.req.raw.headers });
   if (!s?.session || !s.user) return null;
-  if (!env.PLATFORM_ADMIN_EMAILS.includes(s.user.email.toLowerCase())) return null;
+  if (!isPlatformAdmin({ userEmail: s.user.email, userId: s.user.id })) return null;
   return { userId: s.user.id, userEmail: s.user.email };
 }
 
@@ -75,7 +80,7 @@ export async function getAuthContext(c: Context): Promise<AuthCtx | null> {
     .where(and(eq(member.organizationId, orgId), eq(member.userId, s.user.id)));
   if (!m) return null;
   // Deactivated accounts are locked out of every route, not just course content.
-  if (!isPlatformAdmin({ userEmail: s.user.email })) {
+  if (!isPlatformAdmin({ userEmail: s.user.email, userId: s.user.id })) {
     const st = await getAccountState(orgId, s.user.id);
     if (st === "desactivado" || st === "archivado") return null; // bloqueada / archivada
   }

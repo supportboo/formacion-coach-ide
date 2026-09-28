@@ -627,6 +627,17 @@ export const teamProfile = pgTable("team_profile", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (t) => ({ byUser: uniqueIndex("team_profile_user_uidx").on(t.organizationId, t.userId) }));
 
+/* Equipos (1.16.0, auditoría 28-09): a quién acompaña cada responsable (coach, team leader). El alcance «mi equipo»
+ * se resuelve con estas asignaciones (más las relaciones de coaching); sin asignaciones es vacío, nunca toda la empresa. */
+export const teamAssignment = pgTable("team_assignment", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  managerUserId: text("manager_user_id").notNull(),
+  learnerUserId: text("learner_user_id").notNull(),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ uq: uniqueIndex("team_assignment_uidx").on(t.organizationId, t.managerUserId, t.learnerUserId) }));
+
 /* Ficha viva del alumno (1.12.0): lo que sabemos de él para adaptar su formación, cada dato con fuente, evidencia y
  * estado. PRIVADA del alumno: no se muestra a responsables ni entra en métricas de empresa (las capacidades acreditadas
  * viven en level_by_competency). El alumno la ve, la confirma, la corrige o retira datos en /app/ficha.html. */

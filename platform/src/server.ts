@@ -1,4 +1,6 @@
 ﻿import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import * as teamsSvc from "./services/teams.js";
+import * as actSvc from "./services/activity.js";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { serveStatic } from "@hono/node-server/serve-static";
@@ -12,7 +14,7 @@ import { chat, onboardingMarker } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt } from "./db/schema.js";
+import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import { orgTerms } from "./services/glossary.js";
 import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, OFFTOPIC_REPLY, orgBannedWords, quotaFor, setOrgBannedWords } from "./services/contentGuard.js";
@@ -967,15 +969,7 @@ app.get("/api/learning/mine", async (c) => {
   })));
 });
 
-app.post("/api/learning/test", async (c) => {
-  const ctx = await getAuthContext(c);
-  if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  const parsed = z.object({ pathId: z.string().min(1), competencyId: z.string().min(1), score: z.number().min(0).max(100) })
-    .safeParse(await c.req.json().catch(() => ({})));
-  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const r = await learningSvc.recordKnowledgeTest(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, ...parsed.data });
-  return c.json(r);
-});
+// La ruta antigua POST /api/learning/test aceptaba la nota del navegador y concedía N1: retirada (auditoría 28-09).
 
 // IA genera el test adaptado al sector/puesto del propio empleado (doctrina: nunca genérico).
 app.post("/api/learning/test/generate", async (c) => {
@@ -999,7 +993,7 @@ app.post("/api/learning/test/generate", async (c) => {
     });
     const { questions, correctAnswers } = aiContent.shuffleExam(exam);
     const examId = newId();
-    aiContent.storeExamSession(examId, correctAnswers);
+    aiContent.storeExamSession(examId, correctAnswers, { orgId: ctx.orgId, userId: ctx.userId, competencyId: parsed.data.competencyId });
     return c.json({ examId, questions });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
@@ -1012,11 +1006,16 @@ app.post("/api/learning/test/submit", async (c) => {
     examId: z.string().min(1), pathId: z.string().min(1), competencyId: z.string().min(1), answers: z.array(z.string()),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const correctAnswers = aiContent.takeExamSession(parsed.data.examId);
-  if (!correctAnswers) return c.json({ error: "examen no encontrado o caducado, genera uno nuevo" }, 410);
-  const score = aiContent.scoreExam(correctAnswers, parsed.data.answers);
+  const session = aiContent.takeExamSession(parsed.data.examId, { orgId: ctx.orgId, userId: ctx.userId });
+  if (!session) return c.json({ error: "examen no encontrado o caducado, genera uno nuevo" }, 410);
+  // La competencia es la del examen generado, no la que diga el navegador; el itinerario tiene que ser de esa competencia.
+  if (parsed.data.competencyId !== session.competencyId) return c.json({ error: "el examen no corresponde a esa competencia" }, 400);
+  const [path] = await db.select({ id: learningPath.id }).from(learningPath)
+    .where(and(eq(learningPath.id, parsed.data.pathId), eq(learningPath.organizationId, ctx.orgId), eq(learningPath.competencyId, session.competencyId))).limit(1);
+  if (!path) return c.json({ error: "itinerario no válido para esta competencia" }, 400);
+  const score = aiContent.scoreExam(session.correctAnswers, parsed.data.answers);
   const r = await learningSvc.recordKnowledgeTest(svcDeps, {
-    orgId: ctx.orgId, userId: ctx.userId, pathId: parsed.data.pathId, competencyId: parsed.data.competencyId, score,
+    orgId: ctx.orgId, userId: ctx.userId, pathId: path.id, competencyId: session.competencyId, score,
   });
   return c.json({ score, ...r });
 });
@@ -1882,6 +1881,26 @@ app.get("/api/org/team", async (c) => {
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   return c.json(await orgSvc.listMembers(svcDeps, ctx.orgId));
 });
+// Equipos (1.16.0): admin y dirección asignan a cada coach o team leader las personas que ve en «Mi equipo».
+const TEAM_ADMIN_ROLES = ["admin", "direccion"];
+app.get("/api/org/teams", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const [members, links] = await Promise.all([orgSvc.listMembers(svcDeps, ctx.orgId), teamsSvc.list(svcDeps, ctx.orgId)]);
+  return c.json({ members, links });
+});
+app.put("/api/org/teams/:managerId", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const parsed = z.object({ learnerIds: z.array(z.string().min(1).max(64)).max(500) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const managerId = c.req.param("managerId");
+  if (!(await actSvc.isMember(svcDeps, ctx.orgId, managerId))) return c.json({ error: "esa persona no está en esta empresa" }, 404);
+  const saved = await teamsSvc.setTeam(svcDeps, ctx.orgId, managerId, parsed.data.learnerIds, ctx.userId);
+  return c.json({ saved });
+});
 
 // El menu de la app (hub.html / dashboard.html) consulta esto para saber que opciones mostrar segun el rol.
 app.get("/api/org/me", async (c) => {
@@ -2151,7 +2170,8 @@ app.get("/api/platform/orgs", async (c) => {
 app.get("/api/platform/test-profiles", async (c) => {
   const s = await auth.api.getSession({ headers: c.req.raw.headers });
   if (!s?.session || !s.user) return c.json({ error: "no autenticado" }, 401);
-  const allowed = isPlatformAdmin({ userEmail: s.user.email }) || !!(s.session as { impersonatedBy?: string }).impersonatedBy;
+  const by = (s.session as { impersonatedBy?: string }).impersonatedBy;
+  const allowed = isPlatformAdmin({ userEmail: s.user.email, userId: s.user.id }) || (!!by && env.PLATFORM_ADMIN_USER_IDS.includes(by));
   if (!allowed) return c.json({ error: "sin acceso" }, 403);
   const rows = await db.select({
     userId: user.id, name: user.name, organizationId: member.organizationId, orgRole: member.orgRole,

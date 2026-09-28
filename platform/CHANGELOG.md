@@ -1,5 +1,13 @@
 # Changelog · SkillUp platform
 
+## 1.16.0 — 2026-09-28
+
+### Seguridad (auditoría externa, P0)
+- Exámenes: la sesión de examen queda ligada a la persona, la empresa y la competencia que lo generaron; nadie más puede entregarlo ni gastarlo, y el itinerario enviado debe ser de esa empresa y esa competencia. Se retira la ruta que aceptaba la nota calculada en el navegador.
+- Superadmin: además del correo, exige el identificador de usuario ya dado de alta (una cuenta nueva registrada con el mismo correo no hereda el acceso). Aplica también a la vista como otro perfil.
+- «Mi equipo» deja de ser «toda la empresa»: coaches y team leaders ven solo a las personas que un administrador les asigna y a quienes acompañan como coach, en En directo, Métricas, fichas, mensajes y resúmenes. Sin asignaciones, el equipo está vacío. En la vista equipo los totales de empresa siguen siendo agregados y anónimos.
+- Panel › Equipos: admin y dirección asignan el equipo de cada responsable. `GET /api/org/teams`, `PUT /api/org/teams/:managerId`; tabla `team_assignment` (migración 0027).
+
 ## 1.15.0 — 2026-09-28
 
 ### Circuito de módulo: ajustar, practicar, entregar, aplicar

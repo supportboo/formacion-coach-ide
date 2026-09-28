@@ -102,7 +102,7 @@ async function load(){
   document.getElementById('orgName').textContent=(H.orgName||'')+' · '+(ROLE[H.role]||H.role);
   var chips='';
   if(H.readOnly) chips+='<span class="chip gold">Modo solo lectura: soporte de SkillUp viendo esta empresa (queda registrado)</span>';
-  if(H.teamAsOrg) chips+='<span class="chip">Todavía no hay equipos en la plataforma: ves a toda la empresa</span>';
+  if(H.teamOnly&&!(H.people||[]).length) chips+='<span class="chip">Tu equipo está vacío: pide a un administrador que te asigne personas en Panel › Equipos</span>';
   chips+='<span class="chip">'+E(trackNote())+'</span>';
   document.getElementById('chips').innerHTML=chips;
   var L=[];

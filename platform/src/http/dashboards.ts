@@ -10,6 +10,7 @@ import { getPlatformAdminSession } from "./context.js";
 import { supervisor } from "./live.js";
 import { rateLimited } from "../util/rateLimit.js";
 import * as act from "../services/activity.js";
+import * as teams from "../services/teams.js";
 import * as dash from "../services/dashboards.js";
 import { listPendingCases } from "../services/validation.js";
 
@@ -47,17 +48,24 @@ export function registerDashboardRoutes(
     const [retos, pending] = await Promise.all([
       readRetos(s.orgId).then((rs) => rs.filter((r) => seesAll || r.reto.byId === s.userId)),
       listPendingCases(deps, s.orgId, s.userId, s.superadmin ? "admin" : s.role),
-    ]);
+    ]).then(([rs, pd]) => [rs.filter((r) => teams.canSee(s.allowed, r.userId)), pd.filter((p) => teams.canSee(s.allowed, p.userId))] as const);
     const uids = [...new Set(pending.map((p) => p.userId))];
     const names = uids.length ? new Map((await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, uids))).map((u) => [u.id, u.name])) : new Map<string, string>();
-    const home = await dash.orgHome(deps, {
+    const home0 = await dash.orgHome(deps, {
       orgId: s.orgId, titles, view, retos,
       pendingValidations: pending.map((p) => ({ userId: p.userId, learnerName: names.get(p.userId) ?? null })),
       days: dash.periodOf(c.req.query("days")),
     });
+    // Alcance de equipo (auditoría 28-09): solo las personas asignadas; los datos de empresa no se enseñan en la vista equipo.
+    const see = (id: string) => teams.canSee(s.allowed, id);
+    const people = home0.people.filter((p) => see(p.userId));
+    const home = s.allowed === null ? home0 : {
+      ...home0, people, needHelp: home0.needHelp.filter((p) => see(p.userId)), tests: home0.tests.filter((t) => see(t.learnerId)),
+      onlineNow: people.filter((p) => p.online).length, members: people.length,
+    };
     return c.json({
       orgId: s.orgId, orgName: s.orgName, role: s.role, superadmin: s.superadmin, access: s.access,
-      teamAsOrg: act.teamResolvedAsOrg(s.access.metrics), canFollow: !!s.access.read, canIntervene: !!s.access.intervene && !(s.superadmin && !!c.req.query("orgId")), readOnly: s.superadmin && !!c.req.query("orgId"),
+      teamAsOrg: false, teamOnly: s.allowed !== null, canFollow: !!s.access.read, canIntervene: !!s.access.intervene && !(s.superadmin && !!c.req.query("orgId")), readOnly: s.superadmin && !!c.req.query("orgId"),
       canAssign: s.superadmin || ["team_leader", "admin", "direccion", "inspirador"].includes(s.role), assignedScope: seesAll ? "empresa" : "mías",
       ...home,
     });
