@@ -6,7 +6,7 @@
 //   «probar el bot». Es control de coste y abuso, y así se le explica a la persona (ver DATOS en container.ts).
 import { and, count, desc, eq, gte } from "drizzle-orm";
 import type { DB } from "../db/index.js";
-import { agentMessage, agentThread, annotation } from "../db/schema.js";
+import { agentMessage, agentThread, annotation, auditLog } from "../db/schema.js";
 
 export const BASE_BANNED = [
   "gilipollas", "cabron", "cabrona", "hijo de puta", "hija de puta", "hijoputa", "hdp", "puta", "puto", "putas", "putos",
@@ -15,7 +15,8 @@ export const BASE_BANNED = [
   "me cago en", "cago en tu", "tonto del culo", "soplapollas", "malparido", "pendejo", "culero", "verga",
 ];
 export const BLOCKED_REPLY = "Prefiero que mantengamos un tono profesional: ese tipo de expresiones no las proceso aquí. Si quieres, seguimos con lo tuyo; ¿en qué te ayudo?";
-export const CAP_REPLY = (cap: number) => `Por hoy has llegado al máximo de ${cap} mensajes con los tutores. Mañana seguimos; mientras tanto puedes repasar el curso, hacer los tests o practicar lo aprendido.`;
+export const CAP_REPLY = (cap: number) => `Hoy ya llevamos ${cap} mensajes: buen día de práctica. Repartir el aprendizaje en varios días fija mejor lo aprendido, así que seguimos mañana; mientras, puedes repasar el curso o hacer un test.`;
+export const OFFTOPIC_REPLY = "Hoy ya nos hemos ido bastante por las ramas. Me encanta la charla, pero volvamos a lo tuyo: cuéntame algo de tu trabajo o sigamos con el curso.";
 
 const LEET: Record<string, string> = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s" };
 
@@ -69,4 +70,18 @@ export async function userMessagesToday(db: DB, orgId: string, userId: string, n
     .innerJoin(agentThread, eq(agentThread.id, agentMessage.threadId))
     .where(and(eq(agentMessage.organizationId, orgId), eq(agentThread.userId, userId), eq(agentMessage.sender, "user"), gte(agentMessage.createdAt, start)));
   return Number(r?.n || 0);
+}
+
+/** Mensajes marcados como fuera de tema hoy (el tutor los marca al contestar; ver CRITERIO en container.ts). */
+export async function offTopicToday(db: DB, orgId: string, userId: string, now = new Date()): Promise<number> {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const [r] = await db.select({ n: count() }).from(auditLog)
+    .where(and(eq(auditLog.organizationId, orgId), eq(auditLog.userId, userId), eq(auditLog.action, "chat.offtopic"), gte(auditLog.createdAt, start)));
+  return Number(r?.n || 0);
+}
+
+export interface Quota { used: number; cap: number; offTopic: number; offTopicCap: number }
+export async function quotaFor(db: DB, orgId: string, userId: string, cap: number, offTopicCap: number): Promise<Quota> {
+  const [used, offTopic] = await Promise.all([userMessagesToday(db, orgId, userId).catch(() => 0), offTopicToday(db, orgId, userId).catch(() => 0)]);
+  return { used, cap, offTopic, offTopicCap };
 }

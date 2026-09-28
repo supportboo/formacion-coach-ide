@@ -6,6 +6,7 @@ import type { ChatDeps } from "./agents/chat.js";
 import { newId } from "./util/id.js";
 import { makeUsageRecorder, orgCost } from "./services/costs.js";
 import { env } from "./config/env.js";
+import { auditLog } from "./db/schema.js";
 import { applyTerms, extractLearned, glossaryPrompt, learnTerm, LEARN_INSTRUCTION, LEARNING_KINDS, orgTerms } from "./services/glossary.js";
 
 // Singletons de la app.
@@ -15,7 +16,7 @@ const rawLlm = makeLlm(makeUsageRecorder({ db, newId }));
 // Criterio en conversación (Marc, 27-09-2026): el tutor no se deja engañar. Si el alumno afirma algo que parece
 // falso, inverosímil o ajeno al temario, lo cuestiona con tacto y curiosidad; sin ser rígido, porque no conoce la
 // realidad concreta de cada empresa.
-const CRITERIO = "\n\nCRITERIO: si el usuario afirma algo que parece falso, exagerado, inverosímil o que no tiene que ver con el temario, no lo des por bueno ni le sigas la corriente. Cuestiónalo con tacto y buen humor: di con naturalidad lo que no te cuadra o que se sale del tema, pregunta de dónde sale o pide un ejemplo concreto, y reconduce al contenido. Deja ver que estás atento y que no es fácil colarte algo, sin acusar ni sermonear. Si puede ser verdad en su empresa (no conoces su realidad), dale el beneficio de la duda pero pide que lo concrete. En un roleplay hazlo dentro de tu personaje. Si solo está probando el bot, trolleando o diciendo tonterías sin relación con su trabajo, responde en UNA frase, con humor y sin sermonear, y reconduce al temario: no gastes en respuestas largas.";
+const CRITERIO = "\n\nCRITERIO: si el usuario afirma algo que parece falso, exagerado, inverosímil o que no tiene que ver con el temario, no lo des por bueno ni le sigas la corriente. Cuestiónalo con tacto y buen humor: di con naturalidad lo que no te cuadra o que se sale del tema, pregunta de dónde sale o pide un ejemplo concreto, y reconduce al contenido. Deja ver que estás atento y que no es fácil colarte algo, sin acusar ni sermonear. Si puede ser verdad en su empresa (no conoces su realidad), dale el beneficio de la duda pero pide que lo concrete. En un roleplay hazlo dentro de tu personaje. Si solo está probando el bot, trolleando o diciendo tonterías sin relación con su trabajo, responde en UNA frase, con humor y sin sermonear, y reconduce al temario: no gastes en respuestas largas. En esos casos (bromas, pruebas al bot, temas ajenos a su trabajo y a su formación) añade AL FINAL, en una línea aparte, exactamente: [[FUERA_DE_TEMA]]. Contar su vida real, sus clientes, su equipo, sus problemas o su situación personal cuando afecta a su trabajo NO es fuera de tema: eso es valioso, escúchalo y aprovéchalo.";
 
 // Verdad sobre los datos (Marc, 28-09-2026): un tutor contestó «solo las uso en esta sesión, no se guardan», y es
 // FALSO (el chat, lo que cuenta la persona y su actividad se guardan en la cuenta de su empresa; ver PRIVACY.md).
@@ -37,7 +38,14 @@ export const llm: Llm = {
     const terms = await orgTerms(db, call.orgId).catch(() => []);
     const learning = !!(call.orgId && call.userId && LEARNING_KINDS.has(call.kind || ""));
     const out = await rawLlm.generate({ ...call, system: call.system + glossaryPrompt(terms) + (learning ? LEARN_INSTRUCTION + CRITERIO + DATOS : "") });
-    const { clean, learned } = extractLearned(out);
+    const tagged = extractLearned(out);
+    const learned = tagged.learned;
+    // Fuera de tema (solo cuenta para el margen diario de desvíos, nunca lo útil): la marca se quita y se registra.
+    let clean = tagged.clean;
+    if (/\[\[\s*FUERA_DE_TEMA\s*\]\]/i.test(clean)) {
+      clean = clean.replace(/\[\[\s*FUERA_DE_TEMA\s*\]\]/gi, "").trim();
+      if (learning && call.kind === "chat") await db.insert(auditLog).values({ id: newId(), organizationId: call.orgId!, userId: call.userId!, action: "chat.offtopic", meta: {} }).catch(() => {});
+    }
     if (learning) for (const t of learned) await learnTerm(db, newId, call.orgId!, call.userId!, t).catch(() => false);
     return applyTerms(clean, learned.length ? await orgTerms(db, call.orgId).catch(() => terms) : terms);
   },

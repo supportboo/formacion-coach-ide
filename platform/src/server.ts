@@ -15,7 +15,7 @@ import { sendMail } from "./services/mailer.js";
 import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import { orgTerms } from "./services/glossary.js";
-import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, orgBannedWords, setOrgBannedWords, userMessagesToday } from "./services/contentGuard.js";
+import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, OFFTOPIC_REPLY, orgBannedWords, quotaFor, setOrgBannedWords } from "./services/contentGuard.js";
 import * as aiContent from "./services/aiContent.js";
 import { rateLimited } from "./util/rateLimit.js";
 import * as catalogSvc from "./services/catalog.js";
@@ -427,19 +427,41 @@ app.post("/api/agent/chat", async (c) => {
     await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.blocked", meta: { reason: "banned_word", word: hit } }).catch(() => {});
     return c.json({ threadId: parsed.data.threadId ?? null, reply: BLOCKED_REPLY, blocked: true });
   }
-  if (env.CHAT_DAILY_USER_CAP > 0 && (await userMessagesToday(db, ctx.orgId, ctx.userId).catch(() => 0)) >= env.CHAT_DAILY_USER_CAP) {
-    return c.json({ threadId: parsed.data.threadId ?? null, reply: CAP_REPLY(env.CHAT_DAILY_USER_CAP), blocked: true });
+  // Límite pensado para no frenar lo útil: solo cuentan los desvíos (bromas, probar el bot, temas ajenos). Pasado el
+  // margen del día, un modelo barato comprueba el mensaje antes de gastar en la respuesta; contar su vida real o su
+  // trabajo siempre pasa. El tope total es solo una red de seguridad contra abusos extremos.
+  const q0 = await quotaFor(db, ctx.orgId, ctx.userId, env.CHAT_DAILY_USER_CAP, env.CHAT_OFFTOPIC_DAILY_CAP);
+  if (env.CHAT_DAILY_USER_CAP > 0 && q0.used >= env.CHAT_DAILY_USER_CAP) {
+    return c.json({ threadId: parsed.data.threadId ?? null, reply: CAP_REPLY(env.CHAT_DAILY_USER_CAP), blocked: true, quota: q0 });
+  }
+  if (env.CHAT_OFFTOPIC_DAILY_CAP > 0 && q0.offTopic >= env.CHAT_OFFTOPIC_DAILY_CAP) {
+    const verdict = await llm.generate({
+      system: "Clasificas un mensaje de un alumno a su tutor de formación profesional. Responde solo SI o NO. SI = trata de su trabajo, su empresa, sus clientes, su equipo, su formación, dudas del curso o su situación personal real cuando afecta a su trabajo. NO = bromas, probar al bot, temas ajenos o tonterías.",
+      messages: [{ role: "user", content: visible.slice(0, 1500) }], model: env.MODEL_FAST, maxTokens: 3,
+      orgId: ctx.orgId, userId: ctx.userId, kind: "offtopic_check",
+    }).catch(() => "SI");
+    if (/^\s*no/i.test(verdict)) {
+      await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.offtopic", meta: { prechecked: true } }).catch(() => {});
+      return c.json({ threadId: parsed.data.threadId ?? null, reply: OFFTOPIC_REPLY, blocked: true, quota: { ...q0, offTopic: q0.offTopic + 1 } });
+    }
   }
   const res = await chat(chatDeps, {
     orgId: ctx.orgId, orgName: ctx.orgName, userId: ctx.userId, userName: ctx.userName,
     role: ctx.role, threadId: parsed.data.threadId, message: parsed.data.message,
     display: parsed.data.display, source: parsed.data.source,
   });
-  return c.json(res);
+  return c.json({ ...res, quota: await quotaFor(db, ctx.orgId, ctx.userId, env.CHAT_DAILY_USER_CAP, env.CHAT_OFFTOPIC_DAILY_CAP) });
 });
 
 // Coach de voz proactivo (BOO): saluda con seguimiento REAL — reconoce, motiva, hace seguimiento y
 // suelta una broma amable. Solo con hechos reales del alumno (nada de fechas ni plazos inventados).
+// Práctica de hoy con los tutores (barra bajo cada chat).
+app.get("/api/agent/quota", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json(await quotaFor(db, ctx.orgId, ctx.userId, env.CHAT_DAILY_USER_CAP, env.CHAT_OFFTOPIC_DAILY_CAP));
+});
+
 // Palabras prohibidas propias de la empresa (la lista base va siempre). Solo admin/dirección (o superadmin) la cambia.
 app.get("/api/agent/banned", async (c) => {
   const ctx = await getAuthContext(c);
