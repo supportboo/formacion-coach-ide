@@ -118,6 +118,7 @@ export async function spendCredits(
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${"credits:" + s.orgId}))`);
     const txDeps = { ...deps, db: tx as unknown as SvcDeps["db"] };
     const cost = (await getPrices(txDeps))[item] * units;
+    if (!Number.isFinite(cost) || cost < 0) throw new Error(`concepto de crédito desconocido: ${String(item)}`);
     const bal = await balance(txDeps, s.orgId);
     const d = decideSpend({ allowed, balance: bal, cost });
     if (!d.ok) throw d.error;
