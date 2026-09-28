@@ -148,6 +148,7 @@ select option{background:var(--panel);color:var(--ink)}
 </div>
 <script src="/app/api.js"></script>
 <script src="/app/nav.js" defer></script>
+<script src="/app/eyes-loader.js"></script>
 <script>
 var threadId = null;
 (async function () {
@@ -224,7 +225,7 @@ var threadId = null;
   var currentExamId = null;
   document.getElementById('btnGenTest').addEventListener('click', async function () {
     var msg = document.getElementById('testMsg'); msg.textContent = '';
-    var box = document.getElementById('examBox'); box.innerHTML = 'Generando…';
+    var box = document.getElementById('examBox'); if (window.EyesLoader) EyesLoader.mount(box, 'Generando tu test…', 'Se prepara solo para ti.'); else box.innerHTML = 'Generando…';
     try {
       var r = await SkillUp.api('/api/learning/test/generate', { method: 'POST', body: {
         competencyId: resolveId('competencyId'),

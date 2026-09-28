@@ -178,6 +178,7 @@ button{font-family:inherit}[hidden]{display:none!important}
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
 <script src="/app/nav.js" defer></script>
+<script src="/app/eyes-loader.js"></script>
 <script>
 (function(){
 "use strict";
@@ -317,7 +318,7 @@ function skipSection(){
 function openSkipTest(compId,pathId,name){
   var ov=document.getElementById('ovSkip'); if(!ov) return;
   ov.querySelector('[data-skip-title]').textContent='Demuestra: '+name;
-  var body=ov.querySelector('[data-skip-body]'); body.innerHTML='<div class="ov-note">Generando tu test…</div>';
+  var body=ov.querySelector('[data-skip-body]'); if(window.EyesLoader) EyesLoader.mount(body,'Generando tu test…','Se prepara solo para ti.'); else body.innerHTML='<div class="ov-note">Generando tu test…</div>';
   var foot=ov.querySelector('[data-skip-foot]'); foot.innerHTML='';
   ov.classList.add('open');
   var examId=null, qs=[];
