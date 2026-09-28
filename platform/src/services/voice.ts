@@ -24,24 +24,21 @@ export function ttsBody(text: string, voiceId: string, lang = "es") {
     : { text, model_id: MODEL, voice_settings: settingsFor(voiceId) };
 }
 
-// Máster «podcast», MEDIDO (2026-09-27, misma frase, bandas de octava relativas a 800 Hz):
-// el clon de Marc sale fino y chillón frente a Diego/Inés/Álvaro: ~10 dB menos por debajo de 200 Hz y
-// ~11-12 dB más por encima de 6 kHz (eses, siseo). Su cadena lo corrige hasta el equilibrio de las otras
-// (verificado tras aplicarla: graves = Diego, 3-6 kHz y >10 kHz dentro del rango de las demás, -18,7 LUFS).
-// Las demás voces ya salen equilibradas: solo limpieza suave + compresión de locutor, sin realces.
-// Duración intacta (sin atempo), así el resaltado palabra a palabra sigue cuadrando.
+// Voz de Marc = la MISMA cadena «Iron Man» de BOO Manager (src/app/api/boo/speak/route.ts, 2026-09-28: Marc pidió que
+// suene igual que allí). No es un efecto robótico: la voz tratada como transmisión de radio, limitada en banda y con el
+// eco cortísimo de un casco. Sustituye al máster «podcast» del 27-09. Delante va solo la limpieza de ruido de sala del
+// clon (suelo -42 dB -> -78 dB, medido sin cambiar el timbre). Duración intacta: el resaltado palabra a palabra cuadra.
 const MARC_EQ = [
-  // Limpieza: el clon trae ruido de sala constante (suelo -42 dB frente a -78 dB de Diego). Con esto baja a -78 dB
-  // sin tocar el timbre (bandas iguales antes y después) ni el volumen: suena a micrófono de estudio.
   "afftdn=nr=30:nf=-40:tn=1",
   "agate=threshold=0.012:ratio=4:attack=5:release=150",
-  "highpass=f=70",
-  "lowshelf=f=180:g=6",                  // cuerpo que le falta
-  "equalizer=f=250:t=q:w=1:g=2",         // calidez
-  "equalizer=f=3200:t=q:w=1:g=-5",       // dureza
-  "equalizer=f=6500:t=q:w=0.9:g=-11",    // eses y siseo
-  "highshelf=f=10000:g=-7",              // brillo metálico
-  "deesser=i=0.4",
+  "highpass=f=185",                      // quita el pecho: deja de sonar «en la habitación»
+  "lowpass=f=7800",                      // la mete en el canal de comunicaciones
+  "equalizer=f=340:t=q:w=1.2:g=-3",      // saca el barro que tapa las consonantes
+  "equalizer=f=2700:t=q:w=1.4:g=4",      // presencia: se entiende cada palabra
+  "equalizer=f=5200:t=q:w=1.6:g=2.5",    // filo metálico
+  "acompressor=threshold=-18dB:ratio=4:attack=6:release=120:makeup=3",
+  "aecho=0.85:0.7:11:0.13",              // el casco; más largo suena a cuarto de baño
+  "alimiter=limit=0.95",
 ];
 const CLEAN_EQ = [
   "highpass=f=80",
@@ -51,7 +48,7 @@ const BROADCAST = [
   "acompressor=threshold=-20dB:ratio=3:attack=8:release=160:makeup=2.5", // volumen estable, como un locutor
   "alimiter=limit=0.93",                                                  // sin picos en el altavoz
 ];
-function eqFor(voiceId: string) { return [...(voiceId === MARC_VOICE ? MARC_EQ : CLEAN_EQ), ...BROADCAST].join(","); }
+function eqFor(voiceId: string) { return (voiceId === MARC_VOICE ? MARC_EQ : [...CLEAN_EQ, ...BROADCAST]).join(","); }
 
 /** Pasa el MP3 por la cadena podcast. Si ffmpeg no está o falla, devuelve el original: mejor sin EQ que mudo. */
 export function podcastMaster(mp3: Buffer, voiceId: string): Promise<Buffer> {

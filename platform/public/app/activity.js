@@ -140,9 +140,9 @@
   function T(k, es, v) { return window.SUI18n ? SUI18n.t(k, es, v) : (v ? es.replace(/\{(\w+)\}/g, function (m, x) { return v[x] != null ? v[x] : m; }) : es); }
   // Aviso de transparencia (idioma de la persona, 1.5.0): se compone al mostrarlo.
   function NOTICE() {
-    return '<h3>' + esc(T('act.noticeT', 'Tu formación, con acompañamiento')) + '</h3>' +
-      '<p>' + esc(T('act.notice1', 'Para poder ayudarte, tu coach, tu responsable y la administración de tu empresa pueden ver tu actividad en SkillUp: qué curso y sección estás viendo, el tiempo activo, tus resultados de tests y roleplays y tu conversación con el tutor. También pueden escribirte en el chat.')) + '</p>' +
-      '<p>' + esc(T('act.notice2', 'Nunca se graba tu pantalla, lo que tecleas ni tu cámara. Si alguien sigue tu sesión en directo, lo verás arriba con su nombre. Estos datos se guardan 90 días como máximo.')) + '</p>';
+    return '<h3>' + esc(T('act.noticeT', "Tu coach, siempre a tu lado")) + '</h3>' +
+      '<p>' + esc(T('act.notice1', "Tu coach está al tanto de cómo avanzas para echarte una mano justo cuando la necesites. Por eso, tu coach y las personas que organizan la formación en tu empresa ven tu progreso: el curso en el que estás, el tiempo que le dedicas, tus resultados en tests y roleplays y lo que hablas con el tutor. También pueden escribirte por el chat.")) + '</p>' +
+      '<p>' + esc(T('act.notice2', "Tu pantalla, lo que tecleas y tu cámara son solo tuyos: nunca se graban. Si alguien te acompaña en directo, verás su nombre arriba. Estos datos se borran como máximo a los 90 días.")) + '</p>';
   }
   function showNotice(ack) {
     style();

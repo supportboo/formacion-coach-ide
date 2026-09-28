@@ -88,9 +88,9 @@
       'fb.ok': "Thanks. We've received it and we'll let you know when it's resolved.", 'fb.rated': 'Rated answer',
       'fb.yourSug': 'Your suggestion', 'fb.yourRating': 'Your rating', 'fb.resolved': 'has been resolved:',
 
-      'act.noticeT': 'Your training, with support',
-      'act.notice1': 'To help you, your coach, your manager and your company administrators can see your activity in SkillUp: which course and section you are viewing, active time, your test and role-play results and your conversation with the tutor. They can also message you in the chat.',
-      'act.notice2': 'Your screen, your keystrokes and your camera are never recorded. If someone follows your session live, you will see their name at the top. This data is kept for 90 days at most.',
+      'act.noticeT': "Your coach, always by your side",
+      'act.notice1': "Your coach keeps an eye on how you are doing so they can lend a hand right when you need it. That is why your coach and the people who organise training at your company can see your progress: the course you are on, the time you spend, your test and role-play results and what you talk about with the tutor. They can also message you in the chat.",
+      'act.notice2': "Your screen, your keystrokes and your camera are yours alone: they are never recorded. If someone joins you live, you will see their name at the top. This data is deleted after 90 days at most.",
       'act.ok': 'Got it', 'act.your': 'Your {role} {name}', 'act.watching1': '{who} is following your session', 'act.watchingN': '{who} and {last} are following your session',
       'act.and': 'and', 'act.whatSee': 'What they see', 'act.manager': 'Your manager', 'act.managerRole': 'Manager', 'act.reply': 'Reply in the chat',
 
@@ -233,9 +233,9 @@
       'fb.ok': "Gràcies. Ho hem rebut i t'avisarem quan estigui resolt.", 'fb.rated': 'Resposta valorada',
       'fb.yourSug': 'El teu suggeriment', 'fb.yourRating': 'La teva valoració', 'fb.resolved': "s'ha resolt:",
 
-      'act.noticeT': 'La teva formació, amb acompanyament',
-      'act.notice1': "Per poder ajudar-te, el teu coach, el teu responsable i l'administració de la teva empresa poden veure la teva activitat a SkillUp: quin curs i secció estàs veient, el temps actiu, els resultats dels tests i jocs de rol i la teva conversa amb el tutor. També et poden escriure al xat.",
-      'act.notice2': "Mai no es grava la teva pantalla, el que teclejes ni la teva càmera. Si algú segueix la teva sessió en directe, ho veuràs a dalt amb el seu nom. Aquestes dades es guarden 90 dies com a màxim.",
+      'act.noticeT': "El teu coach, sempre al teu costat",
+      'act.notice1': "El teu coach està al cas de com avances per donar-te un cop de mà just quan el necessitis. Per això, el teu coach i les persones que organitzen la formació a la teva empresa veuen el teu progrés: el curs on ets, el temps que hi dediques, els resultats dels tests i jocs de rol i el que parles amb el tutor. També et poden escriure pel xat.",
+      'act.notice2': "La teva pantalla, el que teclejes i la teva càmera són només teus: mai no es graven. Si algú t'acompanya en directe, veuràs el seu nom a dalt. Aquestes dades s'esborren com a màxim als 90 dies.",
       'act.ok': 'Entesos', 'act.your': 'El teu {role} {name}', 'act.watching1': '{who} està seguint la teva sessió', 'act.watchingN': '{who} i {last} estan seguint la teva sessió',
       'act.and': 'i', 'act.whatSee': 'Què veu', 'act.manager': 'El teu responsable', 'act.managerRole': 'Responsable', 'act.reply': 'Respondre al xat',
 
@@ -378,9 +378,9 @@
       'fb.ok': 'Obrigado. Recebemos e vamos avisar-te quando estiver resolvido.', 'fb.rated': 'Resposta avaliada',
       'fb.yourSug': 'A tua sugestão', 'fb.yourRating': 'A tua avaliação', 'fb.resolved': 'foi resolvida:',
 
-      'act.noticeT': 'A tua formação, com acompanhamento',
-      'act.notice1': 'Para te poderem ajudar, o teu coach, o teu responsável e a administração da tua empresa podem ver a tua atividade no SkillUp: que curso e secção estás a ver, o tempo ativo, os resultados dos testes e role-plays e a tua conversa com o tutor. Também te podem escrever no chat.',
-      'act.notice2': 'Nunca é gravado o teu ecrã, o que escreves no teclado nem a tua câmara. Se alguém acompanhar a tua sessão em direto, verás o nome dessa pessoa no topo. Estes dados são guardados durante 90 dias, no máximo.',
+      'act.noticeT': "O teu coach, sempre ao teu lado",
+      'act.notice1': "O teu coach acompanha a tua evolução para te dar uma ajuda mesmo quando precisas. Por isso, o teu coach e as pessoas que organizam a formação na tua empresa veem o teu progresso: o curso em que estás, o tempo que lhe dedicas, os resultados dos testes e role-plays e o que falas com o tutor. Também te podem escrever no chat.",
+      'act.notice2': "O teu ecrã, o que escreves no teclado e a tua câmara são só teus: nunca são gravados. Se alguém te acompanhar em direto, verás o nome dessa pessoa no topo. Estes dados são apagados, no máximo, ao fim de 90 dias.",
       'act.ok': 'Entendido', 'act.your': 'O teu {role} {name}', 'act.watching1': '{who} está a acompanhar a tua sessão', 'act.watchingN': '{who} e {last} estão a acompanhar a tua sessão',
       'act.and': 'e', 'act.whatSee': 'O que vê', 'act.manager': 'O teu responsável', 'act.managerRole': 'Responsável', 'act.reply': 'Responder no chat',
 
@@ -523,9 +523,9 @@
       'fb.ok': "Merci. C'est bien reçu et on te préviendra quand ce sera résolu.", 'fb.rated': 'Réponse évaluée',
       'fb.yourSug': 'Ta suggestion', 'fb.yourRating': 'Ton évaluation', 'fb.resolved': 'a été résolue :',
 
-      'act.noticeT': 'Ta formation, avec un accompagnement',
-      'act.notice1': "Pour pouvoir t'aider, ton coach, ton responsable et l'administration de ton entreprise peuvent voir ton activité dans SkillUp : le cours et la section que tu consultes, le temps actif, tes résultats aux tests et aux jeux de rôle et ta conversation avec le tuteur. Ils peuvent aussi t'écrire dans le chat.",
-      'act.notice2': "Ton écran, ta frappe au clavier et ta caméra ne sont jamais enregistrés. Si quelqu'un suit ta session en direct, tu verras son nom en haut. Ces données sont conservées 90 jours au maximum.",
+      'act.noticeT': "Ton coach, toujours à tes côtés",
+      'act.notice1': "Ton coach suit ta progression pour te donner un coup de main pile quand tu en as besoin. C'est pourquoi ton coach et les personnes qui organisent la formation dans ton entreprise voient ta progression : le cours où tu en es, le temps que tu y consacres, tes résultats aux tests et aux jeux de rôle et tes échanges avec le tuteur. Ils peuvent aussi t'écrire dans le chat.",
+      'act.notice2': "Ton écran, ta frappe au clavier et ta caméra n'appartiennent qu'à toi : ils ne sont jamais enregistrés. Si quelqu'un t'accompagne en direct, tu verras son nom en haut. Ces données sont effacées au bout de 90 jours maximum.",
       'act.ok': "J'ai compris", 'act.your': 'Ton {role} {name}', 'act.watching1': '{who} suit ta session', 'act.watchingN': '{who} et {last} suivent ta session',
       'act.and': 'et', 'act.whatSee': "Ce qu'il voit", 'act.manager': 'Ton responsable', 'act.managerRole': 'Responsable', 'act.reply': 'Répondre dans le chat',
 
