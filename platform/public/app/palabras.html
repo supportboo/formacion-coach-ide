@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Uso del chat</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/assess.css">
+</head>
+<body>
+<div class="top"><span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>     <linearGradient id="blg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <linearGradient id="blg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <radialGradient id="bli1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>     <radialGradient id="bli2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>     </defs>     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>   </svg>ers<span class="sk">SkillUp</span></span><a class="back" href="/app/panel.html">Panel de empresa</a></div>
+<main class="wrap" id="wrap"><div class="loader"><div class="spin"></div>Cargando…</div></main>
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var wrap=document.getElementById('wrap');
+function toast(t){ document.querySelectorAll('.toast').forEach(function(x){x.remove();}); var d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(function(){d.remove();},3500); }
+function render(d){
+  wrap.innerHTML='<h1 class="pt">Uso del chat</h1>'
+    +'<p class="lead">Para que los tutores se usen para aprender y no para gastar la IA de la empresa en tonterías o en «probar el bot».</p>'
+    +'<div class="card"><h3 style="margin:0 0 6px">Cómo funciona</h3><ul class="muted" style="margin:0;padding-left:18px;line-height:1.6">'
+    +'<li>Hay una lista base de insultos y expresiones ofensivas siempre activa ('+(d.baseCount||0)+' palabras y expresiones). Se detectan también con mayúsculas, tildes, letras repetidas o números en lugar de letras.</li>'
+    +'<li>Si un mensaje las contiene, el tutor pide un tono profesional <b>sin llamar a la IA</b> (no gasta nada) y queda registrado.</li>'
+    +'<li>Cada persona tiene un máximo de mensajes al día con los tutores; al llegar, se le invita a seguir con el curso.</li>'
+    +'<li>Las personas saben que el uso del chat se controla: si preguntan, el tutor se lo explica.</li></ul></div>'
+    +'<div class="card" style="margin-top:14px"><h3 style="margin:0 0 6px">Palabras prohibidas de tu empresa</h3>'
+    +'<p class="muted" style="margin:0 0 10px">Una palabra o expresión por línea (por ejemplo, nombres de la competencia o temas que no queréis en la formación).</p>'
+    +'<textarea id="bw" rows="10" style="width:100%;box-sizing:border-box;border-radius:12px;padding:12px;font:inherit;background:rgba(255,255,255,.04);color:inherit;border:1px solid rgba(150,120,255,.3)" aria-label="Palabras prohibidas, una por línea"></textarea>'
+    +'<div class="row" style="margin-top:12px"><button class="btn" id="save">GUARDAR LISTA</button></div></div>';
+  document.getElementById('bw').value=(d.words||[]).join('\n');
+  document.getElementById('save').onclick=async function(){
+    var b=this; b.disabled=true;
+    try{ var r=await SkillUp.api('/api/agent/banned',{method:'PUT',body:{words:document.getElementById('bw').value.split('\n')}}); document.getElementById('bw').value=(r.words||[]).join('\n'); toast('Lista guardada: '+(r.words||[]).length+' palabras'); }
+    catch(e){ toast('No se ha podido guardar. Inténtalo de nuevo.'); }
+    b.disabled=false;
+  };
+}
+SkillUp.api('/api/agent/banned').then(render).catch(function(){ wrap.innerHTML='<div class="card"><p class="err">Solo el admin o la dirección de la empresa pueden ver y cambiar esta lista.</p></div>'; });
+})();
+</script>
+</body>
+</html>

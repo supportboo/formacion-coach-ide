@@ -28,6 +28,7 @@ const schema = z.object({
   MODEL_FAST: z.string().default("claude-haiku-4-5-20251001"),
   // Tope de gasto de IA por empresa y día (USD). Red de seguridad anti-abuso; 0 = sin tope.
   ORG_AI_DAILY_CAP_USD: z.coerce.number().default(10),
+  CHAT_DAILY_USER_CAP: z.coerce.number().default(120), // mensajes/día por persona a los tutores (0 = sin tope)
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),

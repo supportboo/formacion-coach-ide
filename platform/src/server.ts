@@ -15,6 +15,7 @@ import { sendMail } from "./services/mailer.js";
 import { appliedCase, competency, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import { orgTerms } from "./services/glossary.js";
+import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, orgBannedWords, setOrgBannedWords, userMessagesToday } from "./services/contentGuard.js";
 import * as aiContent from "./services/aiContent.js";
 import { rateLimited } from "./util/rateLimit.js";
 import * as catalogSvc from "./services/catalog.js";
@@ -49,6 +50,7 @@ import * as gcal from "./services/gcal.js";
 import * as assessSvc from "./services/assessment.js";
 import { auditPlatformAccess, registerLiveRoutes } from "./http/live.js";
 import { registerDashboardRoutes } from "./http/dashboards.js";
+import { registerFeedbackRoutes } from "./http/feedback.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
@@ -418,6 +420,16 @@ app.post("/api/agent/chat", async (c) => {
   }
   const parsed = chatBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  // Guardia de uso (services/contentGuard.ts): sin llamar a la IA si hay palabras prohibidas o se superó el tope diario.
+  const visible = parsed.data.display ?? parsed.data.message;
+  const hit = findBanned(visible, await bannedFor(db, ctx.orgId));
+  if (hit) {
+    await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.blocked", meta: { reason: "banned_word", word: hit } }).catch(() => {});
+    return c.json({ threadId: parsed.data.threadId ?? null, reply: BLOCKED_REPLY, blocked: true });
+  }
+  if (env.CHAT_DAILY_USER_CAP > 0 && (await userMessagesToday(db, ctx.orgId, ctx.userId).catch(() => 0)) >= env.CHAT_DAILY_USER_CAP) {
+    return c.json({ threadId: parsed.data.threadId ?? null, reply: CAP_REPLY(env.CHAT_DAILY_USER_CAP), blocked: true });
+  }
   const res = await chat(chatDeps, {
     orgId: ctx.orgId, orgName: ctx.orgName, userId: ctx.userId, userName: ctx.userName,
     role: ctx.role, threadId: parsed.data.threadId, message: parsed.data.message,
@@ -428,6 +440,24 @@ app.post("/api/agent/chat", async (c) => {
 
 // Coach de voz proactivo (BOO): saluda con seguimiento REAL — reconoce, motiva, hace seguimiento y
 // suelta una broma amable. Solo con hechos reales del alumno (nada de fechas ni plazos inventados).
+// Palabras prohibidas propias de la empresa (la lista base va siempre). Solo admin/dirección (o superadmin) la cambia.
+app.get("/api/agent/banned", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !["admin", "direccion"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ words: await orgBannedWords(db, ctx.orgId), baseCount: (await bannedFor(db, ctx.orgId)).length - (await orgBannedWords(db, ctx.orgId)).length });
+});
+app.put("/api/agent/banned", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !["admin", "direccion"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const parsed = z.object({ words: z.array(z.string().max(60)).max(300) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const words = await setOrgBannedWords(db, newId, ctx.orgId, ctx.userId, parsed.data.words);
+  await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "banned.update", meta: { count: words.length } });
+  return c.json({ words });
+});
+
 // Glosario aprendido de la empresa (para que el dictado por voz escriba bien marcas y cargos).
 app.get("/api/agent/terms", async (c) => {
   const ctx = await getAuthContext(c);
@@ -1105,6 +1135,11 @@ app.post("/api/roleplay/:id/reply", async (c) => {
   const parsed = z.object({ message: z.string().min(1), competencyId: z.string().optional(), topic: z.string().max(160).optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const rpHit = findBanned(parsed.data.message, await bannedFor(db, ctx.orgId));
+  if (rpHit) {
+    await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.blocked", meta: { reason: "banned_word", word: rpHit, where: "roleplay" } }).catch(() => {});
+    return c.json({ sessionId: c.req.param("id"), reply: BLOCKED_REPLY, status: "activo", blocked: true });
+  }
   const comp = (parsed.data.competencyId && parsed.data.competencyId !== "libre") ? await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId) : null;
   const competencyName = comp?.name || (parsed.data.topic && parsed.data.topic.trim()) || "la práctica";
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
@@ -2611,3 +2646,4 @@ app.post("/api/billing/webhook", async (c) => {
 // Supervisión en directo (1.3.0): tablero, ficha, intervención humana y métricas de uso.
 registerLiveRoutes(app, COURSE_TITLES, async (slug) => (await courseBlocks(slug))?.length ?? null);
 registerDashboardRoutes(app, COURSE_TITLES, (orgId) => readRetos(orgId));
+registerFeedbackRoutes(app);

@@ -9,6 +9,17 @@
 - **Team leader / coach**: quién necesita ayuda hoy, progreso por persona, pruebas asignadas (vencidas, resultados), validaciones pendientes y acciones rápidas. Aún no hay equipos: se ve toda la empresa y se dice.
 - En directo acepta `?persona=` y `?tab=metrics`; el superadmin no puede escribir a la gente de otra empresa (solo lectura).
 - Endpoints: `GET /api/platform/cockpit`, `GET /api/platform/cockpit/summary`, `GET /api/analytics/home`. Sin migraciones. Tests: `tests/dashboards.test.ts`.
+### Feedback: valorar respuestas y enviar sugerencias
+- **Pulgar arriba / abajo bajo cada respuesta de la IA**: tutor del curso (chat y corrección de ejercicios), chat de la lección, asistente de los ojos (panel y bocadillo de «mantener para hablar»), Explorar, turnos y valoración final de los roleplays (Reto y Roleplays) y explicaciones y correcciones de la evaluación. Un voto por persona y respuesta, se puede cambiar o quitar. El pulgar abajo abre motivos («Dato incorrecto», «Fuera de tema», «No lo entiendo», «Suena mal o falla la voz», «Palabra mal escrita», «Otro») y un comentario opcional. Botones de 44 px en móvil. Script compartido `/app/feedback.js`.
+- **«Enviar sugerencia» en el menú** para todos los roles (sugerencia, error, petición de contenido u otro); el admin y la dirección lo ven como «Enviar sugerencia a Brandooers». Se adjunta solo la página, el rol, la empresa y el navegador. Cada persona ve el estado de lo que ha enviado.
+- **Bandeja de feedback** (`/app/feedback.html`, menú «Feedback» y botón en la Consola): el superadmin ve todas las empresas, filtra (empresa, qué, valoración, tipo, motivo, estado, curso, página, fechas), ve la pregunta anterior y la respuesta valorada, cambia el estado (nuevo, en revisión, resuelto, descartado) con nota de resolución y, en «Palabra mal escrita», añade el término al glosario de esa empresa. Gráficos de satisfacción por semana, agente, curso y empresa, motivos más repetidos y bloques con más pulgares abajo. «Resumen de feedback» con IA (modelo rápido, caché 1 h, solo con reportes reales). Admin y dirección ven la bandeja de su empresa en solo lectura.
+- **Cierre del círculo**: cuando algo se resuelve, quien lo envió ve el aviso («Tu sugerencia se ha resuelto: …») la próxima vez que entra.
+- RGPD: la exportación y el borrado incluyen las valoraciones y sugerencias.
+
+### Técnico
+- Migración `0022_feedback` (tabla `feedback`, índice único por empresa + persona + respuesta). Idempotente.
+- `POST /api/agent/chat` devuelve también `messageId` (el mensaje de la IA) para poder valorarlo.
+- Endpoints bajo `/api/agent/feedback/*` (`rate`, `general`, `mine`, `notices`, `inbox`, `:id/status`, `:id/glossary`, `summary`). No se usa `/api/feedback` (va al servicio antiguo). Zod y límites de peticiones en todos; permisos en `inboxAccess` (empleado lo suyo, admin/dirección su empresa en lectura, superadmin todo).
 
 ## 1.3.0 — 2026-09-28
 

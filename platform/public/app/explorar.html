@@ -88,6 +88,7 @@ button{font-family:inherit}[hidden]{display:none!important}
 </div>
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
 <script src="/app/nav.js" defer></script>
 <script>
 (function(){
@@ -231,7 +232,7 @@ async function search(q){
     var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:msg,threadId:threadId||undefined}});
     threadId=r.threadId;
     var ans=document.getElementById('ans'), txt=document.getElementById('ansText');
-    if(ans&&txt){ txt.textContent=r.reply||'—'; ans.classList.remove('think'); }
+    if(ans&&txt){ txt.textContent=r.reply||'—'; ans.classList.remove('think'); if(r.reply&&window.SUFeedback)SUFeedback.attach(ans,{messageId:r.messageId,answer:r.reply,prompt:q,page:'explorar',agent:'Buscador'}); }
     if(r.reply) speak(r.reply);
   }catch(e){ var ans2=document.getElementById('ans'), txt2=document.getElementById('ansText'); if(ans2&&txt2){ txt2.textContent='Ahora mismo no puedo responder. Inténtalo en un momento.'; ans2.classList.remove('think'); } }
 }
@@ -241,7 +242,7 @@ document.getElementById('chips').addEventListener('click',function(e){ var b=e.t
 document.getElementById('q').focus();
 })();
 </script>
-<script src="/app/boo-eyes.js?v=20260915k"></script>
+<script src="/app/boo-eyes.js?v=20260928fb"></script>
 <script src="/app/breadcrumbs.js" defer></script>
 <script src="/app/gestures.js" defer></script>
 </body>

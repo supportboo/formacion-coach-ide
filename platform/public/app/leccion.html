@@ -134,6 +134,7 @@ button{font-family:inherit}
 
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
 <script src="/app/nav.js" defer></script>
 <script src="/app/dictation.js"></script>
 <script>
@@ -271,7 +272,7 @@ function wireTutor(){
   async function send(fromVoice){var t=input.value.trim();if(!t)return;input.value='';bubble('u',t);var think=bubble('a','…');
     try{var ctx='[El alumno está en la lección «'+LESSON.titulo+'» del curso '+LESSON.curso+'. Ayúdale con eso.] ';
       var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:ctx+t,threadId:threadId||undefined}});
-      threadId=r.threadId;think.textContent=r.reply||'—';if(r.reply&&(voiceOn||fromVoice))await speak(r.reply);}
+      threadId=r.threadId;think.textContent=r.reply||'—';if(r.reply&&window.SUFeedback)SUFeedback.attach(think,{messageId:r.messageId,answer:r.reply,prompt:t,page:'leccion',course:LESSON.curso,block:LESSON.titulo});if(r.reply&&(voiceOn||fromVoice))await speak(r.reply);}
     catch(e){think.textContent='Ahora mismo no puedo responder. Inténtalo en un momento.';}}
   document.getElementById('snd').onclick=function(){send(false);};
   input.addEventListener('keydown',function(e){if(e.key==='Enter')send(false);});

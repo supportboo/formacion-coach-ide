@@ -654,3 +654,39 @@ export const activityEvent = pgTable("activity_event", {
   byOrgTime: index("activity_org_time_idx").on(t.organizationId, t.createdAt),
   byUserTime: index("activity_org_user_time_idx").on(t.organizationId, t.userId, t.createdAt),
 }));
+
+/* Feedback (1.4.0): valoración de cada respuesta de la IA (pulgar arriba/abajo con motivos) y sugerencias generales
+ * de cualquier rol. Acotado por empresa. kind: rating | general. Un voto por persona y respuesta: target_key único
+ * por (empresa, persona) — msg:<id de agent_message> o ref:<referencia de la página>. El superadmin lo gestiona
+ * (estado, nota de resolución) y la persona ve el aviso cuando se resuelve (user_seen_at). */
+export const feedback = pgTable("feedback", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  kind: text("kind").notNull(), // rating | general
+  type: text("type"), // general: sugerencia | error | contenido | otro
+  rating: text("rating"), // rating: up | down
+  reasons: jsonb("reasons").$type<string[]>().notNull().default([]),
+  comment: text("comment"),
+  targetKey: text("target_key"),
+  messageId: text("message_id"),
+  answerText: text("answer_text"),
+  promptText: text("prompt_text"),
+  page: text("page"),
+  course: text("course"),
+  block: text("block"),
+  agent: text("agent"),
+  role: text("role"),
+  userAgent: text("user_agent"),
+  status: text("status").notNull().default("nuevo"), // nuevo | en_revision | resuelto | descartado
+  resolverId: text("resolver_id"),
+  resolverName: text("resolver_name"),
+  resolutionNote: text("resolution_note"),
+  resolvedAt: timestamp("resolved_at"),
+  userSeenAt: timestamp("user_seen_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({
+  oneVote: uniqueIndex("feedback_vote_uq").on(t.organizationId, t.userId, t.targetKey),
+  byOrgTime: index("feedback_org_time_idx").on(t.organizationId, t.createdAt),
+}));
