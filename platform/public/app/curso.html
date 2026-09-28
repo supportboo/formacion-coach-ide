@@ -250,18 +250,16 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 }
 @media(max-width:768px){.cv-panel{width:100vw}.cv-wide-btn{display:none}}
 @media(prefers-reduced-motion:reduce){.cv-panel,.cv-panel.open,.cv-item{transition:none}}
-/* Recursos por sección (libros + vídeos) puntuados por el agente de calidad */
+/* Recursos del curso al final de cada sección */
 .su-res{margin-top:28px;border-top:1px solid rgba(180,150,205,.18);padding-top:18px;display:grid;gap:12px}
-.su-res h4{margin:0;font-size:16px;color:var(--ink)}.su-res .rs-sub{font-size:13px;color:var(--muted);margin:0}
-.su-res .rs-btn{justify-self:start;border:1.5px solid var(--teal2);background:none;color:var(--teal2);border-radius:10px;min-height:40px;padding:8px 14px;font:800 12px Inter,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
-.rs-list{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-.rs-item{border:1px solid rgba(180,150,205,.18);border-radius:12px;padding:12px 14px;display:grid;gap:6px;background:var(--panel)}
+.su-res h4{margin:0;font-size:16px;color:var(--ink)}
+.rs-list{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.rs-item{border:1px solid rgba(180,150,205,.18);border-radius:12px;padding:12px 14px;display:grid;gap:4px;background:var(--panel);text-decoration:none;color:var(--body)}
+.rs-item:hover,.rs-item:focus-visible{border-color:var(--aub2)}
+.rs-item b{color:var(--ink);font-size:14.5px;line-height:1.35}
 .rs-kind{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--aub2)}
-.rs-item a{color:var(--ink);font-weight:700;text-decoration:none}.rs-item a:hover{text-decoration:underline}
-.rs-by,.rs-ev{font-size:12.5px;color:var(--muted)}.rs-why{font-size:13.5px;color:var(--body)}
-.rs-bars{display:grid;gap:3px}.rs-bar{display:grid;grid-template-columns:74px 1fr 26px;gap:6px;align-items:center;font-size:11.5px;color:var(--muted)}
-.rs-bar i{display:block;height:6px;border-radius:3px;background:rgba(180,150,205,.18);overflow:hidden}.rs-bar i b{display:block;height:100%;background:var(--teal2)}
-.rs-bar span{text-align:right;font-variant-numeric:tabular-nums}
+.rs-by{font-size:12.5px;color:var(--muted)}.rs-why{font-size:13.5px}.rs-aff{font-size:11px;font-weight:700;color:var(--gold)}
+.rs-all{justify-self:start;color:var(--teal2);font-weight:700;font-size:13.5px;text-decoration:none;min-height:40px;display:inline-flex;align-items:center}
 </style>
 </head>
 <body>
@@ -550,35 +548,38 @@ function go(i){window._go(i);}
 // en miniatura al lado del texto. Se reproducen dentro del panel, se amplían junto al texto o a pantalla completa.
 // Los del bloque actual suben arriba por coincidencia de palabras del título (nunca se inventa un vídeo).
 var USER_ID='';
-// Recursos por sección: libros verificados (Open Library) y vídeos de YouTube que el agente de calidad puntúa en
-// calidad, valor y relevancia; el servidor los ordena y recorta según el Team DNA y el tiempo semanal de la persona.
-// Se piden al pulsar (un tema nuevo gasta IA una vez; luego queda en caché 14 días para todos).
+// Recursos del curso (vídeos, podcasts, libros, herramientas): se piden al abrir el curso con su temario, en segundo
+// plano. Cada sección enseña los 3 que mejor casan con ella y enlaza a la página completa tipo Netflix.
 function wireResources(){
-  var done={};
-  function bar(label,v){return '<div class="rs-bar">'+esc(label)+'<i><b style="width:'+(Number(v)||0)+'%"></b></i><span>'+(Number(v)||0)+'</span></div>';}
-  function item(r){
-    var url=r.kind==='video'?'https://www.youtube.com/watch?v='+encodeURIComponent(r.youtubeId):r.url;
-    var by=r.kind==='video'?r.channel:(r.author+(r.year?' · '+r.year:'')+(r.editionLang==='es'?'':' · edición original'));
-    return '<div class="rs-item"><span class="rs-kind">'+(r.kind==='video'?'Vídeo':'Libro')+' · '+esc(r.nivel)+'</span>'
-      +'<a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(r.title)+'</a><span class="rs-by">'+esc(by)+'</span>'
-      +'<span class="rs-why">'+esc(r.why)+'</span><span class="rs-ev">'+esc((r.evidence||[]).join(' · '))+'</span>'
-      +'<div class="rs-bars">'+bar('Calidad',r.scores.calidad)+bar('Valor',r.scores.valor)+bar('Relevancia',r.scores.relevancia)+'</div></div>';
+  var POOL=null, WAIT=[], done={}, BADGE={video:'Vídeo',podcast:'Podcast',book:'Libro',tool:'Herramienta'};
+  var outline=CARDS.map(function(c){return c.title;}).join(' · ').slice(0,3000);
+  var ALL='/app/recursos.html?topic='+encodeURIComponent(COURSE.slice(0,200))+'&src='+encodeURIComponent(new URLSearchParams(location.search).get('src')||'');
+  SkillUp.api('/api/learning/resources',{method:'POST',body:{topic:COURSE.slice(0,200),outline:outline}}).then(function(d){
+    POOL=d; WAIT.forEach(function(f){f();}); WAIT=[];
+  }).catch(function(){});
+  function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+  function words(s){return norm(s).split(/[^a-z0-9]+/).filter(function(w){return w.length>=5;});}
+  function pick(title){
+    var all=[]; POOL.order.forEach(function(k){(POOL.groups[k]||[]).forEach(function(r){all.push(r);});});
+    var ws=words(title); if(!ws.length) return (POOL.forYou||[]).slice(0,3);
+    var scored=all.map(function(r,i){var t=norm(r.title+' '+r.why),s=0;ws.forEach(function(w){if(t.indexOf(w)>=0)s++;});return {r:r,s:s,i:i};})
+      .filter(function(x){return x.s>0;}).sort(function(a,b){return b.s-a.s||a.i-b.i;}).map(function(x){return x.r;});
+    var out=scored.slice(0,3); (POOL.forYou||[]).forEach(function(r){if(out.length<3&&out.indexOf(r)<0)out.push(r);});
+    return out;
   }
-  window._resSection=function(i){
-    if(done[i]||!CARDS[i])return; var card=document.querySelector('.card:nth-child('+(i+1)+')'); if(!card)return; done[i]=1;
-    var box=document.createElement('section'); box.className='su-res'; box.setAttribute('aria-label','Recursos para esta sección');
-    box.innerHTML='<h4>Recursos para esta sección</h4><p class="rs-sub">Libros y vídeos que existen de verdad, puntuados por calidad, valor y relevancia, y elegidos según cómo aprendes y tu tiempo.</p><button class="rs-btn" type="button">Ver recursos</button><div class="rs-list" aria-live="polite"></div>';
+  function item(r){
+    return '<a class="rs-item" href="'+esc(r.url)+'" target="_blank" rel="noopener'+(r.affiliate?' sponsored':'')+'"><span class="rs-kind">'+BADGE[r.kind]+'</span>'
+      +'<b>'+esc(r.title)+'</b><span class="rs-by">'+esc(r.by)+'</span>'+(r.why?'<span class="rs-why">'+esc(r.why)+'</span>':'')
+      +(r.affiliate?'<span class="rs-aff">Enlace de afiliado</span>':'')+'</a>';
+  }
+  function fill(i){
+    var card=document.querySelector('.card:nth-child('+(i+1)+')'); if(!card||done[i])return;
+    var items=pick(CARDS[i].title); if(!items.length)return; done[i]=1;
+    var box=document.createElement('section'); box.className='su-res'; box.setAttribute('aria-label','Recursos');
+    box.innerHTML='<h4>Recursos</h4><div class="rs-list">'+items.map(item).join('')+'</div><a class="rs-all" href="'+ALL+'">Ver todos los recursos del curso →</a>';
     card.appendChild(box);
-    var btn=box.querySelector('.rs-btn'), list=box.querySelector('.rs-list');
-    btn.onclick=function(){
-      btn.disabled=true; btn.textContent='Buscando y verificando…';
-      var text=(card.innerText||'').replace(/Recursos para esta sección[\s\S]*$/,'').slice(0,3500);
-      SkillUp.api('/api/learning/resources',{method:'POST',body:{topic:(COURSE+' · '+CARDS[i].title).slice(0,200),section:text}}).then(function(d){
-        btn.remove(); var items=(d&&d.items)||[];
-        list.innerHTML=items.length?items.map(item).join(''):'<p class="rs-sub">No hemos encontrado recursos que superen el control de calidad para esta sección.</p>';
-      }).catch(function(){ btn.disabled=false; btn.textContent='Reintentar'; });
-    };
-  };
+  }
+  window._resSection=function(i){ if(POOL) fill(i); else WAIT.push(function(){fill(i);}); };
   if(typeof idx==='number') window._resSection(idx);
 }
 function wireVideos(){

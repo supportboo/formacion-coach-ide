@@ -1,5 +1,16 @@
 # Changelog · SkillUp platform
 
+## 1.8.0 — 2026-09-28
+
+### Recursos del curso tipo Netflix, con podcasts, herramientas y afiliación
+- Los recursos se piden al abrir el curso (con su temario), no sección a sección. Página `/app/recursos.html` con pestañas Todo · Para ti · Vídeos · Podcasts · Libros · Herramientas; los vídeos se ven dentro de SkillUp. Al final de cada sección, los 3 que mejor casan con ella y el enlace a todos.
+- Podcasts desde Apple Podcasts (iTunes Search API, sin clave): calidad = autoridad + que siga activo; valor = episodios publicados. Herramientas propuestas por la IA, solo si su web responde.
+- Afiliación detrás del control de calidad: libros a Amazon.es con la etiqueta `AMAZON_ES_TAG` (si está configurada) y herramientas con enlace de afiliado por dominio (`src/config/affiliates.ts`); entre recursos que ya pasan la calidad, lo rentabilizable sube de puesto. Cada enlace de afiliado lleva la marca «Enlace de afiliado» y `rel="sponsored"`.
+- Pestañas en el orden del formato preferido del Team DNA; «Para ti» con 2, 4 u 8 recursos según el tiempo semanal.
+- Sin textos que expliquen al alumno cómo se puntúa.
+- Nunca se guarda en caché un resultado vacío, y el registro del servidor anota candidatos y aceptados por tipo en cada búsqueda.
+- Service worker: no intercepta la navegación (fallaba siempre porque una petición de navegación no admite opciones y la página acababa en «error de red») ni peticiones de otros orígenes (extensiones de Chrome); solo guarda respuestas buenas.
+
 ## 1.7.0 — 2026-09-28
 
 ### Recursos por sección con agente de calidad

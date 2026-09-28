@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Recursos</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.05);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:var(--ff);color:var(--body);background:var(--bg);
+  background-image:radial-gradient(900px 520px at 12% -6%,rgba(113,75,103,.28),transparent 60%)}
+button{font-family:inherit}[hidden]{display:none!important}a{color:inherit}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;padding:18px 28px;
+  background:linear-gradient(180deg,rgba(26,24,32,.92),rgba(26,24,32,.55) 70%,transparent);backdrop-filter:blur(6px)}
+:root[data-theme="light"] .top{background:linear-gradient(180deg,rgba(243,239,231,.95),rgba(243,239,231,.6) 70%,transparent)}
+.top h1{font-family:var(--fh);font-size:22px;margin:0;color:var(--ink);font-weight:800}
+.top .sub{color:var(--muted);font-size:12.5px}
+.top .back{margin-left:auto;color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:600;border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+.top .back:hover{color:var(--ink);border-color:var(--aub2)}
+.tabs{display:flex;gap:8px;padding:10px 28px 4px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:var(--soft);color:var(--body);border-radius:20px;min-height:40px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+.tabs button:hover{border-color:var(--aub2);color:var(--ink)}
+.tabs button.on{background:linear-gradient(120deg,var(--teal),var(--aub));border-color:transparent;color:#fff}
+.rows{padding:18px 0 60px}
+.row{margin-bottom:34px}
+.row .rh{padding:0 28px;margin-bottom:12px;font-size:17px;color:var(--ink);font-weight:800}
+.track{display:flex;gap:14px;overflow-x:auto;padding:4px 28px 14px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:4px 28px 20px}
+.card{flex:0 0 auto;width:260px;scroll-snap-align:start;border-radius:14px;overflow:hidden;background:var(--panel);border:1px solid var(--line);
+  text-decoration:none;display:flex;flex-direction:column;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.grid .card{width:auto}
+.card:hover,.card:focus-visible{transform:translateY(-4px);box-shadow:0 16px 34px rgba(0,0,0,.35);border-color:var(--aub2);outline:none}
+.art{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,var(--aub),var(--teal));overflow:hidden;display:grid;place-items:center}
+.art img{width:100%;height:100%;object-fit:cover;display:block}
+.art.sq img{object-fit:contain;background:#111}
+.art .ph{font-family:var(--fh);font-size:28px;color:#fff;padding:0 16px;text-align:center;line-height:1.1}
+.badge{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.7);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+.meta{padding:11px 13px 13px;display:grid;gap:5px}
+.meta .t{font-size:14px;font-weight:700;color:var(--ink);line-height:1.35;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta .by{font-size:12px;color:var(--muted)}
+.meta .why{font-size:13px;color:var(--body);line-height:1.4}
+.meta .ev{font-size:11.5px;color:var(--muted)}
+.aff{font-size:10.5px;color:var(--gold);font-weight:700}
+.empty{padding:0 28px;color:var(--muted);font-size:14px}
+.skel{height:200px;border-radius:14px;background:linear-gradient(90deg,var(--soft),rgba(255,255,255,.09),var(--soft));background-size:200% 100%;animation:sk 1.2s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){.skel{animation:none}.card{transition:none}}
+.modal{position:fixed;inset:0;background:rgba(10,8,14,.85);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+.modal.open{display:flex}
+.modal .box{width:min(920px,100%);background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--sh)}
+.modal .ply{width:100%;aspect-ratio:16/9;background:#000}.modal .ply iframe{width:100%;height:100%;border:0}
+.modal .hd{display:flex;align-items:flex-start;gap:10px;padding:14px 18px}
+.modal .hd p{flex:1;font-size:15.5px;font-weight:700;color:var(--ink);margin:0}
+.modal .x{border:0;background:var(--soft);color:var(--body);width:40px;height:40px;border-radius:9px;cursor:pointer;font-size:18px;flex:none}
+@media(max-width:640px){.top{padding:14px 16px}.tabs{padding:8px 16px 2px}.row .rh,.empty{padding:0 16px}.track{padding:4px 16px 12px}.grid{padding:4px 16px 16px}.card{width:220px}}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Recursos</h1><span class="sub" id="topicTag"></span>
+  <a class="back" id="back" href="/app/inicio.html">← Volver</a>
+</div>
+<div class="tabs" id="tabs" role="tablist"></div>
+<div class="rows" id="rows"><div class="track"><div class="skel" style="flex:0 0 260px"></div><div class="skel" style="flex:0 0 260px"></div><div class="skel" style="flex:0 0 260px"></div></div></div>
+<div class="modal" id="modal"><div class="box"><div class="ply" id="ply"></div>
+  <div class="hd"><p id="mTitle"></p><button class="x" id="mX" aria-label="Cerrar">×</button></div></div></div>
+<script src="/app/i18n.js"></script>
+<script src="/app/api.js"></script>
+<script>
+(function(){
+  var qs=new URLSearchParams(location.search), TOPIC=(qs.get('topic')||'').slice(0,200), OUTLINE=(qs.get('outline')||'').slice(0,3000), SRC=qs.get('src');
+  var LABEL={forYou:'Para ti',video:'Vídeos',podcast:'Podcasts',book:'Libros',tool:'Herramientas'};
+  var BADGE={video:'Vídeo',podcast:'Podcast',book:'Libro',tool:'Herramienta'};
+  var tabs=document.getElementById('tabs'), rows=document.getElementById('rows'), DATA=null, TAB='all';
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  document.getElementById('topicTag').textContent=TOPIC;
+  if(SRC) document.getElementById('back').href='/app/curso.html?src='+encodeURIComponent(SRC);
+  if(!TOPIC){ rows.innerHTML='<p class="empty">Abre los recursos desde un curso.</p>'; return; }
+
+  function card(r){
+    var art=r.image?'<img src="'+esc(r.image)+'" alt="" loading="lazy" onerror="this.remove()">':'<span class="ph">'+esc(r.title.split(' ').slice(0,4).join(' '))+'</span>';
+    var video=r.kind==='video'&&r.meta&&r.meta.youtubeId;
+    return '<a class="card" href="'+esc(r.url)+'" target="_blank" rel="noopener'+(r.affiliate?' sponsored':'')+'"'+(video?' data-yt="'+esc(r.meta.youtubeId)+'" data-t="'+esc(r.title)+'"':'')+'>'
+      +'<div class="art'+(r.kind==='book'||r.kind==='podcast'?' sq':'')+'">'+art+'<span class="badge">'+BADGE[r.kind]+'</span></div>'
+      +'<div class="meta"><p class="t">'+esc(r.title)+'</p><span class="by">'+esc(r.by)+'</span>'
+      +(r.why?'<span class="why">'+esc(r.why)+'</span>':'')
+      +(r.evidence&&r.evidence.length?'<span class="ev">'+esc(r.evidence.join(' · '))+'</span>':'')
+      +(r.affiliate?'<span class="aff">Enlace de afiliado</span>':'')+'</div></a>';
+  }
+  function row(title,items){return items.length?'<section class="row"><h2 class="rh">'+esc(title)+'</h2><div class="track">'+items.map(card).join('')+'</div></section>':'';}
+  function render(){
+    tabs.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.k===TAB);b.setAttribute('aria-selected',b.dataset.k===TAB);});
+    var g=DATA.groups;
+    if(TAB==='all'){
+      var html=row(LABEL.forYou,DATA.forYou||[])+DATA.order.map(function(k){return row(LABEL[k],g[k]||[]);}).join('');
+      rows.innerHTML=html||'<p class="empty">Todavía no hay recursos para este curso. Vuelve a intentarlo en unos minutos.</p>';
+    } else {
+      var items=g[TAB]||[];
+      rows.innerHTML=items.length?'<div class="grid">'+items.map(card).join('')+'</div>':'<p class="empty">No hay '+esc(LABEL[TAB].toLowerCase())+' para este curso todavía.</p>';
+    }
+  }
+  function load(){
+    SkillUp.api('/api/learning/resources',{method:'POST',body:{topic:TOPIC,outline:OUTLINE}}).then(function(d){
+      DATA=d; var keys=['all'].concat(d.order.filter(function(k){return (d.groups[k]||[]).length;}));
+      tabs.innerHTML=keys.map(function(k){return '<button type="button" role="tab" data-k="'+k+'">'+(k==='all'?'Todo':LABEL[k])+'</button>';}).join('');
+      tabs.onclick=function(e){var b=e.target.closest('button');if(!b)return;TAB=b.dataset.k;render();};
+      render();
+    }).catch(function(){ rows.innerHTML='<p class="empty">No se han podido cargar los recursos. <button type="button" id="retry" class="back">Reintentar</button></p>';
+      document.getElementById('retry').onclick=function(){rows.innerHTML='<div class="track"><div class="skel" style="flex:0 0 260px"></div></div>';load();}; });
+  }
+  // Vídeos: se ven aquí mismo, sin salir de SkillUp.
+  var modal=document.getElementById('modal'), ply=document.getElementById('ply');
+  rows.addEventListener('click',function(e){var a=e.target.closest('a[data-yt]');if(!a)return;e.preventDefault();
+    ply.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+encodeURIComponent(a.dataset.yt)+'?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="'+esc(a.dataset.t)+'"></iframe>';
+    document.getElementById('mTitle').textContent=a.dataset.t; modal.classList.add('open'); document.getElementById('mX').focus();});
+  function close(){modal.classList.remove('open');ply.innerHTML='';}
+  document.getElementById('mX').onclick=close; modal.onclick=function(e){if(e.target===modal)close();};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))close();});
+  load();
+})();
+</script>
+<script src="/app/nav.js" defer></script>
+<script src="/app/breadcrumbs.js" defer></script>
+</body>
+</html>

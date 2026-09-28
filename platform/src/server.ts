@@ -340,24 +340,24 @@ app.get("/api/learning/videos", async (c) => {
   return c.json(await videosSvc.forTopic(svcDeps, topic, lang));
 });
 
-// --- Recursos por sección (libros verificados en Open Library + vídeos de YouTube), puntuados por el agente de calidad
-// (calidad, valor, relevancia) y personalizados: formato preferido del Team DNA, cantidad según su tiempo semanal, su idioma. ---
-const resourcesBody = z.object({ topic: z.string().trim().min(2).max(200), section: z.string().max(4000).default("") });
+// --- Recursos del curso (vídeos, podcasts, libros, herramientas) verificados y puntuados por el agente de calidad, con
+// afiliación detrás del control de calidad. Pestañas en el orden del formato preferido del Team DNA; «para ti» según su tiempo. ---
+const resourcesBody = z.object({ topic: z.string().trim().min(2).max(200), outline: z.string().max(4000).default("") });
 app.post("/api/learning/resources", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  // A cold topic costs 2 LLM calls + YouTube quota; cached per topic+language for 14 days.
+  // A cold course costs 2 LLM calls + YouTube quota; cached per course+language for 14 days (empty results are never cached).
   if (rateLimited(`resources:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const parsed = resourcesBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
   const lang = await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
-  const [all, tp, ritmo] = await Promise.all([
-    resourcesSvc.forTopic(svcDeps, parsed.data.topic, parsed.data.section, lang),
+  const [groups, tp, ritmo] = await Promise.all([
+    resourcesSvc.forCourse(svcDeps, parsed.data.topic, parsed.data.outline, lang),
     teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null),
     onboardingMarker(db, ctx.orgId, ctx.userId, "[ritmo]").catch(() => null),
   ]);
   const formato = tp?.result?.pedagogy?.formato ?? null;
-  return c.json({ items: resourcesSvc.personalize(all, formato, ritmo), total: all.length, formato, ritmo, lang });
+  return c.json({ groups, order: resourcesSvc.tabOrder(formato), forYou: resourcesSvc.forYou(groups, formato, ritmo), lang });
 });
 
 app.get("/api/learning/videos/home", async (c) => {

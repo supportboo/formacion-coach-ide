@@ -16,6 +16,7 @@ const schema = z.object({
   ELEVENLABS_API_KEY: z.string().optional(),
   ELEVENLABS_EXTRA_VOICES: z.string().optional(),
   YOUTUBE_API_KEY: z.string().optional(),
+  AMAZON_ES_TAG: z.string().optional(), // Amazon Afiliados (libros de Recursos)
   BETTER_AUTH_SECRET: z.string().min(32, "BETTER_AUTH_SECRET debe fijarse explícitamente (>=32 chars), sin valor por defecto"),
   BETTER_AUTH_URL: z.string().default("http://localhost:8080"),
   PORT: z.coerce.number().default(8080),
