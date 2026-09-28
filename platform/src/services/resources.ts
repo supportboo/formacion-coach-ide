@@ -163,7 +163,8 @@ async function podcasts(term: string, lang: Lang): Promise<Podcast[]> {
 /** Herramientas que compiten con el producto del cliente: fuera aunque el agente las proponga. */
 export function excludedTool(url: string): boolean {
   let host = ""; try { host = new URL(url).hostname.replace(/^www\./, ""); } catch { return true; }
-  return [...EXCLUDED_TOOL_DOMAINS].some((d) => host === d || host.endsWith("." + d));
+  const path = (() => { try { return host + new URL(url).pathname; } catch { return host; } })();
+  return [...EXCLUDED_TOOL_DOMAINS].some((d) => (d.includes("/") ? path.startsWith(d) : host === d || host.endsWith("." + d)));
 }
 
 /** La web de la herramienta tiene que existir (2xx/3xx; 401/403/405 = existe pero bloquea bots). */
@@ -195,7 +196,7 @@ async function llmJson(system: string, content: string, maxTokens: number): Prom
 
 const PROPOSE_SYS = `Eres documentalista experto en formación profesional B2B. Para el curso que te doy propón:
 - hasta 8 libros publicados de verdad, de autores con experiencia contrastada, que ayuden a aplicar el curso (obras de referencia y guías prácticas; nada de autoayuda genérica). Si conoces con seguridad el título de su edición en castellano, añádelo en "title_es".
-- hasta 6 herramientas de software reales que un profesional use para aplicar lo del curso, con la URL oficial de su web (https). NUNCA propongas herramientas que compitan con un ERP todo en uno (CRM, email marketing, automatización comercial, secuencias de prospección, gestión de proyectos, base de conocimiento, facturación, helpdesk, web o tienda online, RR. HH.): el alumno trabaja en un fabricante de ERP.
+- hasta 6 herramientas de software reales que un profesional use para aplicar lo del curso, con la URL oficial de su web (https). NUNCA propongas herramientas que compitan con un ERP todo en uno (CRM, email marketing, automatización comercial, secuencias de prospección, gestión de proyectos, base de conocimiento, facturación, helpdesk, web o tienda online, RR. HH.): el alumno trabaja en un fabricante de ERP. Tampoco plataformas de cursos o formación online (son nuestra competencia). Si el curso trata de IA, prioriza herramientas de IA aplicables en la empresa (contenido, voz, vídeo, investigación, programación, automatización).
 Solo lo que puedas nombrar con seguridad: todo se verifica y lo que no existe se descarta.
 Devuelve SOLO JSON: {"books":[{"title":"título original","author":"nombre y apellido","title_es":"…"}],"tools":[{"name":"…","url":"https://…","what":"para qué sirve, en 10 palabras"}]}`;
 

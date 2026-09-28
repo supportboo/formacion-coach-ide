@@ -95,5 +95,7 @@ describe("client-competing tools", () => {
     expect(excludedTool("https://www.lemlist.com/")).toBe(true);
     expect(excludedTool("https://app.apollo.io/")).toBe(true);
     expect(excludedTool("https://www.linkedin.com/sales/")).toBe(false);
+    expect(excludedTool("https://www.coursera.org/learn/x")).toBe(true); // training platforms are competitors
+    expect(excludedTool("https://www.linkedin.com/learning/")).toBe(true);
   });
 });
