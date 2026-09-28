@@ -21,4 +21,6 @@ export const EXCLUDED_TOOL_DOMAINS = new Set([
   "coursera.org", "edx.org", "domestika.org", "skillshare.com", "udemy.com", "masterclass.com", "linkedin.com/learning",
   "blinkist.com", "babbel.com", "busuu.com", "platzi.com", "crehana.com", "openwebinars.net", "tokioschool.com",
   "thinkific.com", "teachable.com", "kajabi.com", "hotmart.com", "360learning.com", "docebo.com", "moodle.org",
+  // Creadores de webs con IA: chocan con la web y tienda online de Odoo.
+  "lovable.dev", "bolt.new", "v0.dev", "v0.app", "framer.com", "webflow.com",
 ]);
