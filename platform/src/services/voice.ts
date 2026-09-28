@@ -24,25 +24,18 @@ export function ttsBody(text: string, voiceId: string, lang = "es") {
     : { text, model_id: MODEL, voice_settings: settingsFor(voiceId) };
 }
 
-// Voz de Marc (2026-09-28, 2.ª vuelta). La cadena «Iron Man» de BOO Manager le quitaba los graves (highpass 185 Hz +
-// lowpass 7,8 kHz: banda de 125 Hz de -4,8 a -9,6 dB) y Marc pidió «más graves, tono conversacional». MEDIDO sobre su
-// muestra de ElevenLabs (octavas relativas a 1 kHz): 125 Hz +2,5 dB y 250 Hz +5,9 (a la par del máster igualado con
-// Diego/Inés), 2-4 kHz como el original (se entiende cada palabra), 8 kHz -0,7 (eses domadas). Del Manager queda solo un
-// eco de casco muy corto y suave: presencia, no radio. Duración intacta (el resaltado palabra a palabra cuadra).
+// Voz de Marc = el máster v5 del vídeo explicativo de Brandooers, aprobado de oído el 25-09 y elegido por Marc para los
+// cursos el 28-09 («esa ecualización de voz es perfecta para cursos»). Reductor de respiraciones (expansor descendente:
+// hunde lo que suena en los huecos, ~-30/-45 dB, y deja pasar el habla expresiva), de-esser, compresión suave y nivel
+// uniforme a -14 LUFS. Los ajustes de la voz siguen siendo los de su panel de ElevenLabs (donde se sigue entrenando).
+// Duración intacta: el resaltado palabra a palabra cuadra.
 const MARC_EQ = [
-  "afftdn=nr=30:nf=-40:tn=1",                          // ruido de sala del clon (-42 dB -> -78 dB)
-  "agate=threshold=0.012:ratio=4:attack=5:release=150",
-  "highpass=f=65",
-  "lowshelf=f=180:g=8",                  // cuerpo y graves
-  "equalizer=f=110:t=q:w=1:g=2",         // pecho
-  "equalizer=f=320:t=q:w=1.2:g=-1.5",    // sin «habitación»
-  "equalizer=f=2700:t=q:w=1.4:g=2.5",    // presencia
-  "equalizer=f=6500:t=q:w=0.9:g=-7",     // eses y siseo
-  "highshelf=f=10000:g=-4",
+  "highpass=f=85",
+  "compand=attacks=0.003:decays=0.18:points=-80/-80|-45/-75|-30/-45|-26/-28|-6/-6|0/-2",
   "deesser=i=0.3",
-  "acompressor=threshold=-18dB:ratio=3:attack=8:release=140:makeup=3",
-  "aecho=0.8:0.5:11:0.06",               // el toque de BOO Manager, muy sutil
-  "alimiter=limit=0.95",
+  "acompressor=threshold=-18dB:ratio=2:makeup=1.5",
+  "loudnorm=I=-14:TP=-1.2:LRA=7",
+  "alimiter=limit=0.89",
 ];
 const CLEAN_EQ = [
   "highpass=f=80",
