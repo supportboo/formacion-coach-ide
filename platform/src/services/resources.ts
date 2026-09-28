@@ -169,6 +169,16 @@ async function siteExists(url: string): Promise<boolean> {
   } catch { return false; }
 }
 
+export function dedupeBy<T>(items: T[], key: (x: T) => string): T[] {
+  const seen = new Set<string>();
+  return items.filter((x) => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; });
+}
+/** Temas de búsqueda de vídeos: el curso + sus 3 primeros módulos (con contexto B2B si no lo llevan). */
+export function videoTopics(topic: string, outline: string, lang: Lang): string[] {
+  const mods = outline.split(/\s*·\s*/).map((m) => m.trim()).filter((m) => m.length >= 4).slice(0, 3);
+  return [topic, ...mods.map((m) => videosSvc.withContext(m, lang).slice(0, 120))];
+}
+
 /* ---------------------------------- Agente de calidad ---------------------------------- */
 
 async function llmJson(system: string, content: string, maxTokens: number): Promise<unknown> {
@@ -203,7 +213,8 @@ export async function build(deps: SvcDeps, topic: string, outline: string, lang:
   const term = await videosSvc.queryFor(topic, lang).catch(() => topic);
   const [proposal, vidPool, pods] = await Promise.all([
     llmJson(PROPOSE_SYS, brief, 1400).catch((e) => { console.warn("[resources] propose failed", String(e).slice(0, 200)); return null; }) as Promise<Proposal | null>,
-    videosSvc.forTopic(deps, topic, lang).catch((e) => { console.warn("[resources] videos failed", String(e).slice(0, 200)); return null; }),
+    // El título del curso solo da pocos vídeos (medido 28-09: 1); se suman los 3 primeros módulos con su contexto B2B.
+    videosSvc.aggregate(deps, videoTopics(topic, outline, lang), 12, lang).catch((e) => { console.warn("[resources] videos failed", String(e).slice(0, 200)); return null; }),
     podcasts(term, lang),
   ]);
 
@@ -218,7 +229,7 @@ export async function build(deps: SvcDeps, topic: string, outline: string, lang:
   const seen = new Set<string>();
   const vids = [...(vidPool?.masValorados ?? []), ...(vidPool?.masVistos ?? [])]
     .filter((v) => (seen.has(v.youtubeId) ? false : (seen.add(v.youtubeId), true))).slice(0, 12);
-  const podsIn = pods.slice(0, 10);
+  const podsIn = dedupeBy(pods, (p) => p.collectionName.trim().toLowerCase()).slice(0, 10);
 
   const cand = [
     ...books.map((b, i) => ({ id: "b" + i, tipo: "libro", titulo: b.doc.title, autor: b.doc.author_name?.[0], año: b.doc.first_publish_year })),

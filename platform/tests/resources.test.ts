@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  amazonUrl, authorMatches, countFor, forYou, keep, rank, scoreBook, scorePodcast, scoreVideo, tabOrder,
+  amazonUrl, authorMatches, dedupeBy, videoTopics, countFor, forYou, keep, rank, scoreBook, scorePodcast, scoreVideo, tabOrder,
   type Kind, type Resource,
 } from "../src/services/resources.js";
 
@@ -75,5 +75,17 @@ describe("personalization", () => {
     expect(countFor("5 horas o más")).toBe(8);
     expect(forYou(groups, "texto", "Menos de 1 hora").map((x) => x.kind)).toEqual(["book", "video"]);
     expect(forYou(groups, "video", "2-3 horas")).toHaveLength(4);
+  });
+});
+
+describe("candidate gathering", () => {
+  it("searches videos by course and its first modules", () => {
+    const t = videoTopics("Prospección con IA", "Qué es prospectar · ICP · Perfil de LinkedIn · Mensajes", "es");
+    expect(t[0]).toBe("Prospección con IA");
+    expect(t).toHaveLength(4); // course + 3 modules; «ICP» is too short to search on its own
+    expect(t.some((x) => x.startsWith("ICP"))).toBe(false);
+  });
+  it("drops podcasts repeated under the same name", () => {
+    expect(dedupeBy([{ n: "Ventas B2B" }, { n: "ventas b2b " }, { n: "Otro" }], (x) => x.n.trim().toLowerCase())).toHaveLength(2);
   });
 });
