@@ -16,6 +16,7 @@ export interface AgentContext {
   ruta?: string[]; // títulos de los módulos de SU ruta (para no decir "no sé qué estás estudiando")
   avance?: string | null; // resumen breve de su nivel actual
   estilo?: string | null; // cómo prefiere aprender (guía el formato de los ejemplos/recursos)
+  trato?: string | null; // cómo quiere que le hable el tutor (bienvenida: directo, con tacto, retándome)
   freno?: string | null; // barrera declarada en onboarding ([freno]): anticipar con tacto, nunca ignorar
   objetivo?: string | null; // qué quiere conseguir de verdad ([objetivo]): conectar cada respuesta con ese ROI
   empresaResumen?: string | null; // resumen real de la web de su empresa (a quién vende / qué vende)
@@ -47,6 +48,8 @@ function withContext(role: string, mission: string) {
       (ctx.empresaResumen ? `Su empresa, en real: ${ctx.empresaResumen}. Usa ESTO en los ejemplos (a quién venden, qué venden), no un caso genérico del sector.\n` : "") +
       (ctx.objetivo ? `Lo que quiere conseguir de verdad: "${ctx.objetivo}". Conecta cada respuesta con ese resultado (dile por qué esto le acerca) para que sienta el retorno.\n` : "") +
       (ctx.perfil ? `Su perfil de aprendizaje y comunicación: ${ctx.perfil}\nHáblale y motívale según ese perfil (tono, ritmo, formato, tipo de feedback); el nivel de exigencia es el mismo para todos.\n` : "") +
+      (ctx.trato ? `Cómo quiere que le hables: "${ctx.trato}". Respétalo en el tono (si pide que le retes, reta con respeto; si pide tacto, suaviza sin quitar exigencia).
+` : "") +
       (ctx.freno ? `Su freno declarado: "${ctx.freno}". Anticípalo con tacto y ofrece el siguiente paso más pequeño que lo sortee; no lo ignores ni lo sueltes como etiqueta.\n` : "") +
       `No empieces disculpándote por lo que no sabes; con lo que tienes (puesto, ruta, avance) da algo útil desde la primera frase.\n\n` +
       (ctx.contextSnippets.length

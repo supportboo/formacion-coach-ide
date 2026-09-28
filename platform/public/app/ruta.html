@@ -496,7 +496,14 @@ function monthGrid(y,mo,sessions){
   return '<div class="month"><div class="mtitle">'+MESL[mo]+' '+y+'</div><div class="mgrid"><div class="wd">L</div><div class="wd">M</div><div class="wd">X</div><div class="wd">J</div><div class="wd">V</div><div class="wd">S</div><div class="wd">D</div>'+cells+'</div></div>';
 }
 var CALPLAN=(function(){ try{ return JSON.parse(localStorage.getItem('skillup-calplan')||'')||{}; }catch(e){ return {}; } })();
+var CALPLAN_DEFAULT=!CALPLAN.weekdays;
 if(!CALPLAN.weekdays) CALPLAN={ weekdays:[1,2,3,4,5], perWeek:2 }; // por defecto L-V, 2 módulos/semana
+// Sin plan propio: el ritmo sale del tiempo semanal que dijo en la bienvenida ([ritmo]).
+if(CALPLAN_DEFAULT) SkillUp.api('/api/notes/list?source=onboarding').then(function(d){
+  var r=((d&&d.items)||[]).map(function(a){return String(a.body||'');}).filter(function(b){return b.indexOf('[ritmo]')===0;})[0]; if(!r)return;
+  CALPLAN.perWeek=/menos de 1/i.test(r)?1:(/5 horas|m[aá]s/i.test(r)?4:2);
+  if(typeof renderCal==='function' && !document.getElementById('calSheet').hidden) renderCal();
+}).catch(function(){});
 function scheduleDates(n){
   var out=[], d=new Date(); d.setHours(0,0,0,0); var wd=CALPLAN.weekdays||[1,2,3,4,5], per=CALPLAN.perWeek||2;
   function wkey(x){ var y=new Date(x); var day=(y.getDay()+6)%7; y.setDate(y.getDate()-day); return y.getFullYear()+'-'+y.getMonth()+'-'+y.getDate(); }

@@ -1,5 +1,14 @@
 # Changelog · SkillUp platform
 
+## 1.10.0 — 2026-09-28
+
+### Bienvenida y Team DNA en un solo recorrido
+- Perfil provisional: en cuanto la persona responde los dos primeros bloques del Team DNA («Cómo aprendes» y rasgos, 28 respuestas, unos 5 minutos) se guarda un perfil que ya usan el tutor, el bloque «Para ti» y los recursos. El eneagrama y el Hexad se terminan cuando quiera; el perfil completo sustituye al provisional.
+- La bienvenida ya no pregunta «¿Cómo aprendes mejor?»: lo mide el Team DNA con ítems con respaldo científico (y sus opciones «vídeos / teoría» rozaban el mito de los estilos de aprendizaje). Traducciones alineadas en los 5 idiomas.
+- El «trato» elegido en la bienvenida (directo, con tacto, retándome) marca el tono del tutor; antes se guardaba sin usarse.
+- El tiempo semanal de la bienvenida fija los módulos por semana del calendario de la ruta (1, 2 o 4) mientras la persona no ajuste el suyo; también decide cuántos recursos «para ti» ve.
+- El mensaje final de la bienvenida explica que con 5 minutos del DNA todo se adapta ya.
+
 ## 1.9.0 — 2026-09-28
 
 ### Contenido vivo: bloque «Para ti» en cada sección

@@ -115,7 +115,6 @@ var STEPS=[
  {ask:'Genial. ¿Cuál es la web de tu empresa? Le echo un ojo para conoceros y afinar los ejemplos a lo vuestro.',key:'empresa',company:true},
  {ask:'¿Qué te gustaría conseguir con esto? Tu objetivo, aunque sea en una frase.',key:'objetivo'},
  {ask:'¿En qué nivel te ves ahora mismo?',key:'nivel',chips:['Empezando','Con experiencia','Con soltura']},
- {ask:'¿Cómo aprendes mejor?',key:'estilo',chips:['Con ejemplos reales','Practicando','Viendo vídeos','Teoría primero']},
  {ask:'¿Cuánto tiempo puedes dedicarle a la semana? Sé realista, así te marco un ritmo que puedas cumplir.',key:'ritmo',chips:['Menos de 1 hora','2-3 horas','5 horas o más']},
  {ask:'¿Qué te suele frenar cuando aprendes algo nuevo? Esto me ayuda a acompañarte mejor.',key:'freno',chips:['Falta de tiempo','Me disperso','No veo el para qué','Me da corte practicar']},
  {ask:'Y para terminar: ¿cómo prefieres que te hable tu tutor?',key:'trato',chips:['Directo y al grano','Con tacto y calma','Retándome']}
@@ -176,7 +175,7 @@ async function finish(){
     var sector=(Array.isArray(sec)&&sec.length&&sec[0].name)||undefined;
     await SkillUp.api('/api/learning/onboarding',{method:'POST',body:{puesto:ANS.rol,motivo:ANS.objetivo,sector:sector}}).catch(function(){});
   }catch(e){}
-  bubble('a',T('onb.done','Listo, ya te conozco un poco. Ahora descubramos tu ADN de aprendizaje: unas preguntas rápidas y tendrás tu arquetipo y tu certificado. Al terminar se abre tu ruta.'));
+  bubble('a',T('onb.done',"Listo, ya te conozco un poco. Ahora, tu ADN de aprendizaje: con los dos primeros bloques (unos 5 minutos) todo se adapta ya a cómo aprendes. El resto lo terminas cuando quieras y al final tendrás tu arquetipo y tu certificado."));
   done.hidden=false;
   done.innerHTML='<a class="btn" href="/app/team-dna.html">'+esc(T('onb.dna','Descubrir mi ADN'))+'</a>';
 }

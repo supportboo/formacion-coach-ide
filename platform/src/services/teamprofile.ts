@@ -458,6 +458,7 @@ export async function saveAnswers(deps: SvcDeps, orgId: string, userId: string, 
   const answers = { ...(row?.answers ?? {}), ...sanitizeAnswers(partial) };
   await deps.db.insert(teamProfile).values({ id: deps.newId(), organizationId: orgId, userId, answers })
     .onConflictDoUpdate({ target: [teamProfile.organizationId, teamProfile.userId], set: { answers, updatedAt: new Date() } });
+  await maybeProvisional(deps, orgId, userId, answers);
   return answers;
 }
 
@@ -465,6 +466,45 @@ export async function saveAnswers(deps: SvcDeps, orgId: string, userId: string, 
 export async function restart(deps: SvcDeps, orgId: string, userId: string): Promise<void> {
   await deps.db.update(teamProfile).set({ answers: {}, updatedAt: new Date() })
     .where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
+}
+
+/* ---------------------------------- Perfil provisional (Marc, 28-09-2026) ----------------------------------
+ * Los dos primeros bloques («Cómo aprendes» + rasgos, 28 respuestas, ~5 min) son los que personalizan tono, ritmo,
+ * formato y tipo de práctica. En cuanto están, se deja un perfil provisional para tutor, «Para ti» y recursos; el
+ * eneagrama y el Hexad pueden terminarse después y el perfil completo lo sustituye. */
+const CORE_IDS = [...PEDA_ITEMS.map((p) => p.id), ...BIG5_ITEMS.map((x) => x.id)];
+export function coreComplete(a: Answers): boolean { return CORE_IDS.every((id) => id in a); }
+
+/** Preferencias pedagógicas (dim -> clave de opción) de lo ya respondido. */
+export function pedagogyOf(a: Answers): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const p of PEDA_ITEMS) { if (!(p.id in a)) continue; const o = p.options[a[p.id] ?? 0]; if (o) out[p.dim] = o.key; }
+  return out;
+}
+
+export function coreBrief(a: Answers): string {
+  const r = { bigFive: scoreBigFive(a) } as ProfileResult; // b5Level solo lee bigFive
+  const rasgos = BIG5.map((k) => BIG5_LABEL[k].toLowerCase() + " " + LEVEL_F[b5Level(r, k)]).join(", ");
+  const reglas = BIG5.map((k) => BIG5_TEXT[k][b5Level(r, k)].tutor).filter(Boolean);
+  const ped = pedagogyOf(a);
+  const peda = PEDA_ITEMS.map((p) => pedaOpt(p.dim, ped[p.dim])?.tutor).filter(Boolean);
+  return [
+    "Perfil de aprendizaje provisional (autoinforme orientativo, no diagnóstico).",
+    "Rasgos Big Five: " + rasgos + ".",
+    reglas.length ? "Cómo hablarle: " + reglas.join("; ") + "." : "",
+    "Cómo aprende: " + peda.join("; ") + ".",
+    "Ajusta tono, ritmo y formato; nunca el rigor. No le etiquetes ni menciones el test salvo que lo saque.",
+  ].filter(Boolean).join(" ");
+}
+
+/** Deja el perfil provisional si ya están los bloques clave y aún no hay perfil completo. */
+async function maybeProvisional(deps: SvcDeps, orgId: string, userId: string, answers: Answers): Promise<void> {
+  if (!coreComplete(answers)) return;
+  const row = await getProfile(deps, orgId, userId);
+  if (row?.result) return; // ya tiene el completo
+  await deps.db.delete(annotation).where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId),
+    eq(annotation.source, "onboarding"), like(annotation.body, "[perfil]%")));
+  await deps.db.insert(annotation).values({ id: deps.newId(), organizationId: orgId, userId, source: "onboarding", kind: "insight", body: "[perfil] " + coreBrief(answers) });
 }
 
 /** Puntúa, guarda y deja el resumen donde lo leen los tutores (nota onboarding «[perfil]», sustituye la anterior). */

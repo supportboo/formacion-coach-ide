@@ -58,7 +58,7 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   // 2) recuperar contexto RAG de la org + perfil (sector/puesto) para personalizar como ya hace aiContent
   const hits = await retrieve(deps.store, deps.emb, input.orgId, input.message, 5);
   const profile = await getOnboardingProfile({ db: deps.db, newId: deps.newId }, input.orgId, input.userId);
-  const [ruta, avance, estilo, freno, objetivo, empresaResumen, perfil] = await Promise.all([
+  const [ruta, avance, estilo, freno, objetivo, empresaResumen, perfil, trato] = await Promise.all([
     learnerRoute(deps.db, input.orgId, input.userId),
     learnerProgress(deps.db, input.orgId, input.userId),
     learnerStyle(deps.db, input.orgId, input.userId),
@@ -66,11 +66,12 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
     onboardingMarker(deps.db, input.orgId, input.userId, "[objetivo]"),
     companySummary(deps.db, input.orgId, input.userId),
     onboardingMarker(deps.db, input.orgId, input.userId, "[perfil]"), // Team DNA v2 (teamprofile.ts)
+    onboardingMarker(deps.db, input.orgId, input.userId, "[trato]"), // cómo quiere que le hable el tutor (bienvenida)
   ]);
   const ctx: AgentContext = {
     orgName: input.orgName, userName: input.userName,
     contextSnippets: hits.map((h) => h.content),
-    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo, freno, objetivo, empresaResumen, perfil,
+    sector: profile?.sector, puesto: profile?.puesto, ruta, avance, estilo, freno, objetivo, empresaResumen, perfil, trato,
   };
 
   // 3) historial reciente del hilo

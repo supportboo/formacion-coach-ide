@@ -357,7 +357,8 @@ app.post("/api/learning/resources", async (c) => {
     teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null),
     onboardingMarker(db, ctx.orgId, ctx.userId, "[ritmo]").catch(() => null),
   ]);
-  const formato = tp?.result?.pedagogy?.formato ?? null;
+  // Formato preferido: del perfil completo o, si aún no lo ha terminado, de lo ya respondido del DNA.
+  const formato = tp?.result?.pedagogy?.formato ?? teamprofileSvc.pedagogyOf(tp?.answers ?? {}).formato ?? null;
   return c.json({ groups, order: resourcesSvc.tabOrder(formato), forYou: resourcesSvc.forYou(groups, formato, ritmo), lang });
 });
 
