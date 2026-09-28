@@ -100,6 +100,26 @@ export function withContext(topic: string, lang: Lang = "es"): string {
   return /ventas|vendes|vendas|ventes|b2b|comercial|sales/.test(t) ? topic : topic + " " + LANG_INFO[lang].b2b;
 }
 
+// El tema de búsqueda llega en español (títulos de curso): para buscar vídeos en otro idioma hay que buscar EN ese
+// idioma (medido 28-09: «Prospección comercial B2B» con relevanceLanguage=en daba 1 vídeo). Una llamada mínima al
+// modelo barato por tema+idioma, cacheada en memoria; si falla, se busca con el tema original.
+const QUERY_LANG: Record<string, string> = { en: "English", ca: "Catalan", pt: "European Portuguese", fr: "French" };
+const queryCache = new Map<string, string>();
+export async function queryFor(topic: string, lang: Lang): Promise<string> {
+  if (lang === "es" || !QUERY_LANG[lang]) return topic;
+  const k = lang + ":" + topic;
+  const hit = queryCache.get(k); if (hit) return hit;
+  try {
+    const { llm } = await import("../container.js");
+    const out = await llm.generate({
+      system: `Translate this YouTube search query about professional training into natural ${QUERY_LANG[lang]} as people would search it. Reply with the query only, no quotes.`,
+      messages: [{ role: "user", content: topic.slice(0, 200) }], model: env.MODEL_FAST, maxTokens: 40, kind: "translate", lang: "es",
+    });
+    const qy = (out.split("\n")[0] ?? "").replace(/^["«']|["»']$/g, "").trim().slice(0, 120) || topic;
+    queryCache.set(k, qy); return qy;
+  } catch { return topic; }
+}
+
 /** Clave de caché (columna sort_type): orden + idioma; cada idioma tiene su propia selección por tema. */
 export function cacheKey(sort: string, lang: Lang): string { return `${sort}:${lang}`; }
 
@@ -195,12 +215,13 @@ export function rankPool(pool: VideoItem[]): { masVistos: VideoItem[]; masValora
  * Cuota por refresco de tema+idioma: 2 búsquedas × 102 u = 204 u (límite diario por defecto del proyecto: 10.000 u). */
 export async function forTopic(deps: SvcDeps, topic: string, lang: Lang = "es"): Promise<{ novedades: VideoItem[]; masVistos: VideoItem[]; masValorados: VideoItem[]; lang: Lang }> {
   let novedades = await readCache(deps, topic, cacheKey("date", lang));
-  if (!novedades) { novedades = await searchAndStats(topic, "date", lang); await writeCache(deps, topic, cacheKey("date", lang), novedades); }
+  const qy = (novedades && (await readCache(deps, topic, cacheKey("viewed", lang)))) ? topic : await queryFor(topic, lang);
+  if (!novedades) { novedades = await searchAndStats(qy, "date", lang); await writeCache(deps, topic, cacheKey("date", lang), novedades); }
 
   let masVistos = await readCache(deps, topic, cacheKey("viewed", lang));
   let masValorados = await readCache(deps, topic, cacheKey("rated", lang));
   if (!masVistos || !masValorados) {
-    ({ masVistos, masValorados } = rankPool(await searchAndStats(topic, "viewCount", lang)));
+    ({ masVistos, masValorados } = rankPool(await searchAndStats(qy, "viewCount", lang)));
     await writeCache(deps, topic, cacheKey("viewed", lang), masVistos);
     await writeCache(deps, topic, cacheKey("rated", lang), masValorados);
   }
