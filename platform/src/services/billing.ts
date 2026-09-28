@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { env } from "../config/env.js";
 import { pricingTier, subscription } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
+import { creditFromCheckout } from "./credits.js";
 
 let stripeClient: Stripe | null = null;
 export function stripe(): Stripe {
@@ -13,6 +14,32 @@ export function stripe(): Stripe {
 
 export const TIERS = ["texto", "video_corto", "inmersivo"] as const;
 export type Tier = (typeof TIERS)[number];
+
+/** Planes a la venta (1.6.0). `inmersivo` queda fuera de la venta; sus datos se conservan. */
+export const SALE_TIERS = ["texto", "video_corto"] as const;
+export type SaleTier = (typeof SALE_TIERS)[number];
+
+/** Nombre, precio por defecto y qué incluye cada plan. El precio vigente es el de la tabla pricing_tier. */
+export const PLANS: Record<SaleTier, { name: string; defaultCents: number; includes: string[] }> = {
+  texto: {
+    name: "Esencial", defaultCents: 900,
+    includes: [
+      "Cursos con texto, herramientas y esquemas", "Vídeos seleccionados", "Modo escucha cuando está disponible",
+      "Tutor IA con voz", "Tests por bloque y examen final", "Certificado",
+    ],
+  },
+  video_corto: {
+    name: "Profesional", defaultCents: 1300,
+    includes: [
+      "Todo lo de Esencial", "Roleplays", "Team DNA", "Supervisión «En directo»", "Métricas e insights",
+      "Informe de ROI", "Asignaciones del responsable",
+    ],
+  },
+};
+
+/** FUNDAE: nota informativa, sin prometer más de lo que fija el módulo económico de teleformación. */
+export const FUNDAE_EUR_PER_HOUR = 7.5;
+export const fundaeMaxPerLearner = (hours: number) => Math.round(hours * FUNDAE_EUR_PER_HOUR * 100) / 100;
 
 export const listPricingTiers = (deps: SvcDeps) => deps.db.select().from(pricingTier);
 
@@ -69,6 +96,15 @@ export async function createCheckoutSession(
   return { url: session.url };
 }
 
+/** Planes a la venta con su precio vigente (tabla) o el de por defecto si aún no hay fila. */
+export async function salePlans(deps: SvcDeps) {
+  const rows = await listPricingTiers(deps);
+  return SALE_TIERS.map((t) => {
+    const r = rows.find((x) => x.tier === t);
+    return { tier: t, name: PLANS[t].name, pricePerSeatCents: r?.pricePerSeatCents ?? PLANS[t].defaultCents, currency: r?.currency ?? "eur", includes: PLANS[t].includes };
+  });
+}
+
 const STRIPE_TO_STATUS: Record<string, string> = {
   active: "active", trialing: "trialing", past_due: "past_due",
   canceled: "canceled", unpaid: "past_due", incomplete_expired: "canceled",
@@ -76,6 +112,10 @@ const STRIPE_TO_STATUS: Record<string, string> = {
 
 /** Aplica un evento de Stripe ya verificado (firma comprobada en la ruta) al estado local. */
 export async function applyStripeEvent(deps: SvcDeps, event: Stripe.Event): Promise<void> {
+  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
+    await creditFromCheckout(deps, event.data.object as Stripe.Checkout.Session);
+    return;
+  }
   if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.created"
     || event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;

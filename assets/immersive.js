@@ -282,7 +282,7 @@
   }
 
   /* ---------- logo eyes follow the pointer ---------- */
-  var eyes = Array.prototype.map.call(document.querySelectorAll('.beyes'), function (svg) {
+  var eyes = Array.prototype.map.call(document.querySelectorAll('.beyes:not(.hero-eyes)'), function (svg) {
     return Array.prototype.map.call(svg.querySelectorAll('g'), function (g) {
       var c = g.querySelectorAll('circle');
       return { iris: c[0], pupil: c[1], glint: c[2] || null };
@@ -381,7 +381,10 @@
     f.addEventListener('submit', function (ev) {
       ev.preventDefault(); msg.textContent = ''; msg.className = 'msg';
       var g = function (id) { var el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
-      var company = fields.company.map(g).filter(Boolean).join(' · ');
+      var company = fields.company.map(function (spec) {
+        var p = String(spec).split('|'); var id = p.length > 1 ? p[1] : p[0]; var label = p.length > 1 ? p[0] : '';
+        var v = g(id); return v ? (label ? label + ': ' + v : v) : '';
+      }).filter(Boolean).join(' · ');
       var btn = f.querySelector('button'); btn.disabled = true;
       fetch('/auth/lead', {
         method: 'POST', headers: { 'content-type': 'application/json' },
@@ -396,8 +399,8 @@
         .then(function () { btn.disabled = false; });
     });
   }
-  wireLead('pilotForm', 'pilotMsg', { name: 'pName', email: 'pEmail', company: ['pCompany', 'pSector', 'pSize'] },
+  wireLead('pilotForm', 'pilotMsg', { name: 'pName', email: 'pEmail', company: ['pCompany', 'Sector|pSector', 'Equipo|pSize', 'Objetivo|pGoal', 'Retorno esperado|pRoi'] },
     'Recibido. Te escribimos en breve para preparar el piloto.');
-  wireLead('leadForm', 'leadMsg', { name: 'lname', email: 'lemail', company: ['lcompany', 'lsector', 'lsize'] },
+  wireLead('leadForm', 'leadMsg', { name: 'lname', email: 'lemail', company: ['lcompany', 'Sector|lsector', 'Equipo|lsize', 'Objetivo|lgoal', 'Retorno esperado|lroi'] },
     'Recibido. Te escribimos en breve con la propuesta para tu equipo.');
 })();

@@ -4,35 +4,62 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brandooers · Usuarios</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--p:#8B5CF6;--t:#0891B2;--ink:#2D2D2D;--mut:#8F8F8F;--bg:#FAFAFA;--line:#E8E0E5;--warm:#F5F0EE}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:#4A4A4A;padding:34px 30px 70px}
-.hand{font-family:'Caveat',cursive;color:var(--t);font-size:24px}
-h1{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:6px}
-.hint{font-size:13px;color:var(--mut);max-width:720px;line-height:1.6;margin-bottom:22px}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:20px;max-width:900px}
-.card h2{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px}
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--pink:#EC6FA6;--green:#54C79A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.03);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#443E4E;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--pink:#C24E86;--green:#2E9E73;
+  --line:rgba(70,50,90,.16);--sh:0 18px 50px rgba(80,60,100,.12);--soft:rgba(60,42,84,.05);}
+*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%}
+body{font-family:var(--ff);background:var(--bg);color:var(--body);display:flex;overflow:hidden}
+button{font-family:inherit}
+.rail{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 0;border-right:1px solid var(--line);background:var(--soft)}
+.rail .rlogo{width:34px;height:20px;margin-bottom:10px}
+.rail a{width:58px;height:56px;border-radius:14px;display:grid;place-items:center;gap:2px;color:var(--muted);text-decoration:none;transition:.15s}
+.rail a svg{width:19px;height:19px}
+.rail a small{font-size:8.5px;font-weight:700}
+.rail a:hover{color:var(--body);background:var(--panel)}
+.rail a.on{color:var(--ink);background:linear-gradient(160deg,rgba(138,95,124,.5),rgba(26,154,160,.26))}
+.main{flex:1;min-width:0;padding:30px 32px 70px;overflow-y:auto;height:100dvh}
+@media(max-width:760px){body{flex-direction:column}.rail{width:100%;flex-direction:row;justify-content:center;border-right:0;border-bottom:1px solid var(--line);padding:8px}.rail a{width:52px;height:52px}.main{padding:20px 16px 50px;height:auto}}
+.hand{font-family:var(--fc);color:var(--teal2);font-size:24px;font-weight:700}
+h1{font-family:var(--fh);font-size:26px;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.hint{font-size:13px;color:var(--muted);max-width:720px;line-height:1.6;margin-bottom:22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:20px;max-width:900px;box-shadow:var(--sh)}
+.card h2{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--ink);margin-bottom:14px}
 table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:10px 10px;text-align:left;border-bottom:1px solid #F0EAEE;vertical-align:middle}
-th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+th,td{padding:10px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .u{font-weight:700;color:var(--ink)}
-select,input{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff}
-button{font-family:inherit;font-size:12px;font-weight:700;border:0;border-radius:8px;padding:7px 11px;cursor:pointer;background:var(--p);color:#fff}
-button.ghost{background:var(--warm);color:var(--p)}
-button.danger{background:#ffe3e3;color:#c92a2a}
+select,input{font-family:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--soft);color:var(--ink)}
+button{font-family:inherit;font-size:12px;font-weight:700;border:0;border-radius:8px;padding:7px 11px;cursor:pointer;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff}
+button.ghost{background:var(--soft);color:var(--teal2)}
+button.danger{background:rgba(224,121,140,.14);color:#E88}
 .row-form{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
 .row-form>div{display:flex;flex-direction:column;gap:4px}
-.row-form label{font-size:11px;color:var(--mut);font-weight:600}
+.row-form label{font-size:11px;color:var(--muted);font-weight:600}
 .msg{font-size:13px;margin-top:10px;min-height:16px}
-.link{font-size:12px;color:var(--t);word-break:break-all}
-.back{display:inline-block;margin-top:8px;color:var(--p);font-weight:600;text-decoration:none;font-size:14px}
-.role-pill{font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:100px;background:var(--warm);color:var(--p)}
-.role-pill.admin{background:#e5dbff;color:#6741d9}
+.link{font-size:12px;color:var(--teal2);word-break:break-all}
+.role-pill{font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:100px;background:var(--soft);color:var(--aub2)}
+.role-pill.admin{background:rgba(63,216,224,.14);color:var(--teal2)}
 </style>
 </head>
 <body>
+<script>try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}</script>
+<aside class="rail">
+  <svg class="rlogo" viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#3FD8E0" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#C69CB8"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g><g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="#F0C645" stroke-width="4"/><circle cx="20" cy="36" r="8" fill="#3FD8E0"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g></svg>
+  <a href="/panel.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><small>Panel</small></a>
+  <a href="/revisiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l2 3h4l2-3h4"/><path d="M4 12l1-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2l1 7v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg><small>Revisiones</small></a>
+  <a href="/usuarios.html" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-5 7-5s7 1.7 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M23 20c0-2.5-2-4-5-4.3"/></svg><small>Usuarios</small></a>
+  <a href="/aff/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M13 4h4a4 4 0 0 1 0 8h-2"/><path d="M11 20H7a4 4 0 0 1 0-8h2"/></svg><small>Afiliación</small></a>
+  <a href="/app/inicio.html" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg><small>App</small></a>
+</aside>
+<main class="main">
 <p class="hand">Administración</p>
 <h1>Usuarios del equipo</h1>
 <p class="hint">Da de alta a cada miembro, asigna su rol y, si alguien pierde la contraseña, genera un enlace de recuperación y pásaselo. Rol <b>admin</b> = acceso a esta página y al panel de afiliación.</p>
@@ -58,11 +85,10 @@ button.danger{background:#ffe3e3;color:#c92a2a}
   <p class="hint" style="margin-bottom:12px">Alguien pidió recuperar su contraseña. Copia el enlace y pásaselo (cuando conectemos el correo, se enviará solo).</p>
   <table><tbody id="resets"></tbody></table>
 </div>
-
-<a class="back" href="/panel.html">← Volver al panel</a>
+</main>
 <script>
 var api={
-  list:function(){return fetch('/auth/users').then(function(r){if(r.status===403){document.body.innerHTML='<p style="font-family:Inter;padding:40px">Solo un administrador puede ver esta página. <a href="/hub.html">Volver</a></p>';throw 0;}return r.json();});},
+  list:function(){return fetch('/auth/users').then(function(r){if(r.status===403){document.body.innerHTML='<p style="font-family:Inter;padding:40px">Solo un administrador puede ver esta página. <a href="/app/inicio.html">Volver</a></p>';throw 0;}return r.json();});},
   post:function(p,b){return fetch('/auth/users/'+p,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json();});}
 };
 function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -73,7 +99,7 @@ async function load(){
     return '<tr data-u="'+esc(u.u)+'"><td class="u">'+esc(u.u)+'</td>'+
       '<td><select class="rr">'+opts+'</select></td>'+
       '<td><select class="cc"><option value="">— sin coach —</option>'+d.users.filter(function(x){return x.u!==u.u;}).map(function(x){return '<option value="'+esc(x.u)+'"'+(x.u===u.coach?' selected':'')+'>'+esc(x.u)+'</option>';}).join('')+'</select></td>'+
-      '<td style="color:var(--mut);font-size:12px">'+(u.created?u.created.slice(0,10):'—')+'</td>'+
+      '<td style="color:var(--muted);font-size:12px">'+(u.created?u.created.slice(0,10):'—')+'</td>'+
       '<td><button class="ghost rst">Recuperar</button> <button class="danger del">Borrar</button><div class="link"></div></td></tr>';
   }).join('');
   var rc=document.getElementById('resetsCard');
@@ -84,8 +110,8 @@ async function load(){
 document.getElementById('add').addEventListener('submit',async function(ev){
   ev.preventDefault(); var m=document.getElementById('addmsg'); m.textContent='';
   var d=await api.post('save',{u:document.getElementById('nu').value.trim(),password:document.getElementById('np').value,role:document.getElementById('nr').value});
-  if(d.ok){ m.style.color='#2b8a3e'; m.textContent='Usuario creado.'; document.getElementById('add').reset(); load(); }
-  else { m.style.color='#c92a2a'; m.textContent=d.error||'Error'; }
+  if(d.ok){ m.style.color='var(--green)'; m.textContent='Usuario creado.'; document.getElementById('add').reset(); load(); }
+  else { m.style.color='#E88'; m.textContent=d.error||'Error'; }
 });
 document.addEventListener('change',function(e){
   if(e.target.classList.contains('rr')){ var u=e.target.closest('tr').dataset.u; api.post('save',{u:u,role:e.target.value}).then(load); }
@@ -98,5 +124,7 @@ document.addEventListener('click',async function(e){
 });
 load();
 </script>
+<script src="/app/api.js"></script>
+<script src="/app/boo-eyes.js?v=20260915k"></script>
 </body>
 </html>

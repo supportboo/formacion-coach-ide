@@ -1,9 +1,22 @@
-/* Brandooers PWA · service worker (network-first con caché de respaldo para uso offline básico) */
-const CACHE = 'brandooers-v1';
+/* Brandooers PWA · service worker. Navegaciones SIEMPRE por red (nunca HTML cacheado);
+   otros GET: red primero con caché de respaldo offline. Limpia cachés viejas al activar. */
+const CACHE = 'brandooers-v3';
 self.addEventListener('install', function (e) { self.skipWaiting(); });
-self.addEventListener('activate', function (e) { e.waitUntil(self.clients.claim()); });
+self.addEventListener('activate', function (e) {
+  e.waitUntil((async function () {
+    var keys = await caches.keys();
+    await Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+    await self.clients.claim();
+  })());
+});
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
+  // Documentos/navegación: siempre fresco, sin tocar caché HTTP ni SW.
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(function () { return caches.match(e.request); }));
+    return;
+  }
+  // Otros recursos: red primero, cachea copia para offline básico.
   e.respondWith(
     fetch(e.request).then(function (r) {
       try { var copy = r.clone(); caches.open(CACHE).then(function (c) { c.put(e.request, copy); }).catch(function () {}); } catch (x) {}

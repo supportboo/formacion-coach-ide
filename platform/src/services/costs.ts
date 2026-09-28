@@ -57,6 +57,15 @@ export async function orgCost(deps: SvcDeps, orgId: string, sinceDays = 30): Pro
   return summarize(deps, and(eq(aiUsage.organizationId, orgId), gte(aiUsage.createdAt, since)));
 }
 
+/** Consumo de UN usuario (sus propias llamadas) en los ultimos N dias, para su panel personal. */
+export async function userUsage(deps: SvcDeps, orgId: string, userId: string, sinceDays = 30): Promise<CostSummary & { generated: number }> {
+  const since = new Date(Date.now() - sinceDays * 86_400_000);
+  const s = await summarize(deps, and(eq(aiUsage.organizationId, orgId), eq(aiUsage.userId, userId), gte(aiUsage.createdAt, since)));
+  const genKinds = new Set(["lesson", "case", "exam"]);
+  const generated = s.byKind.filter((k) => genKinds.has(k.kind)).reduce((a, k) => a + k.calls, 0);
+  return { ...s, generated };
+}
+
 /** Coste de toda la plataforma (todas las empresas + orquestador) en los ultimos N dias. */
 export async function platformCost(deps: SvcDeps, sinceDays = 30): Promise<CostSummary> {
   const since = new Date(Date.now() - sinceDays * 86_400_000);

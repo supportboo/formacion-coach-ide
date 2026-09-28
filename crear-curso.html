@@ -705,6 +705,19 @@ body{padding-left:66px}
 .cc-stages b{font-size:14.5px;color:var(--text-dark)}
 .cc-stages span{font-size:13px;color:var(--text-body)}
 .cc-model{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--odoo-secondary);background:rgba(8,145,178,.1);border-radius:100px;padding:2px 7px;margin-left:6px}
+.cc-fields{max-width:560px;margin:22px auto 0;display:flex;flex-direction:column;gap:12px;text-align:left}
+.cc-field{background:var(--bg-warm);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.cc-field label{display:flex;align-items:center;gap:8px;font:800 13px Inter,sans-serif;color:var(--text-dark);margin-bottom:6px}
+.cc-field label i{width:22px;height:22px;border-radius:7px;background:var(--odoo-primary);color:#fff;display:grid;place-items:center;font-style:normal;font-size:12px;flex:none}
+.cc-field textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px;resize:vertical;min-height:56px;outline:none;background:var(--bg-white);color:var(--text-dark);box-sizing:border-box}
+.cc-field textarea:focus{border-color:var(--odoo-primary)}
+.cc-field small{display:block;color:var(--text-muted);font-size:11.5px;margin-top:5px}
+.cc-aud{display:flex;flex-wrap:wrap;gap:7px}
+.cc-aud button{font:600 12.5px Inter,sans-serif;color:var(--text-body);background:var(--bg-white);border:1px solid var(--border);border-radius:100px;padding:7px 13px;cursor:pointer}
+.cc-aud button.on{background:var(--odoo-primary);border-color:var(--odoo-primary);color:#fff;font-weight:800}
+.cc-go2{margin:20px auto 0;display:block;width:100%;max-width:560px}
+.cc-go2:disabled{opacity:.45;cursor:not-allowed}
+.cc-err{color:#c0392b;font-size:12.5px;font-weight:700;text-align:center;margin-top:8px;display:none}
 /* result */
 .cc-done{display:none;text-align:center}
 .cc-badge-ok{width:64px;height:64px;border-radius:50%;background:var(--odoo-ready);display:grid;place-items:center;margin:0 auto 14px}
@@ -721,13 +734,33 @@ body{padding-left:66px}
     <p>Escribe el tema que necesites. Nuestro equipo de agentes lo investiga en fuentes de autoridad, lo verifica sin inventar nada y te monta el curso. Cada petición hace a Brandooers más listo.</p>
     <div class="cc-input">
       <input id="ccTopic" placeholder="Ej.: cómo hacer webinars que conviertan a partners" autocomplete="off">
-      <button class="dna-cta" id="ccGo">Crear mi curso →</button>
     </div>
     <div class="cc-chips">
       <button type="button" data-t="LinkedIn para captar clientes ecommerce">LinkedIn para ecommerce</button>
       <button type="button" data-t="Negociación y cierre de servicios high-ticket">Cerrar high-ticket</button>
       <button type="button" data-t="Automatizar el seguimiento de leads con IA">Automatizar leads con IA</button>
     </div>
+    <div class="cc-fields">
+      <div class="cc-field"><label><i>?</i>Por qué lo necesitas</label>
+        <textarea id="ccReason" placeholder="Ej.: perdemos leads porque el equipo no sabe abrir conversación en LinkedIn sin sonar spam"></textarea>
+        <small>El motivo real ayuda a validar la petición y a que el curso ataque el problema de verdad.</small></div>
+      <div class="cc-field"><label><i>✓</i>Qué debe saber hacer tu equipo al terminar</label>
+        <textarea id="ccObjective" placeholder="Ej.: escribir 3 mensajes de apertura por perfil y conseguir respuesta en el primer contacto"></textarea>
+        <small>El compromiso concreto que el equipo se lleva, no solo «entender el tema».</small></div>
+      <div class="cc-field"><label><i>%</i>Cómo sabrás que ha funcionado</label>
+        <textarea id="ccRoi" placeholder="Ej.: subir la tasa de respuesta de prospección de un 8% a un 15% en 6 semanas"></textarea>
+        <small>El retorno o impacto de negocio que esperas ver.</small></div>
+      <div class="cc-field"><label><i>#</i>Para quién es</label>
+        <div class="cc-aud" id="ccAud">
+          <button type="button" data-v="Todo el equipo" class="on">Todo el equipo</button>
+          <button type="button" data-v="Comercial">Comercial</button>
+          <button type="button" data-v="Marketing">Marketing</button>
+          <button type="button" data-v="Negociación">Negociación</button>
+          <button type="button" data-v="Partners">Partners</button>
+        </div></div>
+    </div>
+    <button class="dna-cta cc-go2" id="ccGo">Crear mi curso →</button>
+    <div class="cc-err" id="ccErr">Cuéntanos el motivo, el objetivo y cómo medirás el resultado — con eso montamos un curso de verdad, no genérico.</div>
   </div>
 
   <!-- 2 · CARGA -->
@@ -771,19 +804,36 @@ var STAGES = [
 ];
 var ask=document.getElementById('ccAsk'), load=document.getElementById('ccLoad'), done=document.getElementById('ccDone');
 var input=document.getElementById('ccTopic'), ring=document.getElementById('ccRing'), timerEl=document.getElementById('ccTimer');
+var reasonEl=document.getElementById('ccReason'), objEl=document.getElementById('ccObjective'), roiEl=document.getElementById('ccRoi');
+var audWrap=document.getElementById('ccAud'), audience='Todo el equipo', errEl=document.getElementById('ccErr');
 var stagesEl=document.getElementById('ccStages');
 var C=2*Math.PI*82; ring.style.strokeDasharray=C; ring.style.strokeDashoffset=C;
-document.querySelectorAll('.cc-chips button').forEach(function(b){b.onclick=function(){input.value=b.getAttribute('data-t');start();};});
+document.querySelectorAll('.cc-chips button').forEach(function(b){b.onclick=function(){input.value=b.getAttribute('data-t');reasonEl.focus();};});
+audWrap.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;audience=b.getAttribute('data-v');audWrap.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});});
 function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 document.getElementById('ccGo').onclick=start;
-input.addEventListener('keydown',function(e){if(e.key==='Enter')start();});
-document.getElementById('ccAgain').onclick=function(e){e.preventDefault();done.style.display='none';ask.style.display='block';input.value='';input.focus();};
+input.addEventListener('keydown',function(e){if(e.key==='Enter')reasonEl.focus();});
+document.getElementById('ccAgain').onclick=function(e){e.preventDefault();done.style.display='none';ask.style.display='block';input.value='';reasonEl.value='';objEl.value='';roiEl.value='';errEl.style.display='none';input.focus();};
+
+// El prompt hiperprofesional que recibe el motor: no solo el tema, el contexto de negocio completo.
+function buildBrief(topic,reason,objective,roi,aud){
+  return 'TEMA: '+topic+'\n\n'
+    +'PARA QUIÉN: '+aud+'\n\n'
+    +'POR QUÉ (contexto real de negocio, motivo de la petición): '+reason+'\n\n'
+    +'OBJETIVO DE APRENDIZAJE (qué debe saber HACER el equipo al terminar, no solo «entender»): '+objective+'\n\n'
+    +'CÓMO SE MEDIRÁ EL ÉXITO (ROI / impacto de negocio esperado): '+roi+'\n\n'
+    +'INSTRUCCIONES PARA EL MOTOR: genera un curso completo 0→100 por niveles (rookie → intermedio → pro), con fuentes reales y verificables (nunca inventar datos, estadísticas ni casos), ejemplos prácticos aplicables desde la primera lección orientados al objetivo declarado arriba, ejercicios y roleplay que midan directamente el resultado esperado en «cómo se medirá el éxito», y el mismo tutor con personalidad y estructura (chat lateral, subrayar, nota, preguntar, consejo, ejemplo) que el resto de cursos de Brandooers.';
+}
 
 function start(){
-  var topic=input.value.trim(); if(topic.length<4){input.focus();return;}
+  var topic=input.value.trim(), reason=reasonEl.value.trim(), objective=objEl.value.trim(), roi=roiEl.value.trim();
+  if(topic.length<4){input.focus();return;}
+  if(reason.length<8||objective.length<8||roi.length<8){errEl.style.display='block';(reason.length<8?reasonEl:objective.length<8?objEl:roiEl).focus();return;}
+  errEl.style.display='none';
+  var brief=buildBrief(topic,reason,objective,roi,audience);
   // registro real de la petición (honesto: se captura; no se finge un curso instantáneo)
-  try{var u=JSON.parse(localStorage.getItem('coach_user')||'null');var arr=JSON.parse(localStorage.getItem('boo_requests')||'[]');arr.push({topic:topic,email:u?u.email:null,ts:new Date().toISOString()});localStorage.setItem('boo_requests',JSON.stringify(arr.slice(-500)));}catch(e){}
-  if(window.BOO_TRACK_URL){try{navigator.sendBeacon(window.BOO_TRACK_URL,new Blob([JSON.stringify({ev:'course_request',topic:topic})],{type:'text/plain'}))}catch(e){}}
+  try{var u=JSON.parse(localStorage.getItem('coach_user')||'null');var arr=JSON.parse(localStorage.getItem('boo_requests')||'[]');arr.push({topic:topic,reason:reason,objective:objective,roi:roi,audience:audience,email:u?u.email:null,ts:new Date().toISOString()});localStorage.setItem('boo_requests',JSON.stringify(arr.slice(-500)));}catch(e){}
+  try{fetch('/api/track',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ev:'course_request',topic:topic,reason:reason,objective:objective,roi:roi,audience:audience,brief:brief,from:'crear-curso',user:(function(){try{var u=JSON.parse(localStorage.getItem('coach_user')||'null');return u?u.email:null;}catch(e){return null;}})()})}).catch(function(){});}catch(e){}
   document.getElementById('ccTopicEcho').textContent=topic;
   document.getElementById('ccDoneTopic').textContent=topic;
   ask.style.display='none'; done.style.display='none'; load.style.display='block';
