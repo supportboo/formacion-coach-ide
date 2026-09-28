@@ -41,7 +41,7 @@
     var tip = p >= 0.8 ? '<div style="margin-top:3px;color:#C7B6FF">Repartir la práctica en varios días fija mejor lo aprendido.</div>' : '';
     b.hidden = false;
     b.innerHTML = '<div style="display:flex;justify-content:space-between;gap:8px"><span>Tu práctica de hoy</span><span>' + QUOTA.used + ' de ' + QUOTA.cap + ' mensajes' + off + '</span></div>'
-      + '<div style="height:4px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden"><div style="height:100%;width:' + Math.round(p * 100) + '%;background:' + col + ';transition:width .4s"></div></div>' + tip;
+      + '<div style="height:4px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden"><div style="height:100%;width:100%;transform:scaleX(' + p.toFixed(3) + ');transform-origin:left;background:' + col + ';transition:transform .4s"></div></div>' + tip;
     b.setAttribute('aria-label', 'Tu práctica de hoy: ' + QUOTA.used + ' de ' + QUOTA.cap + ' mensajes, quedan ' + left);
   }
   function addBar(el) {
