@@ -142,7 +142,7 @@ async function learnerStyle(db: DB, orgId: string, userId: string): Promise<stri
 }
 
 /** Lee un marcador del onboarding del alumno ([freno], [objetivo], [estilo]...). El más reciente gana. */
-async function onboardingMarker(db: DB, orgId: string, userId: string, marker: string): Promise<string | null> {
+export async function onboardingMarker(db: DB, orgId: string, userId: string, marker: string): Promise<string | null> {
   const rows = await db.select({ body: annotation.body }).from(annotation)
     .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, "onboarding")))
     .orderBy(desc(annotation.createdAt));

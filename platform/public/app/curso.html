@@ -250,6 +250,18 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 }
 @media(max-width:768px){.cv-panel{width:100vw}.cv-wide-btn{display:none}}
 @media(prefers-reduced-motion:reduce){.cv-panel,.cv-panel.open,.cv-item{transition:none}}
+/* Recursos por sección (libros + vídeos) puntuados por el agente de calidad */
+.su-res{margin-top:28px;border-top:1px solid rgba(180,150,205,.18);padding-top:18px;display:grid;gap:12px}
+.su-res h4{margin:0;font-size:16px;color:var(--ink)}.su-res .rs-sub{font-size:13px;color:var(--muted);margin:0}
+.su-res .rs-btn{justify-self:start;border:1.5px solid var(--teal2);background:none;color:var(--teal2);border-radius:10px;min-height:40px;padding:8px 14px;font:800 12px Inter,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.rs-list{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.rs-item{border:1px solid rgba(180,150,205,.18);border-radius:12px;padding:12px 14px;display:grid;gap:6px;background:var(--panel)}
+.rs-kind{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--aub2)}
+.rs-item a{color:var(--ink);font-weight:700;text-decoration:none}.rs-item a:hover{text-decoration:underline}
+.rs-by,.rs-ev{font-size:12.5px;color:var(--muted)}.rs-why{font-size:13.5px;color:var(--body)}
+.rs-bars{display:grid;gap:3px}.rs-bar{display:grid;grid-template-columns:74px 1fr 26px;gap:6px;align-items:center;font-size:11.5px;color:var(--muted)}
+.rs-bar i{display:block;height:6px;border-radius:3px;background:rgba(180,150,205,.18);overflow:hidden}.rs-bar i b{display:block;height:100%;background:var(--teal2)}
+.rs-bar span{text-align:right;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -413,7 +425,7 @@ function build(){
     +'<div class="selmenu" id="selmenu"><button data-a="hl">Subrayar</button><button data-a="note">Nota</button><button data-a="ask">Preguntar</button><button data-a="advise">Consejo</button><button data-a="example">Ejemplo</button></div>'
     +'<div class="mn" id="mn"><div class="mn-in"><div class="mn-hd"><b>Mi curso · notas y subrayados</b><button class="x" id="mnX">×</button></div><div class="mn-list" id="mnList"></div></div></div>'
     +'<div class="idx" id="idx"><div class="idx-in"><div class="idx-hd"><b>Índice del curso</b><button class="x" id="idxX">×</button></div><div class="idx-list" id="idxList"></div></div></div>';
-  buildIndex(); wireVideos(); wireTranslate(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
+  buildIndex(); wireVideos(); wireResources(); wireTranslate(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
   // Evaluación (assess.js): test por bloque, roleplay de control cada N bloques y examen final.
   if(window.SkillUpAssess) SkillUpAssess.init({slug:SLUG,src:SRC,course:COURSE,cards:CARDS.map(function(c){return c.title;})});
 }
@@ -521,6 +533,7 @@ function wireDeck(){
     var cc=document.querySelector('.card:nth-child('+(idx+1)+')');if(cc)cc.scrollTop=0;
     var cm=document.getElementById('ccMsg'); if(cm) cm.textContent=PERSONA.name+': '+NUDGES[idx%NUDGES.length].replace('{t}',CARDS[idx].title);
     if(window._cvSection) window._cvSection(idx);
+    if(window._resSection) window._resSection(idx);
     if(window._txSection) window._txSection(idx);
     if(window._onSection) window._onSection(idx);
     if(window.SkillUpActivity) SkillUpActivity.section({source:SLUG,index:idx,title:CARDS[idx].title});
@@ -537,6 +550,37 @@ function go(i){window._go(i);}
 // en miniatura al lado del texto. Se reproducen dentro del panel, se amplían junto al texto o a pantalla completa.
 // Los del bloque actual suben arriba por coincidencia de palabras del título (nunca se inventa un vídeo).
 var USER_ID='';
+// Recursos por sección: libros verificados (Open Library) y vídeos de YouTube que el agente de calidad puntúa en
+// calidad, valor y relevancia; el servidor los ordena y recorta según el Team DNA y el tiempo semanal de la persona.
+// Se piden al pulsar (un tema nuevo gasta IA una vez; luego queda en caché 14 días para todos).
+function wireResources(){
+  var done={};
+  function bar(label,v){return '<div class="rs-bar">'+esc(label)+'<i><b style="width:'+(Number(v)||0)+'%"></b></i><span>'+(Number(v)||0)+'</span></div>';}
+  function item(r){
+    var url=r.kind==='video'?'https://www.youtube.com/watch?v='+encodeURIComponent(r.youtubeId):r.url;
+    var by=r.kind==='video'?r.channel:(r.author+(r.year?' · '+r.year:'')+(r.editionLang==='es'?'':' · edición original'));
+    return '<div class="rs-item"><span class="rs-kind">'+(r.kind==='video'?'Vídeo':'Libro')+' · '+esc(r.nivel)+'</span>'
+      +'<a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(r.title)+'</a><span class="rs-by">'+esc(by)+'</span>'
+      +'<span class="rs-why">'+esc(r.why)+'</span><span class="rs-ev">'+esc((r.evidence||[]).join(' · '))+'</span>'
+      +'<div class="rs-bars">'+bar('Calidad',r.scores.calidad)+bar('Valor',r.scores.valor)+bar('Relevancia',r.scores.relevancia)+'</div></div>';
+  }
+  window._resSection=function(i){
+    if(done[i]||!CARDS[i])return; var card=document.querySelector('.card:nth-child('+(i+1)+')'); if(!card)return; done[i]=1;
+    var box=document.createElement('section'); box.className='su-res'; box.setAttribute('aria-label','Recursos para esta sección');
+    box.innerHTML='<h4>Recursos para esta sección</h4><p class="rs-sub">Libros y vídeos que existen de verdad, puntuados por calidad, valor y relevancia, y elegidos según cómo aprendes y tu tiempo.</p><button class="rs-btn" type="button">Ver recursos</button><div class="rs-list" aria-live="polite"></div>';
+    card.appendChild(box);
+    var btn=box.querySelector('.rs-btn'), list=box.querySelector('.rs-list');
+    btn.onclick=function(){
+      btn.disabled=true; btn.textContent='Buscando y verificando…';
+      var text=(card.innerText||'').replace(/Recursos para esta sección[\s\S]*$/,'').slice(0,3500);
+      SkillUp.api('/api/learning/resources',{method:'POST',body:{topic:(COURSE+' · '+CARDS[i].title).slice(0,200),section:text}}).then(function(d){
+        btn.remove(); var items=(d&&d.items)||[];
+        list.innerHTML=items.length?items.map(item).join(''):'<p class="rs-sub">No hemos encontrado recursos que superen el control de calidad para esta sección.</p>';
+      }).catch(function(){ btn.disabled=false; btn.textContent='Reintentar'; });
+    };
+  };
+  if(typeof idx==='number') window._resSection(idx);
+}
 function wireVideos(){
   var panel=document.getElementById('cvPanel'),btn=document.getElementById('vidBtn'),list=document.getElementById('cvList'),
       player=document.getElementById('cvPlayer'),frame=document.getElementById('cvFrame'),ptitle=document.getElementById('cvPTitle'),

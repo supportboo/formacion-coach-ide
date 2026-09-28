@@ -8,7 +8,7 @@ import { auth, lastResetLink } from "./auth/auth.js";
 import { capabilitiesFor } from "./auth/capabilities.js";
 import { env } from "./config/env.js";
 import { ACCOUNT_SOURCE, getAccountState, getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
-import { chat } from "./agents/chat.js";
+import { chat, onboardingMarker } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
@@ -42,6 +42,7 @@ import * as notesSvc from "./services/notes.js";
 import * as onboardingSvc from "./services/onboarding.js";
 import * as teamdnaSvc from "./services/teamdna.js";
 import * as teamprofileSvc from "./services/teamprofile.js";
+import * as resourcesSvc from "./services/resources.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
 import * as langSvc from "./services/lang.js";
@@ -337,6 +338,26 @@ app.get("/api/learning/videos", async (c) => {
   // Idioma de los vídeos: el que pida el selector o, por defecto, el de la persona (1.5.0).
   const lang = langSvc.normalizeLang(c.req.query("lang")) ?? await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
   return c.json(await videosSvc.forTopic(svcDeps, topic, lang));
+});
+
+// --- Recursos por sección (libros verificados en Open Library + vídeos de YouTube), puntuados por el agente de calidad
+// (calidad, valor, relevancia) y personalizados: formato preferido del Team DNA, cantidad según su tiempo semanal, su idioma. ---
+const resourcesBody = z.object({ topic: z.string().trim().min(2).max(200), section: z.string().max(4000).default("") });
+app.post("/api/learning/resources", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // A cold topic costs 2 LLM calls + YouTube quota; cached per topic+language for 14 days.
+  if (rateLimited(`resources:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = resourcesBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const lang = await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
+  const [all, tp, ritmo] = await Promise.all([
+    resourcesSvc.forTopic(svcDeps, parsed.data.topic, parsed.data.section, lang),
+    teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null),
+    onboardingMarker(db, ctx.orgId, ctx.userId, "[ritmo]").catch(() => null),
+  ]);
+  const formato = tp?.result?.pedagogy?.formato ?? null;
+  return c.json({ items: resourcesSvc.personalize(all, formato, ritmo), total: all.length, formato, ritmo, lang });
 });
 
 app.get("/api/learning/videos/home", async (c) => {

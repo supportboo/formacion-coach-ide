@@ -1,5 +1,14 @@
 # Changelog · SkillUp platform
 
+## 1.7.0 — 2026-09-28
+
+### Recursos por sección con agente de calidad
+- En cada sección de cada curso, «Recursos para esta sección»: libros y vídeos de YouTube que existen de verdad, elegidos por IA y verificados sin revisión humana.
+- Libros verificados en Open Library (existe y el autor coincide; si no, se descarta), con su edición en castellano cuando Open Library la confirma. Google Books no se usa: sin clave propia su cuota compartida está agotada.
+- El agente de calidad puntúa cada recurso de 0 a 100 en **calidad** (valoración media corregida por número de valoraciones, reediciones, «me gusta» y comentarios por visita, autoridad del autor o canal), **valor** (lectores en Open Library, visitas, tamaño del canal) y **relevancia** para esa sección concreta. Solo pasan los que tienen relevancia ≥ 60 y nota total ≥ 50. Cada recurso enseña el dato que lo justifica.
+- Personalización: el formato preferido del Team DNA decide si van primero libros o vídeos, el tiempo semanal de la bienvenida decide cuántos se ven (2, 4 u 8) y el idioma es el de la persona.
+- `POST /api/learning/resources` (tema + texto de la sección). Caché por tema e idioma 14 días; límite 10 peticiones por minuto y persona.
+
 ## 1.6.0 — 2026-09-28
 
 ### Dos planes por persona y mes
