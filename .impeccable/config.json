@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-09-28T06:56:54.699Z",
+        "reason": "user decided 2026-09-28: keep Inter in SkillUp ('cambiar fuente inter? no se porque')"
+      }
+    ]
+  }
+}

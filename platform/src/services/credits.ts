@@ -136,6 +136,11 @@ export async function refundSpend(deps: SvcDeps, orgId: string, entryId: string)
   });
 }
 
+/** Regalo del superadmin (p. ej. para que un cliente pruebe crear cursos con IA antes de comprar). Queda en el libro. */
+export async function grantCredits(deps: SvcDeps, orgId: string, credits: number, byUserId: string, note?: string): Promise<void> {
+  await deps.db.insert(creditLedger).values({ id: deps.newId(), organizationId: orgId, delta: credits, reason: "regalo", item: null, ref: (note || "").slice(0, 120) || null, userId: byUserId });
+}
+
 /** Libro de la empresa, con el nombre de quien gastó. */
 export async function ledger(deps: SvcDeps, orgId: string, limit = 100) {
   return deps.db.select({
@@ -151,7 +156,7 @@ export async function allWallets(deps: SvcDeps) {
     orgId: creditLedger.organizationId, orgName: organization.name,
     balance: sql<number>`coalesce(sum(${creditLedger.delta}),0)::int`,
     bought: sql<number>`coalesce(sum(${creditLedger.delta}) filter (where ${creditLedger.reason} = 'compra'),0)::int`,
-    spent: sql<number>`coalesce(-sum(${creditLedger.delta}) filter (where ${creditLedger.reason} <> 'compra'),0)::int`,
+    spent: sql<number>`coalesce(-sum(${creditLedger.delta}) filter (where ${creditLedger.reason} in ('gasto', 'devolucion')),0)::int`,
   }).from(creditLedger).leftJoin(organization, eq(creditLedger.organizationId, organization.id))
     .groupBy(creditLedger.organizationId, organization.name);
 }

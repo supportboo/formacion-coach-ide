@@ -63,6 +63,17 @@ export function registerCreditRoutes(app: Hono) {
     return c.json({ wallets: await credits.allWallets(deps), items: await itemsWithPrices() });
   });
 
+  app.post("/api/platform/credits/grant", async (c) => {
+    const sa = await getPlatformAdminSession(c);
+    if (!sa) return c.json({ error: "sin acceso de superadmin" }, 401);
+    const parsed = z.object({ organizationId: z.string().min(1), credits: z.number().int().min(1).max(10_000), note: z.string().max(120).optional() })
+      .safeParse(await c.req.json().catch(() => ({})));
+    if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+    const uid = (sa as { user?: { id?: string }; userId?: string }).user?.id ?? (sa as { userId?: string }).userId ?? "superadmin";
+    await credits.grantCredits(deps, parsed.data.organizationId, parsed.data.credits, uid, parsed.data.note);
+    return c.json({ ok: true, balance: await credits.balance(deps, parsed.data.organizationId) });
+  });
+
   app.post("/api/platform/credits/prices/set", async (c) => {
     if (!(await getPlatformAdminSession(c))) return c.json({ error: "sin acceso de superadmin" }, 401);
     const parsed = z.object({ item: z.enum(credits.CREDIT_ITEM_IDS), credits: z.number().int().min(0).max(100_000) })

@@ -543,6 +543,13 @@ async function loadCreditAdmin(){
   wb.innerHTML=d.wallets.length?'<table class="tbl"><thead><tr><th>Empresa</th><th>Saldo</th><th>Comprados</th><th>Gastados</th></tr></thead><tbody>'+d.wallets.map(function(w){
     return '<tr><td>'+E(w.orgName||w.orgId)+'</td><td><b style="color:var(--ink)">'+w.balance+'</b></td><td>'+w.bought+'</td><td>'+w.spent+'</td></tr>';
   }).join('')+'</tbody></table>':'<p class="msg">Ninguna empresa ha comprado créditos todavía.</p>';
+  // Regalar créditos (queda en el libro de la empresa como «regalo»).
+  var orgs=(DATA.orgs&&DATA.orgs.length)?DATA.orgs:((await SkillUp.api('/api/platform/orgs').catch(function(){return {orgs:[]};})).orgs||[]); DATA.orgs=orgs;
+  var g=document.createElement('div'); g.style.marginTop='14px';
+  g.innerHTML='<h3 style="margin:0 0 8px;font-size:14px">Regalar créditos</h3><div class="two"><div><label>Empresa</label><select id="grOrg">'+orgs.map(function(o){return '<option value="'+E(o.id)+'">'+E(o.name)+'</option>';}).join('')+'</select></div><div><label>Créditos</label><input id="grN" type="number" min="1" max="10000" value="100"></div></div><label>Motivo (opcional)</label><input id="grNote" maxlength="120" placeholder="Prueba del panel de cursos con IA"><div style="margin-top:10px"><button class="btn" id="grGo">REGALAR CRÉDITOS</button> <span id="grMsg"></span></div>';
+  wb.appendChild(g);
+  document.getElementById('grGo').onclick=async function(){ var b=this, m=document.getElementById('grMsg'), n=parseInt(document.getElementById('grN').value,10); if(!(n>0)){ m.innerHTML='<span class="err">Pon un número de créditos.</span>'; return; }
+    b.disabled=true; try{ var r=await SkillUp.api('/api/platform/credits/grant',{method:'POST',body:{organizationId:document.getElementById('grOrg').value,credits:n,note:document.getElementById('grNote').value||undefined}}); m.innerHTML='<span class="ok">Regalados. Saldo de la empresa: '+r.balance+' créditos.</span>'; }catch(e){ m.innerHTML='<span class="err">'+E(e.message||'No se pudo')+'</span>'; } b.disabled=false; };
 }
 
 /* ---------- PERFILES DE PRUEBA ---------- */

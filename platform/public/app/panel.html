@@ -293,7 +293,7 @@ details[open] summary:before{content:"▾ "}
   }
   loadBilling();
 
-  var REASON = { compra: 'Compra', gasto: 'Gasto', devolucion: 'Devolución' };
+  var REASON = { compra: 'Compra', gasto: 'Gasto', devolucion: 'Devolución', regalo: 'Regalo de Brandooers' };
   async function loadCredits() {
     var d = await SkillUp.api('/api/billing/credits').catch(function () { return null; });
     if (!d) { document.getElementById('cardCredits').hidden = true; return; }
