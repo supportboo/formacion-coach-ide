@@ -18,9 +18,9 @@ const MARC_MODEL = "eleven_multilingual_v2";
 // (más lento de sintetizar). La voz de Marc sigue sin voice_settings (su panel manda) también en catalán.
 const CA_MODEL = "eleven_v3";
 export function ttsBody(text: string, voiceId: string, lang = "es") {
-  if (lang === "ca") return { text, model_id: CA_MODEL, voice_settings: settingsFor(voiceId) };
+  if (lang === "ca") return voiceId === MARC_VOICE ? { text, model_id: CA_MODEL } : { text, model_id: CA_MODEL, voice_settings: settingsFor(voiceId) };
   return voiceId === MARC_VOICE
-    ? { text, model_id: MARC_MODEL, voice_settings: MARC_SETTINGS }
+    ? { text, model_id: MARC_MODEL }
     : { text, model_id: MODEL, voice_settings: settingsFor(voiceId) };
 }
 
@@ -97,15 +97,11 @@ const VOICE_PROFILES: Record<string, { speed?: number; stability?: number }> = {
   "WsvUasyBVDfzPhE0B6jC": { speed: 1.08, stability: 0.40 }, // Diego (comercial): ágil, directo, con chispa
   "fjMC3Wxp5QfFT9wNGQOI": { speed: 1.08, stability: 0.42 }, // Álvaro (m): resolutivo, al grano
   "jQrhxsqzG6CPKo3ll0w9": { speed: 1.08, stability: 0.42 }, // Natalia (f): dinámica, motivadora
-  // Marc (tú) no va aquí: tiene sus propios ajustes (MARC_SETTINGS).
+  // Marc (tú) no va aquí: manda el panel de su voz PRO en ElevenLabs (regla de Marc, 2026-09-27/28).
   "oHMibLgDqXK3fjgFVtJ6": { speed: 1.05, stability: 0.47 }, // Inés (f): cálida y clara
   "iuYybvSfclFoJ9ab2Im6": { speed: 1.04, stability: 0.48 }, // Estela (f): serena pero sin arrastrar
 };
-// Marc (2026-09-28): «tono conversacional, emocional». Antes usaba los ajustes de su panel (más planos); ahora menos
-// estabilidad = entonación más viva, style = más expresión, sin speed (1.0: su ritmo natural, ni lento ni atropellado).
-// Si suena exagerado o tiembla, subir stability de 0.05 en 0.05; si suena plano, subir style.
-const MARC_SETTINGS = { stability: 0.32, similarity_boost: 0.85, style: 0.45, use_speaker_boost: true };
-function settingsFor(voiceId: string) { return voiceId === MARC_VOICE ? MARC_SETTINGS : { ...DEFAULT_SETTINGS, ...(VOICE_PROFILES[voiceId] || {}) }; }
+function settingsFor(voiceId: string) { return { ...DEFAULT_SETTINGS, ...(VOICE_PROFILES[voiceId] || {}) }; }
 
 function envVoices(): VoiceOpt[] | null {
   const raw = env.ELEVENLABS_EXTRA_VOICES?.trim();
