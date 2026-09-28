@@ -21,7 +21,7 @@
 <link rel="apple-touch-icon" href="/icon.svg">
 <script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"></noscript>
 <style>
 :root{
   /* Paleta REAL de la app SkillUp (Odoo-flavored, tema claro cálido) */
@@ -48,7 +48,7 @@ img{display:block;max-width:100%}
 .reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
 .no-motion .reveal{opacity:1;transform:none}
-.ek{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--te)}
+.ek{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#0E7490}
 .ek:before{content:"";width:22px;height:1px;background:var(--te)}
 
 /* Logo ojos compartido con Brandooers + wordmark SkillUp (marca real de la app) */
@@ -317,7 +317,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:var(--mut);max-width:76ch;line
       <div class="media reveal" style="position:relative">
         <div class="noteout"><span class="note">dale al play</span><svg class="arwd" viewBox="0 0 48 44" aria-hidden="true"><path d="M9 6 C5 20 13 33 34 39"/><path d="M34 39 L24 37 M34 39 L32 29"/></svg></div>
         <div class="vhero float" id="herovid">
-          <video src="assets/skillup-anuncio.mp4?v=1" poster="assets/skillup-anuncio-poster.jpg?v=1" preload="none" playsinline controlslist="nodownload" aria-label="Anuncio de SkillUp: la capacidad se demuestra"></video>
+          <video src="assets/skillup-anuncio.mp4?v=1" poster="assets/skillup-anuncio-poster.webp?v=1" preload="none" playsinline controlslist="nodownload" aria-label="Anuncio de SkillUp: la capacidad se demuestra"></video>
           <button class="vplay" type="button" aria-label="Ver el anuncio de SkillUp con sonido, 1 minuto 29 segundos"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
           <span class="vdur" aria-hidden="true">1:29 · con sonido</span>
         </div>
@@ -359,7 +359,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:var(--mut);max-width:76ch;line
       <div class="jsteps" id="jsteps">
         <div class="jstep" data-side="l">
           <div class="jcard"><span class="jbadge" style="background:var(--coral)">1</span>
-            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-onboarding</span><img src="assets/su-onboarding.png" alt="Onboarding de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-onboarding</span><img src="assets/su-onboarding.webp" width="1200" height="750" alt="Onboarding de SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
             <div class="jmeta"><h3>Onboarding</h3><p>Nos cuentas quién eres y qué quieres conseguir. En 2 minutos.</p></div>
             <div class="jbubble">Cuéntanos quién eres y qué quieres. Sin exámenes, sin humo.</div>
           </div>
@@ -367,7 +367,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:var(--mut);max-width:76ch;line
         </div>
         <div class="jstep" data-side="r">
           <div class="jcard"><span class="jbadge" style="background:var(--vi)">2</span>
-            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-dna</span><img src="assets/su-dna.png" alt="Perfil de capacidades / Team DNA en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-dna</span><img src="assets/su-dna.webp" width="1200" height="750" alt="Perfil de capacidades / Team DNA en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
             <div class="jmeta"><h3>Tu ADN</h3><p>La plataforma mapea tus fortalezas y tus huecos reales.</p></div>
             <div class="jbubble">Vemos lo que se te da bien y lo que no — no un test de personalidad.</div>
           </div>
@@ -375,7 +375,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:var(--mut);max-width:76ch;line
         </div>
         <div class="jstep" data-side="l">
           <div class="jcard"><span class="jbadge" style="background:var(--te)">3</span>
-            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Ruta de aprendizaje a medida en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.webp" width="1200" height="750" alt="Ruta de aprendizaje a medida en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
             <div class="jmeta"><h3>Tu ruta</h3><p>Un camino a tu medida, no un catálogo infinito de cursos.</p></div>
             <div class="jbubble">Solo lo que tú necesitas, en el orden correcto.</div>
           </div>
@@ -383,7 +383,7 @@ footer .cp{margin-top:24px;font-size:12.5px;color:var(--mut);max-width:76ch;line
         </div>
         <div class="jstep" data-side="r">
           <div class="jcard"><span class="jbadge" style="background:var(--te)">4</span>
-            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en curso en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
+            <div class="jframe"><div class="bbar"><span class="dots"><i></i><i></i><i></i></span></div><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.webp" width="1200" height="750" alt="Lección en curso en SkillUp" loading="lazy" onerror="this.style.display='none'"></div></div>
             <div class="jmeta"><h3>Lecciones</h3><p>Cortas y aplicables, con el tutor al lado por si atascas.</p></div>
             <div class="jbubble">Al grano, y con el tutor pegado por si te trabas.</div>
           </div>
@@ -496,8 +496,8 @@ footer .cp{margin-top:24px;font-size:12.5px;color:var(--mut);max-width:76ch;line
     <div class="head reveal"><span class="ek">Más por dentro</span><h2>Desliza y míralo funcionando.</h2></div>
     <div class="slider reveal">
       <div class="strack" id="strack">
-        <div class="scard"><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.png" alt="Rutas de aprendizaje en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Rutas de aprendizaje</h3><p>El camino a medida, no un catálogo interminable.</p></div></div>
-        <div class="scard"><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.png" alt="Lección en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Lecciones aplicables</h3><p>Cortas y directas al grano, con el tutor al lado.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-ruta</span><img src="assets/su-ruta.webp" width="1200" height="750" alt="Rutas de aprendizaje en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Rutas de aprendizaje</h3><p>El camino a medida, no un catálogo interminable.</p></div></div>
+        <div class="scard"><div class="shot"><span class="ph">su-leccion</span><img src="assets/su-leccion.webp" width="1200" height="750" alt="Lección en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Lecciones aplicables</h3><p>Cortas y directas al grano, con el tutor al lado.</p></div></div>
         <div class="scard"><div class="shot"><span class="ph">su-insights</span><img src="assets/su-insights.png" alt="Insights y analítica en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Insights</h3><p>Qué funciona, qué te frena y dónde poner el foco.</p></div></div>
         <div class="scard"><div class="shot"><span class="ph">su-equipo</span><img src="assets/su-equipo.png" alt="Vista de equipo en SkillUp" loading="lazy" onerror="this.style.display='none'"></div><div class="cap"><h3>Vista de equipo</h3><p>Para managers: quién avanza y quién necesita empuje.</p></div></div>
       </div>

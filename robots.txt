@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /aff/
+
+Sitemap: https://skillup.brandooers.com/sitemap.xml
