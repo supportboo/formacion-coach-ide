@@ -25,6 +25,20 @@ details[open] summary:before{content:"▾ "}
 .qcard .qres{font-size:11.5px;padding:5px 11px;white-space:nowrap}
 .rk{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--mut)}
 .rk .inline-input{width:100%;min-width:0;margin:0}
+.plans{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:720px){.plans{grid-template-columns:1fr 1fr}}
+.plan{background:var(--warm);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.plan.cur{outline:2px solid var(--t)}
+.plan h3{margin:0;font-size:18px;color:var(--ink)}
+.plan .price{font-size:28px;font-weight:900;color:var(--p);letter-spacing:-.02em}
+.plan .price small{font-size:12px;font-weight:600;color:var(--mut)}
+.plan ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.6;color:var(--body)}
+.plan .btn{margin-top:auto}
+.packs{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+@media(min-width:560px){.packs{grid-template-columns:repeat(3,1fr)}}
+.pack{border:1.5px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.pack b{font-size:20px;color:var(--ink)}
+.est{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--t)}
 </style>
 </head>
 <body>
@@ -57,10 +71,23 @@ details[open] summary:before{content:"▾ "}
     <p class="msg" style="margin:0">Quién sostiene cada competencia y dónde tienes riesgo de dependencia. Configura aquí los perks por nivel para tu equipo.</p>
   </a>
 
-  <div class="card">
-    <h2>Facturación</h2>
+  <div class="card" id="cardBilling">
+    <h2>Facturación <span class="hand" style="color:var(--t);font-size:15px">por persona y mes</span></h2>
     <div id="subInfo" class="msg">Cargando…</div>
-    <div id="tiersBox" style="margin-top:12px"></div>
+    <div id="tiersBox" class="plans" style="margin-top:12px"></div>
+    <p class="msg" id="fundaeNote"></p>
+  </div>
+
+  <div class="card" id="cardCredits">
+    <h2>Créditos de creación <span class="hand" style="color:var(--t);font-size:15px">monedero de la empresa</span></h2>
+    <p class="msg" style="margin-top:0">Sirven para crear contenido propio con IA: cursos con el panel de expertos y, cuando estén disponibles, voz narrada, vídeos con avatar, tu avatar y tu voz. 1 crédito = 0,10 €. Solo gasta quien llega a nivel Coach (N4) o tiene rol coach, admin o dirección.</p>
+    <div class="grid"><div class="stat"><b id="crBalance">—</b><span>créditos disponibles</span></div></div>
+    <div id="packsBox" class="packs"></div>
+    <div id="crMsg" class="msg"></div>
+    <h2 style="margin-top:20px;font-size:16px">Qué cuesta cada cosa</h2>
+    <div id="crPrices" style="overflow-x:auto"><span class="msg">Cargando…</span></div>
+    <h2 style="margin-top:20px;font-size:16px">Movimientos <span class="hand" style="color:var(--t);font-size:15px">quién gastó qué</span></h2>
+    <div id="crLedger" style="max-height:320px;overflow:auto"><span class="msg">Cargando…</span></div>
   </div>
 
   <div class="card" id="cardCost">
@@ -237,16 +264,24 @@ details[open] summary:before{content:"▾ "}
     }).join('');
   })();
 
+  var eur = function (cents) { return (cents / 100).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; };
   async function loadBilling() {
     var sub = await SkillUp.api('/api/billing/subscription').catch(function () { return null; });
+    var p = await SkillUp.api('/api/billing/plans').catch(function () { return null; });
     var info = document.getElementById('subInfo');
-    info.textContent = sub ? ('Plan actual: ' + sub.tier + ' · ' + sub.seats + ' asientos · estado: ' + sub.status)
+    var plans = p && p.plans || [];
+    var cur = sub && plans.filter(function (x) { return x.tier === sub.tier; })[0];
+    info.textContent = sub ? ('Plan actual: ' + (cur ? cur.name : sub.tier) + ' · ' + sub.seats + ' asientos · estado: ' + sub.status)
       : 'Sin suscripción activa todavía.';
-    var tiers = await SkillUp.api('/api/billing/tiers').catch(function () { return []; });
-    document.getElementById('tiersBox').innerHTML = tiers.map(function (t) {
-      return '<div class="row"><span>' + SkillUp.escHtml(t.label) + ' — ' + (t.pricePerSeatCents / 100).toFixed(2) + ' €/asiento/mes</span>' +
-        '<button class="btn btn-grad" data-tier="' + t.tier + '">Suscribir</button></div>';
+    document.getElementById('tiersBox').innerHTML = plans.map(function (t) {
+      var isCur = cur && cur.tier === t.tier;
+      return '<div class="plan' + (isCur ? ' cur' : '') + '"><h3>' + SkillUp.escHtml(t.name) + '</h3>' +
+        '<div class="price">' + eur(t.pricePerSeatCents) + ' <small>por persona y mes</small></div>' +
+        '<ul>' + t.includes.map(function (i) { return '<li>' + SkillUp.escHtml(i) + '</li>'; }).join('') + '</ul>' +
+        '<button class="btn btn-grad" data-tier="' + t.tier + '">' + (isCur ? 'Actualizar asientos' : 'Elegir ' + SkillUp.escHtml(t.name)) + '</button></div>';
     }).join('');
+    if (p && p.fundae) document.getElementById('fundaeNote').textContent = 'FUNDAE: además, cada curso puede venderse como acción formativa bonificable. En teleformación el máximo bonificable es de ' +
+      p.fundae.eurPerHour.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' € por hora y participante (por ejemplo, un curso de ' + p.fundae.exampleHours + ' h, hasta ' + p.fundae.exampleMax + ' € por alumno). Depende del crédito de formación de cada empresa y de cumplir los requisitos de FUNDAE.';
     document.querySelectorAll('#tiersBox button').forEach(function (btn) {
       btn.addEventListener('click', async function () {
         try {
@@ -257,6 +292,42 @@ details[open] summary:before{content:"▾ "}
     });
   }
   loadBilling();
+
+  var REASON = { compra: 'Compra', gasto: 'Gasto', devolucion: 'Devolución' };
+  async function loadCredits() {
+    var d = await SkillUp.api('/api/billing/credits').catch(function () { return null; });
+    if (!d) { document.getElementById('cardCredits').hidden = true; return; }
+    document.getElementById('crBalance').textContent = d.balance.toLocaleString('es-ES');
+    var names = {}; d.items.forEach(function (i) { names[i.id] = i.label; });
+    var pk = document.getElementById('packsBox');
+    pk.innerHTML = d.canBuy ? d.packs.map(function (x) {
+      return '<div class="pack"><b>' + x.credits.toLocaleString('es-ES') + ' créditos</b><span class="msg" style="margin:0">' + eur(x.priceCents) + ' · pago único</span>' +
+        '<button class="btn btn-grad" data-pack="' + x.id + '">Comprar</button></div>';
+    }).join('') : '<p class="msg">Los packs los compra una persona de administración o dirección.</p>';
+    pk.querySelectorAll('button[data-pack]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        b.disabled = true;
+        try { var r = await SkillUp.api('/api/billing/credits/checkout', { method: 'POST', body: { pack: b.dataset.pack } }); window.location.href = r.url; }
+        catch (ex) { document.getElementById('crMsg').innerHTML = '<span class="err">' + SkillUp.escHtml(ex.message) + '</span>'; b.disabled = false; }
+      });
+    });
+    if (/[?&]credits=ok/.test(location.search)) document.getElementById('crMsg').textContent = 'Pago recibido. Los créditos aparecen en cuanto Stripe confirma el cobro (normalmente en segundos).';
+    document.getElementById('crPrices').innerHTML = d.items.map(function (i) {
+      var per = i.unit === 'min' ? ' / min' : '';
+      return '<div class="row" style="align-items:flex-start"><div style="min-width:0"><b style="color:var(--ink)">' + SkillUp.escHtml(i.label) + '</b>' + (i.available ? '' : ' <span class="badge">Próximamente</span>') +
+        '<div class="msg" style="margin-top:4px"><span class="est">Estimado</span> coste del proveedor: ' + SkillUp.escHtml(i.providerCost) + '<br>Fuente: ' + SkillUp.escHtml(i.source) + '</div></div>' +
+        '<div style="text-align:right;white-space:nowrap"><b style="color:var(--p)">' + i.credits + ' créditos' + per + '</b><div class="msg" style="margin:0">' + eur(i.credits * 10) + per + '</div></div></div>';
+    }).join('');
+    var l = await SkillUp.api('/api/billing/credits/ledger').catch(function () { return null; });
+    var box = document.getElementById('crLedger');
+    if (!l) { box.innerHTML = '<p class="msg">Solo administración y dirección ven los movimientos.</p>'; return; }
+    box.innerHTML = l.ledger.length ? l.ledger.map(function (e) {
+      return '<div class="row"><div style="min-width:0"><b style="color:var(--ink)">' + (REASON[e.reason] || SkillUp.escHtml(e.reason)) + (e.item && names[e.item] ? ' · ' + SkillUp.escHtml(names[e.item]) : '') + '</b>' +
+        '<div class="msg" style="margin:2px 0 0">' + new Date(e.createdAt).toLocaleDateString('es-ES') + (e.userName ? ' · ' + SkillUp.escHtml(e.userName) : '') + '</div></div>' +
+        '<b style="white-space:nowrap;color:' + (e.delta >= 0 ? 'var(--green)' : 'var(--ink)') + '">' + (e.delta > 0 ? '+' : '') + e.delta + '</b></div>';
+    }).join('') : '<p class="msg">Aún no hay movimientos.</p>';
+  }
+  loadCredits();
 
   async function loadCost() {
     var box = document.getElementById('costStats');

@@ -7,6 +7,7 @@ Plataforma Brandooers · SkillUp: formación que mide CAPACIDAD aplicada, no asi
 - **Panel de empresa**: cobertura por competencia, riesgo de dependencia, transferencia interna, autonomía en días.
 - **Pirámides de conocimiento** por competencia (quién sostiene cada una) + **perks configurables** por empresa.
 - **Informe de ROI** con método Kirkpatrick (niveles 1-4 medidos, con n e intervalo de confianza) y Phillips (ROI solo con costes completos y métricas de negocio aisladas que aporta la empresa; si faltan, «Sin datos suficientes»). Fuentes citadas en el propio informe.
+- **Planes y créditos (1.6.0)**: dos planes por persona y mes (Esencial 9 €, Profesional 13 €) y un monedero de créditos de creación por empresa (1 crédito = 0,10 €) para crear contenido con IA, reservado a quien llega a nivel Coach. Ver «Precios».
 - **Idioma (1.5.0)**: cada persona elige español, inglés, catalán, portugués o francés (bienvenida y menú); la IA, la voz, el dictado, la interfaz compartida y los vídeos se adaptan, y los cursos se traducen al vuelo con «ver original». Vídeos filtrados por idioma y ordenados por una nota de calidad con datos reales de YouTube.
 - **Feedback (1.4.0)**: pulgar arriba/abajo con motivos bajo cada respuesta de la IA (tutores, asistente, Explorar, roleplays, evaluación), «Enviar sugerencia» en el menú para todos los roles y bandeja `/app/feedback.html` para el superadmin (estado, nota, glosario, gráficos y resumen con IA) con vista de solo lectura para admin y dirección; quien envía ve cuándo se resuelve.
 - **Supervisión en directo (1.3.0)**: menú «En directo» para coach, team leader, admin, dirección y superadmin: quién aprende ahora y dónde se atasca, ficha por persona con progreso, vista previa de su página, su chat con el tutor (y escribirle con tu nombre), métricas de uso tipo Odoo y resumen con IA. Transparente por ley: la persona ve cuándo la siguen; nada de pantalla, teclado ni cámara; datos 90 días.
@@ -18,6 +19,30 @@ Plataforma Brandooers · SkillUp: formación que mide CAPACIDAD aplicada, no asi
 - **Seguridad**: aislamiento multi-tenant, tope de gasto de IA por empresa, rate-limit, cabeceras de seguridad, curador de datos (anti-fuga entre usuarios).
 
 Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle por versión.
+
+## Precios
+
+| Plan | €/persona/mes | Incluye |
+|------|---------------|---------|
+| Esencial (`texto`) | 9 € | Cursos con texto, herramientas y esquemas, vídeos seleccionados, modo escucha cuando está disponible, tutor IA con voz, tests por bloque, examen final, certificado |
+| Profesional (`video_corto`) | 13 € | Todo lo de Esencial + roleplays, Team DNA, «En directo», métricas e insights, informe de ROI, asignaciones del responsable |
+
+`inmersivo` está retirado de la venta (se conservan sus datos). Los precios vigentes están en la tabla `pricing_tier` (los edita el superadmin o `npx tsx scripts/set-pricing.ts`).
+
+**FUNDAE**: cada curso puede venderse además como acción bonificable: hasta 7,50 € por hora y participante en teleformación (20 h → hasta 150 € por alumno), según el crédito de cada empresa y los requisitos de FUNDAE.
+
+**Créditos de creación** (monedero por empresa, 1 crédito = 0,10 €). Packs: 100 = 10 €, 500 = 45 €, 1.000 = 80 € (pago único, Stripe). Precio por defecto en créditos (tabla `credit_price`, editable por el superadmin):
+
+| Qué se crea | Créditos | Coste del proveedor (estimado, fuente) | Estado |
+|---|---|---|---|
+| Crear un curso con IA (panel de expertos) | 20 | 2 llamadas a Claude; coste real en `ai_usage` | Disponible |
+| Voz narrada | 3 / min | ElevenLabs ~0,17–0,20 $ por 1.000 caracteres ≈ 1 min (precios oficiales, 20-sep-2026) | Próximamente |
+| Vídeo con avatar estándar (HeyGen Avatar IV) | 12 / min | ≈ 0,78 $/min (plan Pro 49 $/1.000 créditos, ~16 créd/min; 28-sep-2026) | Próximamente |
+| Vídeo con avatar realista (HeyGen Avatar V) | 35 / min | ≈ 2,35 $/min (~48 créd/min; 28-sep-2026) | Próximamente |
+| Crear avatar propio | 100 | Por medir | Próximamente |
+| Clonar voz | 150 | Por medir | Próximamente |
+
+Solo gasta créditos quien tiene nivel N4 (Coach) en alguna competencia, rol coach/admin/dirección o es superadmin. Admin y dirección compran packs y ven los movimientos. La compra se abona en el webhook de Stripe (`checkout.session.completed`), una sola vez por sesión.
 
 ## Stack
 - **Postgres + Drizzle ORM** (datos, multi-tenant por `organizationId`).

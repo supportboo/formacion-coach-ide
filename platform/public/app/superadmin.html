@@ -503,7 +503,9 @@ async function ajustes(box){
     +'<div class="two"><div class="card"><h2>Correo (recuperar contraseña) '+tip('Sin proveedor, los enlaces de recuperación quedan en el log del servidor. Con Resend, se envían por email a los usuarios.')+'</h2>'
       +'<div class="note">Para que los usuarios reciban por email el enlace de recuperación, añade en el servidor (<span class="k">.env.local</span>) y reinicia:<br><br><span class="mono">RESEND_API_KEY=tu_clave</span><br><span class="mono">MAIL_FROM=SkillUp &lt;no-reply@tudominio&gt;</span><br><br>Mientras no esté, la recuperación funciona igual pero el enlace se guarda en el log para entrega manual.</div></div>'
     +'<div class="card"><h2>Superadmins '+tip('Acceso global a todas las empresas. Se definen por email en PLATFORM_ADMIN_EMAILS.')+'</h2><div id="salist"><p class="msg">Cargando…</p></div></div></div>'
-    +'<div class="card scroll"><h2>Precios por plan '+tip('Precio por asiento/mes de cada modalidad. Los fija Boomatik.')+'</h2><div id="tiers"><p class="msg">Cargando…</p></div></div>';
+    +'<div class="card scroll"><h2>Precios por plan '+tip('Precio por asiento/mes de cada modalidad. Los fija Boomatik.')+'</h2><div id="tiers"><p class="msg">Cargando…</p></div></div>'
+    +'<div class="card scroll"><h2>Créditos de creación '+tip('Precio en créditos de cada cosa que se crea (1 crédito = 0,10 €) y monedero de cada empresa.')+'</h2><div id="crprices"><p class="msg">Cargando…</p></div><h2 style="margin-top:18px">Monederos</h2><div id="crwallets"><p class="msg">Cargando…</p></div></div>';
+  loadCreditAdmin();
   var users=DATA.users&&DATA.users.length?DATA.users:((await SkillUp.api('/api/platform/users').catch(function(){return {users:[]};})).users||[]); DATA.users=users;
   var sa=[]; var seen={}; users.forEach(function(u){ if(u.platformAdmin&&!seen[u.email]){seen[u.email]=1;sa.push(u);} });
   document.getElementById('salist').innerHTML=sa.length?sa.map(function(u){return '<div class="row"><span>'+E(u.name||u.email)+'</span><span class="mono">'+E(u.email)+'</span></div>';}).join(''):'<p class="msg">—</p>';
@@ -521,6 +523,26 @@ async function ajustes(box){
     var eur=parseFloat(inp.value); if(isNaN(eur)||eur<0){ msg.innerHTML='<span class="err">Precio no válido.</span>'; return; }
     b.disabled=true; try{ await SkillUp.api('/api/platform/tiers/set',{method:'POST',body:{tier:tier,label:inp.getAttribute('data-label'),pricePerSeatCents:Math.round(eur*100)}}); msg.innerHTML='<span class="ok">Precio de «'+E(tier)+'» actualizado.</span>'; }catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo guardar')+'</span>'; } b.disabled=false;
   }; });
+}
+
+async function loadCreditAdmin(){
+  var d=await SkillUp.api('/api/platform/credits').catch(function(){return null;});
+  var pb=document.getElementById('crprices'), wb=document.getElementById('crwallets'); if(!pb||!wb) return;
+  if(!d){ pb.innerHTML='<p class="msg">No se pudieron cargar los créditos.</p>'; wb.innerHTML=''; return; }
+  pb.innerHTML='<table class="tbl"><thead><tr><th>Qué se crea</th><th>Créditos</th><th>Coste proveedor (estimado)</th><th></th></tr></thead><tbody>'+d.items.map(function(i){
+    return '<tr><td><b style="color:var(--ink)">'+E(i.label)+'</b>'+(i.available?'':' <span class="mono">próximamente</span>')+'<br><span class="mono">'+E(i.id)+(i.unit==='min'?' · por minuto':'')+'</span></td>'
+      +'<td><input type="number" step="1" min="0" value="'+i.credits+'" data-item="'+E(i.id)+'" style="width:90px;margin:0"></td>'
+      +'<td>'+E(i.providerCost)+'<br><span class="mono">'+E(i.source)+'</span></td>'
+      +'<td><button class="btn btn-grad" style="padding:7px 14px;font-size:12px" data-saveitem="'+E(i.id)+'">Guardar</button></td></tr>';
+  }).join('')+'</tbody></table><div id="crmsg" style="margin-top:8px"></div>';
+  pb.querySelectorAll('button[data-saveitem]').forEach(function(b){ b.onclick=async function(){
+    var item=b.getAttribute('data-saveitem'); var inp=pb.querySelector('input[data-item="'+item+'"]'); var msg=document.getElementById('crmsg');
+    var n=parseInt(inp.value,10); if(isNaN(n)||n<0){ msg.innerHTML='<span class="err">Valor no válido.</span>'; return; }
+    b.disabled=true; try{ await SkillUp.api('/api/platform/credits/prices/set',{method:'POST',body:{item:item,credits:n}}); msg.innerHTML='<span class="ok">Precio de «'+E(item)+'» actualizado.</span>'; }catch(e){ msg.innerHTML='<span class="err">'+E(e.message||'No se pudo guardar')+'</span>'; } b.disabled=false;
+  }; });
+  wb.innerHTML=d.wallets.length?'<table class="tbl"><thead><tr><th>Empresa</th><th>Saldo</th><th>Comprados</th><th>Gastados</th></tr></thead><tbody>'+d.wallets.map(function(w){
+    return '<tr><td>'+E(w.orgName||w.orgId)+'</td><td><b style="color:var(--ink)">'+w.balance+'</b></td><td>'+w.bought+'</td><td>'+w.spent+'</td></tr>';
+  }).join('')+'</tbody></table>':'<p class="msg">Ninguna empresa ha comprado créditos todavía.</p>';
 }
 
 /* ---------- PERFILES DE PRUEBA ---------- */

@@ -34,6 +34,7 @@ import * as costsSvc from "./services/costs.js";
 import * as roleplaySvc from "./services/roleplay.js";
 import * as privacySvc from "./services/privacy.js";
 import * as billingSvc from "./services/billing.js";
+import * as creditsSvc from "./services/credits.js";
 import * as careerSvc from "./services/career.js";
 import * as remindersSvc from "./services/reminders.js";
 import * as voiceSvc from "./services/voice.js";
@@ -53,6 +54,7 @@ import * as assessSvc from "./services/assessment.js";
 import { auditPlatformAccess, registerLiveRoutes } from "./http/live.js";
 import { registerDashboardRoutes } from "./http/dashboards.js";
 import { registerFeedbackRoutes } from "./http/feedback.js";
+import { registerCreditRoutes } from "./http/credits.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
@@ -1596,16 +1598,32 @@ app.get("/api/propagation/recert-status", async (c) => {
 app.post("/api/catalog/course-panel", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "inspirador")) return c.json({ error: "solo admin/inspirador" }, 403);
+  // 1.6.0: crear un curso con IA cuesta créditos de creación y lo puede hacer quien llega a nivel Coach.
+  const spender = { orgId: ctx.orgId, userId: ctx.userId, role: ctx.role, platformAdmin: isPlatformAdmin(ctx) };
+  if (!(await creditsSvc.canSpend(svcDeps, spender))) return c.json({ error: "Crear cursos con IA está reservado a quien llega a nivel Coach (N4) en alguna competencia, o a los roles coach, admin y dirección." }, 403);
   const parsed = z.object({ tema: z.string().min(3).max(200), publico: z.string().max(200).optional(), competencyId: z.string().optional(), confirm: z.boolean().optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
-  if (!parsed.data.confirm) return c.json({ costGate: true, aviso: "El panel de expertos hace 2 llamadas de IA (coste real). Reenvia con confirm:true para ejecutarlo." });
+  if (!parsed.data.confirm) {
+    const credits = (await creditsSvc.getPrices(svcDeps)).curso_ia;
+    const saldo = await creditsSvc.balance(svcDeps, ctx.orgId);
+    return c.json({ costGate: true, credits, balance: saldo, aviso: `Crear el curso con el panel de expertos cuesta ${credits} créditos (tu empresa tiene ${saldo}). Reenvía con confirm:true para ejecutarlo.` });
+  }
   if (rateLimited(`coursepanel:${ctx.orgId}`, 4, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  let spend;
+  try {
+    spend = await creditsSvc.spendCredits(svcDeps, spender, "curso_ia", 1, `course-panel:${parsed.data.tema.slice(0, 80)}`);
+  } catch (e) {
+    if (e instanceof creditsSvc.CreditError) return c.json({ error: e.message }, e.status);
+    return c.json({ error: String((e as Error).message) }, 400);
+  }
   try {
     const res = await coursePanelSvc.runCoursePanel(svcDeps, llm, { orgId: ctx.orgId, userId: ctx.userId, tema: parsed.data.tema, publico: parsed.data.publico, competencyId: parsed.data.competencyId });
-    return c.json(res);
-  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+    return c.json({ ...res, credits: { spent: spend.spent, balance: spend.balance } });
+  } catch (e) {
+    await creditsSvc.refundSpend(svcDeps, ctx.orgId, spend.entryId).catch(() => {});
+    return c.json({ error: String((e as Error).message) }, 400);
+  }
 });
 app.get("/api/propagation/points", async (c) => {
   const ctx = await getAuthContext(c);
@@ -2685,8 +2703,10 @@ app.post("/api/moderation", async (c) => {
 /* ============================================================
  * FACTURACIÓN (Stripe) — niveles de precio, suscripción, checkout, webhook.
  * ============================================================ */
+// Solo los planes a la venta (inmersivo retirado en 1.6.0; sus datos siguen en la tabla).
 app.get("/api/billing/tiers", async (c) => {
-  return c.json(await billingSvc.listPricingTiers(svcDeps));
+  const sale = billingSvc.SALE_TIERS as readonly string[];
+  return c.json((await billingSvc.listPricingTiers(svcDeps)).filter((t) => sale.includes(t.tier)));
 });
 
 app.get("/api/billing/subscription", async (c) => {
@@ -2699,7 +2719,7 @@ app.post("/api/billing/checkout", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
-  const parsed = z.object({ tier: z.enum(billingSvc.TIERS), seats: z.number().min(1).optional() })
+  const parsed = z.object({ tier: z.enum(billingSvc.SALE_TIERS), seats: z.number().min(1).optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const seats = parsed.data.seats ?? ((await orgSvc.listMembers(svcDeps, ctx.orgId)).length || 1);
@@ -2730,3 +2750,4 @@ app.post("/api/billing/webhook", async (c) => {
 registerLiveRoutes(app, COURSE_TITLES, async (slug) => (await courseBlocks(slug))?.length ?? null);
 registerDashboardRoutes(app, COURSE_TITLES, (orgId) => readRetos(orgId));
 registerFeedbackRoutes(app);
+registerCreditRoutes(app);

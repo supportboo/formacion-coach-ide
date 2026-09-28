@@ -1,5 +1,28 @@
 # Changelog · SkillUp platform
 
+## 1.6.0 — 2026-09-28
+
+### Dos planes por persona y mes
+- **Esencial, 9 €** (antes `texto`): cursos con texto, herramientas y esquemas, vídeos seleccionados, modo escucha cuando está disponible, tutor IA con voz, tests por bloque, examen final y certificado.
+- **Profesional, 13 €** (antes `video_corto`): todo lo de Esencial más roleplays, Team DNA, supervisión «En directo», métricas e insights, informe de ROI y asignaciones del responsable.
+- `inmersivo` se retira de la venta: no aparece en `GET /api/billing/tiers` ni se puede contratar (`/api/billing/checkout` solo acepta `texto` y `video_corto`), pero la fila y cualquier suscripción existente se conservan.
+- Facturación del panel de empresa con comparativa de los dos planes y nota FUNDAE: cada curso puede venderse además como acción bonificable, hasta 7,50 € por hora y participante en teleformación (20 h → hasta 150 € por alumno), según el crédito de cada empresa y los requisitos de FUNDAE.
+
+### Créditos de creación (monedero por empresa)
+- 1 crédito = 0,10 €. Packs de pago único por Stripe Checkout: 100 créditos 10 €, 500 créditos 45 €, 1.000 créditos 80 €. Los compra admin o dirección.
+- Precio en créditos (editable por el superadmin, tabla `credit_price`): voz narrada 3/min, vídeo con avatar estándar (HeyGen Avatar IV) 12/min, vídeo con avatar realista (Avatar V) 35/min, crear avatar propio 100, clonar voz 150, crear curso con IA 20. Junto a cada uno, el coste **estimado** del proveedor con su fuente (ElevenLabs ~0,17–0,20 $ por 1.000 caracteres; HeyGen Pro 49 $/1.000 créditos: Avatar IV ≈ 0,78 $/min, Avatar V ≈ 2,35 $/min; avatar y voz propios «por medir»).
+- Puerta de nivel Coach: solo gasta quien tiene N4 en alguna competencia, rol coach/admin/dirección o es superadmin. El resto ve en su panel lo que desbloquearía.
+- **Conectado hoy**: crear un curso con IA (`POST /api/catalog/course-panel`) cuesta 20 créditos. Mantiene la confirmación previa (ahora muestra créditos y saldo), cobra de forma atómica antes de llamar a la IA y devuelve los créditos si la creación falla. Tarjeta «Créditos de creación» en «Mi panel» con saldo, lo que se puede crear y el formulario del curso.
+- **Preparado, sin función todavía**: voz narrada, vídeos con avatar, avatar propio y clonar voz aparecen como «Próximamente»; `spendCredits` ya los cobra cuando se construyan.
+- Panel de empresa: saldo, compra de packs, tabla de precios y movimientos (quién gastó qué). Superadmin → Ajustes: editor de precios en créditos y monederos de todas las empresas.
+
+### Técnico
+- Migración `0024_pricing_credits` (idempotente): tablas `credit_price` y `credit_ledger` (índice único parcial por sesión de Stripe en las compras), planes Esencial 900 y Profesional 1300 céntimos y precios en créditos por defecto.
+- `services/credits.ts`: `spendCredits` bloquea el monedero con `pg_advisory_xact_lock` dentro de la transacción; nunca deja saldo negativo. Error 402 con mensaje claro si no hay saldo y 403 si no se llega a Coach.
+- Webhook de Stripe: `checkout.session.completed` (y `async_payment_succeeded`) con `metadata.kind = credits` abona el pack del catálogo una sola vez por sesión.
+- Rutas nuevas: `GET /api/billing/plans`, `GET /api/billing/credits`, `GET /api/billing/credits/ledger`, `POST /api/billing/credits/checkout`, `GET /api/platform/credits`, `POST /api/platform/credits/prices/set`.
+- Tests: planes, packs, puerta Coach, gasto atómico e insuficiente, devolución e idempotencia del webhook (Stripe simulado); test de integración `itest/credits.itest.ts` contra Postgres.
+
 ## 1.5.0 — 2026-09-28
 
 ### Idioma de la plataforma (fase 1)

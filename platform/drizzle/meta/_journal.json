@@ -169,6 +169,13 @@
       "when": 1790572783751,
       "tag": "0023_i18n_language",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790578934978,
+      "tag": "0024_pricing_credits",
+      "breakpoints": true
     }
   ]
 }

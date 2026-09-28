@@ -1,6 +1,7 @@
 import {
   pgTable, text, timestamp, boolean, integer, real, jsonb, uniqueIndex, index,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 /* ============================================================
  * AUTH (better-auth + organization plugin) — multi-tenant.
@@ -451,6 +452,30 @@ export const subscription = pgTable("subscription", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Créditos de creación (1.6.0). 1 crédito = 0,10 €. Monedero por empresa = suma del libro.
+// Precio en créditos de cada cosa que se crea; lo edita el superadmin (valores por defecto en la migración 0024).
+export const creditPrice = pgTable("credit_price", {
+  item: text("item").primaryKey(), // voz_narrada | avatar_estandar | avatar_realista | avatar_propio | clonar_voz | curso_ia
+  credits: integer("credits").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Libro de créditos: compras (+), gastos (-), devoluciones (+). Saldo = sum(delta). Solo se inserta.
+export const creditLedger = pgTable("credit_ledger", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  delta: integer("delta").notNull(),
+  reason: text("reason").notNull(), // compra | gasto | devolucion
+  item: text("item"),
+  ref: text("ref"), // compra: id de la sesión de Stripe (idempotencia) · gasto: referencia del contenido
+  userId: text("user_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  byOrg: index("credit_ledger_org_idx").on(t.organizationId, t.createdAt),
+  // Una sesión de Stripe se abona una sola vez aunque el webhook llegue repetido.
+  purchaseOnce: uniqueIndex("credit_ledger_purchase_uq").on(t.ref).where(sql`reason = 'compra'`),
+}));
+
 // Línea base del piloto: foto del punto de partida para medir el antes/después.
 export const baselineSnapshot = pgTable("baseline_snapshot", {
   id: text("id").primaryKey(),
@@ -550,7 +575,7 @@ export const schema = {
   coaching, pointsLedger,
   companyConfig, rewardRule, certificate, rewardGrant, careerPath,
   fundaeAction, fundaeParticipation,
-  pricingTier, subscription,
+  pricingTier, subscription, creditPrice, creditLedger,
   baselineSnapshot, aiUsage, roleplaySession, analyticsSnapshot, assessmentAttempt,
 };
 

@@ -100,6 +100,11 @@ select option{background:var(--panel);color:var(--ink)}
     <div class="msg" id="enrollEmpty" style="display:none">Aún no tienes rutas asignadas — tu responsable las configura desde el panel de empresa.</div>
   </div>
 
+  <div class="card" id="crCard" hidden>
+    <h2><span data-i18n="cr.title">Créditos de creación</span></h2>
+    <div id="crBody"></div>
+  </div>
+
   <div class="card">
     <h2>Test de conocimiento <span class="hand" style="color:var(--t);font-size:15px">generado por IA para tu puesto</span></h2>
     <select id="pathId"><option value="" disabled selected>Elige una ruta…</option></select>
@@ -338,6 +343,52 @@ var threadId = null;
       threadId = r.threadId; addChatMsg('agent', r.reply);
     } catch (ex) { addChatMsg('agent', 'Error: ' + ex.message); }
   });
+})();
+</script>
+<script>
+/* Créditos de creación (1.6.0): saldo y qué se puede crear. Quien no llega a Coach ve lo que desbloquearía. */
+(async function () {
+  var T = function (k, es, v) { return window.SUI18n ? SUI18n.t(k, es, v) : es.replace(/\{(\w+)\}/g, function (_, x) { return v && v[x] != null ? v[x] : ''; }); };
+  var E = function (x) { return SkillUp.escHtml(String(x == null ? '' : x)); };
+  var d = await SkillUp.api('/api/billing/credits').catch(function () { return null; });
+  var card = document.getElementById('crCard'), body = document.getElementById('crBody');
+  if (!d || !card) return;
+  card.hidden = false;
+  var items = d.items.filter(function (i) { return i.available; }).concat(d.items.filter(function (i) { return !i.available; }));
+  var list = items.map(function (i) {
+    var per = i.unit === 'min' ? T('cr.perMin', ' / min') : '';
+    return '<div class="row" style="align-items:flex-start"><span style="min-width:0">' + E(T('cr.item.' + i.id, i.label)) +
+      (i.available ? '' : ' <span class="badge">' + E(T('cr.soon', 'Próximamente')) + '</span>') + '</span>' +
+      '<b style="white-space:nowrap;color:var(--aub2)">' + E(T('cr.credits', '{n} créditos', { n: i.credits })) + per + '</b></div>';
+  }).join('');
+  if (!d.canSpend) {
+    body.innerHTML = '<p class="msg" style="margin-top:0">' + E(T('cr.locked', 'Al llegar a nivel Coach (N4) en una competencia desbloqueas la creación con IA para tu empresa. Esto es lo que podrás crear:')) + '</p>' + list;
+    return;
+  }
+  body.innerHTML = '<div style="font-size:30px;font-weight:900;color:var(--text);letter-spacing:-.02em">' + E(T('cr.credits', '{n} créditos', { n: d.balance.toLocaleString() })) + '</div>' +
+    '<p class="msg" style="margin-top:2px">' + E(T('cr.balance', 'Saldo de tu empresa. Esto es lo que puedes crear:')) + '</p>' + list +
+    '<div style="margin-top:14px"><input id="crTema" maxlength="200" placeholder="' + E(T('cr.topic', 'Tema del curso, p. ej. «Negociar con proveedores»')) + '">' +
+    '<button class="btn btn-grad" id="crGo">' + E(T('cr.create', 'Crear curso con IA')) + '</button>' +
+    (d.canBuy ? ' <a class="btn btn-gh" href="/app/panel.html#cardCredits">' + E(T('cr.buy', 'Comprar créditos')) + '</a>' : '') +
+    '<div class="msg" id="crOut"></div></div>';
+  var out = document.getElementById('crOut');
+  async function run(confirm) {
+    var tema = document.getElementById('crTema').value.trim();
+    if (tema.length < 3) { out.className = 'msg err'; out.textContent = T('cr.needTopic', 'Escribe el tema del curso.'); return; }
+    out.className = 'msg'; out.textContent = confirm ? T('cr.working', 'El panel de expertos está escribiendo y revisando el curso…') : '';
+    try {
+      var r = await SkillUp.api('/api/catalog/course-panel', { method: 'POST', body: { tema: tema, confirm: !!confirm } });
+      if (r.costGate) {
+        out.innerHTML = E(T('cr.gate', 'Crear este curso cuesta {c} créditos. A tu empresa le quedan {b}.', { c: r.credits, b: r.balance })) +
+          ' <button class="btn btn-grad" id="crOk" style="margin-top:8px">' + E(T('cr.confirm', 'Confirmar')) + '</button>';
+        document.getElementById('crOk').onclick = function () { run(true); };
+        return;
+      }
+      out.innerHTML = '<b>' + E(r.siguientePaso) + '</b><br>' + E(T('cr.spent', 'Gastados {s} créditos · quedan {b}.', { s: r.credits.spent, b: r.credits.balance })) +
+        '<details style="margin-top:8px"><summary>' + E(T('cr.draft', 'Ver borrador')) + '</summary><div style="white-space:pre-wrap;font-size:13px;margin-top:8px">' + E(r.borrador) + '</div></details>';
+    } catch (ex) { out.className = 'msg err'; out.textContent = ex.message; }
+  }
+  document.getElementById('crGo').onclick = function () { run(false); };
 })();
 </script>
 <script src="/app/boo-eyes.js"></script>
