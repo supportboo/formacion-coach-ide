@@ -12,7 +12,13 @@ const MODEL = "eleven_turbo_v2_5";
 // igual que BOO Manager y BOO SEO PRO). Si falla, no se sustituye por otra voz suya: queda en solo texto.
 const MARC_VOICE = "bkcxugbRtulPFV1CinBX";
 const MARC_MODEL = "eleven_multilingual_v2";
-function ttsBody(text: string, voiceId: string) {
+// Idiomas (1.5.0, docs ElevenLabs «Models», consultadas 2026-09-28): multilingual_v2 (29 idiomas) y flash/turbo v2.5
+// (32) hablan inglés, portugués y francés además de español, así que el texto en el idioma de la persona se lee en ese
+// idioma con el mismo modelo. El catalán NO está en v2 ni en v2.5: solo en eleven_v3 (70+ idiomas), que se usa para «ca»
+// (más lento de sintetizar). La voz de Marc sigue sin voice_settings (su panel manda) también en catalán.
+const CA_MODEL = "eleven_v3";
+export function ttsBody(text: string, voiceId: string, lang = "es") {
+  if (lang === "ca") return voiceId === MARC_VOICE ? { text, model_id: CA_MODEL } : { text, model_id: CA_MODEL, voice_settings: settingsFor(voiceId) };
   return voiceId === MARC_VOICE
     ? { text, model_id: MARC_MODEL }
     : { text, model_id: MODEL, voice_settings: settingsFor(voiceId) };
@@ -113,13 +119,13 @@ export async function listVoices(): Promise<{ voices: VoiceOpt[]; provider: "ele
 }
 
 /** Sintetiza texto -> MP3. Devuelve null si no hay clave o falla (el frontend degrada a solo texto). */
-export async function synthesize(text: string, voiceId: string): Promise<ArrayBuffer | null> {
+export async function synthesize(text: string, voiceId: string, lang = "es"): Promise<ArrayBuffer | null> {
   if (!env.ELEVENLABS_API_KEY) return null;
   try {
     const r = await fetch(`${API}/text-to-speech/${encodeURIComponent(voiceId)}`, {
       method: "POST",
       headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "content-type": "application/json", accept: "audio/mpeg" },
-      body: JSON.stringify(ttsBody(text, voiceId)),
+      body: JSON.stringify(ttsBody(text, voiceId, lang)),
       signal: AbortSignal.timeout(20000),
     });
     if (!r.ok) return null;
@@ -133,13 +139,13 @@ export async function synthesize(text: string, voiceId: string): Promise<ArrayBu
 export interface TimedAudio { audioBase64: string; chars: string[]; startsSec: number[]; endsSec: number[] }
 
 /** Sintetiza con marcas de tiempo por carácter, para resaltar palabra a palabra en vivo (karaoke). */
-export async function synthesizeWithTimestamps(text: string, voiceId: string): Promise<TimedAudio | null> {
+export async function synthesizeWithTimestamps(text: string, voiceId: string, lang = "es"): Promise<TimedAudio | null> {
   if (!env.ELEVENLABS_API_KEY) return null;
   try {
     const r = await fetch(`${API}/text-to-speech/${encodeURIComponent(voiceId)}/with-timestamps`, {
       method: "POST",
       headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "content-type": "application/json", accept: "application/json" },
-      body: JSON.stringify(ttsBody(text, voiceId)),
+      body: JSON.stringify(ttsBody(text, voiceId, lang)),
       signal: AbortSignal.timeout(20000),
     });
     if (!r.ok) return null;

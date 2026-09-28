@@ -202,6 +202,10 @@ mark.uhl{background:rgba(240,198,69,.28);color:inherit;border-radius:2px;padding
 .cv-panel.open{display:flex}
 .cv-hd{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 14px;padding-top:max(10px,env(safe-area-inset-top));border-bottom:1px solid var(--line)}
 .cv-hd .cv-ttl{flex:1;min-width:0}
+.cv-lang{min-height:40px;max-width:120px;flex:none;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:700 12px var(--ff);padding:0 6px}
+.cv-note{display:flex;align-items:center;gap:10px;margin:0;padding:8px 14px;font-size:11.5px;line-height:1.35;color:var(--teal2);font-weight:600;border-bottom:1px solid var(--line)}
+.txbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px;font-size:12px;color:var(--muted);font-weight:600}
+.txbar button{border:0;background:none;color:var(--teal2);font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:36px;padding:0 4px}
 .cv-hd .cv-ttl b{display:block;color:var(--ink);font-size:14px}
 .cv-hd .cv-ttl small{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cv-ib{width:44px;height:44px;flex:none;border:1px solid var(--line);border-radius:11px;background:var(--glass);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
@@ -258,6 +262,7 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 </div>
 <div class="app" id="app" hidden></div>
 
+<script src="/app/i18n.js"></script>
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
 <script src="/app/feedback.js" defer></script>
@@ -306,6 +311,7 @@ var EYES='<svg viewBox="0 0 100 58" aria-hidden="true"><g transform="translate(5
 function ico(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
 
 var CARDS=[]; // {mod, title, html}
+function TT(k,es,v){return window.SUI18n?SUI18n.t(k,es,v):es;}
 
 // --- limpiar contenido del curso: quitar chrome, clases, estilos; conservar estructura de texto ---
 var DROP='script,style,noscript,form,button,input,textarea,select,svg,nav,header,footer,iframe,.rail,.reg-overlay,.printbtn,.menu-fab,.sidenav,.agent-fab,.guide-fab,#intFab,.fb-toggle,.fb-panel';
@@ -393,11 +399,11 @@ function resolveJumps(){
 var idx=0;
 function build(){
   app.innerHTML=
-    '<aside class="cv-panel" id="cvPanel" aria-label="Vídeos del curso"><div class="cv-hd"><div class="cv-ttl"><b>Vídeos del curso</b><small>Selección real de YouTube · '+esc(COURSE)+'</small></div><a class="cv-tb" id="cvAll" href="#">Ver todos</a><button class="cv-ib" id="cvX" type="button" aria-label="Cerrar vídeos">'+ico('<path d="M6 6l12 12M18 6 6 18"/>')+'</button></div>'
+    '<aside class="cv-panel" id="cvPanel" aria-label="Vídeos del curso"><div class="cv-hd"><div class="cv-ttl"><b>'+esc(TT('cv.title','Vídeos del curso'))+'</b><small>'+esc(TT('cv.sub','Selección real de YouTube · {c}',{c:COURSE}))+'</small></div><a class="cv-tb" id="cvAll" href="#">'+esc(TT('cv.all','Ver todos'))+'</a><button class="cv-ib" id="cvX" type="button" aria-label="'+esc(TT('cv.close','Cerrar vídeos'))+'">'+ico('<path d="M6 6l12 12M18 6 6 18"/>')+'</button></div>'
       +'<div class="cv-player" id="cvPlayer" hidden><div class="cv-frame" id="cvFrame"></div><div class="cv-pbar"><p id="cvPTitle"></p><button class="cv-ib cv-wide-btn" id="cvWide" type="button" aria-pressed="false" aria-label="Ampliar el vídeo junto al texto" title="Ampliar junto al texto">'+ico('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>')+'</button><button class="cv-ib" id="cvFull" type="button" aria-label="Pantalla completa" title="Pantalla completa">'+ico('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>')+'</button><button class="cv-ib" id="cvPClose" type="button" aria-label="Cerrar el vídeo" title="Cerrar el vídeo">'+ico('<path d="M6 6l12 12M18 6 6 18"/>')+'</button></div></div>'
-      +'<div class="cv-list" id="cvList"></div></aside>'
+      +'<div class="cv-note"><select class="cv-lang" id="cvLang" aria-label="'+esc(TT('vid.lang','Idioma de los vídeos'))+'"></select><span id="cvNote"></span></div><div class="cv-list" id="cvList"></div></aside>'
     +'<div class="main">'
-      +'<div class="ctx"><svg class="mlogo" viewBox="0 0 100 58">'+EYES.replace('<svg viewBox="0 0 100 58" aria-hidden="true">','').replace('</svg>','')+'</svg><div class="crumb" id="crumb"></div><button class="btn" id="vidBtn" title="Vídeos del curso" aria-controls="cvPanel" aria-expanded="false">Vídeos</button><button class="btn" id="mnBtn">Mis notas</button><button class="btn" id="asBtn" hidden title="Tests y examen final">Tests</button><button class="btn" id="idxBtn">Índice</button><a class="btn" href="/app/inicio.html">Salir</a></div>'
+      +'<div class="ctx"><svg class="mlogo" viewBox="0 0 100 58">'+EYES.replace('<svg viewBox="0 0 100 58" aria-hidden="true">','').replace('</svg>','')+'</svg><div class="crumb" id="crumb"></div><button class="btn" id="vidBtn" title="'+esc(TT('cv.title','Vídeos del curso'))+'" aria-controls="cvPanel" aria-expanded="false">'+esc(TT('cv.btn','Vídeos'))+'</button><button class="btn" id="mnBtn">Mis notas</button><button class="btn" id="asBtn" hidden title="Tests y examen final">Tests</button><button class="btn" id="idxBtn">Índice</button><a class="btn" href="/app/inicio.html">Salir</a></div>'
       +'<div class="coachbar" id="coachbar"><div class="av">'+EYES+'</div><div class="tx"><b>'+esc(PERSONA.name)+'</b> · '+esc(PERSONA.role.toLowerCase())+', pregúntame <span style="color:var(--teal2)">›</span></div></div>'
       +'<div class="deckwrap"><div class="track" id="track">'+CARDS.map(function(c){return '<div class="card"><div class="card-in"><span class="kpill"><i></i>'+esc(c.mod)+'</span><div class="prose"><h2>'+esc(c.title)+'</h2>'+c.body+'</div></div></div>';}).join('')+'</div></div>'
       +'<div class="dfoot"><button class="nb" id="prev">‹</button><div class="spine"><span id="fill"></span></div><div class="pos" id="pos"></div><button class="nb primary" id="next">Siguiente</button></div>'
@@ -407,9 +413,57 @@ function build(){
     +'<div class="selmenu" id="selmenu"><button data-a="hl">Subrayar</button><button data-a="note">Nota</button><button data-a="ask">Preguntar</button><button data-a="advise">Consejo</button><button data-a="example">Ejemplo</button></div>'
     +'<div class="mn" id="mn"><div class="mn-in"><div class="mn-hd"><b>Mi curso · notas y subrayados</b><button class="x" id="mnX">×</button></div><div class="mn-list" id="mnList"></div></div></div>'
     +'<div class="idx" id="idx"><div class="idx-in"><div class="idx-hd"><b>Índice del curso</b><button class="x" id="idxX">×</button></div><div class="idx-list" id="idxList"></div></div></div>';
-  buildIndex(); wireVideos(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
+  buildIndex(); wireVideos(); wireTranslate(); wireDeck(); wireTutor(); wireAnnotations(); wireExercises();
   // Evaluación (assess.js): test por bloque, roleplay de control cada N bloques y examen final.
   if(window.SkillUpAssess) SkillUpAssess.init({slug:SLUG,src:SRC,course:COURSE,cards:CARDS.map(function(c){return c.title;})});
+}
+// Traducción automática del curso (1.5.0): si la persona usa otro idioma, cada sección se pide traducida al
+// abrirla (y la siguiente, para que no espere). El servidor la traduce una vez para toda la plataforma y la guarda.
+// Solo se sustituye el contenido original de la tarjeta (lo que se añade después, ejercicios o avisos, se queda).
+function wireTranslate(){
+  var state={}; // i -> {orig, tr, showing:'tr'|'orig', busy}
+  function cardHtml(i){ var c=CARDS[i]; return '<h2>'+esc(c.title)+'</h2>'+c.body; }
+  function prose(i){ var c=document.querySelector('#track .card:nth-child('+(i+1)+') .prose'); return c; }
+  function swap(pr, fromHtml, toHtml){
+    var a=document.createElement('div'); a.innerHTML=fromHtml; var n=a.childNodes.length;
+    var b=document.createElement('div'); b.innerHTML=toHtml; var frag=document.createDocumentFragment();
+    while(b.firstChild) frag.appendChild(b.firstChild);
+    for(var k=0;k<n&&pr.firstChild;k++) pr.removeChild(pr.firstChild);
+    pr.insertBefore(frag, pr.firstChild);
+  }
+  function bar(i){
+    var pr=prose(i); if(!pr)return null; var inner=pr.parentNode, el=inner.querySelector('.txbar');
+    if(!el){ el=document.createElement('div'); el.className='txbar'; el.setAttribute('aria-live','polite'); inner.insertBefore(el, pr); }
+    return el;
+  }
+  function paint(i){
+    var st=state[i], el=bar(i); if(!el||!st)return;
+    if(st.busy){ el.textContent=TT('tx.working','Traduciendo esta sección…'); return; }
+    if(st.fail){ el.textContent=TT('tx.fail','No se ha podido traducir esta sección; se muestra el original en español.'); return; }
+    if(!st.tr){ el.remove(); return; }
+    var tr=st.showing==='tr';
+    el.innerHTML='<span>'+esc(tr?TT('tx.auto','Traducido automáticamente'):TT('tx.orig','Original en español'))+'</span> · <button type="button">'+esc(tr?TT('tx.seeOrig','ver original'):TT('tx.seeTr','ver traducción'))+'</button>';
+    el.querySelector('button').onclick=function(){ var pr=prose(i); if(!pr)return;
+      if(st.showing==='tr'){ swap(pr, st.tr, st.orig); st.showing='orig'; } else { swap(pr, st.orig, st.tr); st.showing='tr'; }
+      paint(i); };
+  }
+  function translate(i){
+    var lang=window.SUI18n?SUI18n.lang:'es'; if(lang==='es'||!CARDS[i])return;
+    var st=state[i]; if(st&&st.lang===lang&&(st.busy||st.tr||st.fail))return;
+    if(st&&st.tr&&st.showing==='tr'){ var pr0=prose(i); if(pr0) swap(pr0, st.tr, st.orig); }
+    st=state[i]={orig:cardHtml(i),tr:null,showing:'orig',busy:true,lang:lang}; paint(i);
+    SkillUp.api('/api/learning/translate',{method:'POST',body:{src:SRC,section:i,lang:lang,html:st.orig}}).then(function(r){
+      if(state[i]!==st)return; st.busy=false;
+      if(r&&r.html){ var pr=prose(i); if(pr){ swap(pr, st.orig, r.html); st.tr=r.html; st.showing='tr'; } } else st.fail=true;
+      paint(i);
+    }).catch(function(){ if(state[i]!==st)return; st.busy=false; st.fail=true; paint(i); });
+  }
+  function restore(){ Object.keys(state).forEach(function(i){ var st=state[i], pr=prose(+i); if(st.tr&&st.showing==='tr'&&pr) swap(pr, st.tr, st.orig); var el=pr&&pr.parentNode.querySelector('.txbar'); if(el) el.remove(); }); state={}; }
+  window._txSection=function(i){ translate(i); translate(i+1); };
+  if(window.SUI18n){
+    SUI18n.ready.then(function(){ window._txSection(idx); });
+    SUI18n.onChange(function(l){ restore(); if(l!=='es') window._txSection(idx); });
+  }
 }
 function wireAnnotations(){
   var track=document.getElementById('track'), menu=document.getElementById('selmenu');
@@ -467,6 +521,7 @@ function wireDeck(){
     var cc=document.querySelector('.card:nth-child('+(idx+1)+')');if(cc)cc.scrollTop=0;
     var cm=document.getElementById('ccMsg'); if(cm) cm.textContent=PERSONA.name+': '+NUDGES[idx%NUDGES.length].replace('{t}',CARDS[idx].title);
     if(window._cvSection) window._cvSection(idx);
+    if(window._txSection) window._txSection(idx);
     if(window._onSection) window._onSection(idx);
     if(window.SkillUpActivity) SkillUpActivity.section({source:SLUG,index:idx,title:CARDS[idx].title});
     if(window.SkillUpAssess) SkillUpAssess.onCard(idx);};
@@ -489,7 +544,15 @@ function wireVideos(){
   if(!panel||!btn)return;
   var TOPIC=COURSE.slice(0,90), KEY='skillup-cv-open:'+USER_ID, videos=null, loading=false, current=null;
   var DESK=window.matchMedia('(min-width:1100px)');
-  document.getElementById('cvAll').href='/app/videos.html?topic='+encodeURIComponent(TOPIC);
+  // Idioma de los vídeos (1.5.0): por defecto el de la persona; el selector solo cambia este panel.
+  var LANGS=(window.SUI18n&&SUI18n.LANGS)||{es:'Español'}, VL=(window.SUI18n&&SUI18n.lang)||'es', lsel=document.getElementById('cvLang'), note=document.getElementById('cvNote');
+  lsel.innerHTML=Object.keys(LANGS).map(function(k){return '<option value="'+k+'" lang="'+k+'">'+LANGS[k]+'</option>';}).join(''); lsel.value=VL;
+  function setLang(l){ VL=l; lsel.value=l; videos=null; loading=false;
+    note.textContent=window.SUI18n?SUI18n.videoNote(l):'Solo vídeos en español · muy bien valorados y con interacción real'; note.setAttribute('lang',l);
+    document.getElementById('cvAll').href='/app/videos.html?topic='+encodeURIComponent(TOPIC)+'&lang='+encodeURIComponent(l);
+    if(panel.classList.contains('open'))load(); }
+  lsel.onchange=function(){setLang(lsel.value);}; setLang(VL);
+  if(window.SUI18n){ SUI18n.ready.then(function(){ if(SUI18n.lang!==VL) setLang(SUI18n.lang); }); SUI18n.onChange(function(l){ setLang(l); }); }
   function fmtN(n){n=Number(n)||0;if(n>=1e6)return (n/1e6).toFixed(1).replace('.0','')+' M';if(n>=1e3)return (n/1e3).toFixed(1).replace('.0','')+' mil';return String(n);}
   function fmtDur(s){s=Number(s)||0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),r=s%60;return (h?h+':'+(m<10?'0':''):'')+m+':'+(r<10?'0':'')+r;}
   function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
@@ -505,7 +568,7 @@ function wireVideos(){
   }
   function render(){
     if(!videos)return;
-    if(!videos.length){list.innerHTML='<p class="cv-empty">Todavía no hay vídeos para este curso. Prueba de nuevo en un rato.</p>';return;}
+    if(!videos.length){list.innerHTML='<p class="cv-empty">'+esc(TT('cv.empty','Todavía no hay vídeos para este curso en este idioma. Prueba con otro idioma.'))+'</p>';return;}
     var c=CARDS[idx]||{},ws=words(c.title);
     var ranked=videos.map(function(v,i){var t=norm(v.title),s=0;ws.forEach(function(w){if(t.indexOf(w)>=0)s++;});return {v:v,s:s,i:i};})
       .sort(function(a,b){return b.s-a.s||a.i-b.i;});
@@ -513,8 +576,8 @@ function wireVideos(){
     ranked.forEach(function(x){
       var v=x.v,b=document.createElement('button');b.type='button';b.dataset.y=v.youtubeId;b.className='cv-item'+(current&&current.youtubeId===v.youtubeId?' on':'');
       b.setAttribute('aria-label','Ver «'+v.title+'»'+(v.durationSeconds?', '+fmtDur(v.durationSeconds):''));
-      b.innerHTML='<span class="cv-th" style="display:block"><img loading="lazy" alt="">'+(v.durationSeconds?'<span class="cv-dur">'+fmtDur(v.durationSeconds)+'</span>':'')+(x.s?'<span class="cv-rel">Este bloque</span>':'')+'</span>'
-        +'<span class="cv-mt"><b>'+esc(v.title)+'</b><small>'+esc(v.channel||'')+(v.channel?' · ':'')+fmtN(v.views)+' visualizaciones</small></span>';
+      b.innerHTML='<span class="cv-th" style="display:block"><img loading="lazy" alt="">'+(v.durationSeconds?'<span class="cv-dur">'+fmtDur(v.durationSeconds)+'</span>':'')+(x.s?'<span class="cv-rel">'+esc(TT('cv.block','Este bloque'))+'</span>':'')+'</span>'
+        +'<span class="cv-mt"><b>'+esc(v.title)+'</b><small>'+esc(v.channel||'')+(v.channel?' · ':'')+fmtN(v.views)+' '+esc(TT('cv.views','visualizaciones'))+'</small></span>';
       b.querySelector('img').src=v.thumbnail||'';
       b.onclick=function(){play(v);};
       list.appendChild(b);
@@ -523,14 +586,16 @@ function wireVideos(){
   }
   function load(){
     if(videos||loading)return; loading=true;
-    list.innerHTML='<p class="cv-empty">Buscando vídeos…</p>';
-    SkillUp.api('/api/learning/videos?topic='+encodeURIComponent(TOPIC)).then(function(d){
+    list.innerHTML='<p class="cv-empty">'+esc(TT('vid.searching','Buscando vídeos…'))+'</p>';
+    var want=VL;
+    SkillUp.api('/api/learning/videos?topic='+encodeURIComponent(TOPIC)+'&lang='+encodeURIComponent(VL)).then(function(d){
+      if(want!==VL)return; // cambió el idioma mientras cargaba
       var seen={}; videos=[];
-      ['masVistos','novedades','masValorados'].forEach(function(k){((d&&d[k])||[]).forEach(function(v){if(v&&v.youtubeId&&!seen[v.youtubeId]){seen[v.youtubeId]=1;videos.push(v);}});});
+      ['masValorados','masVistos','novedades'].forEach(function(k){((d&&d[k])||[]).forEach(function(v){if(v&&v.youtubeId&&!seen[v.youtubeId]){seen[v.youtubeId]=1;videos.push(v);}});});
       loading=false; render();
     }).catch(function(){
       loading=false;
-      list.innerHTML='<p class="cv-empty">No se han podido cargar los vídeos ahora mismo.<br><button class="cv-tb" type="button" id="cvRetry">Reintentar</button></p>';
+      list.innerHTML='<p class="cv-empty">'+esc(TT('cv.err','No se han podido cargar los vídeos ahora mismo.'))+'<br><button class="cv-tb" type="button" id="cvRetry">'+esc(TT('cv.retry','Reintentar'))+'</button></p>';
       document.getElementById('cvRetry').onclick=load;
     });
   }
@@ -545,7 +610,7 @@ function wireVideos(){
     frame.appendChild(f); ptitle.textContent=v.title||''; player.hidden=false;
     list.querySelectorAll('.cv-item').forEach(function(b){b.classList.toggle('on',b.dataset.y===v.youtubeId);});
     document.getElementById('cvPClose').focus();
-    SkillUp.api('/api/learning/videos/watch',{method:'POST',body:{youtubeId:v.youtubeId,title:String(v.title||'').slice(0,300),thumbnail:String(v.thumbnail||'').slice(0,500)}}).catch(function(){});
+    SkillUp.api('/api/learning/videos/watch',{method:'POST',body:{youtubeId:v.youtubeId,title:String(v.title||'').slice(0,300),thumbnail:String(v.thumbnail||'').slice(0,500),lang:VL}}).catch(function(){});
   }
   function closePlayer(){
     if(player.hidden)return; exitFull(); frame.innerHTML=''; player.hidden=true; current=null;

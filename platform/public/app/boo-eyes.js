@@ -12,14 +12,16 @@
     lf.href = 'https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap';
     document.head.appendChild(lf);
   }
+  function T(k, es, v) { return window.SUI18n ? SUI18n.t(k, es, v) : (v ? es.replace(/\{(\w+)\}/g, function (m, x) { return v[x] != null ? v[x] : m; }) : es); }
+  function speechLang() { return window.SkillUpDictation && SkillUpDictation.speechLang ? SkillUpDictation.speechLang() : ({ en: 'en-GB', ca: 'ca-ES', pt: 'pt-PT', fr: 'fr-FR' }[window.SUI18n && SUI18n.lang] || 'es-ES'); }
   var WAVE = '<span class="bg-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
 
   // Guía por página: qué es esto y qué puedes hacer aquí. Solo páginas reales, texto real (nada inventado).
   var GUIDES = [
-    { m: /\/app\/inicio\.html/, t: 'Aquí ves tu progreso y tus cursos. Toca una tarjeta para seguir donde lo dejaste.' },
-    { m: /\/app\/ruta\.html/, t: 'Este es tu mapa de conocimiento. Pasa el ratón por las burbujas y haz clic para entrar a un tema.' },
-    { m: /\/app\/explorar\.html/, t: 'Pregúntame lo que sea, o busca un curso. Te dejo recursos aquí al lado de la respuesta.' },
-    { m: /\/app\/workforce\.html/, t: 'Aquí ves cómo aprende todo el equipo, agrupado por cómo aporta cada uno.' },
+    { m: /\/app\/inicio\.html/, k: 'eyes.g.inicio', t: 'Aquí ves tu progreso y tus cursos. Toca una tarjeta para seguir donde lo dejaste.' },
+    { m: /\/app\/ruta\.html/, k: 'eyes.g.ruta', t: 'Este es tu mapa de conocimiento. Pasa el ratón por las burbujas y haz clic para entrar a un tema.' },
+    { m: /\/app\/explorar\.html/, k: 'eyes.g.explorar', t: 'Pregúntame lo que sea, o busca un curso. Te dejo recursos aquí al lado de la respuesta.' },
+    { m: /\/app\/workforce\.html/, k: 'eyes.g.workforce', t: 'Aquí ves cómo aprende todo el equipo, agrupado por cómo aporta cada uno.' },
     { m: /^\/panel\.html/, t: 'Aquí ves las peticiones y el feedback del equipo, con gráficas reales.' },
     { m: /^\/revisiones\.html/, t: 'Aquí ajustas cómo responde el motor de cada curso.' },
     { m: /^\/usuarios\.html/, t: 'Aquí gestionas quién tiene acceso y con qué rol.' },
@@ -121,18 +123,19 @@
   var fab = document.createElement('button');
   fab.className = 'boo-fab'; fab.setAttribute('aria-label', 'Abrir asistente Brandooers');
   fab.title = 'Toca para abrir el asistente · mantén pulsado para hablarle directamente';
+  fab.setAttribute('data-i18n-attr', 'aria-label:eyes.fab;title:eyes.fabTitle');
   fab.innerHTML = EYES; document.body.appendChild(fab);
 
   var panel = document.createElement('div'); panel.className = 'boo-panel';
-  panel.innerHTML = '<div class="boo-head">' + EYES + WAVE + '<b>Asistente</b>'
-    + '<select class="boo-vsel" aria-label="Voz" title="Voz" hidden></select>'
-    + '<button class="boo-voice" aria-label="Leer respuestas en voz alta" title="Leer respuestas en voz alta" hidden>' + SPK + '</button>'
-    + '<button class="boo-home" aria-label="Ir al menú principal" title="Menú principal">' + HOME + '</button>'
-    + '<button class="boo-x" aria-label="Cerrar">×</button></div>'
+  panel.innerHTML = '<div class="boo-head">' + EYES + WAVE + '<b data-i18n="eyes.title">Asistente</b>'
+    + '<select class="boo-vsel" aria-label="Voz" title="Voz" data-i18n-attr="aria-label:eyes.voice;title:eyes.voice" hidden></select>'
+    + '<button class="boo-voice" aria-label="Leer respuestas en voz alta" title="Leer respuestas en voz alta" data-i18n-attr="aria-label:eyes.read" hidden>' + SPK + '</button>'
+    + '<button class="boo-home" aria-label="Ir al menú principal" title="Menú principal" data-i18n-attr="aria-label:eyes.homeAria;title:eyes.home">' + HOME + '</button>'
+    + '<button class="boo-x" aria-label="Cerrar" data-i18n-attr="aria-label:eyes.close">×</button></div>'
     + '<div class="boo-chat"></div>'
-    + '<div class="boo-in"><button class="boo-mic" aria-label="Dictar" title="Hablar">' + MIC + '</button>'
-    + '<input type="text" placeholder="Escribe o habla…" aria-label="Mensaje">'
-    + '<button class="boo-send" aria-label="Enviar">→</button></div>';
+    + '<div class="boo-in"><button class="boo-mic" aria-label="Dictar" title="Hablar" data-i18n-attr="aria-label:eyes.dictate;title:eyes.talk">' + MIC + '</button>'
+    + '<input type="text" placeholder="Escribe o habla…" aria-label="Mensaje" data-i18n-attr="placeholder:eyes.placeholder;aria-label:eyes.msg">'
+    + '<button class="boo-send" aria-label="Enviar" data-i18n-attr="aria-label:eyes.send">→</button></div>';
   document.body.appendChild(panel);
 
   var chat = panel.querySelector('.boo-chat');
@@ -160,9 +163,9 @@
     if (!on) stopAudio();
     muteBtn.innerHTML = on ? SPK_ON : SPK_OFF;
     muteBtn.style.color = on ? '#3FD8F0' : '#9aa9b8'; muteBtn.style.borderColor = on ? '#2a7d8c' : '#37506a';
-    muteBtn.title = on ? 'Silenciar la voz de los agentes' : 'Activar la voz de los agentes';
+    muteBtn.title = on ? T('eyes.mute', 'Silenciar la voz de los agentes') : T('eyes.unmute', 'Activar la voz de los agentes');
     muteBtn.setAttribute('aria-label', muteBtn.title);
-    if (voiceBtn) { voiceBtn.classList.toggle('on', on); voiceBtn.title = on ? 'Silenciar la voz' : 'Que te hable en voz alta'; }
+    if (voiceBtn) { voiceBtn.classList.toggle('on', on); voiceBtn.title = on ? T('eyes.voiceOff', 'Silenciar la voz') : T('eyes.voiceOn', 'Que te hable en voz alta'); }
   }
   muteBtn.addEventListener('click', function () { setVoice(!voiceOn); });
   setVoice(voiceOn);
@@ -279,7 +282,7 @@
     if (!SR || rec) return;
     {
       micFinal = '';
-      rec = new SR(); rec.lang = 'es-ES'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
+      rec = new SR(); rec.lang = speechLang(); rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
       micBtn.classList.add('rec');
       rec.onresult = function (ev) {
         var interim = '';
@@ -295,9 +298,9 @@
       rec.onend = function () { clearTimeout(micSilence); micBtn.classList.remove('rec'); var had = input.value.trim(); rec = null; if (had) send(true); else { micConvo = false; micBtn.style.boxShadow = ''; } };
       rec.onerror = function (ev) { clearTimeout(micSilence); micBtn.classList.remove('rec'); rec = null;
         var c = ev && ev.error;
-        if (c === 'not-allowed' || c === 'service-not-allowed') bubble('agent', 'Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador, o escríbeme aquí.');
-        else if (c === 'audio-capture') bubble('agent', 'No encuentro el micrófono de este dispositivo. Puedes escribirme aquí.');
-        else if (c && c !== 'no-speech' && c !== 'aborted') bubble('agent', 'El dictado por voz no está disponible ahora mismo en este navegador. Escríbeme y te respondo.');
+        if (c === 'not-allowed' || c === 'service-not-allowed') bubble('agent', T('eyes.micPerm', 'Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador, o escríbeme aquí.'));
+        else if (c === 'audio-capture') bubble('agent', T('eyes.micNone', 'No encuentro el micrófono de este dispositivo. Puedes escribirme aquí.'));
+        else if (c && c !== 'no-speech' && c !== 'aborted') bubble('agent', T('eyes.micNA', 'El dictado por voz no está disponible ahora mismo en este navegador. Escríbeme y te respondo.'));
       };
       try { rec.start(); armMicSilence(MIC_START_MS); } catch (e) { clearTimeout(micSilence); micBtn.classList.remove('rec'); rec = null; }
     }
@@ -314,10 +317,10 @@
       if (!matchMedia('(pointer:coarse)').matches) input.focus();
       if (!greeted) {
         greeted = true;
-        var g = bubble('agent', 'Hola' + (userName ? ', ' + userName : '') + '…');
+        var g = bubble('agent', T('eyes.hello', 'Hola') + (userName ? ', ' + userName : '') + '…');
         // Coach proactivo: saludo con seguimiento real + voz. Si la IA no responde, se queda el saludo base.
         (function () {
-          var fallback = 'Hola' + (userName ? ', ' + userName : '') + '. Soy tu guía en Brandooers. Dime tu objetivo o pregúntame por dónde empezar.';
+          var fallback = T('eyes.fallback', 'Hola{name}. Soy tu guía en Brandooers. Dime tu objetivo o pregúntame por dónde empezar.', { name: userName ? ', ' + userName : '' });
           // voiceId ya trae la voz de Marc por defecto, así que playTTS funciona sin esperar a loadVoices.
           SkillUp.api('/api/agent/coach?h=' + new Date().getHours()).then(function (r) {
             g.textContent = (r && r.text) || fallback; chat.scrollTop = chat.scrollHeight;
@@ -336,8 +339,8 @@
   }
   function showRoster() {
     var d = document.createElement('div'); d.className = 'boo-roster';
-    d.innerHTML = '<div class="boo-roster-t">Tus tutores</div>' + TUTORS.map(function (t) {
-      return '<button class="boo-tutor" data-c="' + t.course + '"><span class="boo-tav">' + tutorEyes(t) + '</span><span class="boo-tinfo"><b>' + t.name + '</b><small>Tutor de ' + t.spec + '</small></span></button>';
+    d.innerHTML = '<div class="boo-roster-t">' + T('eyes.tutors', 'Tus tutores') + '</div>' + TUTORS.map(function (t) {
+      return '<button class="boo-tutor" data-c="' + t.course + '"><span class="boo-tav">' + tutorEyes(t) + '</span><span class="boo-tinfo"><b>' + t.name + '</b><small>' + T('eyes.tutorOf', 'Tutor de {x}', { x: T('eyes.spec.' + t.spec, t.spec) }) + '</small></span></button>';
     }).join('');
     chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
     d.addEventListener('click', function (e) { var b = e.target.closest('.boo-tutor'); if (b) location.href = '/app/curso.html?src=' + b.getAttribute('data-c'); });
@@ -348,7 +351,7 @@
     var found = TUTORS.filter(function (t) { return low.indexOf(t.name.toLowerCase()) >= 0; });
     if (!found.length) return;
     var wrap = document.createElement('div'); wrap.className = 'boo-acts';
-    wrap.innerHTML = found.map(function (t) { return '<button class="boo-act" data-c="' + t.course + '">Abrir curso de ' + t.name + '</button>'; }).join('');
+    wrap.innerHTML = found.map(function (t) { return '<button class="boo-act" data-c="' + t.course + '">' + T('eyes.openCourse', 'Abrir curso de {x}', { x: t.name }) + '</button>'; }).join('');
     wrap.addEventListener('click', function (e) { var b = e.target.closest('.boo-act'); if (b) location.href = '/app/curso.html?src=' + b.getAttribute('data-c'); });
     chat.appendChild(wrap); chat.scrollTop = chat.scrollHeight;
   }
@@ -372,7 +375,7 @@
       // item B: si hablé por voz, me contesta por voz; o si el altavoz está activado.
       if (r.reply && (voiceOn || wasVoice)) playTTS(r.reply);
       return r.reply || '';
-    } catch (ex) { thinking.textContent = 'Ahora mismo no puedo responder (el servicio de IA no está disponible). Inténtalo en un momento.'; chat.scrollTop = chat.scrollHeight; return null; }
+    } catch (ex) { thinking.textContent = T('eyes.down', 'Ahora mismo no puedo responder (el servicio de IA no está disponible). Inténtalo en un momento.'); chat.scrollTop = chat.scrollHeight; return null; }
   }
 
   // Mantener pulsados los ojos = hablar directamente, sin abrir el chat (como un walkie-talkie).
@@ -395,12 +398,12 @@
   }
   function startHoldTalk() {
     if (guideEl) { guideDismissed = true; dismissGuide(); }
-    if (!SR) { sayBubble('Este navegador no permite hablarme por voz. Toca los ojos y escríbeme.', 4000); return; }
+    if (!SR) { sayBubble(T('eyes.noVoice', 'Este navegador no permite hablarme por voz. Toca los ojos y escríbeme.'), 4000); return; }
     stopAudio(); holdText = '';
     fab.classList.add('boo-listen');
-    sayBubble('Te escucho…');
+    sayBubble(T('eyes.listening', 'Te escucho…'));
     var fin = '';
-    holdRec = new SR(); holdRec.lang = 'es-ES'; holdRec.continuous = true; holdRec.interimResults = true;
+    holdRec = new SR(); holdRec.lang = speechLang(); holdRec.continuous = true; holdRec.interimResults = true;
     holdRec.onresult = function (ev) {
       var interim = '';
       for (var i = ev.resultIndex; i < ev.results.length; i++) { var r = ev.results[i]; if (r.isFinal) fin += r[0].transcript + ' '; else interim += r[0].transcript; }
@@ -408,15 +411,15 @@
     };
     holdRec.onerror = function (ev) {
       var c = ev && ev.error;
-      if (c === 'not-allowed' || c === 'service-not-allowed') sayBubble('Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador.', 5000);
+      if (c === 'not-allowed' || c === 'service-not-allowed') sayBubble(T('eyes.micPerm2', 'Necesito permiso para usar el micrófono. Actívalo en los ajustes del navegador.'), 5000);
     };
     holdRec.onend = function () {
       fab.classList.remove('boo-listen'); holdRec = null;
       var t = holdText.trim(); holdText = '';
-      if (!t) { sayBubble('No te he oído. Mantén pulsados los ojos mientras hablas.', 3500); return; }
+      if (!t) { sayBubble(T('eyes.notHeard', 'No te he oído. Mantén pulsados los ojos mientras hablas.'), 3500); return; }
       sayBubble('…'); input.value = t;
       send(true).then(function (reply) {
-        sayBubble(reply || 'Ahora mismo no puedo responder. Inténtalo en un momento.', reply ? Math.min(30000, 6000 + reply.length * 60) : 5000);
+        sayBubble(reply || T('eyes.cantAnswer', 'Ahora mismo no puedo responder. Inténtalo en un momento.'), reply ? Math.min(30000, 6000 + reply.length * 60) : 5000);
         // Valorar también la respuesta del bocadillo; al tocar los pulgares no se cierra solo.
         var bar = reply && lastFb && window.SUFeedback ? SUFeedback.attach(sayEl.querySelector('p'), lastFb) : null;
         if (bar) bar.addEventListener('pointerdown', function () { clearTimeout(sayEl._t); });
@@ -453,7 +456,7 @@
     setTimeout(function () {
       if (guideDismissed) return;
       var el = document.createElement('div'); el.className = 'boo-guide';
-      el.innerHTML = WAVE; var p = document.createElement('p'); p.textContent = g.t; el.appendChild(p);
+      el.innerHTML = WAVE; var p = document.createElement('p'); p.textContent = T(g.k || '', g.t); el.appendChild(p);
       document.body.appendChild(el); guideEl = el; waveEls.push(el.querySelector('.bg-wave'));
       positionGuide(el);
       requestAnimationFrame(function () { el.classList.add('show'); });
@@ -462,7 +465,7 @@
       document.addEventListener('click', outsideDismiss, true);
       document.addEventListener('keydown', outsideDismiss, true);
       guideTimer = setTimeout(function () { guideDismissed = true; dismissGuide(); }, 10000);
-      if (voiceOn) playTTS((userName ? 'Hola ' + userName + '. ' : 'Hola. ') + g.t);
+      if (voiceOn) playTTS(T('eyes.hello', 'Hola') + (userName ? ' ' + userName : '') + '. ' + T(g.k || '', g.t));
     }, 900);
   }
 

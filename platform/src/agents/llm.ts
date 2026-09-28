@@ -8,6 +8,8 @@ export interface LlmCall {
   orgId?: string | null; userId?: string; kind?: string;
   // Tiempo máximo de ESTA llamada (por defecto 30 s). Solo para generaciones largas (exámenes).
   timeoutMs?: number;
+  // Idioma de salida forzado (es|en|ca|pt|fr). Si falta, el envoltorio central lo resuelve por userId.
+  lang?: string;
 }
 export interface LlmUsage { orgId: string | null; userId?: string; kind: string; model: string; inputTokens: number; outputTokens: number }
 export type UsageRecorder = (u: LlmUsage) => Promise<void>;

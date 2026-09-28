@@ -137,13 +137,17 @@
   var styled = false;
   function style() { if (styled) return; styled = true; var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st); }
 
-  var NOTICE = '<h3>Tu formación, con acompañamiento</h3>' +
-    '<p>Para poder ayudarte, tu coach, tu responsable y la administración de tu empresa pueden ver tu actividad en SkillUp: qué curso y sección estás viendo, el tiempo activo, tus resultados de tests y roleplays y tu conversación con el tutor. También pueden escribirte en el chat.</p>' +
-    '<p>Nunca se graba tu pantalla, lo que tecleas ni tu cámara. Si alguien sigue tu sesión en directo, lo verás arriba con su nombre. Estos datos se guardan 90 días como máximo.</p>';
+  function T(k, es, v) { return window.SUI18n ? SUI18n.t(k, es, v) : (v ? es.replace(/\{(\w+)\}/g, function (m, x) { return v[x] != null ? v[x] : m; }) : es); }
+  // Aviso de transparencia (idioma de la persona, 1.5.0): se compone al mostrarlo.
+  function NOTICE() {
+    return '<h3>' + esc(T('act.noticeT', 'Tu formación, con acompañamiento')) + '</h3>' +
+      '<p>' + esc(T('act.notice1', 'Para poder ayudarte, tu coach, tu responsable y la administración de tu empresa pueden ver tu actividad en SkillUp: qué curso y sección estás viendo, el tiempo activo, tus resultados de tests y roleplays y tu conversación con el tutor. También pueden escribirte en el chat.')) + '</p>' +
+      '<p>' + esc(T('act.notice2', 'Nunca se graba tu pantalla, lo que tecleas ni tu cámara. Si alguien sigue tu sesión en directo, lo verás arriba con su nombre. Estos datos se guardan 90 días como máximo.')) + '</p>';
+  }
   function showNotice(ack) {
     style();
     var m = document.createElement('div'); m.className = 'su-modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
-    m.innerHTML = '<div class="in">' + NOTICE + '<div class="su-acts"><button class="su-btn" type="button">Entendido</button></div></div>';
+    m.innerHTML = '<div class="in">' + NOTICE() + '<div class="su-acts"><button class="su-btn" type="button">' + esc(T('act.ok', 'Entendido')) + '</button></div></div>';
     document.body.appendChild(m);
     var b = m.querySelector('button'); b.focus();
     b.onclick = function () { m.remove(); if (ack) fetch('/api/analytics/activity/notice', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' }).catch(noop); };
@@ -154,9 +158,10 @@
     if (!list || !list.length) { if (watchEl) { watchEl.remove(); watchEl = null; } return; }
     style();
     if (!watchEl) { watchEl = document.createElement('div'); watchEl.className = 'su-watch'; watchEl.setAttribute('role', 'status'); document.body.appendChild(watchEl); }
-    var names = list.map(function (w) { return 'Tu ' + String(w.role || 'responsable').toLowerCase() + ' ' + w.name; });
-    var txt = names.length === 1 ? names[0] + ' está siguiendo tu sesión' : names.slice(0, -1).join(', ') + ' y ' + names[names.length - 1] + ' están siguiendo tu sesión';
-    watchEl.innerHTML = '<i aria-hidden="true"></i><span>' + esc(txt) + '</span><button type="button">Qué ve</button>';
+    var names = list.map(function (w) { return T('act.your', 'Tu {role} {name}', { role: String(w.role || 'responsable').toLowerCase(), name: w.name }); });
+    var txt = names.length === 1 ? T('act.watching1', '{who} está siguiendo tu sesión', { who: names[0] })
+      : T('act.watchingN', '{who} y {last} están siguiendo tu sesión', { who: names.slice(0, -1).join(', '), last: names[names.length - 1] });
+    watchEl.innerHTML = '<i aria-hidden="true"></i><span>' + esc(txt) + '</span><button type="button">' + esc(T('act.whatSee', 'Qué ve')) + '</button>';
     watchEl.querySelector('button').onclick = function () { showNotice(false); };
   }
 
@@ -165,9 +170,9 @@
     style();
     var t = document.createElement('div'); t.className = 'su-toast'; t.setAttribute('role', 'alert');
     var chat = n.source ? '/app/curso.html?src=' + encodeURIComponent('/' + n.source + '.html') + '&chat=1' : null;
-    t.innerHTML = '<div class="who">' + esc(n.authorName || 'Tu responsable') + ' <span class="su-badge">' + esc(n.authorRole || 'Responsable') + '</span></div>' +
-      '<div>' + esc(n.text || '') + '</div><div class="su-acts">' + (chat ? '<a class="su-btn" href="' + chat + '">Responder en el chat</a>' : '') +
-      '<button class="su-btn ghost" type="button">Entendido</button></div>';
+    t.innerHTML = '<div class="who">' + esc(n.authorName || T('act.manager', 'Tu responsable')) + ' <span class="su-badge">' + esc(n.authorRole || T('act.managerRole', 'Responsable')) + '</span></div>' +
+      '<div>' + esc(n.text || '') + '</div><div class="su-acts">' + (chat ? '<a class="su-btn" href="' + chat + '">' + esc(T('act.reply', 'Responder en el chat')) + '</a>' : '') +
+      '<button class="su-btn ghost" type="button">' + esc(T('act.ok', 'Entendido')) + '</button></div>';
     document.body.appendChild(t);
     t.querySelector('button').onclick = function () { t.remove(); };
   }
