@@ -30,7 +30,7 @@ var backHref='/app/curso.html?src='+encodeURIComponent('/'+SLUG+'.html')+(CARD?'
 document.getElementById('back').href=backHref;
 var OUT=null, ATT=null, answers=[], timer=null;
 
-function loading(msg,sub){ if(window.EyesLoader){ EyesLoader.mount(wrap,msg,sub); return; } wrap.innerHTML='<div class="loader"><div class="spin"></div><b style="color:var(--ink)">'+E(msg)+'</b>'+(sub?'<p class="muted" style="margin-top:6px">'+E(sub)+'</p>':'')+'</div>'; }
+function loading(msg,sub){ if(window.EyesLoader){ EyesLoader.mount(wrap,msg,sub,{expect:/final/i.test(msg)?60:40}); return; } wrap.innerHTML='<div class="loader"><div class="spin"></div><b style="color:var(--ink)">'+E(msg)+'</b>'+(sub?'<p class="muted" style="margin-top:6px">'+E(sub)+'</p>':'')+'</div>'; }
 function fail(msg){ wrap.innerHTML='<div class="card"><p class="err">'+E(msg)+'</p><div class="row" style="margin-top:12px"><a class="btn ghost" href="'+E(backHref)+'">Volver al curso</a></div></div>'; }
 function toast(t){ document.querySelectorAll('.toast').forEach(function(x){x.remove();}); var d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(function(){d.remove();},3800); }
 function fmtDate(d){ try{ return new Date(d).toLocaleString('es-ES',{dateStyle:'long',timeStyle:'short'}); }catch(e){ return ''; } }

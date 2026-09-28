@@ -36,7 +36,7 @@ if(SLUG) document.getElementById('back').href='/app/curso.html?src='+encodeURICo
 if(SLUG) document.getElementById('back').textContent='Volver al curso';
 
 function toast(t){ document.querySelectorAll('.toast').forEach(function(x){x.remove();}); var d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(function(){d.remove();},3800); }
-function loading(msg){ if(window.EyesLoader){ EyesLoader.mount(stage,msg,'Mientras preparo el caso, juega un poco.'); return; } stage.innerHTML='<div class="loader"><div class="spin"></div>'+E(msg)+'</div>'; }
+function loading(msg){ if(window.EyesLoader){ EyesLoader.mount(stage,msg,'Mientras preparo el caso, juega un poco.',{expect:15}); return; } stage.innerHTML='<div class="loader"><div class="spin"></div>'+E(msg)+'</div>'; }
 function courseName(s){ for(var i=0;i<COURSES.length;i++) if(COURSES[i].slug===s) return COURSES[i].name; return s; }
 
 /* ---------- 1. elegir ---------- */
