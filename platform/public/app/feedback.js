@@ -9,6 +9,7 @@
     ['voz', 'Suena mal o falla la voz'], ['palabra_mal_escrita', 'Palabra mal escrita'], ['otro', 'Otro']];
   var TYPES = [['sugerencia', 'Sugerencia'], ['error', 'Error'], ['contenido', 'Petición de contenido'], ['otro', 'Otro']];
   var STATUS = { nuevo: 'Recibido', en_revision: 'En revisión', resuelto: 'Resuelto', descartado: 'Descartado' };
+  function T(k, es) { return window.SUI18n ? SUI18n.t(k, es) : es; }
   var UP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2.9 2.2L13 10h5.6a2 2 0 0 1 2 2.4l-1.4 6.4A2 2 0 0 1 17.2 20H7"/></svg>';
   var DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 13V4h3v9zM17 13l-4 8a2 2 0 0 1-2.9-2.2L11 14H5.4a2 2 0 0 1-2-2.4l1.4-6.4A2 2 0 0 1 6.8 4H17"/></svg>';
 
@@ -83,8 +84,8 @@
       page: ctx.page || pageName(), course: ctx.course || undefined, block: ctx.block ? String(ctx.block).slice(0, 200) : undefined, agent: ctx.agent || undefined
     };
     var bar = document.createElement('div'); bar.className = 'sufb';
-    bar.innerHTML = '<button type="button" class="sufb-b up" aria-pressed="false" aria-label="Respuesta útil" title="Respuesta útil">' + UP + '</button>' +
-      '<button type="button" class="sufb-b down" aria-pressed="false" aria-label="Respuesta mejorable" title="Respuesta mejorable">' + DOWN + '</button><span class="sufb-ok" aria-live="polite"></span>';
+    bar.innerHTML = '<button type="button" class="sufb-b up" aria-pressed="false" aria-label="' + T('fb.useful', 'Respuesta útil') + '" title="' + T('fb.useful', 'Respuesta útil') + '">' + UP + '</button>' +
+      '<button type="button" class="sufb-b down" aria-pressed="false" aria-label="' + T('fb.improvable', 'Respuesta mejorable') + '" title="' + T('fb.improvable', 'Respuesta mejorable') + '">' + DOWN + '</button><span class="sufb-ok" aria-live="polite"></span>';
     var bUp = bar.querySelector('.up'), bDown = bar.querySelector('.down'), ok = bar.querySelector('.sufb-ok'), state = null, form = null;
     // Dentro de burbujas que se cierran al tocarlas (p. ej. el bocadillo de los ojos) los toques no deben cerrarlas.
     bar.addEventListener('click', function (e) { e.stopPropagation(); });
@@ -92,17 +93,17 @@
     function save(rating, extra) {
       var prev = state; state = rating; paint();
       return api('/api/agent/feedback/rate', Object.assign({}, base, { rating: rating }, extra || {}))
-        .then(function () { ok.textContent = rating ? 'Gracias' : ''; setTimeout(function () { ok.textContent = ''; }, 2000); })
-        .catch(function () { state = prev; paint(); ok.textContent = 'No se pudo guardar'; });
+        .then(function () { ok.textContent = rating ? T('fb.thanks', 'Gracias') : ''; setTimeout(function () { ok.textContent = ''; }, 2000); })
+        .catch(function () { state = prev; paint(); ok.textContent = T('fb.saveErr', 'No se pudo guardar'); });
     }
     function closeForm() { if (form && form.parentNode) form.parentNode.removeChild(form); form = null; }
     function openForm() {
       closeForm();
       form = document.createElement('div'); form.className = 'sufb-f';
-      form.innerHTML = '<p>¿Qué ha fallado? Nos ayuda a mejorar.</p><div class="sufb-chips" role="group" aria-label="Motivo">' +
-        REASONS.map(function (r) { return '<button type="button" class="sufb-chip" aria-pressed="false" data-r="' + r[0] + '">' + r[1] + '</button>'; }).join('') +
-        '</div><textarea maxlength="1000" aria-label="Comentario (opcional)" placeholder="Comentario (opcional)"></textarea>' +
-        '<div class="sufb-row"><button type="button" class="sufb-go">Enviar</button><button type="button" class="sufb-no">Cancelar</button></div>';
+      form.innerHTML = '<p>' + T('fb.what', '¿Qué ha fallado? Nos ayuda a mejorar.') + '</p><div class="sufb-chips" role="group" aria-label="' + T('fb.reason', 'Motivo') + '">' +
+        REASONS.map(function (r) { return '<button type="button" class="sufb-chip" aria-pressed="false" data-r="' + r[0] + '">' + T('fb.r.' + r[0], r[1]) + '</button>'; }).join('') +
+        '</div><textarea maxlength="1000" aria-label="' + T('fb.comment', 'Comentario (opcional)') + '" placeholder="' + T('fb.comment', 'Comentario (opcional)') + '"></textarea>' +
+        '<div class="sufb-row"><button type="button" class="sufb-go">' + T('fb.send', 'Enviar') + '</button><button type="button" class="sufb-no">' + T('fb.cancel', 'Cancelar') + '</button></div>';
       bar.appendChild(form);
       form.querySelector('.sufb-chips').addEventListener('click', function (e) {
         var c = e.target.closest('.sufb-chip'); if (c) c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
@@ -133,16 +134,16 @@
     injectCss();
     getMe().then(function (m) {
       var admin = m && (m.role === 'admin' || m.role === 'direccion');
-      var title = admin ? 'Enviar sugerencia a Brandooers' : 'Enviar sugerencia';
+      var title = admin ? T('fb.titleAdmin', 'Enviar sugerencia a Brandooers') : T('fb.title', 'Enviar sugerencia');
       var ov = document.createElement('div'); ov.className = 'sufb-ov';
       ov.innerHTML = '<div class="sufb-g" role="dialog" aria-modal="true" aria-labelledby="sufbT"><h2 id="sufbT">' + title + '</h2>' +
-        '<p class="sufb-sub">' + (admin ? 'Cuéntanos qué mejorarías de la plataforma para tu empresa. Lo lee el equipo de Brandooers.' : 'Una idea, un fallo o un contenido que echas en falta. Lo leemos todo.') + '</p>' +
-        '<label>Tipo</label><div class="sufb-chips" role="radiogroup" aria-label="Tipo">' +
-        TYPES.map(function (t, i) { return '<button type="button" class="sufb-chip" role="radio" aria-checked="' + (i === 0) + '" aria-pressed="' + (i === 0) + '" data-t="' + t[0] + '">' + t[1] + '</button>'; }).join('') +
-        '</div><label for="sufbTx">Tu mensaje</label><textarea id="sufbTx" maxlength="4000" placeholder="Escribe aquí…"></textarea>' +
-        '<p class="sufb-ctx">Se adjunta automáticamente la página, tu rol, tu empresa y el navegador. Nada más.</p>' +
-        '<div class="sufb-row"><button type="button" class="sufb-go" id="sufbGo">Enviar</button><button type="button" class="sufb-no" id="sufbX">Cerrar</button><span class="sufb-ok" id="sufbMsg" aria-live="polite"></span></div>' +
-        '<div class="sufb-mine" id="sufbMine" hidden><h3>Lo que ya has enviado</h3><div id="sufbList"></div></div></div>';
+        '<p class="sufb-sub">' + (admin ? T('fb.subAdmin', 'Cuéntanos qué mejorarías de la plataforma para tu empresa. Lo lee el equipo de Brandooers.') : T('fb.sub', 'Una idea, un fallo o un contenido que echas en falta. Lo leemos todo.')) + '</p>' +
+        '<label>' + T('fb.type', 'Tipo') + '</label><div class="sufb-chips" role="radiogroup" aria-label="' + T('fb.type', 'Tipo') + '">' +
+        TYPES.map(function (t, i) { return '<button type="button" class="sufb-chip" role="radio" aria-checked="' + (i === 0) + '" aria-pressed="' + (i === 0) + '" data-t="' + t[0] + '">' + T('fb.t.' + t[0], t[1]) + '</button>'; }).join('') +
+        '</div><label for="sufbTx">' + T('fb.yourMsg', 'Tu mensaje') + '</label><textarea id="sufbTx" maxlength="4000" placeholder="' + T('fb.ph', 'Escribe aquí…') + '"></textarea>' +
+        '<p class="sufb-ctx">' + T('fb.ctx', 'Se adjunta automáticamente la página, tu rol, tu empresa y el navegador. Nada más.') + '</p>' +
+        '<div class="sufb-row"><button type="button" class="sufb-go" id="sufbGo">' + T('fb.send', 'Enviar') + '</button><button type="button" class="sufb-no" id="sufbX">' + T('fb.close', 'Cerrar') + '</button><span class="sufb-ok" id="sufbMsg" aria-live="polite"></span></div>' +
+        '<div class="sufb-mine" id="sufbMine" hidden><h3>' + T('fb.mine', 'Lo que ya has enviado') + '</h3><div id="sufbList"></div></div></div>';
       document.body.appendChild(ov);
       var type = 'sugerencia', tx = ov.querySelector('#sufbTx');
       function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown', onKey); }
@@ -156,19 +157,19 @@
       });
       ov.querySelector('#sufbGo').onclick = function () {
         var t = tx.value.trim(), msg = ov.querySelector('#sufbMsg'), b = this;
-        if (t.length < 3) { msg.textContent = 'Escribe un poco más'; tx.focus(); return; }
+        if (t.length < 3) { msg.textContent = T('fb.more', 'Escribe un poco más'); tx.focus(); return; }
         b.disabled = true;
         api('/api/agent/feedback/general', { type: type, text: t, page: location.pathname + location.search })
-          .then(function () { close(); toast('Gracias. Lo hemos recibido y te avisaremos cuando se resuelva.'); })
-          .catch(function (e) { b.disabled = false; msg.textContent = e.message || 'No se pudo enviar'; });
+          .then(function () { close(); toast(T('fb.ok', 'Gracias. Lo hemos recibido y te avisaremos cuando se resuelva.')); })
+          .catch(function (e) { b.disabled = false; msg.textContent = e.message || T('fb.sendErr', 'No se pudo enviar'); });
       };
       tx.focus();
       api('/api/agent/feedback/mine').then(function (d) {
         var items = (d && d.items) || []; if (!items.length) return;
         ov.querySelector('#sufbMine').hidden = false;
         ov.querySelector('#sufbList').innerHTML = items.slice(0, 6).map(function (it) {
-          var what = it.kind === 'general' ? (it.comment || '') : 'Respuesta valorada' + (it.course ? ' · ' + it.course : '');
-          return '<div class="sufb-it"><span>' + esc(what) + '</span><span class="sufb-st">' + esc(STATUS[it.status] || it.status) + '</span></div>';
+          var what = it.kind === 'general' ? (it.comment || '') : T('fb.rated', 'Respuesta valorada') + (it.course ? ' · ' + it.course : '');
+          return '<div class="sufb-it"><span>' + esc(what) + '</span><span class="sufb-st">' + esc(T('fb.s.' + it.status, STATUS[it.status] || it.status)) + '</span></div>';
         }).join('');
       }).catch(function () { });
     });
@@ -179,8 +180,8 @@
     if (/login|reset|aceptar-invitacion/.test(location.pathname)) return;
     api('/api/agent/feedback/notices').then(function (d) {
       (d && d.notices || []).slice(0, 2).forEach(function (n, i) {
-        var what = n.kind === 'general' ? 'Tu sugerencia' : 'Tu valoración';
-        setTimeout(function () { toast('<b>' + what + ' se ha resuelto:</b> ' + esc(n.note || n.text), 9000); }, 1200 + i * 9500);
+        var what = n.kind === 'general' ? T('fb.yourSug', 'Tu sugerencia') : T('fb.yourRating', 'Tu valoración');
+        setTimeout(function () { toast('<b>' + what + ' ' + T('fb.resolved', 'se ha resuelto:') + '</b> ' + esc(n.note || n.text), 9000); }, 1200 + i * 9500);
       });
     }).catch(function () { });
   }

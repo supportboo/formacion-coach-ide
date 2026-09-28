@@ -1,5 +1,25 @@
 # Changelog · SkillUp platform
 
+## 1.5.0 — 2026-09-28
+
+### Idioma de la plataforma (fase 1)
+- **Cada persona elige su idioma**: español (por defecto), inglés, catalán, portugués o francés. Es el primer paso de la bienvenida (se propone el del navegador si está entre los soportados; si no, español) y se cambia cuando se quiera desde el menú («Idioma»). Se guarda en la cuenta (`user.lang`), `GET /api/org/me` lo devuelve (`lang`, `langChosen`) y `PUT /api/org/me/lang` lo cambia. Cada página pone `<html lang>` en consecuencia.
+- **La IA responde en ese idioma**, de forma central (envoltorio `llm` de `container.ts`, se resuelve por `userId` con caché de 60 s): tutores, asistente de los ojos, Explorar, roleplays y entrevistas previas, tests de bloque, examen final, corrección y comentarios de respuestas, saludo del coach y resúmenes de supervisión (en el idioma del supervisor, que es quien los pide). En español se mantiene el trato de tú en castellano de España (nunca «vos»); en los demás idiomas, registro informal natural (tutoiement en francés, «tu» y portugués europeo en portugués). El contenido que se comparte con toda la empresa (lecciones, cursos del panel, retos, moderación, buenas prácticas) se sigue generando en español.
+- **Voz y dictado**: la voz lee el texto en el idioma de la persona (ElevenLabs multilingual v2 / turbo v2.5 hablan inglés, portugués y francés; el catalán solo lo habla `eleven_v3`, que se usa para «ca»). La voz de Marc sigue con su panel de ElevenLabs. El dictado escucha en es-ES, en-GB, ca-ES, pt-PT o fr-FR.
+- **Interfaz traducida** (capa `/app/i18n.js`, `data-i18n` + `SUI18n.t()`): menú, asistente de los ojos, pulgares y formulario de sugerencias, pantalla de espera y minijuegos, dictado, aviso de transparencia y de supervisión en directo, «Tus datos», bienvenida, página de vídeos y panel de vídeos del curso. El resto de páginas sigue en español en esta fase.
+- **Cursos traducidos al vuelo**: quien usa otro idioma ve cada sección traducida («Traducido automáticamente · ver original»). El servidor solo traduce texto que está de verdad en el curso, exige que la traducción conserve exactamente las mismas etiquetas y atributos (si no, se muestra el original) y guarda cada sección una sola vez para toda la plataforma (`content_translation`, por curso + sección + idioma + hash). Modelo rápido; límite por persona y empresa y tope diario de IA de la empresa. Coste estimado: unos 0,07 $ por curso típico y idioma, 0,70 $ el más largo, ~1,2 $ por idioma todo el catálogo, una sola vez (coste real en `ai_usage`, `kind=translate`).
+
+### Vídeos por idioma y calidad
+- **Selector de idioma** en «Vídeos» y en el panel de vídeos del curso (por defecto, el de la persona) con el aviso «Solo vídeos en español», «Only videos in English», etc.
+- La búsqueda usa `relevanceLanguage` + `regionCode` del idioma y después **filtra** por el idioma declarado del vídeo (`defaultAudioLanguage`, luego `defaultLanguage`) o, si el canal no lo declara, por una heurística de palabras del título y la descripción.
+- **Nota de calidad 0-100** con datos medidos de la API (nada estimado): 40 «me gusta» por vista (satura al 4 %), 20 comentarios por vista (satura al 0,5 %), 25 alcance (log de vistas, satura en 1 M), 10 canal (log de suscriptores), 5 actualidad. Fuera Shorts (< 2 min; la búsqueda ya pide 4-20 min), pocas vistas y canales pequeños (umbrales más bajos en catalán). «Mejor valorados» se ordena por esa nota.
+- Caché de 12 h por tema + idioma. Cuota: 2 búsquedas × 102 unidades = 204 u por tema e idioma cada 12 h (la portada junta 7 temas: ~2.900 u/día por idioma en uso; el límite por defecto es 10.000 u/día). «Brandooers Favs» solo cuenta lo visto en ese idioma.
+
+### Técnico
+- Migración `0023_i18n_language` (idempotente): `user.lang`, `video_event.lang`, tabla `content_translation` con índice único.
+- `POST /api/learning/translate` (Zod, cuenta aprobada, curso del catálogo, 20/min por persona y 60/min por empresa en fallos de caché). `GET /api/learning/videos(?topic)&lang=`, `GET /api/learning/videos/home?lang=` (ahora también con límite de peticiones).
+- Tests: `tests/i18n.test.ts` (resolución del idioma, regla del prompt, modelo de voz, mapa del dictado, nota de calidad y filtros, validador de estructura, clave de caché).
+
 ## 1.4.0 — 2026-09-28
 
 ### Métricas e insights por rol (una entrada de menú, dos pestañas)

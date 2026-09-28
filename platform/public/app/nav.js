@@ -5,6 +5,7 @@
 (function () {
   if (window.__sunav) return; window.__sunav = true;
 
+  var LANGS = (window.SUI18n && SUI18n.LANGS) || { es: 'Español', en: 'English', ca: 'Català', pt: 'Português', fr: 'Français' };
   var ICON = {
     home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
     route: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 6h7a3 3 0 0 1 3 3v6M6 8v7a3 3 0 0 0 3 3h7"/>',
@@ -24,32 +25,33 @@
     live: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
     idea: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
     inbox: '<path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 3h6l1-3h5"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
     assign: '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M8 12l2.5 2.5L16 9"/>'
   };
   function svg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON[k] || ICON.home) + '</svg>'; }
 
-  // destino: [href, label, icon, grupo]  grupo: 'base' | 'manager' | 'super'
+  // destino: [href, etiqueta (es), 'clave i18n|icono', grupo]  grupo: 'base' | 'manager' | 'super'
   var LINKS = [
-    ['/app/dashboard.html', 'Mi panel', 'home', 'base'],
-    ['/app/inicio.html', 'Formaciones', 'route', 'base'],
-    ['/app/explorar.html', 'Explorar', 'compass', 'base'],
-    ['/app/videos.html', 'Vídeos', 'video', 'base'],
-    ['/app/roleplays.html', 'Roleplays', 'chat', 'base'],
-    ['/app/ranking.html', 'Ranking', 'trophy', 'base'],
-    ['/app/certificado.html', 'Certificados', 'award', 'base'],
-    ['/app/team-dna.html', 'Team DNA', 'dna', 'base'],
-    ['/app/ayuda.html', 'Ayuda', 'help', 'base'],
-    ['/app/privacidad.html', 'Tus datos', 'check', 'base'],
-    ['/app/asignar.html', 'Asignar pruebas', 'assign', 'manager'],
-    ['/app/validar.html', 'Validar casos', 'check', 'manager'],
-    ['/app/metricas.html', 'Métricas e insights', 'chart', 'live'],
-    ['/app/en-directo.html', 'En directo', 'live', 'live'],
-    ['/app/panel.html', 'Panel de empresa', 'building', 'manager'],
-    ['/app/palabras.html', 'Uso del chat', 'gear', 'fb'],
-    ['/app/piramides.html', 'Pirámides', 'pyramid', 'manager'],
-    ['/app/informe-roi.html', 'Informe de ROI', 'chart', 'manager'],
-    ['/app/feedback.html', 'Feedback', 'inbox', 'fb'],
-    ['/app/superadmin.html', 'Consola', 'gear', 'super']
+    ['/app/dashboard.html', 'Mi panel', 'nav.dashboard|home', 'base'],
+    ['/app/inicio.html', 'Formaciones', 'nav.courses|route', 'base'],
+    ['/app/explorar.html', 'Explorar', 'nav.explore|compass', 'base'],
+    ['/app/videos.html', 'Vídeos', 'nav.videos|video', 'base'],
+    ['/app/roleplays.html', 'Roleplays', 'nav.roleplays|chat', 'base'],
+    ['/app/ranking.html', 'Ranking', 'nav.ranking|trophy', 'base'],
+    ['/app/certificado.html', 'Certificados', 'nav.certs|award', 'base'],
+    ['/app/team-dna.html', 'Team DNA', 'nav.teamdna|dna', 'base'],
+    ['/app/ayuda.html', 'Ayuda', 'nav.help|help', 'base'],
+    ['/app/privacidad.html', 'Tus datos', 'nav.privacy|check', 'base'],
+    ['/app/asignar.html', 'Asignar pruebas', 'nav.assign|assign', 'manager'],
+    ['/app/validar.html', 'Validar casos', 'nav.validate|check', 'manager'],
+    ['/app/metricas.html', 'Métricas e insights', 'nav.metrics|chart', 'live'],
+    ['/app/en-directo.html', 'En directo', 'nav.live|live', 'live'],
+    ['/app/panel.html', 'Panel de empresa', 'nav.company|building', 'manager'],
+    ['/app/palabras.html', 'Uso del chat', 'nav.chatuse|gear', 'fb'],
+    ['/app/piramides.html', 'Pirámides', 'nav.pyramids|pyramid', 'manager'],
+    ['/app/informe-roi.html', 'Informe de ROI', 'nav.roi|chart', 'manager'],
+    ['/app/feedback.html', 'Feedback', 'nav.feedback|inbox', 'fb'],
+    ['/app/superadmin.html', 'Consola', 'nav.console|gear', 'super']
   ];
 
   var css = '' +
@@ -74,6 +76,7 @@
     '.sunav-bub svg{width:18px;height:18px}' +
     '.sunav-sep{height:1px;background:var(--line,rgba(120,90,120,.14));margin:8px 10px}' +
     '.sunav-item{min-height:48px}' +
+    '.sunav-lang{cursor:pointer}.sunav-lang select{margin-left:auto;min-height:36px;max-width:118px;border-radius:10px;border:1px solid var(--line,rgba(120,90,120,.25));background:var(--soft,rgba(120,90,120,.08));color:var(--ink,#2a2230);font-family:inherit;font-size:13.5px;font-weight:600;padding:4px 8px}' +
     // Los botones flotantes de «Manos libres» suben por encima de la barra inferior propia de la página.
     '#gBtn{bottom:calc(var(--su-bbar,0px) + 16px + env(safe-area-inset-bottom,0px))!important}' +
     '#gHelpBtn{bottom:calc(var(--su-bbar,0px) + 62px + env(safe-area-inset-bottom,0px))!important}' +
@@ -93,20 +96,24 @@
 
   function build() {
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
-    var fab = document.createElement('button'); fab.className = 'sunav-fab'; fab.setAttribute('aria-label', 'Abrir menú');
+    var fab = document.createElement('button'); fab.className = 'sunav-fab'; fab.setAttribute('aria-label', 'Abrir menú'); fab.setAttribute('data-i18n-attr', 'aria-label:nav.open');
     fab.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
     var ov = document.createElement('div'); ov.className = 'sunav-ov';
-    var panel = document.createElement('nav'); panel.className = 'sunav-panel'; panel.setAttribute('aria-label', 'Navegación');
+    var panel = document.createElement('nav'); panel.className = 'sunav-panel'; panel.setAttribute('aria-label', 'Navegación'); panel.setAttribute('data-i18n-attr', 'aria-label:nav.nav');
     var here = location.pathname;
     var rows = LINKS.map(function (l) {
       var active = here.indexOf(l[0]) !== -1 ? ' active' : '';
-      return '<a class="sunav-item' + active + '" data-grp="' + l[3] + '" href="' + l[0] + '"><span class="sunav-bub">' + svg(l[2]) + '</span>' + l[1] + '</a>';
+      var ki = l[2].split('|'); // 'nav.clave|icono'
+      return '<a class="sunav-item' + active + '" data-grp="' + l[3] + '" href="' + l[0] + '"><span class="sunav-bub">' + svg(ki[1]) + '</span><span data-i18n="' + ki[0] + '">' + l[1] + '</span></a>';
     }).join('');
-    panel.innerHTML = '<div class="sunav-head"><b>SkillUp</b><button class="sunav-x" aria-label="Cerrar">&times;</button></div>' +
+    panel.innerHTML = '<div class="sunav-head"><b>SkillUp</b><button class="sunav-x" aria-label="Cerrar" data-i18n-attr="aria-label:nav.close">&times;</button></div>' +
       rows + '<div class="sunav-sep"></div>' +
       // Ajustes: cualquier rol puede enviar una sugerencia (feedback.js); el admin la dirige a Brandooers.
-      '<a class="sunav-item" href="#" id="sunav-fb"><span class="sunav-bub">' + svg('idea') + '</span><span id="sunav-fbl">Enviar sugerencia</span></a>' +
-      '<a class="sunav-item" href="#" id="sunav-out"><span class="sunav-bub">' + svg('exit') + '</span>Salir</a>';
+      // Idioma de toda la plataforma (1.5.0): se guarda en la cuenta y se aplica al momento (i18n.js).
+      '<label class="sunav-item sunav-lang" for="sunav-lsel"><span class="sunav-bub">' + svg('globe') + '</span><span data-i18n="nav.lang">Idioma</span>' +
+      '<select id="sunav-lsel" data-i18n-attr="aria-label:nav.lang" aria-label="Idioma">' + Object.keys(LANGS).map(function (k) { return '<option value="' + k + '" lang="' + k + '">' + LANGS[k] + '</option>'; }).join('') + '</select></label>' +
+      '<a class="sunav-item" href="#" id="sunav-fb"><span class="sunav-bub">' + svg('idea') + '</span><span id="sunav-fbl" data-i18n="nav.suggest">Enviar sugerencia</span></a>' +
+      '<a class="sunav-item" href="#" id="sunav-out"><span class="sunav-bub">' + svg('exit') + '</span><span data-i18n="nav.exit">Salir</span></a>';
     document.body.appendChild(ov); document.body.appendChild(panel); document.body.appendChild(fab);
 
     // Alto de la barra inferior de la propia página (.tabbar y, en la lección, el pie .dfoot encima).
@@ -125,7 +132,17 @@
     fab.onclick = open; ov.onclick = close;
     panel.querySelector('.sunav-x').onclick = close;
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-    panel.querySelectorAll('.sunav-item').forEach(function (a) { if (a.id !== 'sunav-out' && a.id !== 'sunav-fb') a.addEventListener('click', close); });
+    panel.querySelectorAll('a.sunav-item').forEach(function (a) { if (a.id !== 'sunav-out' && a.id !== 'sunav-fb') a.addEventListener('click', close); });
+    var lsel = panel.querySelector('#sunav-lsel');
+    if (window.SUI18n) {
+      lsel.value = SUI18n.lang;
+      SUI18n.onChange(function (l) { lsel.value = l; });
+      lsel.onchange = function () {
+        var prev = SUI18n.lang, want = lsel.value; lsel.disabled = true;
+        SUI18n.set(want).catch(function () { lsel.value = prev; alert(SUI18n.t('nav.langErr', 'No se ha podido guardar el idioma')); })
+          .then(function () { lsel.disabled = false; });
+      };
+    } else { lsel.parentNode.style.display = 'none'; }
     // Chats siempre con el último mensaje a la vista (chat-stick.js).
     if (!window.__chatStick) { var cs = document.createElement('script'); cs.src = '/app/chat-stick.js'; document.head.appendChild(cs); }
     if (!window.SUFeedback && !document.querySelector('script[src^="/app/feedback.js"]')) {
@@ -141,12 +158,13 @@
 
     // Rol: ocultar destinos que no correspondan.
     var show = { base: true, manager: false, super: false, live: false, fb: false };
-    (window.SkillUp ? SkillUp.api('/api/org/me') : Promise.reject()).then(function (me) {
+    // Una sola petición a /api/org/me por página: i18n.js ya la hace (SUI18n.ready).
+    (window.SUI18n ? SUI18n.ready.then(function (m) { if (!m) throw new Error('sin sesión'); return m; }) : window.SkillUp ? SkillUp.api('/api/org/me') : Promise.reject()).then(function (me) {
       if (me && ['team_leader', 'direccion', 'admin', 'inspirador'].indexOf(me.role) !== -1) show.manager = true;
       if (me && me.platformAdmin) { show.manager = true; show.super = true; }
       // Bandeja de feedback: superadmin (todas las empresas) y admin/dirección (la suya, solo lectura).
       if (me && (me.platformAdmin || me.role === 'admin' || me.role === 'direccion')) show.fb = true;
-      if (me && (me.role === 'admin' || me.role === 'direccion')) { var fl = panel.querySelector('#sunav-fbl'); if (fl) fl.textContent = 'Enviar sugerencia a Brandooers'; }
+      if (me && (me.role === 'admin' || me.role === 'direccion')) { var fl = panel.querySelector('#sunav-fbl'); if (fl) { fl.setAttribute('data-i18n', 'nav.suggestB'); fl.__i18nEs = 'Enviar sugerencia a Brandooers'; fl.textContent = window.SUI18n ? SUI18n.t('nav.suggestB', fl.__i18nEs) : fl.__i18nEs; } }
       // Supervisión en directo: por capacidad real (coach, team leader, admin, dirección; inspirador solo métricas).
       var cp = (me && me.capabilities) || {};
       if (cp['activity.read'] || cp['activity.metrics']) show.live = true;

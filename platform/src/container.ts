@@ -7,6 +7,7 @@ import { newId } from "./util/id.js";
 import { makeUsageRecorder, orgCost } from "./services/costs.js";
 import { env } from "./config/env.js";
 import { auditLog } from "./db/schema.js";
+import { DEFAULT_LANG, getUserLang, langSuffix, normalizeLang } from "./services/lang.js";
 import { applyTerms, extractLearned, glossaryPrompt, learnTerm, LEARN_INSTRUCTION, LEARNING_KINDS, orgTerms } from "./services/glossary.js";
 
 // Singletons de la app.
@@ -21,7 +22,9 @@ const CRITERIO = "\n\nCRITERIO: si el usuario afirma algo que parece falso, exag
 // Verdad sobre los datos (Marc, 28-09-2026): un tutor contestó «solo las uso en esta sesión, no se guardan», y es
 // FALSO (el chat, lo que cuenta la persona y su actividad se guardan en la cuenta de su empresa; ver PRIVACY.md).
 // Cualquier agente conversacional responde lo que de verdad pasa y remite a «Tus datos». Además: siempre de tú.
-const DATOS = "\n\nDATOS Y PRIVACIDAD (responde siempre con la verdad, en positivo y sin minimizar): si te preguntan qué se hace con sus conversaciones o sus datos, transmite que compartir le ayuda a él y a su equipo, y explica con sencillez que sus conversaciones con los tutores y lo que cuenta (entrevistas, notas, respuestas de tests y roleplays) se guardan en la plataforma, en la cuenta de su empresa, y se usan para personalizar su formación y para las métricas de aprendizaje; que sus compañeros no ven sus conversaciones; que sus responsables (coach, team leader, admin) pueden ver su progreso y leer sus conversaciones con los tutores, y que siempre verá un aviso con el nombre de quien siga su sesión; que las correcciones de términos que hace se aprenden para toda su empresa; que la actividad de uso se guarda 90 días y que el uso del chat se controla (tope diario y palabras prohibidas) para evitar abusos y gasto innecesario de su empresa; que los textos se procesan con proveedores de IA para generar las respuestas; y que puede ver y descargar sus datos en «Tus datos» del menú, y pedir el borrado a su empresa. Nunca digas que no se guarda nada, que solo dura la sesión ni que «queda entre tú y yo». Si no sabes un detalle, dilo y remite a «Tus datos» o a su empresa.\n\nTRATO: habla siempre de tú y en castellano de España; nunca uses «vos» ni formas voseantes. Escribe en texto plano, porque el chat no interpreta formato: sin markdown (ni asteriscos, ni almohadillas, ni guiones de lista) y sin emojis.";
+const DATOS = "\n\nDATOS Y PRIVACIDAD (responde siempre con la verdad, en positivo y sin minimizar): si te preguntan qué se hace con sus conversaciones o sus datos, transmite que compartir le ayuda a él y a su equipo, y explica con sencillez que sus conversaciones con los tutores y lo que cuenta (entrevistas, notas, respuestas de tests y roleplays) se guardan en la plataforma, en la cuenta de su empresa, y se usan para personalizar su formación y para las métricas de aprendizaje; que sus compañeros no ven sus conversaciones; que sus responsables (coach, team leader, admin) pueden ver su progreso y leer sus conversaciones con los tutores, y que siempre verá un aviso con el nombre de quien siga su sesión; que las correcciones de términos que hace se aprenden para toda su empresa; que la actividad de uso se guarda 90 días y que el uso del chat se controla (tope diario y palabras prohibidas) para evitar abusos y gasto innecesario de su empresa; que los textos se procesan con proveedores de IA para generar las respuestas; y que puede ver y descargar sus datos en «Tus datos» del menú, y pedir el borrado a su empresa. Nunca digas que no se guarda nada, que solo dura la sesión ni que «queda entre tú y yo». Si no sabes un detalle, dilo y remite a «Tus datos» o a su empresa.";
+// El trato (tú, castellano de España) y el texto plano viven ahora en la regla de idioma (services/lang.ts): en
+// español siguen igual; en los demás idiomas, registro informal natural de ese idioma (1.5.0).
 
 // Tope de gasto de IA por empresa/día (red de seguridad anti-abuso, un solo punto para los 17 endpoints).
 // Se comprueba ANTES de generar; si la empresa ya superó su tope hoy, se bloquea con mensaje claro.
@@ -35,9 +38,14 @@ export const llm: Llm = {
     }
     // Glosario que aprende (services/glossary.ts): la terminología corregida por el equipo va en el prompt de
     // TODAS las llamadas, se corrige en la salida y, en conversación, el agente marca las correcciones nuevas.
-    const terms = await orgTerms(db, call.orgId).catch(() => []);
+    // La traducción de cursos se guarda para TODA la plataforma: sin el glosario de una empresa concreta.
+    const terms = call.kind === "translate" ? [] : await orgTerms(db, call.orgId).catch(() => []);
     const learning = !!(call.orgId && call.userId && LEARNING_KINDS.has(call.kind || ""));
-    const out = await rawLlm.generate({ ...call, system: call.system + glossaryPrompt(terms) + (learning ? LEARN_INSTRUCTION + CRITERIO + DATOS : "") });
+    // Idioma de la persona (1.5.0): toda llamada con userId responde en su idioma, salvo contenido compartido
+    // (SHARED_KINDS). Los resúmenes de supervisión llevan el userId del supervisor: salen en SU idioma.
+    const lang = normalizeLang(call.lang) ?? await getUserLang(db, call.userId).catch(() => DEFAULT_LANG);
+    const conversational = LEARNING_KINDS.has(call.kind || "");
+    const out = await rawLlm.generate({ ...call, system: call.system + glossaryPrompt(terms) + (learning ? LEARN_INSTRUCTION + CRITERIO + DATOS : "") + langSuffix(lang, call.kind, conversational) });
     const tagged = extractLearned(out);
     const learned = tagged.learned;
     // Fuera de tema (solo cuenta para el margen diario de desvíos, nunca lo útil): la marca se quita y se registra.

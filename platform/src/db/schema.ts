@@ -19,6 +19,8 @@ export const user = pgTable("user", {
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
+  // Idioma de la plataforma elegido por la persona (es|en|ca|pt|fr). Null = nunca eligió -> español.
+  lang: text("lang"),
 });
 
 export const session = pgTable("session", {
@@ -614,6 +616,7 @@ export const videoEvent = pgTable("video_event", {
   youtubeId: text("youtube_id").notNull(),
   title: text("title").notNull(),
   thumbnail: text("thumbnail").notNull(),
+  lang: text("lang"), // idioma de la selección donde se vio (1.5.0); null = anterior a 1.5.0 (todo era español)
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byYoutubeId: index("video_event_youtube_idx").on(t.youtubeId) }));
 
@@ -690,3 +693,15 @@ export const feedback = pgTable("feedback", {
   oneVote: uniqueIndex("feedback_vote_uq").on(t.organizationId, t.userId, t.targetKey),
   byOrgTime: index("feedback_org_time_idx").on(t.organizationId, t.createdAt),
 }));
+
+// Traducción automática de secciones de curso (1.5.0). Una fila por (curso, sección, idioma, hash del HTML de
+// origen): cada sección se traduce UNA vez para toda la plataforma y se invalida sola si cambia el original.
+export const contentTranslation = pgTable("content_translation", {
+  id: text("id").primaryKey(),
+  course: text("course").notNull(),
+  section: integer("section").notNull(),
+  lang: text("lang").notNull(),
+  srcHash: text("src_hash").notNull(),
+  html: text("html").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ oneRow: uniqueIndex("content_translation_uq").on(t.course, t.section, t.lang, t.srcHash) }));

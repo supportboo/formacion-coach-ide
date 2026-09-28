@@ -21,6 +21,11 @@
     return out;
   }
 
+  // Idioma del dictado = idioma de la plataforma (i18n.js): es-ES, en-GB, ca-ES, pt-PT o fr-FR.
+  var SPEECH = { es: 'es-ES', en: 'en-GB', ca: 'ca-ES', pt: 'pt-PT', fr: 'fr-FR' };
+  function speechLang(l) { l = l || (window.SUI18n ? window.SUI18n.lang : 'es'); return SPEECH[l] || 'es-ES'; }
+  function T(k, es) { return window.SUI18n ? window.SUI18n.t(k, es) : es; }
+
   function attach(btn, o) {
     if (!btn) return null;
     if (!SR) { btn.style.display = 'none'; return null; }
@@ -31,14 +36,14 @@
       btn.classList.toggle('rec', on);
       btn.classList.toggle('convo', convo);
       btn.setAttribute('aria-pressed', on || convo ? 'true' : 'false');
-      btn.title = on ? 'Te escucho · pulsa para terminar' : (convo ? 'Conversación activa · pulsa para terminar' : 'Hablar');
+      btn.title = on ? T('dict.listening', 'Te escucho · pulsa para terminar') : (convo ? T('dict.convo', 'Conversación activa · pulsa para terminar') : T('dict.talk', 'Hablar'));
     }
     function start() {
       if (rec) return;
       var base = (o.append && o.get) ? String(o.get() || '').trim() : '';
       var fin = '', heard = false; manual = false;
       try { rec = new SR(); } catch (e) { return; }
-      rec.lang = 'es-ES'; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
+      rec.lang = speechLang(); rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
       rec.onresult = function (ev) {
         var interim = '';
         for (var i = ev.resultIndex; i < ev.results.length; i++) { var r = ev.results[i]; if (r.isFinal) fin += r[0].transcript + ' '; else interim += r[0].transcript; }
@@ -77,5 +82,5 @@
 
   // aro turquesa = conversación activa entre turnos (el rojo de grabando lo pone cada página con .rec)
   try { var st = document.createElement('style'); st.textContent = '.convo:not(.rec){box-shadow:inset 0 0 0 2px #3FD8F0!important}'; document.head.appendChild(st); } catch (e) { }
-  window.SkillUpDictation = { attach: attach, supported: !!SR, fix: fix };
+  window.SkillUpDictation = { attach: attach, supported: !!SR, fix: fix, speechLang: speechLang, SPEECH: SPEECH };
 })();

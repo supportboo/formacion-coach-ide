@@ -162,6 +162,13 @@
       "when": 1790569873420,
       "tag": "0022_feedback",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1790572783751,
+      "tag": "0023_i18n_language",
+      "breakpoints": true
     }
   ]
 }

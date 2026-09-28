@@ -43,6 +43,8 @@ import * as teamdnaSvc from "./services/teamdna.js";
 import * as teamprofileSvc from "./services/teamprofile.js";
 import * as workforceSvc from "./services/workforce.js";
 import * as videosSvc from "./services/videos.js";
+import * as langSvc from "./services/lang.js";
+import * as translateSvc from "./services/translate.js";
 import * as followupSvc from "./services/followup.js";
 import * as moderationSvc from "./services/moderation.js";
 import * as curationSvc from "./services/curation.js";
@@ -125,6 +127,47 @@ app.get("/api/learning/course-src", async (c) => {
     return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
   } catch {
     return c.json({ error: "curso no encontrado" }, 404);
+  }
+});
+
+// Traducción automática de una sección de curso (1.5.0). POST (no GET) porque el cliente manda el HTML de la
+// sección tal como la pinta; el servidor comprueba que ese texto está de verdad en el curso antes de gastar IA.
+// Caché global por (curso, sección, idioma, hash): cada sección se traduce una vez para toda la plataforma.
+const courseTextCache = new Map<string, { text: string; at: number }>();
+async function courseSquashed(slug: string): Promise<string> {
+  const hit = courseTextCache.get(slug);
+  if (hit && Date.now() - hit.at < 10 * 60_000) return hit.text;
+  const text = translateSvc.squash(await readFile(resolve(COURSE_ROOT, slug + ".html"), "utf8"));
+  courseTextCache.set(slug, { text, at: Date.now() });
+  return text;
+}
+const translateBody = z.object({
+  src: z.string().min(1).max(120), section: z.number().int().min(0).max(1000),
+  lang: z.enum(langSvc.LANGS), html: z.string().min(1).max(translateSvc.MAX_SECTION_HTML),
+});
+app.post("/api/learning/translate", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !(await isApproved(ctx.orgId, ctx.userId))) return c.json({ error: "cuenta pendiente de aprobación", pending: true }, 403);
+  const parsed = translateBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const { lang, section, html } = parsed.data;
+  const slug = parsed.data.src.replace(/^\//, "").replace(/\.html$/, "").toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(slug) || !COURSE_SLUGS.has(slug)) return c.json({ error: "curso no encontrado" }, 404);
+  if (lang === "es") return c.json({ html: null, reason: "original" });
+  const hash = translateSvc.srcHash(html);
+  const hit = await translateSvc.cached(svcDeps, slug, section, lang, hash);
+  if (hit) return c.json({ html: hit, cached: true });
+  // Solo los fallos de caché gastan IA: límite por persona y por empresa (el tope diario de IA lo aplica llm).
+  if (rateLimited(`tr:${ctx.orgId}:${ctx.userId}`, 20, 60_000) || rateLimited(`tr:${ctx.orgId}`, 60, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  let text: string;
+  try { text = await courseSquashed(slug); } catch { return c.json({ error: "curso no encontrado" }, 404); }
+  if (!translateSvc.isFromCourse(html, text)) return c.json({ error: "la sección no coincide con el curso" }, 400);
+  try {
+    const out = await translateSvc.translateSection(svcDeps, llm, { orgId: ctx.orgId, course: slug, section, lang, html, model: env.MODEL_FAST });
+    return c.json(out ? { html: out, cached: false } : { html: null, reason: "estructura" });
+  } catch (e) {
+    return c.json({ html: null, reason: "ia", error: (e as Error).message }, 503);
   }
 });
 
@@ -289,19 +332,24 @@ app.get("/api/learning/videos", async (c) => {
   if (rateLimited(`videos:${ctx.orgId}:${ctx.userId}`, 15, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const topic = String(c.req.query("topic") || "").trim().slice(0, 120);
   if (!topic) return c.json({ error: "falta topic" }, 400);
-  return c.json(await videosSvc.forTopic(svcDeps, topic));
+  // Idioma de los vídeos: el que pida el selector o, por defecto, el de la persona (1.5.0).
+  const lang = langSvc.normalizeLang(c.req.query("lang")) ?? await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
+  return c.json(await videosSvc.forTopic(svcDeps, topic, lang));
 });
 
 app.get("/api/learning/videos/home", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // La portada busca en varios temas a la vez (cuota compartida): mismo límite por persona que la búsqueda por tema.
+  if (rateLimited(`videos:${ctx.orgId}:${ctx.userId}`, 15, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const lang = langSvc.normalizeLang(c.req.query("lang")) ?? await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
   const catalogTopics = AVAILABLE_COURSES.map((x) => x.name);
   const plan = await readRutaPlan(ctx.orgId, ctx.userId).catch(() => null);
   const paraTiTopics = (plan?.modulos || []).map((m) => m.titulo).filter(Boolean);
   const [global, paraTi, favs, fb] = await Promise.all([
-    videosSvc.aggregate(svcDeps, catalogTopics),
-    paraTiTopics.length ? videosSvc.aggregate(svcDeps, paraTiTopics) : null,
-    videosSvc.brandooersFavs(svcDeps),
+    videosSvc.aggregate(svcDeps, catalogTopics, 12, lang),
+    paraTiTopics.length ? videosSvc.aggregate(svcDeps, paraTiTopics, 12, lang) : null,
+    videosSvc.brandooersFavs(svcDeps, 12, lang),
     notesSvc.list(svcDeps, ctx.orgId, ctx.userId, "video_feedback").catch(() => [] as { body: string | null }[]),
   ]);
   // "No mostrar más": ocultamos los vídeos que el usuario marcó como hide (su valoración más reciente por vídeo).
@@ -314,6 +362,7 @@ app.get("/api/learning/videos/home", async (c) => {
     masValorados: flt(global.masValorados),
     paraTi: paraTi ? flt(paraTi.masVistos) : [],
     brandooersFavs: flt(favs),
+    lang,
   });
 });
 // Like / dislike / "no mostrar más" de un vídeo (se guarda la valoración más reciente por vídeo).
@@ -339,7 +388,7 @@ app.get("/api/analytics/video-feedback", async (c) => {
   return c.json({ videos: [...per.values()].sort((a, b) => (b.like + b.dislike + b.hide) - (a.like + a.dislike + a.hide)) });
 });
 
-const watchBody = z.object({ youtubeId: z.string().min(3).max(32), title: z.string().max(300), thumbnail: z.string().max(500) });
+const watchBody = z.object({ youtubeId: z.string().min(3).max(32), title: z.string().max(300), thumbnail: z.string().max(500), lang: z.enum(langSvc.LANGS).optional() });
 app.post("/api/learning/videos/watch", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
@@ -438,7 +487,7 @@ app.post("/api/agent/chat", async (c) => {
     const verdict = await llm.generate({
       system: "Clasificas un mensaje de un alumno a su tutor de formación profesional. Responde solo SI o NO. SI = trata de su trabajo, su empresa, sus clientes, su equipo, su formación, dudas del curso o su situación personal real cuando afecta a su trabajo. NO = bromas, probar al bot, temas ajenos o tonterías.",
       messages: [{ role: "user", content: visible.slice(0, 1500) }], model: env.MODEL_FAST, maxTokens: 3,
-      orgId: ctx.orgId, userId: ctx.userId, kind: "offtopic_check",
+      orgId: ctx.orgId, userId: ctx.userId, kind: "offtopic_check", lang: "es", // SI/NO siempre en español para interpretarlo bien
     }).catch(() => "SI");
     if (/^\s*no/i.test(verdict)) {
       await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.offtopic", meta: { prechecked: true } }).catch(() => {});
@@ -666,7 +715,7 @@ app.post("/api/voice/tts", async (c) => {
   if (rateLimited("tts:" + ctx.orgId + ":" + ctx.userId, 40, 60000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const parsed = ttsBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const audio = await voiceSvc.synthesize(parsed.data.text, parsed.data.voiceId);
+  const audio = await voiceSvc.synthesize(parsed.data.text, parsed.data.voiceId, await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG));
   if (!audio) return c.json({ error: "voz no disponible" }, 503);
   return new Response(audio, { headers: { "content-type": "audio/mpeg", "cache-control": "no-store" } });
 });
@@ -677,7 +726,7 @@ app.post("/api/voice/tts-timed", async (c) => {
   if (rateLimited("ttst:" + ctx.orgId + ":" + ctx.userId, 40, 60000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const parsed = ttsBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const timed = await voiceSvc.synthesizeWithTimestamps(parsed.data.text, parsed.data.voiceId);
+  const timed = await voiceSvc.synthesizeWithTimestamps(parsed.data.text, parsed.data.voiceId, await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG));
   if (!timed) return c.json({ error: "voz no disponible" }, 503);
   return c.json(timed);
 });
@@ -1620,7 +1669,19 @@ app.get("/api/org/me", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   const pa = isPlatformAdmin(ctx);
   const approved = pa || await isApproved(ctx.orgId, ctx.userId);
-  return c.json({ role: ctx.role, platformAdmin: pa, approved, capabilities: capabilitiesFor({ role: ctx.role, platformAdmin: pa }) });
+  const chosen = await langSvc.getUserLangChoice(db, ctx.userId).catch(() => null);
+  return c.json({ role: ctx.role, platformAdmin: pa, approved, capabilities: capabilitiesFor({ role: ctx.role, platformAdmin: pa }),
+    lang: chosen ?? langSvc.DEFAULT_LANG, langChosen: !!chosen, langs: langSvc.LANGS });
+});
+// Idioma de la plataforma (1.5.0): lo elige la persona en la bienvenida y lo cambia cuando quiera desde el menú.
+app.put("/api/org/me/lang", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`lang:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ lang: z.enum(langSvc.LANGS) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "idioma no válido" }, 400);
+  await langSvc.setUserLang(db, ctx.userId, parsed.data.lang);
+  return c.json({ lang: parsed.data.lang });
 });
 // Matriz de equipo (admin): comportamiento REAL agregado por miembro, nunca un test de personalidad.
 const WORKFORCE_ROLES = ["admin", "direccion", "team_leader", "inspirador"];
