@@ -49,9 +49,8 @@ describe("affiliation after the quality gate", () => {
   const res = (id: string, totalScore: number, affiliate: boolean) =>
     ({ kind: "book", id, scores: { calidad: 0, valor: 0, relevancia: 0, total: totalScore }, affiliate }) as unknown as Resource;
 
-  it("lifts an affiliate item only when quality is close", () => {
-    expect(rank([res("a", 75, false), res("b", 70, true)])[0]!.id).toBe("b");
-    expect(rank([res("a", 90, false), res("b", 70, true)])[0]!.id).toBe("a");
+  it("never lets a commission lift a resource above a better one", () => {
+    expect(rank([res("a", 75, false), res("b", 70, true)])[0]!.id).toBe("a");
   });
 
   it("builds Amazon links only when a tag is configured", () => {

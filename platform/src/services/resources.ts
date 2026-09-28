@@ -114,7 +114,7 @@ export function toolAffiliate(url: string): { url: string; program: string } | n
   let host = ""; try { host = new URL(url).hostname.replace(/^www\./, ""); } catch { return null; }
   return TOOL_AFFILIATES[host] ?? null;
 }
-/** Orden dentro de cada tipo: todo ya ha pasado el control de calidad; lo rentabilizable sube un poco. */
+/** Orden dentro de cada tipo: por utilidad para aprender (la comisión no suma: AFFILIATE_BOOST = 0). */
 export function rank(items: Resource[]): Resource[] {
   return [...items].sort((a, b) => (b.scores.total + (b.affiliate ? AFFILIATE_BOOST : 0)) - (a.scores.total + (a.affiliate ? AFFILIATE_BOOST : 0)));
 }

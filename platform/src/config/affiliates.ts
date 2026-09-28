@@ -6,8 +6,9 @@ export const TOOL_AFFILIATES: Record<string, { url: string; program: string }> =
   // "hubspot.com": { url: "https://…?ref=TU_CODIGO", program: "HubSpot Affiliate Program" },
 };
 
-/** Cuánto sube en el orden un recurso rentabilizable que ya ha pasado el control de calidad. */
-export const AFFILIATE_BOOST = 8;
+/** La comisión NO cambia el orden (revisión externa del 28-09 aceptada por Marc): el orden lo decide la utilidad para
+ * aprender. Se deja a 0 en vez de borrar para que quede explícito. */
+export const AFFILIATE_BOOST = 0;
 
 // Herramientas que compiten con el producto del cliente (hoy, el primer cliente es un fabricante de ERP: Odoo) y que por
 // tanto nunca se recomiendan. ponytail: lista global mientras haya un solo cliente; pasar a ajustes por empresa al llegar
