@@ -30,7 +30,7 @@ export interface ChatInput {
   source?: string;
 }
 
-export interface ChatResult { threadId: string; reply: string }
+export interface ChatResult { threadId: string; reply: string; /** id del mensaje de la IA, para valorarlo (feedback). */ messageId: string }
 
 /**
  * Un turno de conversación de un usuario con SU agente de rol.
@@ -88,16 +88,17 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
   });
 
   // 5) persistir + auditar
+  const messageId = deps.newId();
   await deps.db.insert(agentMessage).values([
     { id: deps.newId(), organizationId: input.orgId, threadId, sender: "user", content: input.message, display: input.display ?? null },
-    { id: deps.newId(), organizationId: input.orgId, threadId, sender: "agent", content: reply },
+    { id: messageId, organizationId: input.orgId, threadId, sender: "agent", content: reply },
   ]);
   await deps.db.insert(auditLog).values({
     id: deps.newId(), organizationId: input.orgId, userId: input.userId,
     action: "agent.chat", meta: { role: input.role, threadId, retrieved: hits.length },
   });
 
-  return { threadId, reply };
+  return { threadId, reply, messageId };
 }
 
 // 1.3.0: un responsable humano (coach, team leader, admin…) puede escribir en este mismo hilo.

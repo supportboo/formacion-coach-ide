@@ -22,6 +22,8 @@
     chat: '<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M17 9h3a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-4-3h-3"/>',
     award: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/>',
     live: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+    idea: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+    inbox: '<path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 3h6l1-3h5"/>',
     assign: '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M8 12l2.5 2.5L16 9"/>'
   };
   function svg(k) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICON[k] || ICON.home) + '</svg>'; }
@@ -43,6 +45,7 @@
     ['/app/panel.html', 'Panel de empresa', 'building', 'manager'],
     ['/app/piramides.html', 'Pirámides', 'pyramid', 'manager'],
     ['/app/informe-roi.html', 'Informe de ROI', 'chart', 'manager'],
+    ['/app/feedback.html', 'Feedback', 'inbox', 'fb'],
     ['/app/superadmin.html', 'Consola', 'gear', 'super']
   ];
 
@@ -98,6 +101,8 @@
     }).join('');
     panel.innerHTML = '<div class="sunav-head"><b>SkillUp</b><button class="sunav-x" aria-label="Cerrar">&times;</button></div>' +
       rows + '<div class="sunav-sep"></div>' +
+      // Ajustes: cualquier rol puede enviar una sugerencia (feedback.js); el admin la dirige a Brandooers.
+      '<a class="sunav-item" href="#" id="sunav-fb"><span class="sunav-bub">' + svg('idea') + '</span><span id="sunav-fbl">Enviar sugerencia</span></a>' +
       '<a class="sunav-item" href="#" id="sunav-out"><span class="sunav-bub">' + svg('exit') + '</span>Salir</a>';
     document.body.appendChild(ov); document.body.appendChild(panel); document.body.appendChild(fab);
 
@@ -117,7 +122,11 @@
     fab.onclick = open; ov.onclick = close;
     panel.querySelector('.sunav-x').onclick = close;
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-    panel.querySelectorAll('.sunav-item').forEach(function (a) { if (a.id !== 'sunav-out') a.addEventListener('click', close); });
+    panel.querySelectorAll('.sunav-item').forEach(function (a) { if (a.id !== 'sunav-out' && a.id !== 'sunav-fb') a.addEventListener('click', close); });
+    if (!window.SUFeedback && !document.querySelector('script[src^="/app/feedback.js"]')) {
+      var fs = document.createElement('script'); fs.src = '/app/feedback.js'; document.head.appendChild(fs);
+    }
+    panel.querySelector('#sunav-fb').onclick = function (e) { e.preventDefault(); close(); if (window.SUFeedback) SUFeedback.openGeneral(); };
     var out = panel.querySelector('#sunav-out');
     if (out) out.onclick = async function (e) {
       e.preventDefault();
@@ -126,10 +135,13 @@
     };
 
     // Rol: ocultar destinos que no correspondan.
-    var show = { base: true, manager: false, super: false, live: false };
+    var show = { base: true, manager: false, super: false, live: false, fb: false };
     (window.SkillUp ? SkillUp.api('/api/org/me') : Promise.reject()).then(function (me) {
       if (me && ['team_leader', 'direccion', 'admin', 'inspirador'].indexOf(me.role) !== -1) show.manager = true;
       if (me && me.platformAdmin) { show.manager = true; show.super = true; }
+      // Bandeja de feedback: superadmin (todas las empresas) y admin/dirección (la suya, solo lectura).
+      if (me && (me.platformAdmin || me.role === 'admin' || me.role === 'direccion')) show.fb = true;
+      if (me && (me.role === 'admin' || me.role === 'direccion')) { var fl = panel.querySelector('#sunav-fbl'); if (fl) fl.textContent = 'Enviar sugerencia a Brandooers'; }
       // Supervisión en directo: por capacidad real (coach, team leader, admin, dirección; inspirador solo métricas).
       var cp = (me && me.capabilities) || {};
       if (cp['activity.read'] || cp['activity.metrics']) show.live = true;

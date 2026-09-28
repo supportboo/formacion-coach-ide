@@ -364,6 +364,9 @@
       var msg = threadId ? t : (ORCH + ctx + perf + learn + '\n\n' + t); // primer mensaje: orquestador + contexto acumulado + perfil + aprendizaje
       var r = await SkillUp.api('/api/agent/chat', { method: 'POST', body: { message: msg, threadId: threadId || undefined } });
       threadId = r.threadId; thinking.textContent = r.reply || '—';
+      // Pulgares para valorar la respuesta (feedback.js, se carga con el menú).
+      lastFb = r.reply ? { messageId: r.messageId, answer: r.reply, prompt: t, page: 'ojos:' + ((location.pathname.split('/').pop() || '').replace(/\.html$/, '')), agent: 'Asistente' } : null;
+      if (lastFb && window.SUFeedback) SUFeedback.attach(thinking, lastFb);
       chat.scrollTop = chat.scrollHeight; // el último mensaje siempre visible, lo demás sube
       addActions(r.reply || ''); // botones de acceso al curso del tutor que menciona
       // item B: si hablé por voz, me contesta por voz; o si el altavoz está activado.
@@ -375,7 +378,7 @@
   // Mantener pulsados los ojos = hablar directamente, sin abrir el chat (como un walkie-talkie).
   // Mientras mantienes, escucha; al soltar, envía. La respuesta sale en voz y en un bocadillo junto a los ojos
   // (y queda guardada en el chat por si lo abres luego).
-  var sayEl = null, holdRec = null, holdText = '';
+  var sayEl = null, holdRec = null, holdText = '', lastFb = null;
   function hideSay() { if (sayEl) sayEl.classList.remove('show'); }
   function sayBubble(text, ms) {
     if (!sayEl) {
@@ -385,6 +388,7 @@
       sayEl.addEventListener('click', hideSay);
     }
     sayEl.querySelector('p').textContent = text;
+    var oldFb = sayEl.querySelector('.sufb'); if (oldFb) oldFb.parentNode.removeChild(oldFb);
     positionGuide(sayEl);
     requestAnimationFrame(function () { sayEl.classList.add('show'); });
     clearTimeout(sayEl._t); if (ms) sayEl._t = setTimeout(hideSay, ms);
@@ -411,7 +415,12 @@
       var t = holdText.trim(); holdText = '';
       if (!t) { sayBubble('No te he oído. Mantén pulsados los ojos mientras hablas.', 3500); return; }
       sayBubble('…'); input.value = t;
-      send(true).then(function (reply) { sayBubble(reply || 'Ahora mismo no puedo responder. Inténtalo en un momento.', reply ? Math.min(30000, 6000 + reply.length * 60) : 5000); });
+      send(true).then(function (reply) {
+        sayBubble(reply || 'Ahora mismo no puedo responder. Inténtalo en un momento.', reply ? Math.min(30000, 6000 + reply.length * 60) : 5000);
+        // Valorar también la respuesta del bocadillo; al tocar los pulgares no se cierra solo.
+        var bar = reply && lastFb && window.SUFeedback ? SUFeedback.attach(sayEl.querySelector('p'), lastFb) : null;
+        if (bar) bar.addEventListener('pointerdown', function () { clearTimeout(sayEl._t); });
+      });
     };
     try { holdRec.start(); } catch (e) { fab.classList.remove('boo-listen'); holdRec = null; }
   }

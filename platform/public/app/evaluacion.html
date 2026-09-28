@@ -14,6 +14,7 @@
 <main class="wrap" id="wrap"><div class="loader"><div class="spin"></div>Cargando…</div></main>
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
 <script src="/app/nav.js" defer></script>
 <script src="/app/dictation.js"></script>
 <script>
@@ -140,13 +141,15 @@ function result(r){
     html+='<section class="q"><div class="qn">Pregunta '+(i+1)+'<span class="pts" style="color:'+(it.earned===it.max?'var(--green)':(it.earned?'var(--gold)':'var(--red)'))+'">'+it.earned+' / '+it.max+'</span></div><p class="qt">'+E(it.q)+'</p>';
     if(it.type==='mc'){
       html+=it.options.map(function(o,oi){ var cls=oi===it.correct?' right':(oi===it.answer?' wrong':''); return '<div class="opt'+cls+'"><span>'+(oi===it.correct?'Correcta · ':(oi===it.answer?'Tu respuesta · ':''))+E(o)+'</span></div>'; }).join('');
-      if(it.feedback) html+='<div class="fb">'+E(it.feedback)+'</div>';
+      if(it.feedback) html+='<div class="fb" data-ai="'+i+'">'+E(it.feedback)+'</div>';
     } else {
-      html+='<div class="fb"><b>Tu respuesta:</b> '+E(it.answer||'(sin responder)')+'</div>'+(it.feedback?'<div class="fb"><b>Corrección:</b> '+E(it.feedback)+'</div>':'')+(it.ideal?'<div class="fb" style="border-left-color:var(--teal2)"><b>Respuesta modelo:</b> '+E(it.ideal)+'</div>':'');
+      html+='<div class="fb"><b>Tu respuesta:</b> '+E(it.answer||'(sin responder)')+'</div>'+(it.feedback?'<div class="fb" data-ai="'+i+'"><b>Corrección:</b> '+E(it.feedback)+'</div>':'')+(it.ideal?'<div class="fb" style="border-left-color:var(--teal2)"><b>Respuesta modelo:</b> '+E(it.ideal)+'</div>':'');
     }
     html+='</section>';
   });
   wrap.innerHTML=html; window.scrollTo(0,0);
+  // Valorar las explicaciones y correcciones que escribe la IA (feedback.js).
+  if(window.SUFeedback) wrap.querySelectorAll('[data-ai]').forEach(function(el){ var it=r.items[+el.getAttribute('data-ai')]; SUFeedback.attach(el,{ref:'assess:'+ATT.attemptId+':'+el.getAttribute('data-ai'),answer:it.feedback,prompt:it.q,page:'evaluacion',course:SLUG,block:FINAL?'Examen final':(ATT.block&&ATT.block.title)||'',agent:'Corrección'}); });
   if(r.points) toast('+'+r.points+' puntos');
   var again=document.getElementById('again'); if(again) again.onclick=start;
 }

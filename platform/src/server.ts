@@ -48,6 +48,7 @@ import * as curationSvc from "./services/curation.js";
 import * as gcal from "./services/gcal.js";
 import * as assessSvc from "./services/assessment.js";
 import { registerLiveRoutes } from "./http/live.js";
+import { registerFeedbackRoutes } from "./http/feedback.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
@@ -2625,3 +2626,4 @@ app.post("/api/billing/webhook", async (c) => {
 
 // Supervisión en directo (1.3.0): tablero, ficha, intervención humana y métricas de uso.
 registerLiveRoutes(app, COURSE_TITLES, async (slug) => (await courseBlocks(slug))?.length ?? null);
+registerFeedbackRoutes(app);

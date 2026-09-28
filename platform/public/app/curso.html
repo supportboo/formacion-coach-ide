@@ -260,6 +260,7 @@ body.cv-open .sunav-fab{opacity:0;pointer-events:none}
 
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
 <script src="/app/nav.js" defer></script>
 <script src="/app/dictation.js"></script>
 <script src="/app/assess.js"></script>
@@ -635,6 +636,7 @@ function wireExercises(){
       fb.innerHTML='<div class="fbrow"><span class="who">'+esc(PERSONA.name)+'</span>…</div>';
       var reply=(window.tutor&&window.tutor.evalAnswer)?await window.tutor.evalAnswer(q,a):'';
       fb.innerHTML='<div class="fbrow"><span class="who">'+esc(PERSONA.name)+'</span>'+esc(reply||'—')+'</div>';
+      if(reply&&window.SUFeedback)SUFeedback.attach(fb.querySelector('.fbrow'),{messageId:window.tutor.lastMessageId,answer:reply,prompt:a,page:'curso',course:SLUG,block:CARDS[i]?CARDS[i].title:'',agent:PERSONA.name});
       // Validación de adopción del bloque: intención real de aplicar (dato hacia ROI, nunca inventado)
       var adopt=document.createElement('div'); adopt.className='uex-adopt';
       adopt.innerHTML='<span class="uex-al">¿Te lo llevas?</span><button type="button" data-a="aplicar">Lo aplicaré esta semana</button><button type="button" data-a="repasar">Necesito repasarlo</button>';
@@ -786,6 +788,7 @@ function wireTutor(){
       var sys='[Eres '+PERSONA.name+', '+PERSONA.role+' sénior ('+PERSONA.field+'). Hablas cercano, humano y con emoción, con casos y ejemplos reales, sin humo.'+mir+' Escribe conversacional y con RITMO NATURAL: mezcla frases cortas y largas, con SU PUNTUACIÓN CORRECTA (comas, puntos, puntos suspensivos) porque de ahí sale la pausa real al leerlo en voz alta; sin puntuación no hay pausa y suena atropellado. Nunca monótono ni acelerado. Busca ser cercano y sorprender. HAZ PREGUNTAS para conocer su situación real: dónde aplicaría esto, qué le cuesta, qué le ha pasado, cómo se siente; adáptate a cómo escribe. El alumno está en el curso '+COURSE+', en la parte «'+(CARDS[idx]?CARDS[idx].title:'')+'».'+ctx+perf+mem+disc+' Si por su perfil aprende mejor en visual, sugiérele vídeos externos sobre el tema y dile que pulse el botón «Vídeos» de arriba (le abre una búsqueda real); NUNCA inventes enlaces, títulos exactos ni cifras de valoración. Adapta el formato a cómo aprende (ejemplos, práctica o teoría según su estilo). Nunca digas «excelente pregunta», «por supuesto», ni otras muletillas corporativas o serviles; habla como una persona competente, no como un asistente. Responde MUY breve y ágil, 2-4 frases máximo, sin enrollarte ni repetir, y termina casi siempre con una pregunta corta.] ';
       var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys+t,threadId:threadId||undefined,display:t,source:SLUG}});setThread(r.threadId);
       think.innerHTML='';var kw=document.createElement('span');kw.className='kwrap';kw.textContent=r.reply||'—';think.appendChild(kw);saveTurn('a',r.reply||'—');
+      if(r.reply&&window.SUFeedback)SUFeedback.attach(think,{messageId:r.messageId,answer:r.reply,prompt:t,page:'curso',course:SLUG,block:CARDS[idx]?CARDS[idx].title:'',agent:PERSONA.name});
       log.scrollTop=log.scrollHeight;if(r.reply&&(voiceOn||fromVoice))speak(r.reply,kw);}
     catch(e){think.textContent='Ahora mismo no puedo responder. Inténtalo en un momento.';log.scrollTop=log.scrollHeight;}}
   document.getElementById('snd').onclick=function(){send(false);};
@@ -794,7 +797,7 @@ function wireTutor(){
     prompt:function(text){open();var bb=bubbleSpoken('a',PERSONA.name+': ');bb.wrap.textContent=text;bb.el.classList.add('askpulse');input.focus();if(voiceOn)speak(text,bb.wrap);},
     evalAnswer:async function(exQ,ans){ var sys='[Eres '+PERSONA.name+', '+PERSONA.role+' sénior. El alumno responde a un ejercicio del curso '+COURSE+', parte «'+(CARDS[idx]?CARDS[idx].title:'')+'». Ejercicio: "'+exQ+'". Su respuesta: "'+ans+'". Dale feedback breve y humano: qué está bien, qué afinar, y una pregunta para llevarlo a su caso real. Sin markdown ni símbolos.] ';
       userMemory.push(ans); if(userMemory.length>12)userMemory.shift(); scanLearn(ans); userMsgs++; maybeSynth(); if(cpCtx&&CARDS[idx])cpCtx.innerHTML='Estás en: <b>'+esc(CARDS[idx].title)+'</b>'+(learnedCount()?' · te va conociendo '+learnedCount()+'/'+DISCOVERY.length:'');
-      try{ var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined,display:('Respuesta al ejercicio: '+ans).slice(0,4000),source:SLUG}}); setThread(r.threadId); if(r.reply&&voiceOn)speak(r.reply); return r.reply||''; }catch(e){ return 'Ahora mismo no puedo revisarlo, inténtalo en un momento.'; } }
+      try{ var r=await SkillUp.api('/api/agent/chat',{method:'POST',body:{message:sys,threadId:threadId||undefined,display:('Respuesta al ejercicio: '+ans).slice(0,4000),source:SLUG}}); setThread(r.threadId); window.tutor.lastMessageId=r.messageId; if(r.reply&&voiceOn)speak(r.reply); return r.reply||''; }catch(e){ return 'Ahora mismo no puedo revisarlo, inténtalo en un momento.'; } }
   };
   // acompañamiento: al cambiar de sección actualiza el contexto; si ya has hablado, el tutor lo comenta
   window._onSection=function(i){ if(!CARDS[i])return; if(cpCtx)cpCtx.innerHTML='Estás en: <b>'+esc(CARDS[i].title)+'</b>'+(learnedCount()?' · te va conociendo '+learnedCount()+'/'+DISCOVERY.length:'');

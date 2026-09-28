@@ -1,7 +1,7 @@
 import { and, eq, inArray, ne } from "drizzle-orm";
 import {
   agentMessage, agentThread, annotation, appliedCase, assessmentAttempt, auditLog, certificate, coaching,
-  enrollment, fundaeParticipation, levelByCompetency, member, onboardingProfile,
+  enrollment, feedback, fundaeParticipation, levelByCompetency, member, onboardingProfile,
   pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
@@ -56,6 +56,9 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId))),
     // 1.3.0: actividad en directo (páginas, secciones, tiempo activo, acciones, avisos recibidos). Máx. 90 días.
     activity: await exportActivity(deps, orgId, userId),
+    // 1.4.0: valoraciones de respuestas de la IA y sugerencias enviadas.
+    feedback: await deps.db.select().from(feedback)
+      .where(and(eq(feedback.organizationId, orgId), eq(feedback.userId, userId))),
   };
 }
 
@@ -87,6 +90,8 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   await deps.db.delete(teamDna).where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId)));
   await deps.db.delete(teamProfile).where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
   await eraseActivity(deps, orgId, userId);
+  // Ratings and suggestions carry free text and conversation snapshots.
+  await deps.db.delete(feedback).where(and(eq(feedback.organizationId, orgId), eq(feedback.userId, userId)));
   await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
   // Exam answers are free text; the numeric result stays in testAttempt (ROI) and the certificate.
   await deps.db.delete(assessmentAttempt).where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId)));

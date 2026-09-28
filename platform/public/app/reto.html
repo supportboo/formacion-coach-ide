@@ -56,6 +56,7 @@ textarea{min-height:120px;resize:vertical}
 <div class="wrap" id="wrap"><div class="loader" id="loader">Cargando tu reto…</div></div>
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
 <script src="/app/nav.js" defer></script>
 <script src="/app/boo-eyes.js"></script>
 <script src="/app/dictation.js"></script>
@@ -100,9 +101,11 @@ function chatUI(area,opening){
     +'<div style="margin-top:12px;text-align:center"><button class="btn ghost" id="fin">Terminar y ver cómo lo hice</button></div></div>';
   var log=document.getElementById('log'),inp=document.getElementById('in');
   function bub(role,txt){var d=document.createElement('div');d.className='msgb '+role;d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
-  bub('a',opening||'…');
+  var op=bub('a',opening||'…'),turn=0;
+  function rate(el,txt,prompt){ if(txt&&window.SUFeedback)SUFeedback.attach(el,{ref:'roleplay:'+sid+':'+(turn++),answer:txt,prompt:prompt,page:'reto',course:topic,agent:'Roleplay'}); }
+  rate(op,opening,'');
   async function send(){var t=inp.value.trim();if(!t)return;inp.value='';bub('u',t);var th=bub('a','…');
-    try{var r=await SkillUp.api('/api/roleplay/'+sid+'/reply',{method:'POST',body:{message:t,topic:topic}});th.textContent=r.reply||'—';}
+    try{var r=await SkillUp.api('/api/roleplay/'+sid+'/reply',{method:'POST',body:{message:t,topic:topic}});th.textContent=r.reply||'—';rate(th,r.reply,t);}
     catch(e){th.textContent='(ahora no puedo seguir, inténtalo en un momento)';}}
   document.getElementById('send').onclick=send;
   inp.addEventListener('keydown',function(e){if(e.key==='Enter')send();});
@@ -121,6 +124,7 @@ function showSummary(area,s){
     +(a?'<h3 style="font-size:15px;color:var(--gold)">Para mejorar</h3><ul>'+a+'</ul>':'')
     +'<p style="color:var(--muted);font-size:13px">Esto es una ayuda; quien decide si aplica la competencia es una persona.</p>'
     +'<a class="btn" href="/app/inicio.html" style="display:inline-block;text-decoration:none">Volver al inicio</a></div>';
+  if(s.resumen&&window.SUFeedback) SUFeedback.attach(area.querySelector('.sumbox p'),{ref:'roleplay-sum:'+sid,answer:s.resumen,page:'reto',course:topic,agent:'Valoración de roleplay'});
   var resumen='Roleplay «'+topic+'». '+(s.resumen||'')+' Fortalezas: '+((s.fortalezas||[]).join('; '))+'. A mejorar: '+((s.areasDeMejora||[]).join('; '))+'.';
   SkillUp.api('/api/learning/challenges/'+id+'/complete',{method:'POST',body:{resultado:resumen}}).catch(function(){});
 }

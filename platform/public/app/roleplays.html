@@ -17,6 +17,7 @@
 </main>
 <script src="/app/api.js"></script>
 <script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
 <script src="/app/nav.js" defer></script>
 <script src="/app/dictation.js"></script>
 <script>
@@ -90,9 +91,10 @@ function chat(title,transcript){
     +'<div class="row" style="margin-top:12px;justify-content:center"><button class="btn ghost" id="fin">Terminar y ver cómo lo hice</button></div></div>';
   var log=document.getElementById('log'), inp=document.getElementById('in');
   function bub(role,t){ var d=document.createElement('div'); d.className='msgb '+(role==='user'?'u':'a'); d.textContent=t; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
-  transcript.forEach(function(m){ bub(m.role,m.content); });
+  var turn=0; function rate(el,txt,prompt){ if(txt&&window.SUFeedback)SUFeedback.attach(el,{ref:'roleplay:'+SID+':'+(turn++),answer:txt,prompt:prompt,page:'roleplays',course:TOPIC,agent:'Roleplay'}); }
+  transcript.forEach(function(m){ var el=bub(m.role,m.content); if(m.role==='assistant') rate(el,m.content,''); });
   async function send(){ var t=inp.value.trim(); if(!t) return; inp.value=''; bub('user',t); var th=bub('assistant','…');
-    try{ var r=await SkillUp.api('/api/roleplay/'+SID+'/reply',{method:'POST',body:{message:t,topic:TOPIC}}); th.textContent=r.reply||'…'; }catch(e){ th.textContent='(ahora no puedo seguir, inténtalo en un momento)'; } }
+    try{ var r=await SkillUp.api('/api/roleplay/'+SID+'/reply',{method:'POST',body:{message:t,topic:TOPIC}}); th.textContent=r.reply||'…'; rate(th,r.reply,t); }catch(e){ th.textContent='(ahora no puedo seguir, inténtalo en un momento)'; } }
   document.getElementById('send').onclick=send;
   inp.addEventListener('keydown',function(e){ if(e.key==='Enter') send(); });
   if(window.SkillUpDictation){ var d=SkillUpDictation.attach(document.getElementById('mic'),{conversation:true,get:function(){return inp.value;},set:function(v){inp.value=v;},done:function(){ Promise.resolve(send()).then(function(){ if(d) d.replyDone(); }); }}); }
@@ -110,6 +112,7 @@ function summary(s){
     +'<p class="muted" style="margin-top:10px">La valoración (0-10) es orientativa: quien valida si aplicas la competencia es una persona.</p>'
     +'<div class="row" style="margin-top:14px">'+back+'<button class="btn ghost" id="more">Otro roleplay</button></div></div>';
   if(s.points) toast('+'+s.points+' puntos');
+  if(s.resumen&&window.SUFeedback) SUFeedback.attach(stage.querySelector('.score'),{ref:'roleplay-sum:'+SID,answer:s.resumen,page:'roleplays',course:TOPIC,agent:'Valoración de roleplay'});
   document.getElementById('more').onclick=function(){ CHECKPOINT=false; picker(); };
   loadHist();
 }
