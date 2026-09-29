@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.21.0 — 2026-09-30
+
+### V2 fase 8: mapa de riesgo del conocimiento (para dirección)
+- En **Pirámides**, para dirección, admin e inspiradores: por cada competencia, cuántas personas la aplican solas (N2+) y cuántas son referentes (N3+), y su riesgo (sin cobertura, crítico, alto, medio, bajo; una competencia crítica sube un escalón). Ahora cubre todas las competencias, no solo las críticas.
+- **Qué hacer**, concreto: «Propón a Ana acompañar a David en dos prácticas» (quien la domina, preferiblemente referente y con menos acompañamientos activos, con quien la está aprendiendo).
+- **Personas clave**: quién es la única que aplica alguna competencia o es referente en varias.
+- **Quién multiplica el conocimiento**: por coach, cuántas personas acompañó, cuántas llegaron a aplicarlo solas, % de éxito y «sabe enseñar» (2+ logrados y ≥60 %).
+- **Cadenas de transferencia**: quién formó a quién (Ana → Carlos → Lucía).
+- Solo niveles acreditados y acompañamientos; nunca la ficha privada ni conversaciones. Los team leaders siguen viendo solo las pirámides (su alcance es su equipo). `GET /api/analytics/resilience`.
+
 ## 1.20.0 — 2026-09-30
 
 ### V2 fase 6a: repaso de 3 minutos con tus errores reales

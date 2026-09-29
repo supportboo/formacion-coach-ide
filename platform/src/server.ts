@@ -1,6 +1,7 @@
 ﻿import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import * as demoSvc from "./services/demonstrate.js";
 import * as reviewSvc from "./services/review.js";
+import * as resilienceSvc from "./services/resilience.js";
 import * as capabilitySvc from "./services/capability.js";
 import * as teamsSvc from "./services/teams.js";
 import * as actSvc from "./services/activity.js";
@@ -2856,6 +2857,13 @@ app.get("/api/analytics/metrics", async (c) => {
   return c.json(await analyticsSvc.orgMetrics(svcDeps, ctx.orgId));
 });
 
+// 1.21.0 (V2 fase 8): mapa de resiliencia del conocimiento. Solo niveles oficiales y acompañamientos, nunca datos privados.
+app.get("/api/analytics/resilience", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !["admin", "direccion", "inspirador"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(resilienceSvc.resilience(await resilienceSvc.load(svcDeps, ctx.orgId)));
+});
 // Pirámides de conocimiento por competencia (quién en cada nivel) + alerta de dependencia.
 app.get("/api/analytics/pyramids", async (c) => {
   const ctx = await getAuthContext(c);
