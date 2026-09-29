@@ -1,4 +1,5 @@
 ﻿import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import * as capabilitySvc from "./services/capability.js";
 import * as teamsSvc from "./services/teams.js";
 import * as actSvc from "./services/activity.js";
 import { readFile } from "node:fs/promises";
@@ -14,7 +15,7 @@ import { chat, onboardingMarker } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt } from "./db/schema.js";
+import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt, courseCompetency } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import { orgTerms } from "./services/glossary.js";
 import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, OFFTOPIC_REPLY, orgBannedWords, quotaFor, setOrgBannedWords } from "./services/contentGuard.js";
@@ -1202,7 +1203,7 @@ app.post("/api/validation/cases/:id/decide", async (c) => {
     });
     let cascade: { coachesPaid: number } | null = null;
     let rewards: rewardsSvc.Granted[] = [];
-    if (parsed.data.decision === "aprobado" && result.level === 2) {
+    if (parsed.data.decision === "aprobado" && result.reachedN2) {
       const [caseRow] = await db.select().from(appliedCase).where(eq(appliedCase.id, caseId));
       if (caseRow) {
         cascade = await propagationSvc.onLearnerReachedN2(svcDeps, {
@@ -1469,6 +1470,41 @@ app.post("/api/learning/facts", async (c) => {
 
 // --- Itinerario a especialista: base → especialidad → especialista → coach que atrae a compañeros a su área. ---
 const SPECIALTIES = [...COURSE_SLUGS].filter((s) => !pathSvc.COACH_COURSES.has(s));
+// 1.18.0 (arquitectura V2, fase 1): estado de capacidad de la propia persona, con sus evidencias y el siguiente paso.
+app.get("/api/learning/capability", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`cap:${ctx.orgId}:${ctx.userId}`, 30, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const raw = await capabilitySvc.loadRaw(svcDeps, ctx.orgId, ctx.userId, { titles: COURSE_TITLES, blockCount: async (s) => (await courseBlocks(s))?.length ?? null });
+  return c.json({ skills: capabilitySvc.statesOf(raw) });
+});
+// Curso ↔ competencia (admin y dirección): lo que se hace en el curso suma a esa competencia.
+app.get("/api/org/course-skills", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const [links, comps] = await Promise.all([
+    db.select({ source: courseCompetency.source, competencyId: courseCompetency.competencyId }).from(courseCompetency).where(eq(courseCompetency.organizationId, ctx.orgId)),
+    db.select({ id: competency.id, name: competency.name }).from(competency).where(eq(competency.organizationId, ctx.orgId)),
+  ]);
+  return c.json({ courses: [...COURSE_SLUGS].map((s) => ({ source: s, title: COURSE_TITLES[s] || s, competencyId: links.find((l) => l.source === s)?.competencyId ?? null })), competencies: comps });
+});
+app.put("/api/org/course-skills/:source", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const source = c.req.param("source");
+  if (!COURSE_SLUGS.has(source)) return c.json({ error: "curso desconocido" }, 404);
+  const parsed = z.object({ competencyId: z.string().min(1).max(64).nullable() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  await db.delete(courseCompetency).where(and(eq(courseCompetency.organizationId, ctx.orgId), eq(courseCompetency.source, source)));
+  if (parsed.data.competencyId) {
+    const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+    if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+    await db.insert(courseCompetency).values({ id: newId(), organizationId: ctx.orgId, source, competencyId: comp.id, createdBy: ctx.userId });
+  }
+  return c.json({ ok: true });
+});
 app.get("/api/learning/path", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);

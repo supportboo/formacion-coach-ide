@@ -167,7 +167,7 @@ export interface ValidateInput {
  * Validación humana del caso. Si se aprueba, el alumno sube a Nivel 2 (Aplica).
  * Un nivel 3+ (o admin/inspirador en bootstrap) valida. No autoservicio.
  */
-export async function validateCase(deps: SvcDeps, input: ValidateInput): Promise<{ status: string; level: number }> {
+export async function validateCase(deps: SvcDeps, input: ValidateInput): Promise<{ status: string; level: number; reachedN2: boolean }> {
   const [c] = await deps.db.select().from(appliedCase)
     .where(and(eq(appliedCase.id, input.caseId), eq(appliedCase.organizationId, input.orgId)));
   if (!c) throw new Error("caso no encontrado en esta organización");
@@ -178,6 +178,7 @@ export async function validateCase(deps: SvcDeps, input: ValidateInput): Promise
   }
 
   const status = input.decision === "aprobado" ? "aprobado" : "rechazado";
+  const before = await getLevel(deps, input.orgId, c.userId, c.competencyId);
   // Compare-and-swap: only the first decision on a delivered case wins (double click / two
   // validators at once must not pay points or issue certificates twice).
   const claimed = await deps.db.update(appliedCase).set({ status })
@@ -198,5 +199,6 @@ export async function validateCase(deps: SvcDeps, input: ValidateInput): Promise
   });
 
   const level = await getLevel(deps, input.orgId, c.userId, c.competencyId);
-  return { status, level };
+  // 1.18.0: solo la primera vez que llega a N2 (antes cada caso aprobado posterior repetía cascada y certificado).
+  return { status, level, reachedN2: before < 2 && level >= 2 };
 }

@@ -233,6 +233,12 @@ details[open] summary:before{content:"▾ "}
     </div>
   </div>
 
+  <div class="card" id="cardCourseSkills">
+    <h2>Cursos y competencias</h2>
+    <p class="msg" style="margin-top:0">Vincula cada curso a la competencia que desarrolla: sus tests, examen y roleplays sumarán a la capacidad de esa competencia en la ficha de cada persona. Sin vincular, el curso cuenta como una capacidad propia.</p>
+    <div id="csList" style="display:flex;flex-direction:column;gap:10px"></div><div id="csMsg" class="msg" aria-live="polite"></div>
+  </div>
+
   <div class="card" id="cardRubrics">
     <h2>Rúbricas de validación</h2>
     <p class="msg" style="margin-top:0">Los criterios con los que un referente valida un caso de esa competencia. Uno por línea.</p>
@@ -552,6 +558,19 @@ details[open] summary:before{content:"▾ "}
     document.getElementById('cpSave').addEventListener('click',async function(){ var body={ oferta:document.getElementById('cpOferta').value, publicos:document.getElementById('cpPublicos').value, terminologia:document.getElementById('cpTerm').value,
       herramientasAutorizadas:csv(document.getElementById('cpAut').value), herramientasExcluidas:csv(document.getElementById('cpExc').value), competenciasPrioritarias:csv(document.getElementById('cpComp').value), limites:document.getElementById('cpLim').value };
       try{ await SkillUp.api('/api/config/company/profile',{method:'PUT',body:body}); m.textContent='Guardada y validada. Los tutores la usan desde ahora.'; } catch(ex){ m.textContent=ex.message||'No se ha podido guardar.'; } });
+  })();
+
+  // 1.18.0: curso ↔ competencia
+  (function(){
+    var box=document.getElementById('csList'), m=document.getElementById('csMsg');
+    SkillUp.api('/api/org/course-skills').then(function(d){
+      if(!d.competencies.length){ m.textContent='Crea primero las competencias de tu empresa para poder vincularlas.'; return; }
+      var opts=function(sel){ return '<option value="">Sin vincular</option>'+d.competencies.map(function(c){ return '<option value="'+SkillUp.escHtml(c.id)+'"'+(c.id===sel?' selected':'')+'>'+SkillUp.escHtml(c.name)+'</option>'; }).join(''); };
+      box.innerHTML=d.courses.map(function(c,i){ return '<label class="msg" for="cs'+i+'" style="display:grid;gap:4px"><b style="color:var(--ink)">'+SkillUp.escHtml(c.title)+'</b><select class="inline-input" id="cs'+i+'" data-src="'+SkillUp.escHtml(c.source)+'">'+opts(c.competencyId)+'</select></label>'; }).join('');
+      box.querySelectorAll('select').forEach(function(sel){ sel.addEventListener('change',async function(){
+        try{ await SkillUp.api('/api/org/course-skills/'+encodeURIComponent(sel.dataset.src),{method:'PUT',body:{competencyId:sel.value||null}}); m.textContent='Guardado.'; }
+        catch(ex){ m.textContent=ex.message||'No se ha podido guardar.'; } }); });
+    }).catch(function(){ document.getElementById('cardCourseSkills').hidden=true; });
   })();
 
   // 1.16.0: equipos — admin y dirección asignan personas a cada responsable

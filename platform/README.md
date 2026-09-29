@@ -1,8 +1,8 @@
-# SkillUp · Brandooers — v1.17.0
+# SkillUp · Brandooers — v1.18.0
 
 Formación para equipos que mide lo que la persona **aplica en su trabajo**, no las horas que pasa delante de la pantalla. Cada empresa tiene su espacio, sus tutores de IA y un contenido que se adapta a la situación real de cada persona.
 
-En producción: https://skillup.brandooers.com · Última actualización: 2026-09-29 (1.17.0) · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
+En producción: https://skillup.brandooers.com · Última actualización: 2026-09-29 (1.18.0) · Hacia dónde va: [ARQUITECTURA-V2.md](./ARQUITECTURA-V2.md) · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
 
 ## Qué problema resuelve
 
@@ -20,6 +20,7 @@ Cada curso empieza por la situación que la persona quiere resolver en las próx
 Todo lo de esta lista está en producción. Entre paréntesis, la versión en que llegó.
 
 **Para quien aprende**
+- **Tu capacidad y tu siguiente mejor paso** (1.18.0): por cada competencia, conocimiento, aplicación, autonomía y transferencia calculados solo con sus evidencias, con confianza, vigencia y «¿Por qué creemos esto?»; en Inicio, una sola acción recomendada con su porqué.
 - **Bienvenida en un solo recorrido** (1.10.0, 1.14.0): empieza por su situación real y lo que ya ha probado, sigue con una micropráctica de un minuto que le deja un entregable útil y enlaza con el Team DNA; con 5 minutos ya hay un perfil que personaliza tutor, contenido y recursos.
 - **Team DNA** (1.1.0): perfil profesional en 10 bloques cortos (Big Five, Eneagrama como autoconocimiento, tipos de jugador y preferencias de aprendizaje con evidencia). Decide tono, ritmo y formato; nunca se usa para evaluar a nadie.
 - **Contenido vivo** (1.9.0): cada sección abre con un bloque «Para ti» (ejemplo y práctica) hecho con lo que la persona ya ha contado; lo que responde en un bloque se usa en el siguiente.
@@ -44,6 +45,7 @@ Todo lo de esta lista está en producción. Entre paréntesis, la versión en qu
 - **Informe de ROI**: Kirkpatrick niveles 1-4 medidos (con n e intervalo de confianza) y Phillips solo con costes completos y métricas de negocio que aporta la empresa; si faltan, «Sin datos suficientes».
 - **Cobertura de competencias**: pirámides de quién sostiene cada competencia, riesgo de dependencia, autonomía en días y perks configurables.
 - **Ficha de la empresa** (1.13.0): oferta, públicos, terminología, herramientas autorizadas y excluidas y límites. Se prepara un borrador desde la web y solo se usa cuando un responsable la valida.
+- **Cursos y competencias** (1.18.0): cada curso se vincula a la competencia que desarrolla para que lo que se hace en él sume a esa capacidad.
 - **Panel › Equipos** (1.16.0): admin y dirección asignan el equipo de cada coach o team leader.
 - **Expediente FUNDAE** (1.17.0): cada acción bonificable se revisa punto por punto (fechas, aviso a la representación de los trabajadores y a FUNDAE, tutores, 75 % de controles, cuestionario de calidad, diplomas, conservación 4 años) y se descarga el expediente.
 - **Planes y créditos** (1.6.0): suscripción por persona y monedero de créditos para crear contenido con IA. Ver «Precios».

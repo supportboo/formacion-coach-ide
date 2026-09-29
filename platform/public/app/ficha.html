@@ -20,6 +20,15 @@
 .fact input,.addf input,.addf select{width:100%;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;padding:8px 10px}
 .addf{display:grid;gap:10px;grid-template-columns:minmax(0,200px) minmax(0,1fr) auto;align-items:center}
 @media(max-width:620px){.addf{grid-template-columns:1fr}}
+.cap{display:grid;gap:12px}
+.cap .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cap .lv{font:700 12px Inter,system-ui,sans-serif;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.dim{display:grid;gap:4px}.dim .row1{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink)}
+.bar{height:9px;border-radius:999px;background:rgba(150,140,170,.18);overflow:hidden}.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#3FD8E0,#8a5f7c)}
+.dim small{color:var(--muted);font-size:12.5px}
+.chk{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px}.chk li{color:var(--muted)}.chk li.ok{color:var(--ink)}
+.next{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:6px}.next b{color:var(--ink)}
+.evl{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--muted);display:grid;gap:3px}
 details summary{cursor:pointer;color:var(--muted);font-weight:700;min-height:40px;display:flex;align-items:center}
 </style>
 </head>
@@ -28,6 +37,10 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;min-height:40p
 <main class="wrap" id="wrap">
 <h1 class="pt">Así estoy adaptando tu formación</h1>
 <p class="lead">Esto es lo que sé de ti y uso para prepararte ejemplos, prácticas y recursos. Solo lo ves tú: tu empresa ve las capacidades que acreditas, no esta ficha. Corrige lo que no sea exacto o deja de usar lo que no quieras que tenga en cuenta.</p>
+<h2 style="font-size:19px;margin:18px 0 8px">Tu capacidad</h2>
+<p class="muted" style="margin:0 0 10px">Lo que has demostrado en cada tema, calculado solo con tus evidencias (tests, prácticas, casos y a quién has ayudado). Cada dato dice de dónde sale.</p>
+<div id="caps" aria-live="polite"><div class="card"><p class="muted" style="margin:0">Cargando…</p></div></div>
+<h2 style="font-size:19px;margin:22px 0 8px">Lo que sé de ti</h2>
 <div id="list" aria-live="polite"><div class="card"><p class="muted" style="margin:0">Cargando…</p></div></div>
 <div class="card"><h2 style="margin:0 0 10px;font-size:17px">Añade algo que quieres que tenga en cuenta</h2>
   <form class="addf" id="addf"><select id="addLayer" aria-label="Tipo de dato"></select><input id="addText" maxlength="240" placeholder="Por ejemplo: esta semana preparo una reunión con un posible partner de Valencia" aria-label="Qué quieres que tenga en cuenta"><button class="btn" type="submit">AÑADIR</button></form>
@@ -41,6 +54,25 @@ details summary{cursor:pointer;color:var(--muted);font-weight:700;min-height:40p
 (function(){
 "use strict";
 try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+// 1.18.0: estado de capacidad (conocimiento, aplicación, autonomía, transferencia) con evidencias y siguiente paso.
+(function(){
+  function e(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  var DIM=[['conocimiento','Conocimiento'],['aplicacion','Aplicación'],['autonomia','Autonomía'],['transferencia','Transferencia']];
+  var LV=['Sin nivel','N1 · En formación','N2 · Aplica','N3 · Referente','N4 · Custodio'];
+  function days(iso){ var d=Math.floor((Date.now()-new Date(iso).getTime())/86400000); return d<=0?'hoy':d===1?'ayer':'hace '+d+' días'; }
+  function card(k){
+    var h='<div class="card cap"><div class="hd"><h3 style="margin:0;font-size:17px;color:var(--ink)">'+e(k.name)+'</h3><span class="lv">'+(k.level!=null?e(LV[k.level]||('N'+k.level)):'Sin acreditar')+'</span></div>';
+    h+=DIM.map(function(d){ var v=k.dims[d[0]]; return '<div class="dim"><div class="row1"><span>'+d[1]+'</span><b>'+v.value+' %</b></div><div class="bar" role="img" aria-label="'+d[1]+' '+v.value+' %"><i style="width:'+v.value+'%"></i></div><small>'+e(v.why)+'</small></div>'; }).join('');
+    h+='<ul class="chk">'+k.checklist.map(function(c){ return '<li class="'+(c.done?'ok':'')+'">'+(c.done?'✓ ':'○ ')+e(c.label)+'</li>'; }).join('')+'</ul>';
+    h+='<p class="muted" style="margin:0;font-size:13.5px">Confianza de la estimación: <b>'+e(k.confidence.label)+'</b> ('+e(k.confidence.why.join(', '))+')'+(k.lastEvidenceAt?' · Última evidencia: '+days(k.lastEvidenceAt):'')+'</p>';
+    if(k.next) h+='<div class="next"><span class="muted" style="font-size:12.5px">Tu siguiente mejor paso</span><b>'+e(k.next.title)+'</b><span class="muted" style="font-size:13.5px">Porque '+e(k.next.why.charAt(0).toLowerCase()+k.next.why.slice(1))+'</span>'+(k.next.href?'<a class="btn" style="justify-self:start" href="'+e(k.next.href)+'">HACERLO AHORA</a>':'')+'</div>';
+    if(k.evidence.length) h+='<details><summary>¿Por qué creemos esto? ('+k.evidence.length+' evidencias)</summary><ul class="evl">'+k.evidence.map(function(v){ return '<li>'+e(v.label)+' · '+days(v.at)+'</li>'; }).join('')+'</ul></details>';
+    return h+'</div>'; }
+  SkillUp.api('/api/learning/capability').then(function(d){
+    var el=document.getElementById('caps');
+    el.innerHTML=d.skills.length?d.skills.map(card).join(''):'<div class="card"><p style="margin:0">Aún no hay evidencias. Haz el test del primer bloque de un curso y aquí empezará a verse lo que dominas.</p></div>';
+  }).catch(function(){ document.getElementById('caps').innerHTML='<div class="card"><p style="margin:0">No se ha podido cargar tu capacidad. Recarga la página.</p></div>'; });
+})();
 var ST={declarado:['Lo dijiste','teal'],observado:['Lo vi en una práctica','teal'],inferido:['Deducido','warn'],confirmado:['Confirmado por ti','ok'],desactualizado:['Ya no vale','bad']};
 var SRC={bienvenida:'la bienvenida',tutor:'tu conversación con el tutor',practica:'una práctica',para_ti:'un bloque «Para ti»',test:'un test',validacion:'una validación',alumno:'ti'};
 var LAYERS=[], FACTS=[];

@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.18.0 — 2026-09-29
+
+### Arquitectura V2, fase 1: la capacidad de la persona es la unidad principal
+- **Tu capacidad** (Ficha): por cada competencia (o curso sin vincular), conocimiento, aplicación, autonomía y transferencia de 0 a 100, cada una con su porqué; lista de evidencias (test, examen, roleplay, caso real validado, aplicación repetida, haber acompañado a alguien); confianza de la estimación (baja/media/alta, con motivos); vigencia; y «¿Por qué creemos esto?» con cada evidencia y su fecha.
+- **Tu siguiente mejor paso** (Inicio): una sola acción con su porqué (refrescar, repetir el bloque más flojo, practicar, examen, caso real o acompañar a alguien).
+- Las evidencias se derivan de lo que ya existe (sin tabla nueva ni doble escritura): funciona con todo el histórico desde el primer día. Reglas fijas y explicables en `capability.ts`; el nivel oficial N0-N4 no cambia y se muestra al lado.
+- **Cursos ↔ competencias** (Panel): hasta ahora lo que alguien hacía en un curso nunca sumaba a una competencia. Admin y dirección vinculan cada curso; sin vínculo, el curso es una capacidad propia. Tabla `course_competency` (migración 0029), `GET /api/learning/capability`, `GET/PUT /api/org/course-skills`.
+- Arreglo: tras llegar a N2, cada caso aprobado posterior repetía la cascada de N2 (puntos al coach y certificado). Ahora solo la primera vez.
+- Plan completo de la V2 (modelo de datos, memoria en tres capas, permisos, rutas, 10 fases y migración sin romper producción) en `ARQUITECTURA-V2.md`.
+
 ## 1.17.0 — 2026-09-29
 
 ### Privacidad, gasto y cumplimiento (auditoría externa, P1)

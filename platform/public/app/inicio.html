@@ -471,6 +471,7 @@ function start(){
         +'<div class="excard" id="exCard" hidden><span class="fc">Así es el contenido de Brandooers</span><video id="exVideo" controls preload="none" playsinline></video><p class="excap">Ejemplo real: la intro de Outbound Sales, con el avatar del propio equipo.</p></div>'
         +'<div class="bizrow">'+bizPanel(ONB)+roadmap()+'</div>'
         +'<div id="usageBox" class="usagebox" hidden></div>'
+        +'<div id="nextHost"></div>'
         +'<div id="appliedHost"></div>'
         +'<div id="pathHost"></div>'
         +retosSection()
@@ -617,6 +618,20 @@ SkillUp.session().then(function(s){
   }
   function load(h){ SkillUp.api('/api/learning/path').then(function(d){ if(d&&d.stage) render(h,d); }).catch(function(){}); }
   (function wait(n){ var h=document.getElementById('pathHost'); if(h) load(h); else if(n<100) setTimeout(function(){wait(n+1);},300); })(0);
+})();
+</script>
+<script>
+// 1.18.0: una sola acción, la de mayor impacto, con su porqué (sale del estado de capacidad).
+(function(){
+  function e(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function render(h,d){
+    var k=(d.skills||[]).filter(function(x){return x.next;})[0]; if(!k){ h.innerHTML=''; return; }
+    h.innerHTML='<div class="sec-t">Tu siguiente mejor paso</div><div class="applied"><p style="margin:0"><b>'+e(k.next.title)+'</b> · '+e(k.name)+'</p>'
+      +'<p class="muted" style="margin:0">Porque '+e(k.next.why.charAt(0).toLowerCase()+k.next.why.slice(1))+'</p>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap">'+(k.next.href?'<a class="act" style="display:inline-flex;align-items:center;text-decoration:none" href="'+e(k.next.href)+'">HACERLO AHORA</a>':'')+'<a class="muted" style="align-self:center" href="/app/ficha.html">Ver tu capacidad</a></div></div>';
+  }
+  (function wait(n){ var h=document.getElementById('nextHost'); if(h) SkillUp.api('/api/learning/capability').then(function(d){ render(h,d||{}); }).catch(function(){});
+    else if(n<100) setTimeout(function(){wait(n+1);},300); })(0);
 })();
 </script>
 <script>

@@ -236,6 +236,17 @@ export const enrollment = pgTable("enrollment", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("enr_org_idx").on(t.organizationId) }));
 
+/* 1.18.0 — Curso ↔ competencia: lo que la persona hace en un curso (tests, examen, roleplays) suma a la
+ * capacidad de esa competencia. Sin vínculo, cada curso cuenta como una capacidad propia. */
+export const courseCompetency = pgTable("course_competency", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  source: text("source").notNull(), // slug del curso (outbound-sales, …)
+  competencyId: text("competency_id").notNull(),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ uniq: uniqueIndex("course_competency_org_source_uniq").on(t.organizationId, t.source) }));
+
 // Nivel por competencia (no global): 0 ninguno · 1 En formación · 2 Aplica · 3 Referente · 4 Custodio
 export const levelByCompetency = pgTable("level_by_competency", {
   id: text("id").primaryKey(),

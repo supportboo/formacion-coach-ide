@@ -204,6 +204,13 @@
       "when": 1790665528427,
       "tag": "0028_fundae_expediente",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1790711913719,
+      "tag": "0029_course_competency",
+      "breakpoints": true
     }
   ]
 }
