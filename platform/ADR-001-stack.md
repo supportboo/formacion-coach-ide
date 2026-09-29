@@ -1,6 +1,14 @@
 # ADR-001 — Stack de la app SkillUp (Fase 0)
 
-Fecha: 2026-09-01 · Estado: aceptado (pendiente de OK final de Marc)
+Fecha: 2026-09-01 · Estado: aceptado y vigente
+
+> **Actualización 2026-09-30:** la decisión de este ADR (Postgres+Drizzle, better-auth+organization,
+> RAG propio, Hono, frontend HTML sin reescribir) sigue en pie tal cual. Lo que ha cambiado es el
+> alcance: Fase 0 quedó cerrada hace tiempo — hoy en producción hay validación humana con rúbricas
+> versionadas, niveles por competencia, FUNDAE (acción+participación+export), auditoría, créditos,
+> Team DNA, ficha viva del alumno y el arranque del modelo de capacidad V2 (course↔competency,
+> next best step). Ver el CHANGELOG del README para el detalle por versión; este documento describe
+> la decisión de arquitectura de fondo, no el estado funcional (que cambia cada semana).
 
 ## Contexto
 El modelo (`MODELO-BRANDOOERS.md`) exige multi-tenant (empresas), roles, competencias, validaciones, niveles, puntos con antifraude, certificados, auditoría, presupuesto y export FUNDAE. La app actual guarda datos en ficheros JSON (`leads.jsonl`), que no aguantan integridad, concurrencia ni auditoría.
