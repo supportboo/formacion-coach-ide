@@ -56,6 +56,25 @@ input::placeholder{color:#6b6480}
     title.textContent = 'Te han invitado a SkillUp';
     sub.textContent = 'Crea tu cuenta con el mismo email al que te llegó la invitación.';
     document.getElementById('f').style.display = 'block';
+    // 1.23.0: unirse con la cuenta de Google de la empresa, sin crear otra contraseña. Vuelve a esta misma página.
+    SkillUp.api('/api/config/sso').then(function (d) {
+      if (!d || !d.google) return;
+      var g = document.createElement('button');
+      g.type = 'button'; g.className = 'btn btn-block';
+      g.style.cssText = 'background:#fff;color:#1f1f1f;border:1px solid #dadce0;font-weight:700;margin-bottom:12px';
+      g.textContent = 'Unirme con Google';
+      g.onclick = async function () {
+        g.disabled = true;
+        try {
+          var r = await SkillUp.api('/api/auth/sign-in/social', { method: 'POST', body: { provider: 'google', callbackURL: location.href, errorCallbackURL: location.href } });
+          if (r && r.url) window.location.href = r.url;
+        } catch (ex) { err.textContent = 'No se ha podido abrir Google.'; g.disabled = false; }
+      };
+      var f = document.getElementById('f'); f.parentNode.insertBefore(g, f);
+      var hint = document.createElement('p'); hint.className = 'sub'; hint.style.cssText = 'margin:0 0 12px;font-size:13px';
+      hint.textContent = 'Usa la cuenta de Google del mismo email al que te llegó la invitación. O crea tu cuenta con contraseña:';
+      f.parentNode.insertBefore(hint, f);
+    }).catch(function () {});
     document.getElementById('f').addEventListener('submit', async function (e) {
       e.preventDefault();
       err.textContent = '';

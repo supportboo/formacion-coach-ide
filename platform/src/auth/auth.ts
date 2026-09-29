@@ -5,6 +5,11 @@ import { db } from "../db/index.js";
 import { schema } from "../db/schema.js";
 import { env } from "../config/env.js";
 import { sendMail } from "../services/mailer.js";
+import { googleClient } from "../services/gcal.js";
+
+// 1.23.0: «Entrar con Google», sin contraseñas adicionales. La seguridad (2FA, políticas) la pone la cuenta de
+// Google de la empresa. Solo correo y perfil: los permisos de Calendar/Meet se piden aparte, cuando la persona los usa.
+const google = googleClient();
 
 // Last reset link per email (in-process), so the superadmin console can hand it over by hand
 // when mail is not delivered. ponytail: lost on restart, fine because links expire in 1h anyway.
@@ -50,6 +55,9 @@ export const auth = betterAuth({
   // X-Forwarded-For is passed through untouched, so a client could spoof it and dodge login limits
   // (and without it every user shared one bucket, letting anyone lock out sign-in for all).
   advanced: { ipAddress: { ipAddressHeaders: ["x-real-ip"] } },
+  ...(google ? { socialProviders: { google: { clientId: google.clientId, clientSecret: google.clientSecret, prompt: "select_account" as const } } } : {}),
+  // Si ya tenía cuenta con contraseña y el mismo correo, Google (que verifica el correo) la une a esa cuenta.
+  account: { accountLinking: { enabled: true, trustedProviders: ["google"] } },
   emailAndPassword: {
     enabled: true,
     // Recuperación de contraseña por enlace (válido 1 hora). El enlace apunta a nuestra propia

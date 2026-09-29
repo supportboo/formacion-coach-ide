@@ -1,5 +1,13 @@
 # Changelog · SkillUp platform
 
+## 1.23.0 — 2026-09-30
+
+### Entrar con Google (sin contraseñas adicionales)
+- **«Entrar con Google»** en la pantalla de entrada y **«Unirme con Google»** en la invitación: la persona elige la cuenta de Google de su empresa y entra; no crea ni recuerda otra contraseña. La seguridad (segundo factor, políticas de acceso) la pone su Google Workspace.
+- Si ya tenía cuenta con contraseña y el mismo correo, se une a esa cuenta (Google verifica el correo). Si es nueva y no viene de una invitación, solo le falta el nombre de su empresa.
+- Solo pide correo y perfil; los permisos de Calendar y Meet se piden aparte, cuando la persona los usa.
+- Mismo cliente OAuth que Calendar/Meet (fichero del servidor). `GET /api/config/sso`. El acceso con email y contraseña sigue igual.
+
 ## 1.22.0 — 2026-09-30
 
 ### Formaciones que impartes: análisis de sesiones reales (Google Meet o transcripción)

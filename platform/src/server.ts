@@ -1988,6 +1988,8 @@ app.post("/api/roleplay/checkpoint", async (c) => {
   } catch (e) { return c.json({ error: String((e as Error).message), points: interviewPts }, 502); }
 });
 
+// 1.23.0: la pantalla de entrada pregunta si «Entrar con Google» está disponible (público, sin datos).
+app.get("/api/config/sso", (c) => c.json({ google: gcal.isConfigured() }));
 app.get("/api/config/assessment", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
