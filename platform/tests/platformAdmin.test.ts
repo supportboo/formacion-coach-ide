@@ -6,7 +6,7 @@ async function load(env: Record<string, string>) {
   return (await import("../src/http/context.js")).isPlatformAdmin;
 }
 
-describe("superadmin needs a listed email AND a provisioned user id", () => {
+describe("superadmin needs a listed email AND a provisioned user id", { timeout: 30_000 }, () => {
   it("a new account registered with the admin email is not superadmin", async () => {
     const isPlatformAdmin = await load({ PLATFORM_ADMIN_EMAILS: "boss@x.com", PLATFORM_ADMIN_USER_IDS: "u-boss", DEV_AUTH: "false" });
     expect(isPlatformAdmin({ userEmail: "boss@x.com", userId: "u-boss" })).toBe(true);

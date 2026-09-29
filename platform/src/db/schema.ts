@@ -419,6 +419,12 @@ export const fundaeAction = pgTable("fundae_action", {
   relatedPuesto: text("related_puesto"),
   tutorId: text("tutor_id").notNull(),
   esCertProfesionalidad: boolean("es_cert_profesionalidad").notNull().default(false),
+  // 1.17.0: expediente — fechas que exige FUNDAE (null = aún no hecho).
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  rltInformedAt: timestamp("rlt_informed_at"),      // información a la representación legal (≥15 días antes)
+  fundaeNotifiedAt: timestamp("fundae_notified_at"), // comunicación de inicio (≥2 días naturales antes)
+  qualitySurveyAt: timestamp("quality_survey_at"),   // cuestionario de calidad pasado a los participantes
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("fundae_org_idx").on(t.organizationId) }));
 

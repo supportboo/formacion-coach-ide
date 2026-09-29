@@ -89,9 +89,11 @@ export async function createCheckoutSession(
   });
   if (!session.url) throw new Error("Stripe no devolvió url de checkout");
 
+  // 1.17.0 (auditoría): abrir el pago no cambia nada. Plan y asientos solo cambian cuando Stripe confirma la
+  // suscripción (webhook customer.subscription.*); aquí solo se crea la fila la primera vez.
   await deps.db.insert(subscription).values({
     organizationId: args.orgId, tier: args.tier, seats: args.seats, status: "sin_suscripcion",
-  }).onConflictDoUpdate({ target: subscription.organizationId, set: { tier: args.tier, seats: args.seats, updatedAt: new Date() } });
+  }).onConflictDoNothing({ target: subscription.organizationId });
 
   return { url: session.url };
 }
@@ -123,8 +125,13 @@ export async function applyStripeEvent(deps: SvcDeps, event: Stripe.Event): Prom
     if (!orgId) return;
     const status = STRIPE_TO_STATUS[sub.status] ?? sub.status;
     const periodEnd = sub.items.data[0]?.current_period_end;
+    const tier = (TIERS as readonly string[]).includes(sub.metadata?.tier ?? "") ? sub.metadata.tier as Tier : undefined;
+    const seats = sub.items.data[0]?.quantity;
+    const paid = status === "active" || status === "trialing";
     await deps.db.update(subscription).set({
       status,
+      ...(paid && tier ? { tier } : {}),
+      ...(paid && seats ? { seats } : {}),
       stripeSubscriptionId: sub.id,
       stripeCustomerId: typeof sub.customer === "string" ? sub.customer : sub.customer.id,
       currentPeriodEnd: periodEnd ? new Date(periodEnd * 1000) : null,

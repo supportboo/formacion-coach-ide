@@ -110,7 +110,7 @@ export async function chat(deps: ChatDeps, input: ChatInput): Promise<ChatResult
 }
 
 // 1.3.0: un responsable humano (coach, team leader, admin…) puede escribir en este mismo hilo.
-export const HUMAN_COACH_NOTE = "\n\nACOMPAÑAMIENTO HUMANO: en esta conversación también participa una persona real del equipo del alumno (coach, team leader o responsable). Sus mensajes llegan marcados como [Mensaje de <nombre>, <rol>]. No los contradigas ni los corrijas: apoya su indicación, continúa en su línea y, si el alumno le responde a esa persona, deja que sea ella quien conteste lo que le pregunta directamente. Nunca te hagas pasar por esa persona.";
+export const HUMAN_COACH_NOTE = "\n\nACOMPAÑAMIENTO HUMANO: en esta conversación también participa una persona real del equipo del alumno (coach, team leader o responsable). Sus mensajes llegan marcados como [Mensaje de <nombre>, <rol>]. Apoya su indicación y continúa en su línea; si el alumno le responde a esa persona, deja que sea ella quien conteste lo que le pregunta directamente. Excepción: si su indicación choca con el contenido del curso, la ficha de la empresa o un dato comprobable, no lo calles ni lo corrijas con autoridad: dilo con respeto («esto no encaja con lo que dice el curso sobre X; conviene confirmarlo con <nombre>»), cita de dónde sale lo tuyo y añade al final, en una línea aparte, [[DISCREPANCIA: resumen en una frase]] para que el responsable lo revise. Nunca te hagas pasar por esa persona.";
 
 type StoredMsg = { sender: string; content: string; authorName?: string | null; authorRole?: string | null };
 /** Historial guardado → turnos del modelo. Los mensajes humanos del responsable van como contexto marcado. */

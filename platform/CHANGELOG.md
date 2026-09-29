@@ -1,5 +1,16 @@
 # Changelog · SkillUp platform
 
+## 1.17.0 — 2026-09-29
+
+### Privacidad, gasto y cumplimiento (auditoría externa, P1)
+- **Conversaciones con el tutor privadas** (decisión de Marc): en «En directo» el responsable ve progreso, señales y discrepancias, pero no lo que la persona habla con el tutor; solo ve una conversación desde que él mismo escribe en ella con su nombre. Del resto, solo cuántas hay. El resumen con IA de la persona usa solo la parte compartida. Textos de privacidad actualizados en los 5 idiomas y en lo que responde el tutor.
+- **El tutor ya no calla al coach**: apoya su indicación, pero si choca con el curso, la ficha de la empresa o un dato comprobable, lo dice con respeto, recomienda confirmarlo y deja una discrepancia que el responsable ve en la ficha de la persona.
+- **Borrado y exportación completos**: «Descargar mis datos» incluye los mensajes del chat y las evidencias; el borrado quita también el enunciado personalizado de sus casos, sus evidencias y el feedback escrito sobre ellos.
+- **Voz con tope**: solo voces de la lista oficial y cada lectura cuenta en el tope diario de gasto de IA de la empresa (~0,20 $ por 1.000 caracteres).
+- **Pagos**: abrir el pago ya no cambia el plan ni los asientos; solo cambian cuando Stripe confirma la suscripción (activa o en prueba).
+- **Expediente FUNDAE completo** (Panel › FUNDAE): fechas de inicio y fin, información a la representación de los trabajadores (≥15 días antes), comunicación de inicio (≥2 días naturales), 1 tutor por cada 80, máximo 8 h/día, participantes que finalizan (≥75 % de controles), cuestionario de calidad, diplomas en ≤2 meses y conservación 4 años. Cada punto sale como Correcto, Pendiente o Falta; se descarga el expediente. `GET /api/fundae/actions`, `PATCH /api/fundae/actions/:id`; migración 0028.
+- **Reglamento de IA**: los tutores dicen que son una inteligencia artificial; el resumen con IA de una persona no puede valorar su rendimiento laboral ni sugerir decisiones de empleo. Postura y preguntas para el abogado en `REGLAMENTO-IA.md` (alto riesgo del anexo III: 2-dic-2027).
+
 ## 1.16.0 — 2026-09-28
 
 ### Seguridad (auditoría externa, P0)

@@ -338,10 +338,12 @@ function chatHtml(d){
   var tabs=th.length>1?'<div class="threads">'+th.map(function(t){return '<button class="fchip'+(t.threadId===THREAD?' on':'')+'" data-th="'+E(t.threadId)+'">'+E(t.source?title(t.source):'General')+'</button>';}).join('')+'</div>':'';
   var log=cur&&cur.messages.length?cur.messages.map(function(m){
     if(m.sender==='coach') return '<div class="m coach"><div class="who">'+E(m.authorName||'Responsable')+' <span class="bdg">'+E(m.authorRole||'')+'</span></div>'+E(m.text)+'<time>'+hhmm(m.at)+'</time></div>';
-    return '<div class="m '+(m.sender==='user'?'user':'agent')+'">'+E(m.text)+'<time>'+hhmm(m.at)+'</time></div>'; }).join(''):'<div class="empty">Todavía no ha hablado con el tutor.</div>';
+    return '<div class="m '+(m.sender==='user'?'user':'agent')+'">'+E(m.text)+'<time>'+hhmm(m.at)+'</time></div>'; }).join(''):'<div class="empty">'+(d.privateThreads?'Sus conversaciones con el tutor son privadas. Cuando le escribas, verás la conversación desde tu mensaje.':'Todavía no ha hablado con el tutor.')+'</div>';
+  var priv=d.privateThreads?'<div class="def">'+d.privateThreads+' conversaci'+(d.privateThreads===1?'ón privada':'ones privadas')+' con el tutor: no se muestran.</div>':'';
+  var disc=(d.discrepancies||[]).length?'<div class="def" style="margin-bottom:8px"><b>El tutor vio discrepancias con el curso:</b><ul style="margin:4px 0 0;padding-left:18px">'+d.discrepancies.map(function(x){return '<li>'+E(x.note)+' <span class="def" style="display:inline">· '+E(ago(x.at))+'</span></li>';}).join('')+'</ul></div>':'';
   var comp=d.canIntervene?'<div class="compose"><label for="cmsg">Escribir en su chat'+(cur&&cur.source?' ('+E(title(cur.source))+')':'')+'</label><textarea id="cmsg" maxlength="1500" placeholder="Ej.: Te veo con el bloque 3. Si te ayuda, prueba el guion de la página 2 y me cuentas."></textarea>'
     +'<button class="btn" id="csend">Enviar al chat</button><div class="def">Le llega con tu nombre y tu rol, distinto de la IA. Si no está en ese curso, le aparece como aviso en la siguiente página que abra. Queda registrado.</div><div id="cstat" class="def"></div></div>':'';
-  return tabs+'<div class="log" id="clog">'+log+'</div>'+comp; }
+  return disc+tabs+'<div class="log" id="clog">'+log+'</div>'+priv+comp; }
 function bindChat(){
   document.querySelectorAll('[data-th]').forEach(function(b){ b.onclick=function(){ THREAD=b.getAttribute('data-th'); document.getElementById('chatBox').innerHTML=chatHtml(DETAIL); bindChat(); scrollLog(); }; });
   var s=document.getElementById('csend'); if(s) s.onclick=async function(){ var ta=document.getElementById('cmsg'), t=ta.value.trim(); if(!t)return; s.disabled=true;

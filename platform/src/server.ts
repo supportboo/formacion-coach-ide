@@ -767,14 +767,24 @@ app.get("/api/voice/voices", async (c) => {
 });
 
 const ttsBody = z.object({ text: z.string().min(1).max(1200), voiceId: z.string().min(1) });
+// 1.17.0 (auditoría): voz solo de la lista y dentro del tope diario de IA de la empresa (el gasto de voz cuenta).
+async function voiceBlocked(ctx: { orgId: string }, voiceId: string): Promise<string | null> {
+  if (!voiceSvc.allowedVoice(voiceId)) return "voz no permitida";
+  if (env.ORG_AI_DAILY_CAP_USD > 0 && (await costsSvc.orgCost(svcDeps, ctx.orgId, 1)).usd >= env.ORG_AI_DAILY_CAP_USD)
+    return "Se ha alcanzado el límite de uso de IA de tu empresa por hoy. Vuelve mañana o pide al administrador que lo amplíe.";
+  return null;
+}
 app.post("/api/voice/tts", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (rateLimited("tts:" + ctx.orgId + ":" + ctx.userId, 40, 60000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const parsed = ttsBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const blocked = await voiceBlocked(ctx, parsed.data.voiceId);
+  if (blocked) return c.json({ error: blocked }, blocked === "voz no permitida" ? 400 : 429);
   const audio = await voiceSvc.synthesize(parsed.data.text, parsed.data.voiceId, await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG));
   if (!audio) return c.json({ error: "voz no disponible" }, 503);
+  await costsSvc.recordVoice(svcDeps, ctx.orgId, ctx.userId, parsed.data.text.length).catch(() => {});
   return new Response(audio, { headers: { "content-type": "audio/mpeg", "cache-control": "no-store" } });
 });
 // Voz con marcas de tiempo por carácter, para resaltar la palabra que se está diciendo (karaoke), pedido por Marc.
@@ -784,8 +794,11 @@ app.post("/api/voice/tts-timed", async (c) => {
   if (rateLimited("ttst:" + ctx.orgId + ":" + ctx.userId, 40, 60000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const parsed = ttsBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const blocked = await voiceBlocked(ctx, parsed.data.voiceId);
+  if (blocked) return c.json({ error: blocked }, blocked === "voz no permitida" ? 400 : 429);
   const timed = await voiceSvc.synthesizeWithTimestamps(parsed.data.text, parsed.data.voiceId, await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG));
   if (!timed) return c.json({ error: "voz no disponible" }, 503);
+  await costsSvc.recordVoice(svcDeps, ctx.orgId, ctx.userId, parsed.data.text.length).catch(() => {});
   return c.json(timed);
 });
 
@@ -2062,6 +2075,27 @@ app.get("/api/certificates/:code/verify", async (c) => {
 /* ============================================================
  * FUNDAE — acción formativa bonificable (España).
  * ============================================================ */
+// 1.17.0: expediente FUNDAE con fechas (AAAA-MM-DD) y revisión punto por punto.
+const fundaeDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).transform((d) => new Date(d + "T00:00:00Z"));
+app.get("/api/fundae/actions", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  return c.json({ actions: await fundaeSvc.listActions(svcDeps, ctx.orgId) });
+});
+app.patch("/api/fundae/actions/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  const d = fundaeDate.nullable().optional();
+  const parsed = z.object({ startDate: d, endDate: d, rltInformedAt: d, fundaeNotifiedAt: d, qualitySurveyAt: d }).strict()
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  try {
+    await fundaeSvc.updateDates(svcDeps, ctx.orgId, c.req.param("id"), parsed.data);
+    return c.json(await fundaeSvc.exportJustification(svcDeps, ctx.orgId, c.req.param("id")));
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
 app.post("/api/fundae/actions", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
@@ -2069,6 +2103,7 @@ app.post("/api/fundae/actions", async (c) => {
   const parsed = z.object({
     title: z.string().min(1), horas: z.number(), tutorId: z.string().min(1),
     competencyId: z.string().optional(), relatedPuesto: z.string().optional(), esCertProfesionalidad: z.boolean().optional(),
+    startDate: fundaeDate.optional(), endDate: fundaeDate.optional(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   try {
@@ -2082,9 +2117,10 @@ app.post("/api/fundae/participations", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "admin", "coach", "team_leader")) return c.json({ error: "sin permiso" }, 403);
   const parsed = z.object({
-    actionId: z.string().min(1), userId: z.string().min(1), controlsTotal: z.number(), controlsDone: z.number(),
+    actionId: z.string().min(1), userId: z.string().min(1), controlsTotal: z.number().int(), controlsDone: z.number().int(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  if (!(await actSvc.isMember(svcDeps, ctx.orgId, parsed.data.userId))) return c.json({ error: "esa persona no está en esta empresa" }, 404);
   try {
     const r = await fundaeSvc.recordParticipation(svcDeps, { orgId: ctx.orgId, ...parsed.data });
     return c.json(r);

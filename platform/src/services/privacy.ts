@@ -1,11 +1,16 @@
-import { and, eq, inArray, ne } from "drizzle-orm";
+import { and, eq, inArray, ne, or } from "drizzle-orm";
 import {
   agentMessage, agentThread, annotation, appliedCase, assessmentAttempt, auditLog, certificate, coaching,
-  enrollment, feedback, fundaeParticipation, learnerFact, levelByCompetency, member, onboardingProfile,
+  enrollment, evidence, feedback, fundaeParticipation, learnerFact, levelByCompetency, member, onboardingProfile,
   pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import { eraseActivity, exportActivity } from "./activity.js";
+
+function userCases(deps: SvcDeps, orgId: string, userId: string) {
+  return deps.db.select({ id: appliedCase.id }).from(appliedCase)
+    .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
+}
 
 /**
  * Derecho de acceso/portabilidad (RGPD art. 15/20): todo lo que sabemos de este usuario
@@ -14,6 +19,9 @@ import { eraseActivity, exportActivity } from "./activity.js";
  */
 export async function exportUserData(deps: SvcDeps, orgId: string, userId: string) {
   const [profile] = await deps.db.select().from(user).where(eq(user.id, userId));
+  const threads = await deps.db.select().from(agentThread)
+    .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId)));
+  const caseIds = (await userCases(deps, orgId, userId)).map((c) => c.id);
 
   return {
     identity: profile ? { id: profile.id, name: profile.name, email: profile.email } : null,
@@ -55,8 +63,13 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       .where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId))),
     assessments: await deps.db.select().from(assessmentAttempt)
       .where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId))),
-    chatThreads: await deps.db.select().from(agentThread)
-      .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId))),
+    chatThreads: threads,
+    // 1.17.0: el contenido de las conversaciones con el tutor, no solo la lista de hilos.
+    chatMessages: threads.length ? await deps.db.select().from(agentMessage)
+      .where(inArray(agentMessage.threadId, threads.map((t) => t.id))) : [],
+    evidences: await deps.db.select().from(evidence).where(and(eq(evidence.organizationId, orgId), or(
+      eq(evidence.createdBy, userId),
+      caseIds.length ? and(eq(evidence.ownerType, "applied_case"), inArray(evidence.ownerId, caseIds)) : undefined))),
     // 1.3.0: actividad en directo (páginas, secciones, tiempo activo, acciones, avisos recibidos). Máx. 90 días.
     activity: await exportActivity(deps, orgId, userId),
     // 1.4.0: valoraciones de respuestas de la IA y sugerencias enviadas.
@@ -99,8 +112,16 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
   // Exam answers are free text; the numeric result stays in testAttempt (ROI) and the certificate.
   await deps.db.delete(assessmentAttempt).where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId)));
-  await deps.db.update(appliedCase).set({ submission: null })
+  // 1.17.0: el enunciado del caso se personaliza con su situación y las evidencias/feedback hablan de él:
+  // se borran; queda solo el estado del caso (para niveles y ROI).
+  const caseIds = (await userCases(deps, orgId, userId)).map((c) => c.id);
+  await deps.db.update(appliedCase).set({ submission: null, prompt: "[borrado a petición de la persona]" })
     .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
+  await deps.db.delete(evidence).where(and(eq(evidence.organizationId, orgId), eq(evidence.createdBy, userId)));
+  if (caseIds.length) {
+    await deps.db.delete(evidence).where(and(eq(evidence.organizationId, orgId), eq(evidence.ownerType, "applied_case"), inArray(evidence.ownerId, caseIds)));
+    await deps.db.update(validation).set({ feedback: null }).where(and(eq(validation.organizationId, orgId), inArray(validation.caseId, caseIds)));
+  }
   await deps.db.insert(auditLog).values({
     id: deps.newId(), organizationId: orgId, userId: null,
     action: "privacy.erase", meta: { erasedUserId: userId },

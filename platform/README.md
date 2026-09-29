@@ -1,8 +1,8 @@
-# SkillUp · Brandooers — v1.16.0
+# SkillUp · Brandooers — v1.17.0
 
 Formación para equipos que mide lo que la persona **aplica en su trabajo**, no las horas que pasa delante de la pantalla. Cada empresa tiene su espacio, sus tutores de IA y un contenido que se adapta a la situación real de cada persona.
 
-En producción: https://skillup.brandooers.com · Última actualización: 2026-09-29 · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
+En producción: https://skillup.brandooers.com · Última actualización: 2026-09-29 (1.17.0) · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
 
 ## Qué problema resuelve
 
@@ -33,8 +33,9 @@ Todo lo de esta lista está en producción. Entre paréntesis, la versión en qu
 - **Gamificación**: puntos por aplicar y enseñar, ranking de temporada y rangos.
 
 **Para responsables (coach, team leader)**
-- **En directo** (1.3.0): quién aprende ahora y dónde se atasca, ficha por persona, su chat con el tutor y mensajes con tu nombre. Transparente: la persona ve cuándo la siguen; nada de pantalla, teclado ni cámara; los datos se guardan 90 días.
+- **En directo** (1.3.0): quién aprende ahora y dónde se atasca, ficha por persona y mensajes con tu nombre en su chat. La conversación con el tutor es privada: el responsable solo la ve desde que escribe él (1.17.0), y ve las discrepancias que el tutor detecta entre su indicación y el curso. Transparente: la persona ve cuándo la siguen; nada de pantalla, teclado ni cámara; los datos se guardan 90 días.
 - **Mi equipo real** (1.16.0): cada responsable ve solo a las personas que le asigna un administrador y a quienes acompaña como coach. Sin asignación, no ve a nadie.
+- **Discrepancias** (1.17.0): si la indicación de un responsable choca con el curso, el tutor lo dice con respeto y el responsable lo ve en la ficha de la persona.
 - **Validación humana**: los casos prácticos los valida un referente con la rúbrica de la competencia; una decisión por caso.
 - **Asignaciones** (1.2.0): tests, exámenes, roleplays y casos con fecha, con su resultado.
 
@@ -44,6 +45,7 @@ Todo lo de esta lista está en producción. Entre paréntesis, la versión en qu
 - **Cobertura de competencias**: pirámides de quién sostiene cada competencia, riesgo de dependencia, autonomía en días y perks configurables.
 - **Ficha de la empresa** (1.13.0): oferta, públicos, terminología, herramientas autorizadas y excluidas y límites. Se prepara un borrador desde la web y solo se usa cuando un responsable la valida.
 - **Panel › Equipos** (1.16.0): admin y dirección asignan el equipo de cada coach o team leader.
+- **Expediente FUNDAE** (1.17.0): cada acción bonificable se revisa punto por punto (fechas, aviso a la representación de los trabajadores y a FUNDAE, tutores, 75 % de controles, cuestionario de calidad, diplomas, conservación 4 años) y se descarga el expediente.
 - **Planes y créditos** (1.6.0): suscripción por persona y monedero de créditos para crear contenido con IA. Ver «Precios».
 - **Sugerencias** (1.4.0): pulgar arriba/abajo con motivo en cada respuesta de la IA y «Enviar sugerencia» en el menú; quien envía ve cuándo se resuelve.
 
@@ -53,7 +55,9 @@ Todo lo de esta lista está en producción. Entre paréntesis, la versión en qu
 **Privacidad y seguridad**
 - Cada empresa aislada de las demás; tope de gasto de IA por empresa; límites de peticiones; cabeceras de seguridad; filtro que impide que datos de una persona lleguen a otra.
 - Exámenes ligados a quien los hace; superadmin atado a la cuenta real, no solo al correo (1.16.0).
-- «Descargar mis datos» y borrado a petición de la persona, acotado a su empresa.
+- Tope de gasto también en la voz y solo voces autorizadas; el plan de pago solo cambia cuando Stripe confirma (1.17.0).
+- Reglamento Europeo de IA: la IA ayuda, las decisiones sobre personas las toma una persona o una regla fija. Postura y revisión legal pendiente en [REGLAMENTO-IA.md](./REGLAMENTO-IA.md).
+- «Descargar mis datos» (incluidos los mensajes del chat) y borrado completo a petición de la persona, acotado a su empresa (1.17.0).
 
 **Todavía no** (con motivo): voz narrada y vídeos con avatar se venden con créditos pero están «Próximamente»; el envío automático de informes de ROI necesita programador en el VPS y la clave de correo.
 

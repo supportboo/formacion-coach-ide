@@ -380,6 +380,7 @@ export async function transcript(deps: SvcDeps, orgId: string, userId: string, m
     .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId)))
     .orderBy(desc(agentThread.createdAt)).limit(maxThreads);
   const out = [];
+  let privateThreads = 0;
   for (const t of threads) {
     const msgs = await deps.db.select().from(agentMessage)
       .where(and(eq(agentMessage.organizationId, orgId), eq(agentMessage.threadId, t.id)))
@@ -387,9 +388,14 @@ export async function transcript(deps: SvcDeps, orgId: string, userId: string, m
     const shown = msgs.reverse().map((m) => ({
       id: m.id, sender: m.sender, text: visibleText(m), authorName: m.authorName, authorRole: m.authorRole, at: m.createdAt.toISOString(),
     })).filter((m) => m.text != null);
+    // 1.17.0 (decisión de Marc, 29-09): la conversación con el tutor es privada. El responsable solo ve un hilo
+    // desde que una persona del equipo escribió en él (a partir de ahí es compartido y lleva su nombre).
+    const from = shown.findIndex((m) => m.sender === "coach");
+    if (from < 0) { privateThreads++; continue; }
+    shown.splice(0, from);
     out.push({ threadId: t.id, source: t.source, createdAt: t.createdAt.toISOString(), lastAt: shown.length ? shown[shown.length - 1]!.at : t.createdAt.toISOString(), messages: shown });
   }
-  return out.sort((a, b) => b.lastAt.localeCompare(a.lastAt));
+  return { threads: out.sort((a, b) => b.lastAt.localeCompare(a.lastAt)), privateThreads };
 }
 
 async function activeDaysAndTime(deps: SvcDeps, orgId: string, userId: string, now: Date) {
@@ -420,6 +426,9 @@ export async function personDetail(deps: SvcDeps, orgId: string, userId: string,
     activeDaysAndTime(deps, orgId, userId, now),
     transcript(deps, orgId, userId),
   ]);
+  const discrepancies = await deps.db.select({ meta: auditLog.meta, at: auditLog.createdAt }).from(auditLog)
+    .where(and(eq(auditLog.organizationId, orgId), eq(auditLog.userId, userId), eq(auditLog.action, "chat.discrepancy")))
+    .orderBy(desc(auditLog.createdAt)).limit(10);
   const evs = events.get(userId) ?? [];
   const state = liveState(evs, now);
   const lastSeenAt = seen.get(userId) ?? null;
@@ -457,7 +466,9 @@ export async function personDetail(deps: SvcDeps, orgId: string, userId: string,
       kind: e.kind, label: e.kind === "nudge" ? `Aviso de ${String((e.meta || {}).authorName || "un responsable")}` : actionLabel(e),
       source: e.source, sectionTitle: e.sectionTitle, at: e.createdAt.toISOString(),
     })),
-    chats,
+    chats: chats.threads,
+    privateThreads: chats.privateThreads,
+    discrepancies: discrepancies.map((d) => ({ note: String((d.meta as { note?: string } | null)?.note ?? ""), at: d.at.toISOString() })),
   };
 }
 
@@ -644,7 +655,7 @@ export function orgFacts(m: Metrics): string {
 }
 
 export const SUMMARY_SYSTEM = {
-  person: "Eres el analista de aprendizaje de SkillUp y ayudas a un coach o responsable a acompañar a una persona. Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras. Español de España, claro y directo, de tú al responsable, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Cómo va:» (1-2 frases con las cifras clave), «Dónde se atasca:», «Riesgo de abandono: bajo|medio|alto —» con el motivo medido, «Qué hacer:» (una intervención concreta: qué decirle o hacer hoy, con una frase de ejemplo entre comillas). Máximo 110 palabras en total.",
+  person: "Eres el analista de aprendizaje de SkillUp y ayudas a un coach o responsable a acompañar a una persona. Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras. Español de España, claro y directo, de tú al responsable, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Cómo va:» (1-2 frases con las cifras clave), «Dónde se atasca:», «Riesgo de abandono: bajo|medio|alto —» con el motivo medido, «Qué hacer:» (una intervención concreta: qué decirle o hacer hoy, con una frase de ejemplo entre comillas). Máximo 110 palabras en total. Habla solo de su aprendizaje en la plataforma: nunca valores su rendimiento en el trabajo ni su personalidad, ni sugieras decisiones sobre su empleo (evaluación, sueldo, ascenso, despido).",
   org: "Eres el analista de aprendizaje de SkillUp y ayudas a dirección, admin o team leaders. Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras. Español de España, claro y directo, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Adopción:» (tendencia con cifras: activos y minutos, primera frente a segunda mitad del periodo), «Quién necesita ayuda primero:» (nombres con su señal), «Bloques más difíciles:» (con nota media y n), «Qué hacer:» (2 acciones concretas para esta semana). Máximo 130 palabras en total.",
   platform: "Eres el analista de negocio de SkillUp y ayudas al dueño de la plataforma (vende formación por asientos a empresas). Usa SOLO los datos medidos que te doy; si algo falta, di «Sin datos», nunca lo supongas ni inventes cifras ni euros. Español de España, claro y directo, sin markdown ni emojis. Devuelve exactamente 4 líneas, cada una empezando por su etiqueta: «Empresas que necesitan atención:» (nombres con su motivo medido), «Cursos a mejorar primero:» (con la cifra que lo justifica), «Costes:» (coste IA frente a ingresos, alertas), «Qué hacer esta semana:» (2 acciones concretas). Máximo 140 palabras en total.",
 } as const;
@@ -677,11 +688,11 @@ export function helpSteps(a: Access): { h: string; d: string }[] {
   const out: { h: string; d: string }[] = [];
   if (a.read) {
     out.push({ h: "En directo", d: "Menú › En directo. Ves quién está conectado ahora, en qué curso y sección está, cuánto tiempo lleva y las señales de atasco (mucho rato en la misma sección, suspensos repetidos, roleplay sin terminar o días sin entrar). Filtra por conectados, inactivos o con señales, y busca por nombre." });
-    out.push({ h: "Ficha de la persona", d: "Toca una tarjeta: progreso por curso, notas de cada bloque, examen final, certificados, roleplays, tiempo activo real, racha, mapa de calor de cuándo se forma y su conversación con el tutor. Mientras la tienes abierta, la persona ve un aviso con tu nombre: es obligatorio y no se puede ocultar." });
+    out.push({ h: "Ficha de la persona", d: "Toca una tarjeta: progreso por curso, notas de cada bloque, examen final, certificados, roleplays, tiempo activo real, racha, mapa de calor de cuándo se forma y las discrepancias que el tutor detecta con el curso. Su conversación con el tutor es privada: la ves solo desde que tú le escribes. Mientras la tienes abierta, la persona ve un aviso con tu nombre: es obligatorio y no se puede ocultar." });
     out.push({ h: "Vista previa de su página", d: "La tarjeta «Vista previa» abre la misma página y sección que está leyendo, con TU sesión: no es su pantalla ni sus datos, es la misma página recreada. «Abrir en la misma sección» la abre a tamaño completo. No se graba pantalla, teclado ni cámara." });
   }
   if (a.intervene) {
-    out.push({ h: "Escribir en su chat", d: "Desde la ficha, escribe en su conversación con el tutor. Tu mensaje le llega con tu nombre y tu rol, distinto de la IA, y el tutor lo tiene en cuenta y te apoya. Si no está en un curso, le aparece como aviso en la siguiente página que abra. Cada mensaje queda registrado." });
+    out.push({ h: "Escribir en su chat", d: "Desde la ficha, escribe en su conversación con el tutor. Tu mensaje le llega con tu nombre y tu rol, distinto de la IA, y el tutor lo tiene en cuenta y te apoya (si tu indicación choca con el curso, se lo dirá con respeto y te lo marcará como discrepancia). Si no está en un curso, le aparece como aviso en la siguiente página que abra. Cada mensaje queda registrado." });
   }
   if (a.metrics) {
     out.push({ h: "Métricas de uso", d: "Pestaña Métricas: personas activas (24 h, 7 y 30 días), minutos activos por día, sesiones, embudo por curso (empezado, bloque aprobado, examen final, certificado), nota media por bloque para ver los más difíciles, tiempo hasta certificarse y roleplays. Cada cifra lleva su definición y su n; si no hay datos, lo dice." });

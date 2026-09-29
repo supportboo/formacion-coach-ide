@@ -156,3 +156,8 @@ export async function synthesizeWithTimestamps(text: string, voiceId: string, la
     return null;
   }
 }
+
+/** 1.17.0 (auditoría): solo se sintetiza con voces de la lista; nadie puede gastar la cuenta con una voz ajena. */
+export function allowedVoice(voiceId: string): boolean {
+  return [...VOICES, ...(envVoices() ?? [])].some((v) => v.id === voiceId);
+}

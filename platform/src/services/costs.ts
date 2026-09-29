@@ -8,6 +8,8 @@ import type { LlmUsage } from "../agents/llm.js";
 const RATES: Record<string, { input: number; output: number }> = {
   "claude-sonnet-4-6": { input: 3, output: 15 },
   "claude-haiku-4-5-20251001": { input: 0.8, output: 4 },
+  // Voz: el ledger guarda caracteres en input_tokens. ElevenLabs ~0,20 $ por 1.000 caracteres (tarifa oficial, 20-sep-2026).
+  elevenlabs: { input: 200, output: 0 },
 };
 const DEFAULT_RATE = { input: 3, output: 15 };
 
@@ -76,4 +78,9 @@ export async function platformCost(deps: SvcDeps, sinceDays = 30): Promise<CostS
 export async function platformOnlyCost(deps: SvcDeps, sinceDays = 30): Promise<CostSummary> {
   const since = new Date(Date.now() - sinceDays * 86_400_000);
   return summarize(deps, and(isNull(aiUsage.organizationId), gte(aiUsage.createdAt, since)));
+}
+
+/** Registra una lectura en voz en el mismo ledger: así el tope diario de IA por empresa también la frena. */
+export async function recordVoice(deps: SvcDeps, orgId: string, userId: string, chars: number): Promise<void> {
+  await deps.db.insert(aiUsage).values({ id: deps.newId(), organizationId: orgId, userId, kind: "voice", model: "elevenlabs", inputTokens: chars, outputTokens: 0 });
 }

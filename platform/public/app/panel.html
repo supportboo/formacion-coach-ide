@@ -245,15 +245,27 @@ details[open] summary:before{content:"▾ "}
 
   <div class="card">
     <h2>FUNDAE</h2>
-    <p class="msg" style="margin-top:0">Crea la acción formativa bonificable y descarga su justificante.</p>
+    <p class="msg" style="margin-top:0">Crea la acción formativa bonificable, registra cada paso y revisa su expediente punto por punto antes de bonificar.</p>
     <div style="display:flex;flex-direction:column;gap:8px;max-width:520px">
       <input class="inline-input" id="fdTitle" placeholder="Título de la acción formativa">
       <input class="inline-input" id="fdHoras" type="number" min="1" placeholder="Horas (mínimo 2 para bonificar)">
       <select class="inline-input" id="fdTutor"><option value="">Tutor-formador…</option></select>
       <select class="inline-input" id="fdComp"><option value="">Competencia (opcional)…</option></select>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><label class="msg" style="flex:1 1 150px">Inicio<input class="inline-input" id="fdStart" type="date"></label><label class="msg" style="flex:1 1 150px">Fin<input class="inline-input" id="fdEnd" type="date"></label></div>
       <label style="display:flex;gap:9px;align-items:center;font-size:14px"><input type="checkbox" id="fdCert"><span>Conduce a certificado de profesionalidad</span></label>
       <button class="btn btn-grad" id="btnFd" style="align-self:flex-start">Crear acción</button><div id="fdMsg" class="msg"></div>
       <div id="fdResult" style="margin-top:6px"></div>
+    </div>
+    <div id="fdExp" style="margin-top:18px;display:flex;flex-direction:column;gap:10px;max-width:640px" hidden>
+      <h3 style="margin:0">Expediente</h3>
+      <select class="inline-input" id="fdSel"></select>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label class="msg" style="flex:1 1 180px">Representación de los trabajadores informada<input class="inline-input" type="date" data-fd="rltInformedAt"></label>
+        <label class="msg" style="flex:1 1 180px">Inicio comunicado a FUNDAE<input class="inline-input" type="date" data-fd="fundaeNotifiedAt"></label>
+        <label class="msg" style="flex:1 1 180px">Cuestionario de calidad pasado<input class="inline-input" type="date" data-fd="qualitySurveyAt"></label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-grad" id="fdSave" type="button">Guardar fechas</button><button class="btn btn-gh" id="fdDl" type="button">Descargar expediente</button></div>
+      <div id="fdChecks" aria-live="polite"></div>
     </div>
   </div>
 
@@ -581,25 +593,55 @@ details[open] summary:before{content:"▾ "}
     var sel = document.getElementById('fdComp'); if (!sel || !Array.isArray(cs)) return;
     cs.forEach(function (c) { var o = document.createElement('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
   }).catch(function () {});
+  // 1.17.0: expediente FUNDAE punto por punto
+  var FD = null, FDCOL = { ok: '#2E9E73', aviso: '#C98A1B', falta: '#D0493F' }, FDTXT = { ok: 'Correcto', aviso: 'Pendiente', falta: 'Falta' };
+  function fdDay(iso) { return iso ? iso.slice(0, 10) : ''; }
+  function fdRender(j) {
+    FD = j; document.getElementById('fdExp').hidden = false;
+    document.getElementById('fdMsg').textContent = j.bonificable ? 'Expediente sin faltas: bonificable si se mantiene así.' : 'Todavía no bonificable. Falta: ' + j.motivoNoBonificable + '.';
+    document.getElementById('fdChecks').innerHTML = j.expediente.map(function (c) {
+      return '<div class="row" style="align-items:flex-start;gap:10px"><span class="badge" style="background:' + FDCOL[c.estado] + ';color:#fff;white-space:nowrap">' + FDTXT[c.estado] + '</span><div><b style="color:var(--ink)">' + SkillUp.escHtml(c.punto) + '</b><div class="msg" style="margin:2px 0 0">' + SkillUp.escHtml(c.detalle) + '</div></div></div>';
+    }).join('');
+  }
+  async function fdLoad(id) {
+    var j = await SkillUp.api('/api/fundae/actions/' + encodeURIComponent(id) + '/justification');
+    [].forEach.call(document.querySelectorAll('[data-fd]'), function (i) { i.value = ''; });
+    fdRender(j); return j;
+  }
+  async function fdList(select) {
+    var d = await SkillUp.api('/api/fundae/actions').catch(function () { return null; });
+    if (!d || !d.actions.length) return;
+    var sel = document.getElementById('fdSel');
+    sel.innerHTML = d.actions.map(function (a) { return '<option value="' + SkillUp.escHtml(a.id) + '">' + SkillUp.escHtml(a.title) + ' · ' + a.horas + ' h</option>'; }).join('');
+    sel.value = select || d.actions[0].id; fdLoad(sel.value).catch(function () {});
+  }
+  fdList();
+  document.getElementById('fdSel').addEventListener('change', function () { fdLoad(this.value).catch(function (ex) { document.getElementById('fdMsg').textContent = ex.message; }); });
+  document.getElementById('fdSave').addEventListener('click', async function () {
+    var body = {}; [].forEach.call(document.querySelectorAll('[data-fd]'), function (i) { if (i.value) body[i.dataset.fd] = i.value; });
+    if (!Object.keys(body).length) { document.getElementById('fdMsg').textContent = 'Indica al menos una fecha.'; return; }
+    try { fdRender(await SkillUp.api('/api/fundae/actions/' + encodeURIComponent(document.getElementById('fdSel').value), { method: 'PATCH', body: body })); }
+    catch (ex) { document.getElementById('fdMsg').textContent = ex.message; }
+  });
+  document.getElementById('fdDl').addEventListener('click', function () {
+    if (!FD) return;
+    var blob = new Blob([JSON.stringify(FD, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fundae-' + FD.action.id + '.json'; a.click(); URL.revokeObjectURL(a.href);
+  });
   document.getElementById('btnFd').addEventListener('click', async function () {
-    var m = document.getElementById('fdMsg'), res = document.getElementById('fdResult');
+    var m = document.getElementById('fdMsg');
     var title = document.getElementById('fdTitle').value.trim();
     var horas = parseInt(document.getElementById('fdHoras').value, 10);
     var tutorId = document.getElementById('fdTutor').value;
     if (!title || !horas || !tutorId) { m.textContent = 'Rellena título, horas y tutor.'; return; }
     m.textContent = 'Creando…';
     try {
-      var r = await SkillUp.api('/api/fundae/actions', { method: 'POST', body: { title: title, horas: horas, tutorId: tutorId, competencyId: document.getElementById('fdComp').value || undefined, esCertProfesionalidad: document.getElementById('fdCert').checked } });
-      var just = await SkillUp.api('/api/fundae/actions/' + r.id + '/justification');
-      m.textContent = just && just.bonificable ? 'Acción creada y BONIFICABLE.' : ('Acción creada, NO bonificable' + (just && just.motivoNoBonificable ? ': ' + just.motivoNoBonificable : '') + '.');
-      res.innerHTML = '';
-      var btn = document.createElement('button'); btn.className = 'btn btn-gh'; btn.textContent = 'Descargar justificante';
-      btn.onclick = function () {
-        var blob = new Blob([JSON.stringify(just, null, 2)], { type: 'application/json' });
-        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fundae-' + r.id + '.json'; a.click(); URL.revokeObjectURL(a.href);
-      };
-      res.appendChild(btn);
-    } catch (ex) { m.textContent = ex.message; res.innerHTML = ''; }
+      var body = { title: title, horas: horas, tutorId: tutorId, competencyId: document.getElementById('fdComp').value || undefined, esCertProfesionalidad: document.getElementById('fdCert').checked };
+      var st = document.getElementById('fdStart').value, en = document.getElementById('fdEnd').value;
+      if (st) body.startDate = st; if (en) body.endDate = en;
+      var r = await SkillUp.api('/api/fundae/actions', { method: 'POST', body: body });
+      await fdList(r.id);
+    } catch (ex) { m.textContent = ex.message; }
   });
 
   var ROLES = ['empleado', 'coach', 'team_leader', 'inspirador', 'admin', 'direccion'];

@@ -22,7 +22,7 @@ const CRITERIO = "\n\nCRITERIO: si el usuario afirma algo que parece falso, exag
 // Verdad sobre los datos (Marc, 28-09-2026): un tutor contestó «solo las uso en esta sesión, no se guardan», y es
 // FALSO (el chat, lo que cuenta la persona y su actividad se guardan en la cuenta de su empresa; ver PRIVACY.md).
 // Cualquier agente conversacional responde lo que de verdad pasa y remite a «Tus datos». Además: siempre de tú.
-const DATOS = "\n\nDATOS Y PRIVACIDAD (responde siempre con la verdad, en positivo y sin minimizar): si te preguntan qué se hace con sus conversaciones o sus datos, transmite que compartir le ayuda a él y a su equipo, y explica con sencillez que sus conversaciones con los tutores y lo que cuenta (entrevistas, notas, respuestas de tests y roleplays) se guardan en la plataforma, en la cuenta de su empresa, y se usan para personalizar su formación y para las métricas de aprendizaje; que sus compañeros no ven sus conversaciones; que sus responsables (coach, team leader, admin) pueden ver su progreso y leer sus conversaciones con los tutores, y que siempre verá un aviso con el nombre de quien siga su sesión; que las correcciones de términos que hace se aprenden para toda su empresa; que la actividad de uso se guarda 90 días y que el uso del chat se controla (tope diario y palabras prohibidas) para evitar abusos y gasto innecesario de su empresa; que los textos se procesan con proveedores de IA para generar las respuestas; y que puede ver y descargar sus datos en «Tus datos» del menú, y pedir el borrado a su empresa. Nunca digas que no se guarda nada, que solo dura la sesión ni que «queda entre tú y yo». Si no sabes un detalle, dilo y remite a «Tus datos» o a su empresa.";
+const DATOS = "\n\nDATOS Y PRIVACIDAD (responde siempre con la verdad, en positivo y sin minimizar): si te preguntan qué se hace con sus conversaciones o sus datos, transmite que compartir le ayuda a él y a su equipo, y explica con sencillez que sus conversaciones con los tutores y lo que cuenta (entrevistas, notas, respuestas de tests y roleplays) se guardan en la plataforma, en la cuenta de su empresa, y se usan para personalizar su formación y para las métricas de aprendizaje; que sus compañeros no ven sus conversaciones; que sus conversaciones con los tutores son privadas: sus responsables (coach, team leader, admin) ven su progreso, no lo que habla con el tutor, y solo ven una conversación desde que ellos mismos escriben en ella con su nombre; que siempre verá un aviso con el nombre de quien siga su sesión; que las correcciones de términos que hace se aprenden para toda su empresa; que la actividad de uso se guarda 90 días y que el uso del chat se controla (tope diario y palabras prohibidas) para evitar abusos y gasto innecesario de su empresa; que los textos se procesan con proveedores de IA para generar las respuestas; y que puede ver y descargar sus datos en «Tus datos» del menú, y pedir el borrado a su empresa. Nunca digas que no se guarda nada, que solo dura la sesión ni que «queda entre tú y yo». Si no sabes un detalle, dilo y remite a «Tus datos» o a su empresa.";
 // El trato (tú, castellano de España) y el texto plano viven ahora en la regla de idioma (services/lang.ts): en
 // español siguen igual; en los demás idiomas, registro informal natural de ese idioma (1.5.0).
 
@@ -53,6 +53,13 @@ export const llm: Llm = {
     if (/\[\[\s*FUERA_DE_TEMA\s*\]\]/i.test(clean)) {
       clean = clean.replace(/\[\[\s*FUERA_DE_TEMA\s*\]\]/gi, "").trim();
       if (learning && call.kind === "chat") await db.insert(auditLog).values({ id: newId(), organizationId: call.orgId!, userId: call.userId!, action: "chat.offtopic", meta: {} }).catch(() => {});
+    }
+    // 1.17.0 (auditoría): si el tutor ve que la indicación de un responsable choca con el curso o la ficha, no la
+    // calla: lo dice al alumno y deja la discrepancia registrada para que el responsable la revise.
+    const disc = clean.match(/\[\[\s*DISCREPANCIA:\s*([\s\S]*?)\]\]/i);
+    if (disc) {
+      clean = clean.replace(/\[\[\s*DISCREPANCIA:[\s\S]*?\]\]/gi, "").trim();
+      if (learning) await db.insert(auditLog).values({ id: newId(), organizationId: call.orgId!, userId: call.userId!, action: "chat.discrepancy", meta: { note: disc[1]!.trim().slice(0, 300) } }).catch(() => {});
     }
     if (learning) for (const t of learned) await learnTerm(db, newId, call.orgId!, call.userId!, t).catch(() => false);
     return applyTerms(clean, learned.length ? await orgTerms(db, call.orgId).catch(() => terms) : terms);

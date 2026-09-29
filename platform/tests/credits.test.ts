@@ -170,3 +170,19 @@ describe("webhook de Stripe: compra de créditos", () => {
     expect(f.ledger).toHaveLength(0);
   });
 });
+
+describe("webhook de Stripe: plan de suscripción (1.17.0)", () => {
+  const sets: Record<string, unknown>[] = [];
+  const deps = { db: { update: () => ({ set: (v: Record<string, unknown>) => { sets.push(v); return { where: async () => [] }; } }) } as never, newId: () => "x" };
+  const sub = (status: string) => ({
+    type: "customer.subscription.updated",
+    data: { object: { id: "sub_1", status, customer: "cus_1", metadata: { organizationId: "org1", tier: "video_corto" }, items: { data: [{ quantity: 12, current_period_end: 1_900_000_000 }] } } },
+  }) as never;
+  it("el plan y los asientos solo cambian cuando Stripe confirma el pago", async () => {
+    await billing.applyStripeEvent(deps, sub("incomplete"));
+    expect(sets.at(-1)).not.toHaveProperty("tier");
+    expect(sets.at(-1)).not.toHaveProperty("seats");
+    await billing.applyStripeEvent(deps, sub("active"));
+    expect(sets.at(-1)).toMatchObject({ status: "active", tier: "video_corto", seats: 12 });
+  });
+});
