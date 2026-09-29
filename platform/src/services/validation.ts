@@ -5,13 +5,14 @@ import { getLevel, setLevelAtLeast } from "./learning.js";
 
 export interface RubricCriterion { label: string; weight?: number }
 
-/** Define la rúbrica visible de una competencia (se publica antes del ejercicio). */
+/** Define la rúbrica visible de una competencia (se publica antes del ejercicio); versiona sobre la anterior. */
 export async function setRubric(
   deps: SvcDeps, orgId: string, competencyId: string, criteria: RubricCriterion[],
 ): Promise<string> {
   if (criteria.length === 0) throw new Error("la rúbrica necesita al menos un criterio");
+  const prev = await latestRubric(deps, orgId, competencyId);
   const id = deps.newId();
-  await deps.db.insert(rubric).values({ id, organizationId: orgId, competencyId, criteria });
+  await deps.db.insert(rubric).values({ id, organizationId: orgId, competencyId, criteria, version: (prev?.version ?? 0) + 1 });
   return id;
 }
 
@@ -179,23 +180,31 @@ export async function validateCase(deps: SvcDeps, input: ValidateInput): Promise
 
   const status = input.decision === "aprobado" ? "aprobado" : "rechazado";
   const before = await getLevel(deps, input.orgId, c.userId, c.competencyId);
-  // Compare-and-swap: only the first decision on a delivered case wins (double click / two
-  // validators at once must not pay points or issue certificates twice).
-  const claimed = await deps.db.update(appliedCase).set({ status })
-    .where(and(eq(appliedCase.id, input.caseId), eq(appliedCase.status, "entregado")))
-    .returning({ id: appliedCase.id });
-  if (!claimed.length) throw new Error("este caso ya ha sido validado");
-  await deps.db.insert(validation).values({
-    id: deps.newId(), organizationId: input.orgId, caseId: input.caseId,
-    validatorId: input.validatorId, decision: input.decision, feedback: input.feedback ?? null,
-  });
+  const rubricInEffect = await latestRubric(deps, input.orgId, c.competencyId);
+  // Todo el efecto de una validación (marcar el caso, registrar la decisión, subir de nivel
+  // si toca, dejar rastro en el audit log) es una sola unidad: si el proceso muere a mitad,
+  // no debe quedar un caso "aprobado" sin validation, o un nivel subido sin auditLog.
+  await deps.db.transaction(async (tx) => {
+    const txDeps: SvcDeps = { ...deps, db: tx as unknown as SvcDeps["db"] };
+    // Compare-and-swap: only the first decision on a delivered case wins (double click / two
+    // validators at once must not pay points or issue certificates twice).
+    const claimed = await tx.update(appliedCase).set({ status })
+      .where(and(eq(appliedCase.id, input.caseId), eq(appliedCase.status, "entregado")))
+      .returning({ id: appliedCase.id });
+    if (!claimed.length) throw new Error("este caso ya ha sido validado");
+    await tx.insert(validation).values({
+      id: deps.newId(), organizationId: input.orgId, caseId: input.caseId,
+      validatorId: input.validatorId, decision: input.decision, feedback: input.feedback ?? null,
+      rubricId: rubricInEffect?.id ?? null,
+    });
 
-  if (input.decision === "aprobado" && await meetsN2Bar(deps, input.orgId, c.userId, c.competencyId)) {
-    await setLevelAtLeast(deps, input.orgId, c.userId, c.competencyId, 2);
-  }
-  await deps.db.insert(auditLog).values({
-    id: deps.newId(), organizationId: input.orgId, userId: input.validatorId,
-    action: "case.validate", meta: { caseId: input.caseId, decision: input.decision, learner: c.userId },
+    if (input.decision === "aprobado" && await meetsN2Bar(txDeps, input.orgId, c.userId, c.competencyId)) {
+      await setLevelAtLeast(txDeps, input.orgId, c.userId, c.competencyId, 2);
+    }
+    await tx.insert(auditLog).values({
+      id: deps.newId(), organizationId: input.orgId, userId: input.validatorId,
+      action: "case.validate", meta: { caseId: input.caseId, decision: input.decision, learner: c.userId },
+    });
   });
 
   const level = await getLevel(deps, input.orgId, c.userId, c.competencyId);
