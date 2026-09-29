@@ -16,6 +16,8 @@ function cfg() {
   return CFG;
 }
 export function isConfigured(): boolean { return !!cfg(); }
+/** 1.23.0: el mismo cliente OAuth sirve para «Entrar con Google» (solo correo y perfil). */
+export function googleClient(): { clientId: string; clientSecret: string } | null { const c = cfg(); return c ? { clientId: c.clientId, clientSecret: c.clientSecret } : null; }
 
 const SCOPE = "https://www.googleapis.com/auth/calendar.events";
 // 1.22.0: leer las transcripciones de sus reuniones de Meet (alcance «sensible», sin Drive).

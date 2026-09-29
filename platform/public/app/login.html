@@ -40,6 +40,20 @@ input::placeholder{color:#6b6480}
   </div>
   <div class="kx">SkillUp</div>
   <h1 id="title">Entra a tu equipo</h1>
+  <div id="ssoBox" hidden>
+    <button class="btn btn-block" id="google" type="button" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;font-weight:700">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
+      Entrar con Google
+    </button>
+    <p class="swap" style="margin:8px 0 14px">Con la cuenta de Google de tu empresa: sin otra contraseña que recordar.</p>
+    <div class="swap" style="margin:0 0 10px">o con tu email</div>
+  </div>
+  <form id="orgForm" hidden>
+    <label for="orgName2">Nombre de tu empresa</label><input id="orgName2" autocomplete="organization" required>
+    <button class="btn btn-grad btn-block" type="submit">Crear mi empresa y entrar</button>
+    <p class="swap" style="margin-top:10px">Si te han invitado a una empresa, abre el enlace de la invitación en lugar de crear una nueva.</p>
+    <div class="err" id="err2"></div>
+  </form>
   <form id="f">
     <div id="nameRow" style="display:none">
       <label for="name">Tu nombre</label><input id="name" autocomplete="name">
@@ -82,6 +96,45 @@ function setMode(m) {
   document.getElementById('err').textContent = '';
 }
 document.getElementById('swapLink').addEventListener('click', function () { setMode(mode === 'login' ? 'signup' : 'login'); });
+
+// 1.23.0: «Entrar con Google» (sin contraseñas adicionales). Google devuelve aquí con ?sso=1.
+SkillUp.api('/api/config/sso').then(function (d) { if (d && d.google) document.getElementById('ssoBox').hidden = false; }).catch(function () {});
+document.getElementById('google').addEventListener('click', async function () {
+  var b = this; b.disabled = true;
+  try {
+    var r = await SkillUp.api('/api/auth/sign-in/social', { method: 'POST', body: { provider: 'google', callbackURL: location.origin + '/app/login.html?sso=1', errorCallbackURL: location.origin + '/app/login.html?sso=err' } });
+    if (r && r.url) window.location.href = r.url; else throw new Error('sin enlace');
+  } catch (ex) { document.getElementById('err').textContent = 'No se ha podido abrir Google. Inténtalo de nuevo.'; b.disabled = false; }
+});
+(async function afterGoogle() {
+  var q = new URLSearchParams(location.search);
+  if (q.get('sso') === 'err') { document.getElementById('err').textContent = 'No se ha completado la entrada con Google. Inténtalo de nuevo.'; return; }
+  if (q.get('sso') !== '1') return;
+  var mine = await SkillUp.api('/api/auth/organization/list').catch(function () { return null; });
+  if (!mine) return; // sin sesión: se queda en la pantalla de entrada
+  if (mine.length) {
+    await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: mine[0].id } });
+    window.location.href = '/app/inicio.html'; return;
+  }
+  // Primera vez y sin invitación: solo falta el nombre de su empresa.
+  document.getElementById('title').textContent = 'Un último paso';
+  ['f', 'ssoBox'].forEach(function (id) { document.getElementById(id).hidden = true; });
+  document.getElementById('f').style.display = 'none';
+  document.querySelectorAll('.swap').forEach(function (el) { if (!el.closest('#orgForm')) el.style.display = 'none'; });
+  document.getElementById('orgForm').hidden = false;
+  document.getElementById('orgName2').focus();
+})();
+document.getElementById('orgForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var n = document.getElementById('orgName2').value.trim(), er = document.getElementById('err2');
+  if (!n) return;
+  try {
+    var org = await SkillUp.api('/api/auth/organization/create', { method: 'POST', body: { name: n, slug: n.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now().toString(36).slice(-4) } });
+    await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: org.id } });
+    await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
+    window.location.href = '/app/inicio.html';
+  } catch (ex) { er.textContent = authErrorEs(ex.message); }
+});
 
 // Recuperar contraseña: envia un enlace al email (mensaje neutro, no revela si la cuenta existe).
 var forgot = document.getElementById('forgot');
