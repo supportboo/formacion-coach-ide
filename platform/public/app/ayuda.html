@@ -34,6 +34,19 @@
 .figcap{font-size:12.5px;color:var(--mut);margin-top:7px;text-align:center}
 .mob{max-width:300px;margin:0 auto}
 @media(max-width:640px){.hero{padding:22px 18px;border-radius:16px}.tab{min-height:44px;padding:10px 16px}.step h3{font-size:17px}.step .n{width:28px;height:28px;font-size:14px}}
+
+/* ---- pestaña Mapa ---- */
+.map-track{display:flex; flex-direction:column; gap:6px; margin-bottom:28px}
+.map-row{display:flex; align-items:stretch; gap:10px; overflow-x:auto; padding-bottom:6px}
+.map-row .arrow{display:flex; align-items:center; color:var(--muted); font-size:20px; flex:none}
+.map-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; min-width:168px; flex:none; display:flex; flex-direction:column; gap:6px}
+.map-card.trunk{border-color:var(--grad, var(--line)); background:var(--soft)}
+.map-card .lvl{font-family:'Caveat',cursive; font-size:19px; color:#ff5da2; line-height:1}
+.map-card h4{margin:0; font-size:14.5px; color:var(--ink); font-weight:800}
+.map-card p{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4}
+.map-card a.go{font-size:12px; font-weight:700; color:var(--teal2); margin-top:2px}
+.map-lane-label{font-size:11.5px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:18px 2px 8px}
+.map-cross{font-family:'Caveat',cursive; font-size:17px; color:#ff5da2; text-align:center; margin:4px 0 10px}
 </style>
 </head>
 <body>
@@ -116,6 +129,7 @@ function layoutFig(el){
 function layoutAll(){ document.querySelectorAll('.fig[data-fig]').forEach(layoutFig); }
 
 var GUIDE = {
+  mapa: { name:'Mapa', special:'map', intro:'Todo el mundo entra por el mismo sitio. Lo que ves cada día cambia según tu nivel y tu rol — este es el mapa completo, de un vistazo.' },
   empleado: { name:'Empleado', intro:'Aquí aprendes con casos de TU puesto, demuestras que sabes aplicarlo y creces. No es memorizar: es aplicar en tu día a día y que se note.',
     steps:[
       {h:'Tu panel', d:'Nada más entrar ves lo importante: qué te toca aplicar esta semana, tus rutas y su estado, y el generador de test y caso práctico.',
@@ -167,17 +181,43 @@ var GUIDE = {
     ]}
 };
 
-var order=['empleado','responsable','admin','fundae'];
+var order=['mapa','empleado','responsable','admin','fundae'];
+
+function mapCard(cls,lvl,title,desc,href){
+  return '<div class="map-card'+(cls?' '+cls:'')+'">'+(lvl?'<span class="lvl">'+E(lvl)+'</span>':'')
+    +'<h4>'+E(title)+'</h4><p>'+E(desc)+'</p>'+(href?'<a class="go" href="'+href+'">abrir →</a>':'')+'</div>';
+}
+function renderMapTab(){
+  var arrow='<span class="arrow">→</span>';
+  var trunk=['<div class="map-row">',
+    mapCard('trunk','','Un problema real','El onboarding empieza por tu situación, no por un temario.'),
+    arrow, mapCard('trunk','','Team DNA','Tu mapa de fortalezas.','/app/team-dna.html'),
+    arrow, mapCard('trunk','','Ficha viva','Lo que SkillUp sabe de ti, con fuente.'),
+    arrow, mapCard('trunk','','Para ti','El contenido se adapta a tu caso real.'),
+  '</div>'].join('');
+  var learn=['<div class="map-lane-label">camino de quien aprende</div><div class="map-row">',
+    mapCard('','N1','En formación','Practicas con pistas, ejemplos y reintentos.'),
+    arrow, mapCard('','N2','Aplica','Entregas un caso real; un referente lo valida con rúbrica.','/app/certificado.html'),
+    arrow, mapCard('','N3','Referente','Validas los casos de otros. Nadie valida el suyo propio.','/app/validar.html'),
+    arrow, mapCard('','N4','Custodio','Formas a otro hasta que es autónomo. Desbloquea funciones avanzadas.'),
+  '</div>'].join('');
+  var manage=['<div class="map-lane-label">camino de quien dirige</div><div class="map-row">',
+    mapCard('','','Panel de equipo','Mezcla de fortalezas, huecos por cubrir.','/app/panel.html'),
+    arrow, mapCard('','','Pirámide de niveles','Quién está en N1-N4 por competencia.','/app/piramides.html'),
+    arrow, mapCard('','','Informe de ROI','Kirkpatrick + Phillips, con lo que falta si falta.','/app/informe-roi.html'),
+  '</div>'].join('');
+  return '<div class="map-track">'+trunk+learn+'<p class="map-cross">✎ lo que valida un empleado es el dato que alimenta la pirámide y el ROI que ve dirección</p>'+manage+'</div>';
+}
 var tabs=document.getElementById('tabs'), profs=document.getElementById('profiles');
 function render(){
 tabs.innerHTML=order.map(function(k){return '<button class="tab" data-k="'+k+'">'+E(GUIDE[k].name)+'</button>';}).join('');
 profs.innerHTML=order.map(function(k){
   var g=GUIDE[k];
-  var steps=g.steps.map(function(s,i){
+  var body=g.special==='map' ? renderMapTab() : g.steps.map(function(s,i){
     return '<div class="step"><span class="n">'+(i+1)+'</span><h3>'+E(s.h)+'</h3>'
       +'<p class="desc">'+E(s.d)+'</p>'+(s.img?fig(s.img, s.mob, s.annos):'')+'</div>';
   }).join('');
-  return '<section class="prof" data-k="'+k+'"><div class="pintro"><h2>'+E(g.name)+'</h2><p>'+E(g.intro)+'</p></div>'+steps+'</section>';
+  return '<section class="prof" data-k="'+k+'"><div class="pintro"><h2>'+E(g.name)+'</h2><p>'+E(g.intro)+'</p></div>'+body+'</section>';
 }).join('');
 tabs.querySelectorAll('.tab').forEach(function(b){ b.onclick=function(){ show(b.getAttribute('data-k')); }; });
 }
