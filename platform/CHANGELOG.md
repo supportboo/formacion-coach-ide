@@ -1,5 +1,14 @@
 # Changelog · SkillUp platform
 
+## 1.20.0 — 2026-09-30
+
+### V2 fase 6a: repaso de 3 minutos con tus errores reales
+- **Repaso** (`/app/repaso.html`): hasta 3 preguntas que la persona falló en sus tests hace al menos 2 días («Hace 18 días fallaste esto en el test del bloque 3 de…»), otra vez con las opciones barajadas; al responder ve la explicación; y termina con «¿dónde vas a usar esto esta semana?», que se guarda en su ficha como aplicación.
+- **Espaciado**: lo más antiguo primero; tras un acierto espera una semana; dos aciertos espaciados = aprendido y deja de salir; un fallo lo vuelve a traer.
+- Sin IA (coste cero, corrección exacta); la respuesta correcta no sale del servidor hasta que contesta. Solo preguntas de opción múltiple por ahora.
+- En Inicio, «Tu siguiente mejor paso» propone primero el repaso cuando hay errores que tocan hoy.
+- `GET /api/learning/review` (`?peek=1` solo cuenta), `POST /api/learning/review/answer`; cada respuesta queda como evidencia `repaso`.
+
 ## 1.19.0 — 2026-09-30
 
 ### V2 fase 2: demostrar sin ayuda y enseñar (teach-back)

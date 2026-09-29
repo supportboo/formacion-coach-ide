@@ -1,8 +1,8 @@
-# SkillUp · Brandooers — v1.19.0
+# SkillUp · Brandooers — v1.20.0
 
 Formación para equipos que mide lo que la persona **aplica en su trabajo**, no las horas que pasa delante de la pantalla. Cada empresa tiene su espacio, sus tutores de IA y un contenido que se adapta a la situación real de cada persona.
 
-En producción: https://skillup.brandooers.com · Última actualización: 2026-09-30 (1.19.0) · Hacia dónde va: [ARQUITECTURA-V2.md](./ARQUITECTURA-V2.md) · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
+En producción: https://skillup.brandooers.com · Última actualización: 2026-09-30 (1.20.0) · Hacia dónde va: [ARQUITECTURA-V2.md](./ARQUITECTURA-V2.md) · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
 
 ## Qué problema resuelve
 
@@ -20,6 +20,7 @@ Cada curso empieza por la situación que la persona quiere resolver en las próx
 Todo lo de esta lista está en producción. Entre paréntesis, la versión en que llegó.
 
 **Para quien aprende**
+- **Repaso de 3 minutos** (1.20.0): las preguntas que la persona falló, unos días después y espaciadas hasta que las acierta dos veces, más «¿dónde lo vas a usar esta semana?».
 - **Demostrar sin ayuda y enseñar** (1.19.0): prácticas sin tutor sacadas del contenido real del curso y «explícaselo a un compañero»; se revisan con frases literales de la respuesta como prueba y separan en la ficha lo que la persona hace con ayuda y sin ayuda de la IA.
 - **Tu capacidad y tu siguiente mejor paso** (1.18.0): por cada competencia, conocimiento, aplicación, autonomía y transferencia calculados solo con sus evidencias, con confianza, vigencia y «¿Por qué creemos esto?»; en Inicio, una sola acción recomendada con su porqué.
 - **Bienvenida en un solo recorrido** (1.10.0, 1.14.0): empieza por su situación real y lo que ya ha probado, sigue con una micropráctica de un minuto que le deja un entregable útil y enlaza con el Team DNA; con 5 minutos ya hay un perfil que personaliza tutor, contenido y recursos.

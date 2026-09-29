@@ -1,5 +1,6 @@
 ﻿import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import * as demoSvc from "./services/demonstrate.js";
+import * as reviewSvc from "./services/review.js";
 import * as capabilitySvc from "./services/capability.js";
 import * as teamsSvc from "./services/teams.js";
 import * as actSvc from "./services/activity.js";
@@ -1525,6 +1526,29 @@ app.post("/api/learning/demo/submit", async (c) => {
   if (!r) return c.json({ error: "No se ha podido revisar ahora. Inténtalo de nuevo." }, 503);
   await demoSvc.record(svcDeps, s, r);
   return c.json({ ...r, mode: s.mode, block: s.block });
+});
+// 1.20.0 (V2 fase 6a): repaso de 3 minutos con los errores reales de sus tests, espaciado.
+app.get("/api/learning/review", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`review:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const { errors, reviews } = await reviewSvc.load(svcDeps, ctx.orgId, ctx.userId);
+  const items = reviewSvc.due(errors, reviews, new Date());
+  if (c.req.query("peek") === "1") return c.json({ due: items.length });
+  if (!items.length) return c.json({ id: null, items: [] });
+  const id = newId();
+  return c.json({ id, items: reviewSvc.open(id, ctx.orgId, ctx.userId, items).map((x) => ({ ...x, courseTitle: COURSE_TITLES[x.source] || x.source })) });
+});
+app.post("/api/learning/review/answer", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ id: z.string().min(1).max(64), i: z.number().int().min(0).max(10), choice: z.number().int().min(0).max(10) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const r = reviewSvc.answer(parsed.data.id, { orgId: ctx.orgId, userId: ctx.userId }, parsed.data.i, parsed.data.choice);
+  if (!r) return c.json({ error: "Este repaso ha caducado o ya está respondido." }, 410);
+  await reviewSvc.record(svcDeps, ctx.orgId, ctx.userId, r.item, r.correct);
+  return c.json({ correct: r.correct, correctIndex: r.correctIndex, explain: r.explain });
 });
 // Curso ↔ competencia (admin y dirección): lo que se hace en el curso suma a esa competencia.
 app.get("/api/org/course-skills", async (c) => {

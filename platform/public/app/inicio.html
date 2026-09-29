@@ -624,13 +624,17 @@ SkillUp.session().then(function(s){
 // 1.18.0: una sola acción, la de mayor impacto, con su porqué (sale del estado de capacidad).
 (function(){
   function e(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-  function render(h,d){
+  function render(h,d,due){
+    // 1.20.0: si hay errores que tocan hoy, el repaso de 3 minutos va primero (el olvido no espera).
+    if(due){ h.innerHTML='<div class="sec-t">Tu siguiente mejor paso</div><div class="applied"><p style="margin:0"><b>Repaso de 3 minutos</b> · '+due+' pregunta'+(due===1?'':'s')+' que fallaste</p>'
+      +'<p class="muted" style="margin:0">Porque repasar lo que fallaste, cuando ya ha pasado un tiempo, es lo que más ayuda a no olvidarlo.</p>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap"><a class="act" style="display:inline-flex;align-items:center;text-decoration:none" href="/app/repaso.html">REPASAR AHORA</a><a class="muted" style="align-self:center" href="/app/ficha.html">Ver tu capacidad</a></div></div>'; return; }
     var k=(d.skills||[]).filter(function(x){return x.next;})[0]; if(!k){ h.innerHTML=''; return; }
     h.innerHTML='<div class="sec-t">Tu siguiente mejor paso</div><div class="applied"><p style="margin:0"><b>'+e(k.next.title)+'</b> · '+e(k.name)+'</p>'
       +'<p class="muted" style="margin:0">Porque '+e(k.next.why.charAt(0).toLowerCase()+k.next.why.slice(1))+'</p>'
       +'<div style="display:flex;gap:10px;flex-wrap:wrap">'+(k.next.href?'<a class="act" style="display:inline-flex;align-items:center;text-decoration:none" href="'+e(k.next.href)+'">HACERLO AHORA</a>':'')+'<a class="muted" style="align-self:center" href="/app/ficha.html">Ver tu capacidad</a></div></div>';
   }
-  (function wait(n){ var h=document.getElementById('nextHost'); if(h) SkillUp.api('/api/learning/capability').then(function(d){ render(h,d||{}); }).catch(function(){});
+  (function wait(n){ var h=document.getElementById('nextHost'); if(h) Promise.all([SkillUp.api('/api/learning/capability').catch(function(){return {};}),SkillUp.api('/api/learning/review?peek=1').catch(function(){return {};})]).then(function(r){ render(h,r[0]||{},(r[1]&&r[1].due)||0); });
     else if(n<100) setTimeout(function(){wait(n+1);},300); })(0);
 })();
 </script>
