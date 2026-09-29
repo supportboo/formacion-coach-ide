@@ -225,6 +225,13 @@
       "when": 1790721522557,
       "tag": "0031_training_session",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1790722029744,
+      "tag": "0032_rubric_version",
+      "breakpoints": true
     }
   ]
 }
