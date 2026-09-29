@@ -247,6 +247,23 @@ export const courseCompetency = pgTable("course_competency", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ uniq: uniqueIndex("course_competency_org_source_uniq").on(t.organizationId, t.source) }));
 
+/* 1.19.0 — Evidencias nativas (arquitectura V2, fase 2): solo lo que no existe en otra tabla. Las demás
+ * evidencias (tests, roleplays, casos…) se derivan en services/capability.ts. */
+export const evidenceEvent = pgTable("evidence_event", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  skillKey: text("skill_key").notNull(),          // comp:<id> | curso:<slug>
+  type: text("type").notNull(),                   // demostracion | teach_back
+  dimension: text("dimension").notNull(),         // conocimiento | aplicacion | autonomia | transferencia
+  context: text("context"),                       // escenario o tema trabajado
+  score: integer("score"),                        // 0-100
+  independence: text("independence").notNull(),   // guiado | asistido | independiente | enseno
+  aiHelp: text("ai_help").notNull(),              // ninguna | pista | explicacion | reescritura | solucion
+  detail: jsonb("detail").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byUser: index("evidence_event_user_idx").on(t.organizationId, t.userId) }));
+
 // Nivel por competencia (no global): 0 ninguno · 1 En formación · 2 Aplica · 3 Referente · 4 Custodio
 export const levelByCompetency = pgTable("level_by_competency", {
   id: text("id").primaryKey(),

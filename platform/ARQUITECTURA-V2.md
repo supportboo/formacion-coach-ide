@@ -122,13 +122,13 @@ Un único módulo `policy.ts` decide qué dato puede ir a qué uso. Todo lo que 
 | Fase | Qué | Resultado visible |
 |---|---|---|
 | **1 · hecha (1.18.0)** | Estado de capacidad derivado, curso↔competencia, siguiente mejor paso, arreglo de la cascada N2 duplicada | «Tu capacidad» en la ficha y «Tu siguiente mejor paso» en Inicio |
-| 2 | `evidence_event` + modo demostración (la IA aclara, no resuelve) + `ai_help`/`independence` en roleplays y casos | «Con apoyo / sin apoyo»; certificados que dicen «demostró esto en estas condiciones» |
+| **2 · hecha (1.19.0)** | `evidence_event` + modo demostración (la IA aclara, no resuelve) + `ai_help`/`independence` en roleplays y casos | «Con apoyo / sin apoyo»; certificados que dicen «demostró esto en estas condiciones» |
 | 3 | Skill Graph: conceptos y comportamientos por competencia, conceptos por bloque; los errores de test se etiquetan por concepto | «Le cuesta / parece dominar» con «¿Por qué creemos esto?» |
 | 4 | Memoria en tres capas + «Solo para mi tutor» + `retrieveContext(task)` + `policy.ts` | Menos tokens por llamada; el alumno decide qué comparte |
 | 5 | `profile_version` con impacto; la caché de «Para ti» solo se rehace con cambios de impacto alto | Menos coste de IA, contenido estable |
-| 6 | Microinteracciones de 7 tipos, presupuesto cognitivo, repaso espaciado por errores reales, Team DNA repartido en los módulos | Sesiones que se adaptan a la carga y al tiempo disponible |
+| 6 · repaso hecho (1.20.0) | Microinteracciones de 7 tipos, presupuesto cognitivo, repaso espaciado por errores reales, Team DNA repartido en los módulos | Sesiones que se adaptan a la carga y al tiempo disponible |
 | 7 | Teach-back por voz (3 min, evidencia de transferencia, nunca da N3 sola), roleplay con estado (interés, confianza, urgencia, claridad), dificultad y roleplays de interrupción (90 s, WhatsApp, email, LinkedIn) | Práctica parecida al día a día; se ve dónde cambió la conversación |
-| 8 | Panel de capacidad del equipo, **mapa de resiliencia** (bus factor por competencia), coach como multiplicador, marketplace interno | El manager ve riesgos de conocimiento, no «vigila» |
+| 8 · mapa hecho (1.21.0) | Panel de capacidad del equipo, **mapa de resiliencia** (bus factor por competencia), coach como multiplicador, marketplace interno | El manager ve riesgos de conocimiento, no «vigila» |
 | 9 | Retos de empresa («Discovery Sprint») con antes/después; retorno en 4 capas: aprendizaje demostrado · aplicación observada · resultado operativo · valor económico («no atribuible todavía» cuando lo sea) | Argumento B2B sin cifras infladas |
 | 10 | Calidad y trazabilidad: `learning_quality` por curso (fuentes, evaluación, densidad de práctica, transferibilidad, frescura, accesibilidad, dependencia de la IA), `content_claim` (afirmación, fuente, verificada, revisar el…) con aviso de caducidad; experimento controlado con evaluación a ciegas y diseño cruzado para equipos pequeños | Prueba de que funciona y contenido que no caduca en silencio |
 

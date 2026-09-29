@@ -32,6 +32,17 @@
 .perk span{color:var(--body);font-size:14px}
 .perk input{flex:1;min-width:0}
 .hand{color:var(--t)}
+.rs{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:18px;background:var(--panel)}
+.rs h2{margin:0 0 4px;font-size:19px;color:var(--ink)}
+.sum{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.rk{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.rk.sin_cobertura,.rk.critico{background:rgba(208,73,63,.16);color:#D0493F}.rk.alto{background:rgba(201,138,27,.18);color:#C98A1B}
+.rk.medio{background:rgba(63,216,224,.14);color:#1a9aa0}.rk.bajo{background:rgba(46,160,90,.16);color:var(--green,#2E9E73)}
+.rrow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:4px}
+.rrow .h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.rrow b{color:var(--ink)}.rrow .w{font-size:12.5px;color:var(--muted)}.rrow .a{font-size:13.5px;color:var(--body)}
+.kp{font-size:13.5px;color:var(--body);padding:6px 0;border-top:1px solid var(--line)}
+.chain{font-size:13.5px;color:var(--body);padding:4px 0}
 </style>
 </head>
 <body>
@@ -94,9 +105,10 @@ function render(pyrs, pk, canEdit){
   perksHtml+='<p class="msg" style="margin-top:10px">Guardarraíl: por defecto, recompensas no salariales el primer año. Se premia aplicar y enseñar, no acumular.</p></div>';
 
   document.getElementById('root').innerHTML=
-    '<div class="intro"><p>Cada competencia es una pirámide: abajo quien está en formación, arriba los Custodios que sostienen el conocimiento. Si una competencia crítica tiene menos de 2 referentes, marca riesgo: forma a un segundo. Así el saber no depende de una sola persona.</p></div>'
+    '<div id="resil"></div><div class="intro"><p>Cada competencia es una pirámide: abajo quien está en formación, arriba los Custodios que sostienen el conocimiento. Si una competencia crítica tiene menos de 2 referentes, marca riesgo: forma a un segundo. Así el saber no depende de una sola persona.</p></div>'
     +comps+perksHtml;
 
+  resil();
   if(canEdit){
     document.getElementById('savePerks').onclick=async function(){
       var body={perks:{}}; ["2","3","4"].forEach(function(l){ body.perks[l]=document.getElementById('perk_'+l).value; });
@@ -105,6 +117,25 @@ function render(pyrs, pk, canEdit){
       catch(e){ b.textContent='Guardar perks'; b.disabled=false; alert('No se pudo: '+(e.message||'')); }
     };
   }
+}
+// 1.21.0: mapa de resiliencia del conocimiento (dirección, admin, inspiradores).
+var RK={sin_cobertura:'Sin cobertura',critico:'Crítico',alto:'Alto',medio:'Medio',bajo:'Bajo'};
+function resil(){
+  SkillUp.api('/api/analytics/resilience').then(function(d){
+    if(!d||!d.competencies||!d.competencies.length) return;
+    var h='<div class="rs"><h2>Mapa de riesgo del conocimiento</h2><p class="msg" style="margin:0">Dónde depende la empresa de muy pocas personas y qué hacer. Sale solo de los niveles acreditados y de los acompañamientos.</p>';
+    h+='<div class="sum">'+['sin_cobertura','critico','alto','medio','bajo'].filter(function(k){return d.counts[k];}).map(function(k){ return '<span class="rk '+k+'">'+RK[k]+': '+d.counts[k]+'</span>'; }).join('')+'</div>';
+    h+=d.competencies.map(function(c){ return '<div class="rrow"><div class="h"><b>'+E(c.name)+(c.critical?' · crítica':'')+'</b><span class="rk '+c.risk+'">Riesgo '+RK[c.risk].toLowerCase()+'</span></div>'
+      +'<div class="w">'+E(c.why)+(c.holders.length?' La sostienen: '+c.holders.map(function(x){return E(x.name)+' (N'+x.level+')';}).join(', ')+'.':'')+'</div>'
+      +(c.action?'<div class="a">→ '+E(c.action)+'</div>':'')+'</div>'; }).join('');
+    h+='</div>';
+    if(d.keyPeople.length) h+='<div class="rs"><h2>Personas clave</h2><p class="msg" style="margin:0 0 6px">Si faltaran mañana, estas capacidades quedarían en riesgo.</p>'+d.keyPeople.map(function(k){
+      return '<div class="kp"><b style="color:var(--ink)">'+E(k.name)+'</b>'+(k.onlyHolderOf.length?' · única persona que aplica: '+E(k.onlyHolderOf.join(', ')):'')+(k.holds.length?' · referente en: '+k.holds.map(function(x){return E(x.name)+' (N'+x.level+')';}).join(', '):'')+'</div>'; }).join('')+'</div>';
+    if(d.coaches.length) h+='<div class="rs"><h2>Quién multiplica el conocimiento</h2><p class="msg" style="margin:0 0 6px">No cuenta a quién invitó cada coach: cuenta cuántas personas acompañó hasta que lo aplicaron solas.</p>'+d.coaches.map(function(k){
+      return '<div class="kp"><b style="color:var(--ink)">'+E(k.name)+'</b> · '+k.total+' acompañada'+(k.total===1?'':'s')+': '+k.logrado+' llegaron a aplicarlo, '+k.activo+' en curso'+(k.fallido?', '+k.fallido+' sin lograr':'')+(k.rate!=null?' · '+k.rate+' % de éxito':'')+(k.teaches?' · <b style="color:var(--green,#2E9E73)">sabe enseñar</b>':'')+'</div>'; }).join('')+'</div>';
+    if(d.chains.length) h+='<div class="rs"><h2>Cadenas de transferencia</h2><p class="msg" style="margin:0 0 6px">Quién formó a quién: el conocimiento que ya se ha quedado en casa.</p>'+d.chains.map(function(ch){ return '<div class="chain"><b style="color:var(--ink)">'+E(ch.competency)+':</b> '+ch.path.map(E).join(' → ')+'</div>'; }).join('')+'</div>';
+    document.getElementById('resil').innerHTML=h;
+  }).catch(function(){ /* team leaders y otros roles: solo pirámides */ });
 }
 </script>
 <script src="/app/nav.js" defer></script>

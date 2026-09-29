@@ -1,5 +1,34 @@
 # Changelog · SkillUp platform
 
+## 1.21.0 — 2026-09-30
+
+### V2 fase 8: mapa de riesgo del conocimiento (para dirección)
+- En **Pirámides**, para dirección, admin e inspiradores: por cada competencia, cuántas personas la aplican solas (N2+) y cuántas son referentes (N3+), y su riesgo (sin cobertura, crítico, alto, medio, bajo; una competencia crítica sube un escalón). Ahora cubre todas las competencias, no solo las críticas.
+- **Qué hacer**, concreto: «Propón a Ana acompañar a David en dos prácticas» (quien la domina, preferiblemente referente y con menos acompañamientos activos, con quien la está aprendiendo).
+- **Personas clave**: quién es la única que aplica alguna competencia o es referente en varias.
+- **Quién multiplica el conocimiento**: por coach, cuántas personas acompañó, cuántas llegaron a aplicarlo solas, % de éxito y «sabe enseñar» (2+ logrados y ≥60 %).
+- **Cadenas de transferencia**: quién formó a quién (Ana → Carlos → Lucía).
+- Solo niveles acreditados y acompañamientos; nunca la ficha privada ni conversaciones. Los team leaders siguen viendo solo las pirámides (su alcance es su equipo). `GET /api/analytics/resilience`.
+
+## 1.20.0 — 2026-09-30
+
+### V2 fase 6a: repaso de 3 minutos con tus errores reales
+- **Repaso** (`/app/repaso.html`): hasta 3 preguntas que la persona falló en sus tests hace al menos 2 días («Hace 18 días fallaste esto en el test del bloque 3 de…»), otra vez con las opciones barajadas; al responder ve la explicación; y termina con «¿dónde vas a usar esto esta semana?», que se guarda en su ficha como aplicación.
+- **Espaciado**: lo más antiguo primero; tras un acierto espera una semana; dos aciertos espaciados = aprendido y deja de salir; un fallo lo vuelve a traer.
+- Sin IA (coste cero, corrección exacta); la respuesta correcta no sale del servidor hasta que contesta. Solo preguntas de opción múltiple por ahora.
+- En Inicio, «Tu siguiente mejor paso» propone primero el repaso cuando hay errores que tocan hoy.
+- `GET /api/learning/review` (`?peek=1` solo cuenta), `POST /api/learning/review/answer`; cada respuesta queda como evidencia `repaso`.
+
+## 1.19.0 — 2026-09-30
+
+### V2 fase 2: demostrar sin ayuda y enseñar (teach-back)
+- **Demuéstralo sin ayuda** (`/app/demostrar.html`): una situación de su trabajo sacada del contenido real de un bloque del curso y de lo que sabemos de su día a día; responde sin tutor, sin pistas y sin poder pegar texto (sí dictar). Se revisa conducta a conducta.
+- **Explícaselo a un compañero** (teach-back): elige un bloque que ya aprobó; lo explica por escrito o con el micro, sin mirar el curso. Los conceptos esperados son los apartados reales del bloque; se revisa qué cubre, si pone un ejemplo, la claridad y qué le falta.
+- **La nota no la inventa la IA**: el modelo juzga cada criterio con una frase literal de la respuesta, y el servidor comprueba que esa frase está de verdad en el texto; sin prueba, el criterio no cuenta. La nota se calcula con reglas fijas.
+- **Evidencias propias** en la tabla `evidence_event` (migración 0030) con independencia («independiente», «enseñó») y ayuda de la IA («ninguna»). En «Tu capacidad»: la demostración suma a autonomía y se ve aparte como «Sin ayuda de la IA»; el teach-back suma como mucho 25 puntos a transferencia (explicar no es haber formado a alguien) y nunca da N3 por sí solo. Nuevas casillas en la lista de evidencias y accesos directos en cada tema.
+- Siguiente paso: tras dominar la teoría, «Demuéstralo sin ayuda»; con conocimiento alto, «Explícaselo a un compañero».
+- `POST /api/learning/demo/start`, `POST /api/learning/demo/submit`. Criterios y conceptos solo se enseñan al final.
+
 ## 1.18.0 — 2026-09-29
 
 ### Arquitectura V2, fase 1: la capacidad de la persona es la unidad principal

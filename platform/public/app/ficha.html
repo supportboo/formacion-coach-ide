@@ -63,9 +63,12 @@ try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElemen
   function card(k){
     var h='<div class="card cap"><div class="hd"><h3 style="margin:0;font-size:17px;color:var(--ink)">'+e(k.name)+'</h3><span class="lv">'+(k.level!=null?e(LV[k.level]||('N'+k.level)):'Sin acreditar')+'</span></div>';
     h+=DIM.map(function(d){ var v=k.dims[d[0]]; return '<div class="dim"><div class="row1"><span>'+d[1]+'</span><b>'+v.value+' %</b></div><div class="bar" role="img" aria-label="'+d[1]+' '+v.value+' %"><i style="width:'+v.value+'%"></i></div><small>'+e(v.why)+'</small></div>'; }).join('');
+    if(k.sinAyuda) h+='<p class="muted" style="margin:0;font-size:13.5px">Sin ayuda de la IA: <b style="color:var(--ink)">'+k.sinAyuda.value+'/100</b> · '+e(k.sinAyuda.why)+'</p>';
     h+='<ul class="chk">'+k.checklist.map(function(c){ return '<li class="'+(c.done?'ok':'')+'">'+(c.done?'✓ ':'○ ')+e(c.label)+'</li>'; }).join('')+'</ul>';
     h+='<p class="muted" style="margin:0;font-size:13.5px">Confianza de la estimación: <b>'+e(k.confidence.label)+'</b> ('+e(k.confidence.why.join(', '))+')'+(k.lastEvidenceAt?' · Última evidencia: '+days(k.lastEvidenceAt):'')+'</p>';
     if(k.next) h+='<div class="next"><span class="muted" style="font-size:12.5px">Tu siguiente mejor paso</span><b>'+e(k.next.title)+'</b><span class="muted" style="font-size:13.5px">Porque '+e(k.next.why.charAt(0).toLowerCase()+k.next.why.slice(1))+'</span>'+(k.next.href?'<a class="btn" style="justify-self:start" href="'+e(k.next.href)+'">HACERLO AHORA</a>':'')+'</div>';
+    if(k.courses&&k.courses.length){ var q='/app/demostrar.html?skill='+encodeURIComponent(k.key)+'&modo=';
+      h+='<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:14px"><a href="'+q+'demostracion">Demostrarlo sin ayuda</a><a href="'+q+'teach_back">Explicárselo a un compañero</a></div>'; }
     if(k.evidence.length) h+='<details><summary>¿Por qué creemos esto? ('+k.evidence.length+' evidencias)</summary><ul class="evl">'+k.evidence.map(function(v){ return '<li>'+e(v.label)+' · '+days(v.at)+'</li>'; }).join('')+'</ul></details>';
     return h+'</div>'; }
   SkillUp.api('/api/learning/capability').then(function(d){
