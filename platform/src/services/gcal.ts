@@ -18,15 +18,17 @@ function cfg() {
 export function isConfigured(): boolean { return !!cfg(); }
 
 const SCOPE = "https://www.googleapis.com/auth/calendar.events";
-export function authUrl(state: string): string {
+// 1.22.0: leer las transcripciones de sus reuniones de Meet (alcance «sensible», sin Drive).
+export const MEET_SCOPE = "https://www.googleapis.com/auth/meetings.space.readonly";
+export function authUrl(state: string, scopes: string[] = [SCOPE]): string {
   const c = cfg(); if (!c) return "";
   const p = new URLSearchParams({
     client_id: c.clientId, redirect_uri: c.redirect, response_type: "code",
-    scope: SCOPE, access_type: "offline", prompt: "consent", include_granted_scopes: "true", state,
+    scope: scopes.join(" "), access_type: "offline", prompt: "consent", include_granted_scopes: "true", state,
   });
   return "https://accounts.google.com/o/oauth2/v2/auth?" + p.toString();
 }
-export async function exchangeCode(code: string): Promise<{ refresh_token?: string; access_token?: string } | null> {
+export async function exchangeCode(code: string): Promise<{ refresh_token?: string; access_token?: string; scope?: string } | null> {
   const c = cfg(); if (!c) return null;
   try {
     const r = await fetch("https://oauth2.googleapis.com/token", {
@@ -35,7 +37,7 @@ export async function exchangeCode(code: string): Promise<{ refresh_token?: stri
       signal: AbortSignal.timeout(10000),
     });
     if (!r.ok) return null;
-    return await r.json() as { refresh_token?: string; access_token?: string };
+    return await r.json() as { refresh_token?: string; access_token?: string; scope?: string };
   } catch { return null; }
 }
 export async function accessFromRefresh(refresh: string): Promise<string | null> {
@@ -61,4 +63,45 @@ export async function insertEvent(accessToken: string, ev: { summary: string; de
     const t = await r.text().catch(() => "");
     return { ok: false, error: r.status + " " + t.slice(0, 240) };
   } catch (e) { return { ok: false, error: String((e as Error).message || e).slice(0, 160) }; }
+}
+
+/* ---------------------------------------------------------------- Google Meet REST API v2 (1.22.0) */
+const MEET = "https://meet.googleapis.com/v2";
+async function meetGet<T>(access: string, path: string): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
+  try {
+    const r = await fetch(MEET + path, { headers: { authorization: "Bearer " + access }, signal: AbortSignal.timeout(15000) });
+    if (!r.ok) return { ok: false, error: r.status + " " + (await r.text().catch(() => "")).slice(0, 240) };
+    return { ok: true, data: await r.json() as T };
+  } catch (e) { return { ok: false, error: String((e as Error).message || e).slice(0, 160) } ; }
+}
+
+export interface MeetRecord { name: string; startTime: string; endTime?: string; space?: string }
+/** Reuniones de los últimos N días (la API de Meet borra las transcripciones a los 30 días). */
+export async function recentConferences(access: string, days = 30) {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const q = new URLSearchParams({ pageSize: "50", filter: `start_time>="${since}"` });
+  return meetGet<{ conferenceRecords?: MeetRecord[] }>(access, "/conferenceRecords?" + q.toString());
+}
+export async function transcriptsOf(access: string, record: string) {
+  return meetGet<{ transcripts?: { name: string; state?: string }[] }>(access, `/${record}/transcripts`);
+}
+/** Frases de una transcripción con el nombre visible de quien habla. */
+export async function transcriptLines(access: string, record: string, transcript: string, maxPages = 40): Promise<{ ok: true; lines: { speaker: string; text: string; start: string | null }[] } | { ok: false; error: string }> {
+  const names = new Map<string, string>();
+  let tok = "";
+  for (let i = 0; i < 10; i++) {
+    const p = await meetGet<{ participants?: { name: string; signedinUser?: { displayName?: string }; anonymousUser?: { displayName?: string }; phoneUser?: { displayName?: string } }[]; nextPageToken?: string }>(access, `/${record}/participants?pageSize=100${tok ? "&pageToken=" + encodeURIComponent(tok) : ""}`);
+    if (!p.ok) return p;
+    for (const x of p.data.participants ?? []) names.set(x.name, x.signedinUser?.displayName || x.anonymousUser?.displayName || x.phoneUser?.displayName || "Participante");
+    if (!(tok = p.data.nextPageToken || "")) break;
+  }
+  const lines: { speaker: string; text: string; start: string | null }[] = [];
+  tok = "";
+  for (let i = 0; i < maxPages; i++) {
+    const e = await meetGet<{ transcriptEntries?: { participant?: string; text?: string; startTime?: string }[]; nextPageToken?: string }>(access, `/${transcript}/entries?pageSize=100${tok ? "&pageToken=" + encodeURIComponent(tok) : ""}`);
+    if (!e.ok) return e;
+    for (const x of e.data.transcriptEntries ?? []) if (x.text) lines.push({ speaker: names.get(x.participant || "") || "Participante", text: x.text, start: x.startTime || null });
+    if (!(tok = e.data.nextPageToken || "")) break;
+  }
+  return { ok: true, lines };
 }

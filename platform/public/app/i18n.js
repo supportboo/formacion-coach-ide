@@ -44,7 +44,7 @@
       "cr.item.clonar_voz": "Clone your voice",
       "cr.item.curso_ia": "Create a course with AI (expert panel)",
 
-      'nav.dashboard': 'My dashboard', 'nav.courses': 'Courses', 'nav.explore': 'Explore', 'nav.videos': 'Videos', 'nav.roleplays': 'Role-plays',
+      'nav.dashboard': 'My dashboard', 'nav.courses': 'Courses', 'nav.explore': 'Explore', 'nav.videos': 'Videos', 'nav.roleplays': 'Role-plays', 'nav.sessions': 'Sessions you teach',
       'nav.ranking': 'Leaderboard', 'nav.certs': 'Certificates', 'nav.teamdna': 'Team DNA', 'nav.help': 'Help', 'nav.privacy': 'Your data',
       'nav.assign': 'Assign tests', 'nav.validate': 'Validate cases', 'nav.metrics': 'Metrics and insights', 'nav.live': 'Live',
       'nav.company': 'Company dashboard', 'nav.chatuse': 'Chat usage', 'nav.pyramids': 'Pyramids', 'nav.roi': 'ROI report',
@@ -188,7 +188,7 @@
       "cr.item.clonar_voz": "Clonar la teva veu",
       "cr.item.curso_ia": "Crear un curs amb IA (panell d'experts)",
 
-      'nav.dashboard': 'El meu tauler', 'nav.courses': 'Formacions', 'nav.explore': 'Explorar', 'nav.videos': 'Vídeos', 'nav.roleplays': 'Jocs de rol',
+      'nav.dashboard': 'El meu tauler', 'nav.courses': 'Formacions', 'nav.explore': 'Explorar', 'nav.videos': 'Vídeos', 'nav.roleplays': 'Jocs de rol', 'nav.sessions': 'Formacions que imparteixes',
       'nav.ranking': 'Rànquing', 'nav.certs': 'Certificats', 'nav.teamdna': 'Team DNA', 'nav.help': 'Ajuda', 'nav.privacy': 'Les teves dades',
       'nav.assign': 'Assignar proves', 'nav.validate': 'Validar casos', 'nav.metrics': 'Mètriques i insights', 'nav.live': 'En directe',
       'nav.company': "Tauler d'empresa", 'nav.chatuse': 'Ús del xat', 'nav.pyramids': 'Piràmides', 'nav.roi': 'Informe de ROI',
@@ -332,7 +332,7 @@
       "cr.item.clonar_voz": "Clonar a tua voz",
       "cr.item.curso_ia": "Criar um curso com IA (painel de especialistas)",
 
-      'nav.dashboard': 'O meu painel', 'nav.courses': 'Formações', 'nav.explore': 'Explorar', 'nav.videos': 'Vídeos', 'nav.roleplays': 'Role-plays',
+      'nav.dashboard': 'O meu painel', 'nav.courses': 'Formações', 'nav.explore': 'Explorar', 'nav.videos': 'Vídeos', 'nav.roleplays': 'Role-plays', 'nav.sessions': 'Formações que dás',
       'nav.ranking': 'Classificação', 'nav.certs': 'Certificados', 'nav.teamdna': 'Team DNA', 'nav.help': 'Ajuda', 'nav.privacy': 'Os teus dados',
       'nav.assign': 'Atribuir provas', 'nav.validate': 'Validar casos', 'nav.metrics': 'Métricas e insights', 'nav.live': 'Em direto',
       'nav.company': 'Painel da empresa', 'nav.chatuse': 'Utilização do chat', 'nav.pyramids': 'Pirâmides', 'nav.roi': 'Relatório de ROI',
@@ -476,7 +476,7 @@
       "cr.item.clonar_voz": "Cloner ta voix",
       "cr.item.curso_ia": "Créer un cours avec l’IA (panel d'experts)",
 
-      'nav.dashboard': 'Mon tableau de bord', 'nav.courses': 'Formations', 'nav.explore': 'Explorer', 'nav.videos': 'Vidéos', 'nav.roleplays': 'Jeux de rôle',
+      'nav.dashboard': 'Mon tableau de bord', 'nav.courses': 'Formations', 'nav.explore': 'Explorer', 'nav.videos': 'Vidéos', 'nav.roleplays': 'Jeux de rôle', 'nav.sessions': 'Formations que tu animes',
       'nav.ranking': 'Classement', 'nav.certs': 'Certificats', 'nav.teamdna': 'Team DNA', 'nav.help': 'Aide', 'nav.privacy': 'Tes données',
       'nav.assign': 'Attribuer des épreuves', 'nav.validate': 'Valider des cas', 'nav.metrics': 'Indicateurs et insights', 'nav.live': 'En direct',
       'nav.company': "Tableau de bord de l'entreprise", 'nav.chatuse': 'Utilisation du chat', 'nav.pyramids': 'Pyramides', 'nav.roi': 'Rapport de ROI',

@@ -2,6 +2,7 @@
 import * as demoSvc from "./services/demonstrate.js";
 import * as reviewSvc from "./services/review.js";
 import * as resilienceSvc from "./services/resilience.js";
+import * as sessionsSvc from "./services/sessions.js";
 import * as capabilitySvc from "./services/capability.js";
 import * as teamsSvc from "./services/teams.js";
 import * as actSvc from "./services/activity.js";
@@ -18,7 +19,7 @@ import { chat, onboardingMarker } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt, courseCompetency } from "./db/schema.js";
+import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt, courseCompetency, trainingSession, evidenceEvent } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import { orgTerms } from "./services/glossary.js";
 import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, OFFTOPIC_REPLY, orgBannedWords, quotaFor, setOrgBannedWords } from "./services/contentGuard.js";
@@ -454,8 +455,12 @@ app.post("/api/learning/videos/watch", async (c) => {
 
 // --- Google Calendar (OAuth por usuario; token guardado en annotation source=gcal_token) ---
 async function gcalRefresh(orgId: string, userId: string): Promise<string | null> {
+  return (await gcalToken(orgId, userId))?.r ?? null;
+}
+/** El permiso de Google más reciente de la persona (con los alcances concedidos, desde 1.22.0). */
+async function gcalToken(orgId: string, userId: string): Promise<{ r: string; s?: string } | null> {
   const rows = await notesSvc.list(svcDeps, orgId, userId, "gcal_token").catch(() => [] as { body: string | null }[]);
-  for (const n of rows) { try { const o = JSON.parse(String(n.body || "")); if (o && o.r) return o.r as string; } catch { /* siguiente */ } }
+  for (const n of rows) { try { const o = JSON.parse(String(n.body || "")); if (o && o.r) return o as { r: string; s?: string }; } catch { /* siguiente */ } }
   return null;
 }
 app.get("/api/gcal/status", async (c) => {
@@ -473,11 +478,12 @@ app.get("/api/gcal/callback", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.redirect("/app/login.html");
   const code = c.req.query("code");
-  if (!code) return c.redirect("/app/ruta.html?gcal=err");
+  const back = String(c.req.query("state") || "").endsWith("|meet") ? "/app/sesiones.html?meet=" : "/app/ruta.html?gcal=";
+  if (!code) return c.redirect(back + "err");
   const tok = await gcal.exchangeCode(code);
-  if (!tok || !tok.refresh_token) return c.redirect("/app/ruta.html?gcal=err");
-  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "gcal_token", kind: "insight", body: JSON.stringify({ r: tok.refresh_token, at: Date.now() }) });
-  return c.redirect("/app/ruta.html?gcal=ok");
+  if (!tok || !tok.refresh_token) return c.redirect(back + "err");
+  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "gcal_token", kind: "insight", body: JSON.stringify({ r: tok.refresh_token, s: tok.scope || "", at: Date.now() }) });
+  return c.redirect(back + "ok");
 });
 app.post("/api/gcal/sync", async (c) => {
   const ctx = await getAuthContext(c);
@@ -1550,6 +1556,135 @@ app.post("/api/learning/review/answer", async (c) => {
   if (!r) return c.json({ error: "Este repaso ha caducado o ya está respondido." }, 410);
   await reviewSvc.record(svcDeps, ctx.orgId, ctx.userId, r.item, r.correct);
   return c.json({ correct: r.correct, correctIndex: r.correctIndex, explain: r.explain });
+});
+// 1.22.0: formaciones reales que imparte la persona (Google Meet o transcripción). Solo se evalúa a quien forma,
+// el resto se anonimiza, la transcripción no se guarda (vive en memoria 1 h) y hace falta confirmar el consentimiento.
+// ponytail: transcripciones preparadas en memoria de proceso; un reinicio obliga a volver a subirla.
+const sessionStash = new Map<string, { orgId: string; userId: string; lines: sessionsSvc.Line[]; source: "subida" | "meet"; heldAt: Date | null; expires: number }>();
+async function sessionSkills(orgId: string) {
+  const comps = await db.select({ id: competency.id, name: competency.name }).from(competency).where(eq(competency.organizationId, orgId));
+  return [...comps.map((c) => ({ key: `comp:${c.id}`, name: c.name })), ...[...COURSE_SLUGS].map((sl) => ({ key: `curso:${sl}`, name: COURSE_TITLES[sl] || sl }))];
+}
+async function stashLines(ctx: { orgId: string; userId: string }, lines: sessionsSvc.Line[], source: "subida" | "meet", heldAt: Date | null) {
+  const who = sessionsSvc.speakers(lines);
+  if (lines.length < 6 || who.length < 2) return { error: "No encuentro una conversación con al menos dos personas. Usa la transcripción con los nombres de quien habla (por ejemplo, «Ana: …»)." };
+  const id = newId();
+  sessionStash.set(id, { orgId: ctx.orgId, userId: ctx.userId, lines, source, heldAt, expires: Date.now() + 3_600_000 });
+  return { id, speakers: who.slice(0, 30), lines: lines.length, skills: await sessionSkills(ctx.orgId) };
+}
+app.post("/api/sessions/prepare", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`sessprep:${ctx.orgId}:${ctx.userId}`, 20, 600_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ transcript: z.string().min(50).max(400_000) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "Pega o sube la transcripción completa (texto)." }, 400);
+  const r = await stashLines(ctx, sessionsSvc.parseTranscript(parsed.data.transcript), "subida", null);
+  return "error" in r ? c.json(r, 400) : c.json(r);
+});
+app.get("/api/sessions/meet/status", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const t = await gcalToken(ctx.orgId, ctx.userId);
+  return c.json({ configured: gcal.isConfigured(), meet: !!t && String(t.s || "").includes("meetings.space") });
+});
+app.get("/api/sessions/meet/connect", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.redirect("/app/login.html");
+  if (!gcal.isConfigured()) return c.json({ error: "Google no está configurado en el servidor" }, 400);
+  return c.redirect(gcal.authUrl(ctx.userId + "|meet", ["https://www.googleapis.com/auth/calendar.events", gcal.MEET_SCOPE]));
+});
+function meetHint(err: string): string {
+  const e = err.toLowerCase();
+  if (e.includes("has not been used") || e.includes("service_disabled") || e.includes("is disabled")) return "La API de Google Meet no está activada en el proyecto de Google Cloud de la plataforma. Avisa al administrador.";
+  if (e.startsWith("403") || e.includes("insufficient")) return "Google no ha dado permiso para leer tus reuniones. Vuelve a conectar y acepta el permiso de Meet. Solo funciona con cuentas de Google Workspace (Business Standard o superior).";
+  if (e.startsWith("401") || e.includes("invalid_grant")) return "La conexión con Google ha caducado. Vuelve a conectar.";
+  return "Google no ha respondido. Inténtalo en un momento o sube la transcripción a mano.";
+}
+app.get("/api/sessions/meet/recent", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`meetlist:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
+  const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
+  if (!access) return c.json({ error: "Conecta Google Meet primero." }, 400);
+  const recs = await gcal.recentConferences(access);
+  if (!recs.ok) return c.json({ error: meetHint(recs.error) }, 502);
+  const out = [];
+  for (const rec of (recs.data.conferenceRecords ?? []).slice(0, 15)) {
+    const t = await gcal.transcriptsOf(access, rec.name);
+    const tr = t.ok ? (t.data.transcripts ?? []).find((x) => x.state !== "STARTED") : undefined;
+    out.push({ record: rec.name, transcript: tr?.name ?? null, start: rec.startTime, end: rec.endTime ?? null,
+      minutes: rec.endTime ? Math.round((Date.parse(rec.endTime) - Date.parse(rec.startTime)) / 60000) : null });
+  }
+  return c.json({ meetings: out });
+});
+app.post("/api/sessions/meet/load", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`meetload:${ctx.orgId}:${ctx.userId}`, 10, 600_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ record: z.string().regex(/^conferenceRecords\/[\w-]+$/), transcript: z.string().regex(/^conferenceRecords\/[\w-]+\/transcripts\/[\w-]+$/) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success || !parsed.data.transcript.startsWith(parsed.data.record + "/")) return c.json({ error: "reunión no válida" }, 400);
+  const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
+  const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
+  if (!access) return c.json({ error: "Conecta Google Meet primero." }, 400);
+  const t = await gcal.transcriptLines(access, parsed.data.record, parsed.data.transcript);
+  if (!t.ok) return c.json({ error: meetHint(t.error) }, 502);
+  const t0 = t.lines.find((l) => l.start)?.start;
+  const base = t0 ? Date.parse(t0) : null;
+  const lines = t.lines.map((l) => ({ speaker: l.speaker, text: l.text, start: base != null && l.start ? (Date.parse(l.start) - base) / 1000 : null }));
+  const merged: sessionsSvc.Line[] = [];
+  for (const x of lines) { const last = merged[merged.length - 1]; if (last && last.speaker === x.speaker) last.text += " " + x.text; else merged.push({ ...x }); }
+  const r = await stashLines(ctx, merged, "meet", base != null ? new Date(base) : null);
+  return "error" in r ? c.json(r, 400) : c.json(r);
+});
+app.post("/api/sessions/analyze", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`sessan:${ctx.orgId}:${ctx.userId}`, 6, 86_400_000)) return c.json({ error: "Has analizado varias sesiones hoy: vuelve mañana." }, 429);
+  const parsed = z.object({
+    id: z.string().min(1).max(64), trainer: z.string().min(1).max(80), title: z.string().trim().min(3).max(200), topic: z.string().trim().max(200).default(""),
+    skillKey: z.string().max(120).nullable().default(null), consent: z.literal(true),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "Revisa los datos y confirma que los asistentes sabían que se grababa." }, 400);
+  const st = sessionStash.get(parsed.data.id);
+  if (!st || st.orgId !== ctx.orgId || st.userId !== ctx.userId || st.expires < Date.now()) return c.json({ error: "La transcripción ha caducado. Vuelve a subirla." }, 410);
+  if (!st.lines.some((l) => l.speaker === parsed.data.trainer)) return c.json({ error: "Elige quién eres tú en la transcripción." }, 400);
+  const d = parsed.data;
+  if (d.skillKey && !(await sessionSkills(ctx.orgId)).some((k) => k.key === d.skillKey)) return c.json({ error: "tema no válido" }, 400);
+  const m = sessionsSvc.metrics(st.lines, d.trainer);
+  const a = await sessionsSvc.analyze({ orgId: ctx.orgId, userId: ctx.userId, title: d.title, topic: d.topic, lines: st.lines, trainer: d.trainer, catalog: COURSE_TITLES });
+  if (!a) return c.json({ error: "No se ha podido analizar ahora. Inténtalo de nuevo en un momento." }, 503);
+  sessionStash.delete(d.id); // la transcripción no se guarda
+  const id = await sessionsSvc.save(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, title: d.title, topic: d.topic, skillKey: d.skillKey, source: st.source, heldAt: st.heldAt, metrics: m, analysis: a });
+  // Lo que más le conviene trabajar como formador pasa a su ficha (con cita literal), para adaptar su formación.
+  if (a.necesidades[0] && a.momentos[0]) await factsSvc.applyOps(svcDeps, ctx.orgId, ctx.userId, [{ op: "add", layer: "ensenanza",
+    text: `Cuando forma a su equipo, le conviene trabajar: ${a.necesidades[0]}`, evidence: a.momentos[0].cita }], { type: "practica", ref: d.title }).catch(() => 0);
+  return c.json({ id, metrics: m, analysis: a, recommended: a.recomendados.map((s2) => ({ slug: s2, title: COURSE_TITLES[s2] || s2 })) });
+});
+app.get("/api/sessions", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const rows = await db.select({ id: trainingSession.id, title: trainingSession.title, score: trainingSession.score, heldAt: trainingSession.heldAt, createdAt: trainingSession.createdAt, source: trainingSession.source })
+    .from(trainingSession).where(and(eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId))).orderBy(desc(trainingSession.createdAt)).limit(50);
+  return c.json({ sessions: rows });
+});
+app.get("/api/sessions/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const [r] = await db.select().from(trainingSession).where(and(eq(trainingSession.id, c.req.param("id")), eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId)));
+  if (!r) return c.json({ error: "no encontrada" }, 404);
+  const a = r.analysis as { recomendados?: string[] } | null;
+  return c.json({ ...r, recommended: (a?.recomendados ?? []).map((s2) => ({ slug: s2, title: COURSE_TITLES[s2] || s2 })) });
+});
+app.delete("/api/sessions/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const id = c.req.param("id");
+  const del = await db.delete(trainingSession).where(and(eq(trainingSession.id, id), eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId))).returning({ id: trainingSession.id });
+  if (!del.length) return c.json({ error: "no encontrada" }, 404);
+  await db.delete(evidenceEvent).where(and(eq(evidenceEvent.organizationId, ctx.orgId), eq(evidenceEvent.userId, ctx.userId), sql`${evidenceEvent.detail}->>'sessionId' = ${id}`));
+  return c.json({ ok: true });
 });
 // Curso ↔ competencia (admin y dirección): lo que se hace en el curso suma a esa competencia.
 app.get("/api/org/course-skills", async (c) => {

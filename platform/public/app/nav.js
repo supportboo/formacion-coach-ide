@@ -37,6 +37,7 @@
     ['/app/explorar.html', 'Explorar', 'nav.explore|compass', 'base'],
     ['/app/videos.html', 'Vídeos', 'nav.videos|video', 'base'],
     ['/app/roleplays.html', 'Roleplays', 'nav.roleplays|chat', 'base'],
+    ['/app/sesiones.html', 'Formaciones que impartes', 'nav.sessions|chat', 'base'],
     ['/app/ranking.html', 'Ranking', 'nav.ranking|trophy', 'base'],
     ['/app/certificado.html', 'Certificados', 'nav.certs|award', 'base'],
     ['/app/team-dna.html', 'Team DNA', 'nav.teamdna|dna', 'base'],

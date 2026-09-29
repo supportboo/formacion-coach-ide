@@ -15,7 +15,7 @@ import type { SvcDeps } from "./org.js";
 const DAY = 86_400_000;
 
 export type Dimension = "conocimiento" | "aplicacion" | "autonomia" | "transferencia";
-export type EvidenceType = "test_bloque" | "examen_final" | "micropractica" | "roleplay" | "caso_validado" | "aplicacion_real" | "acompanamiento" | "demostracion" | "teach_back";
+export type EvidenceType = "test_bloque" | "examen_final" | "micropractica" | "roleplay" | "caso_validado" | "aplicacion_real" | "acompanamiento" | "demostracion" | "teach_back" | "formacion_real";
 
 export interface Evidence {
   type: EvidenceType;
@@ -88,6 +88,8 @@ export function collect(raw: Raw): Map<string, Evidence[]> {
     const topic = (e.context || "").split(" · ")[0];
     if (e.type === "demostracion") add(e.skillKey, { type: "demostracion", dimension: "autonomia", score: e.score, at: e.at, aiHelp: "ninguna",
       label: `Demostración sin ayuda${topic ? ` («${topic}»)` : ""} · ${e.score}/100` });
+    else if (e.type === "formacion_real") add(e.skillKey, { type: "formacion_real", dimension: "transferencia", score: e.score, at: e.at, aiHelp: "ninguna",
+      label: `Impartió una formación real${e.context ? ` («${e.context}»)` : ""} · ${e.score}/100` });
     else if (e.type === "teach_back") add(e.skillKey, { type: "teach_back", dimension: "transferencia", score: e.score, at: e.at, aiHelp: "ninguna",
       label: `Lo explicó a un compañero${topic ? ` («${topic}»)` : ""} · ${e.score}/100` });
   }
@@ -125,7 +127,8 @@ export function stateOf(key: string, ev: Evidence[], raw: Raw): SkillState {
   const of = (t: EvidenceType) => ev.filter((e) => e.type === t);
   const blocks = of("test_bloque"), finals = of("examen_final"), rps = of("roleplay"), micro = of("micropractica");
   const cases = of("caso_validado"), real = of("aplicacion_real"), mentees = of("acompanamiento");
-  const demos = of("demostracion"), teach = of("teach_back");
+  const demos = of("demostracion"), teach = of("teach_back"), realT = of("formacion_real");
+  const bestReal = realT.length ? Math.max(...realT.map((x) => x.score ?? 0)) : null;
   const bestDemo = demos.length ? Math.max(...demos.map((x) => x.score ?? 0)) : null;
   const bestTeach = teach.length ? Math.max(...teach.map((x) => x.score ?? 0)) : null;
   const total = courses.reduce((a, s) => a + (raw.totalBlocks.get(s) ?? 0), 0);
@@ -156,10 +159,12 @@ export function stateOf(key: string, ev: Evidence[], raw: Raw): SkillState {
   // Transferencia: a quién ha ayudado a aprender.
   const done = mentees.filter((m) => m.score === 100).length, active = mentees.length - done;
   // El teach-back aporta como mucho 25 puntos: explicar bien no es lo mismo que haber formado a alguien.
-  const transfer = clamp(35 * done + 10 * active + 0.25 * (bestTeach ?? 0));
-  const transferWhy = !mentees.length && bestTeach == null ? "Todavía no ha acompañado ni explicado el tema a nadie."
+  // Una formación real impartida a compañeros aporta hasta 40 (más que explicarlo en un ejercicio, menos que formar a alguien hasta N2).
+  const transfer = clamp(35 * done + 10 * active + 0.25 * (bestTeach ?? 0) + 0.4 * (bestReal ?? 0));
+  const transferWhy = !mentees.length && bestTeach == null && bestReal == null ? "Todavía no ha acompañado ni explicado el tema a nadie."
     : [mentees.length ? `${done} persona(s) acompañadas hasta N2${active ? `, ${active} en curso` : ""}` : null,
-      bestTeach != null ? `lo explicó a un compañero (teach-back ${bestTeach}/100)` : null].filter(Boolean).join("; ") + ".";
+      bestTeach != null ? `lo explicó a un compañero (teach-back ${bestTeach}/100)` : null,
+      bestReal != null ? `impartió ${realT.length} formación(es) real(es), la mejor ${bestReal}/100` : null].filter(Boolean).join("; ") + ".";
 
   // Confianza de la estimación: cuántas evidencias, de cuántos tipos, si las revisó una persona, en cuánto tiempo, y si son recientes.
   const last = ev[0]?.at ?? null, first = ev.at(-1)?.at ?? null;
@@ -196,6 +201,7 @@ export function stateOf(key: string, ev: Evidence[], raw: Raw): SkillState {
       { label: "Aplicación real repetida", done: yes >= 2 },
       { label: "Demostración sin ayuda", done: (bestDemo ?? 0) >= 60 },
       { label: "Lo ha explicado a un compañero", done: (bestTeach ?? 0) >= 60 },
+      { label: "Ha impartido una formación real", done: realT.length > 0 },
       { label: "Ha acompañado a otra persona", done: done > 0 },
     ],
     evidence: ev.slice(0, 30).map((e) => ({ type: e.type, label: e.label, dimension: e.dimension, at: e.at.toISOString(), humanValidated: e.humanValidated })),

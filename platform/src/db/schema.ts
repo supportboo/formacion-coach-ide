@@ -264,6 +264,23 @@ export const evidenceEvent = pgTable("evidence_event", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byUser: index("evidence_event_user_idx").on(t.organizationId, t.userId) }));
 
+/* 1.22.0 — Formaciones reales que imparte la persona (Google Meet o transcripción subida). Solo se guarda el
+ * resultado del análisis: la transcripción nunca se almacena. */
+export const trainingSession = pgTable("training_session", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),              // quien formó (y el único evaluado)
+  title: text("title").notNull(),
+  topic: text("topic"),
+  skillKey: text("skill_key"),                    // comp:<id> | curso:<slug> que enseñó
+  source: text("source").notNull(),               // subida | meet
+  heldAt: timestamp("held_at"),
+  score: integer("score"),
+  metrics: jsonb("metrics").$type<Record<string, unknown>>(),
+  analysis: jsonb("analysis").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byUser: index("training_session_user_idx").on(t.organizationId, t.userId) }));
+
 // Nivel por competencia (no global): 0 ninguno · 1 En formación · 2 Aplica · 3 Referente · 4 Custodio
 export const levelByCompetency = pgTable("level_by_competency", {
   id: text("id").primaryKey(),
