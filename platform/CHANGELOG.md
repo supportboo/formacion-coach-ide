@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.19.0 — 2026-09-30
+
+### V2 fase 2: demostrar sin ayuda y enseñar (teach-back)
+- **Demuéstralo sin ayuda** (`/app/demostrar.html`): una situación de su trabajo sacada del contenido real de un bloque del curso y de lo que sabemos de su día a día; responde sin tutor, sin pistas y sin poder pegar texto (sí dictar). Se revisa conducta a conducta.
+- **Explícaselo a un compañero** (teach-back): elige un bloque que ya aprobó; lo explica por escrito o con el micro, sin mirar el curso. Los conceptos esperados son los apartados reales del bloque; se revisa qué cubre, si pone un ejemplo, la claridad y qué le falta.
+- **La nota no la inventa la IA**: el modelo juzga cada criterio con una frase literal de la respuesta, y el servidor comprueba que esa frase está de verdad en el texto; sin prueba, el criterio no cuenta. La nota se calcula con reglas fijas.
+- **Evidencias propias** en la tabla `evidence_event` (migración 0030) con independencia («independiente», «enseñó») y ayuda de la IA («ninguna»). En «Tu capacidad»: la demostración suma a autonomía y se ve aparte como «Sin ayuda de la IA»; el teach-back suma como mucho 25 puntos a transferencia (explicar no es haber formado a alguien) y nunca da N3 por sí solo. Nuevas casillas en la lista de evidencias y accesos directos en cada tema.
+- Siguiente paso: tras dominar la teoría, «Demuéstralo sin ayuda»; con conocimiento alto, «Explícaselo a un compañero».
+- `POST /api/learning/demo/start`, `POST /api/learning/demo/submit`. Criterios y conceptos solo se enseñan al final.
+
 ## 1.18.0 — 2026-09-29
 
 ### Arquitectura V2, fase 1: la capacidad de la persona es la unidad principal

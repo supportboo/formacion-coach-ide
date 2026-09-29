@@ -211,6 +211,13 @@
       "when": 1790711913719,
       "tag": "0029_course_competency",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1790720012880,
+      "tag": "0030_evidence_event",
+      "breakpoints": true
     }
   ]
 }

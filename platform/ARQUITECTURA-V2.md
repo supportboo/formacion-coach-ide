@@ -122,7 +122,7 @@ Un único módulo `policy.ts` decide qué dato puede ir a qué uso. Todo lo que 
 | Fase | Qué | Resultado visible |
 |---|---|---|
 | **1 · hecha (1.18.0)** | Estado de capacidad derivado, curso↔competencia, siguiente mejor paso, arreglo de la cascada N2 duplicada | «Tu capacidad» en la ficha y «Tu siguiente mejor paso» en Inicio |
-| 2 | `evidence_event` + modo demostración (la IA aclara, no resuelve) + `ai_help`/`independence` en roleplays y casos | «Con apoyo / sin apoyo»; certificados que dicen «demostró esto en estas condiciones» |
+| **2 · hecha (1.19.0)** | `evidence_event` + modo demostración (la IA aclara, no resuelve) + `ai_help`/`independence` en roleplays y casos | «Con apoyo / sin apoyo»; certificados que dicen «demostró esto en estas condiciones» |
 | 3 | Skill Graph: conceptos y comportamientos por competencia, conceptos por bloque; los errores de test se etiquetan por concepto | «Le cuesta / parece dominar» con «¿Por qué creemos esto?» |
 | 4 | Memoria en tres capas + «Solo para mi tutor» + `retrieveContext(task)` + `policy.ts` | Menos tokens por llamada; el alumno decide qué comparte |
 | 5 | `profile_version` con impacto; la caché de «Para ti» solo se rehace con cambios de impacto alto | Menos coste de IA, contenido estable |

@@ -5,7 +5,7 @@ const NOW = new Date("2026-09-29T12:00:00Z");
 const d = (daysAgo: number) => new Date(NOW.getTime() - daysAgo * 86_400_000);
 function raw(over: Partial<Raw> = {}): Raw {
   return {
-    now: NOW, blocks: [], finals: [], roleplays: [], micro: [], cases: [], checkins: [], mentees: [],
+    now: NOW, blocks: [], finals: [], roleplays: [], micro: [], cases: [], checkins: [], mentees: [], events: [],
     levels: new Map(), competencies: new Map([["c1", "Reclutamiento de partners"]]), courseToCompetency: new Map(),
     titles: { "reclutamiento-partners": "Reclutamiento de Partners" }, totalBlocks: new Map([["reclutamiento-partners", 4]]),
     ...over,
@@ -48,7 +48,7 @@ describe("estado de capacidad (V2 fase 1)", () => {
     expect(s!.dims.transferencia.value).toBe(0);
     expect(s!.confidence.label).toBe("alta");
     expect(s!.checklist.find((c) => c.label === "Caso real validado")!.done).toBe(true);
-    expect(s!.next!.title).toMatch(/Acompaña/);
+    expect(s!.next!.href).toContain("modo=demostracion"); // 1.19.0: antes de acompañar, demostrarlo sin ayuda
   });
 
   it("la vigencia baja con el tiempo y propone refrescar", () => {
@@ -63,5 +63,25 @@ describe("estado de capacidad (V2 fase 1)", () => {
     ] }));
     expect(s!.dims.transferencia.value).toBe(45);
     expect(s!.checklist.find((c) => c.label === "Ha acompañado a otra persona")!.done).toBe(true);
+  });
+});
+
+describe("demostración sin ayuda y teach-back (1.19.0)", () => {
+  const base = { blocks: [0, 1, 2, 3].map((b) => ({ source: "reclutamiento-partners", block: b, score: 90, passed: true, at: d(10) })) };
+  it("sin demostración, el siguiente paso es demostrarlo", () => {
+    const [s] = statesOf(raw(base));
+    expect(s!.next!.href).toContain("modo=demostracion");
+    expect(s!.sinAyuda).toBeNull();
+  });
+  it("la demostración suma a autonomía y se enseña aparte como «sin ayuda»; el teach-back suma como mucho 25 a transferencia", () => {
+    const [s] = statesOf(raw({ ...base, events: [
+      { skillKey: "curso:reclutamiento-partners", type: "demostracion", score: 75, context: "ICP · escenario", at: d(1) },
+      { skillKey: "curso:reclutamiento-partners", type: "teach_back", score: 100, context: "ICP · tema", at: d(1) },
+    ] }));
+    expect(s!.sinAyuda!.value).toBe(75);
+    expect(s!.dims.autonomia.value).toBe(30);      // 0,4·75
+    expect(s!.dims.transferencia.value).toBe(25);  // tope del teach-back
+    expect(s!.checklist.find((c) => c.label === "Demostración sin ayuda")!.done).toBe(true);
+    expect(s!.evidence.some((x) => x.label.startsWith("Demostración sin ayuda («ICP»)"))).toBe(true);
   });
 });

@@ -1,4 +1,5 @@
 ﻿import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import * as demoSvc from "./services/demonstrate.js";
 import * as capabilitySvc from "./services/capability.js";
 import * as teamsSvc from "./services/teams.js";
 import * as actSvc from "./services/activity.js";
@@ -1477,6 +1478,53 @@ app.get("/api/learning/capability", async (c) => {
   if (rateLimited(`cap:${ctx.orgId}:${ctx.userId}`, 30, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
   const raw = await capabilitySvc.loadRaw(svcDeps, ctx.orgId, ctx.userId, { titles: COURSE_TITLES, blockCount: async (s) => (await courseBlocks(s))?.length ?? null });
   return c.json({ skills: capabilitySvc.statesOf(raw) });
+});
+// 1.19.0 (V2 fase 2): demostración sin ayuda y teach-back. El escenario y los criterios salen del contenido real del curso.
+async function skillCourses(orgId: string, skillKey: string): Promise<{ name: string; slugs: string[] } | null> {
+  const [kind, id] = [skillKey.slice(0, skillKey.indexOf(":")), skillKey.slice(skillKey.indexOf(":") + 1)];
+  if (kind === "curso") return COURSE_SLUGS.has(id) ? { name: COURSE_TITLES[id] || id, slugs: [id] } : null;
+  if (kind !== "comp") return null;
+  const comp = await catalogSvc.getCompetency(svcDeps, orgId, id);
+  if (!comp) return null;
+  const links = await db.select({ source: courseCompetency.source }).from(courseCompetency)
+    .where(and(eq(courseCompetency.organizationId, orgId), eq(courseCompetency.competencyId, id)));
+  return { name: comp.name, slugs: links.map((l) => l.source).filter((x) => COURSE_SLUGS.has(x)) };
+}
+app.post("/api/learning/demo/start", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`demo:${ctx.orgId}:${ctx.userId}`, 6, 600_000)) return c.json({ error: "Has empezado varias seguidas: espera unos minutos." }, 429);
+  const parsed = z.object({ skillKey: z.string().min(3).max(120), mode: z.enum(["demostracion", "teach_back"]) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const sk = await skillCourses(ctx.orgId, parsed.data.skillKey);
+  if (!sk) return c.json({ error: "capacidad no encontrada" }, 404);
+  if (!sk.slugs.length) return c.json({ error: "Esta competencia aún no tiene ningún curso vinculado. Pide a tu administrador que lo vincule en el Panel." }, 400);
+  const slug = sk.slugs[Math.floor(Math.random() * sk.slugs.length)]!;
+  const blocks = await courseBlocks(slug);
+  if (!blocks?.length) return c.json({ error: "No se ha podido leer el curso." }, 503);
+  const passed = await db.select({ block: assessmentAttempt.block }).from(assessmentAttempt).where(and(
+    eq(assessmentAttempt.organizationId, ctx.orgId), eq(assessmentAttempt.userId, ctx.userId), eq(assessmentAttempt.source, slug),
+    eq(assessmentAttempt.kind, "block"), eq(assessmentAttempt.passed, true)));
+  const perfil = factsSvc.summarize(await factsSvc.list(svcDeps, ctx.orgId, ctx.userId).catch(() => []));
+  const s = await demoSvc.start({ orgId: ctx.orgId, userId: ctx.userId, mode: parsed.data.mode, skillKey: parsed.data.skillKey, skillName: sk.name,
+    blocks, passedBlocks: passed.map((p) => p.block), perfil, newId });
+  if (!s) return c.json({ error: "No se ha podido preparar ahora. Inténtalo de nuevo en un momento." }, 503);
+  return c.json({ id: s.id, mode: s.mode, skillName: s.skillName, block: s.block, escenario: s.escenario, pregunta: s.pregunta });
+  // Los criterios y conceptos esperados se enseñan al final, con la revisión: antes quitarían valor a la prueba.
+});
+app.post("/api/learning/demo/submit", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`demosub:${ctx.orgId}:${ctx.userId}`, 6, 600_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ id: z.string().min(1).max(64), respuesta: z.string().trim().min(40, "Escribe un poco más: al menos un par de frases.").max(4000) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: parsed.error.issues[0]?.message || "datos no válidos" }, 400);
+  const s = demoSvc.takeSession(parsed.data.id, { orgId: ctx.orgId, userId: ctx.userId });
+  if (!s) return c.json({ error: "Esta práctica ha caducado. Empieza otra." }, 410);
+  const r = await demoSvc.judge(s, parsed.data.respuesta);
+  if (!r) return c.json({ error: "No se ha podido revisar ahora. Inténtalo de nuevo." }, 503);
+  await demoSvc.record(svcDeps, s, r);
+  return c.json({ ...r, mode: s.mode, block: s.block });
 });
 // Curso ↔ competencia (admin y dirección): lo que se hace en el curso suma a esa competencia.
 app.get("/api/org/course-skills", async (c) => {
