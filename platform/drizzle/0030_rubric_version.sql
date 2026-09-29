@@ -13,12 +13,11 @@ ALTER TABLE "validation" ADD CONSTRAINT "validation_rubric_id_rubric_id_fk" FORE
 -- Backfill best-effort: para validaciones históricas, se asocia la rúbrica que estaba vigente
 -- (la más reciente con created_at <= la validación) en esa organización/competencia. Puede
 -- quedar NULL si no había rúbrica publicada todavía — eso es correcto, no un error.
-UPDATE "validation" v SET "rubric_id" = latest."id"
-FROM "applied_case" c
-JOIN LATERAL (
+UPDATE "validation" v SET "rubric_id" = (
   SELECT r."id" FROM "rubric" r
+  JOIN "applied_case" c ON c."id" = v."case_id"
   WHERE r."organization_id" = c."organization_id" AND r."competency_id" = c."competency_id"
     AND r."created_at" <= v."created_at"
   ORDER BY r."created_at" DESC LIMIT 1
-) latest ON true
-WHERE v."case_id" = c."id" AND v."rubric_id" IS NULL;
+)
+WHERE v."rubric_id" IS NULL;
