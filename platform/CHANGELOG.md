@@ -1,5 +1,13 @@
 # Changelog · SkillUp platform
 
+## 1.24.0 — 2026-09-30
+
+### Formaciones que impartes: presentación con visión, conocimiento de Brandooers y solo desde que empieza la formación
+- **Tu presentación (opcional)**: la persona elige la grabación de su formación (el MP4 de Meet) o **graba su pantalla mientras forma** (compartir ventana, una captura cada 15 s). El navegador se queda solo con los cambios de pantalla (como mucho 24 capturas) y **el vídeo no sale de su ordenador**. Por diapositiva: si se lee en una videollamada, cuánto texto tiene, si transmite una idea, errores y una mejora; más lo que funciona, lo que más la mejoraría y una nota con reglas fijas. Las personas que aparezcan no se analizan; las capturas no se guardan (1 h en memoria, se envían una a una por el límite de 1 MB del servidor web).
+- **El agente de feedback conoce Brandooers SkillUp**: evalúa con la metodología de la Guía del Coach, contrasta lo que se explicó con el contenido real del curso enseñado (lo que lo contradiga va a «revisa estas afirmaciones»), usa la ficha validada de su empresa y lo que sabemos de la persona. Extractos recortados, no los cursos enteros.
+- **Solo reuniones desde que empieza la formación** (primera matrícula o primer test; si no, su alta en la empresa): nada anterior, tampoco si se intenta cargar una reunión antigua a mano.
+- La IA de la plataforma admite imágenes (Claude y Gemini). `POST /api/sessions/frames`, `POST /api/sessions/:id/slides`.
+
 ## 1.23.0 — 2026-09-30
 
 ### Entrar con Google (sin contraseñas adicionales)

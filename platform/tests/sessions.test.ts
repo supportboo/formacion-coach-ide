@@ -45,3 +45,22 @@ describe("formaciones reales: lectura y métricas (1.22.0)", () => {
     expect(t).not.toMatch(/Carlos|Lucía|Ana García/);
   });
 });
+
+import { courseDigest, slidesScore } from "../src/services/sessions.js";
+describe("presentación y conocimiento (1.24.0)", () => {
+  it("nota de diapositivas con reglas fijas; las capturas sin contenido no cuentan", () => {
+    expect(slidesScore([
+      { titulo: "Perfil ideal", legible: "si", texto: "adecuado", unaIdea: true },
+      { titulo: "Tabla de precios", legible: "parcial", texto: "excesivo", unaIdea: false },
+      { titulo: "(sin contenido)", legible: "no", texto: "poco", unaIdea: false },
+    ])).toBe(60); // (100 + 20) / 2
+    expect(slidesScore([])).toBe(0);
+  });
+  it("el extracto de un curso lleva apartados y el arranque del texto, sin pasarse del tope", () => {
+    const blocks = Array.from({ length: 20 }, (_, i) => ({ title: `Bloque ${i}`, headings: ["Uno", "Dos"], text: "x ".repeat(1000) }));
+    const d = courseDigest(blocks, 700, 3000);
+    expect(d).toContain("■ Bloque 0");
+    expect(d).toContain("Apartados: Uno · Dos");
+    expect(d.length).toBeLessThanOrEqual(3000);
+  });
+});

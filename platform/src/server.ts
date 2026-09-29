@@ -19,7 +19,7 @@ import { chat, onboardingMarker } from "./agents/chat.js";
 import { ROLES, REGISTRY } from "./agents/registry.js";
 import { ingestDocument, retrieve } from "./rag/rag.js";
 import { sendMail } from "./services/mailer.js";
-import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt, courseCompetency, trainingSession, evidenceEvent } from "./db/schema.js";
+import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt, courseCompetency, trainingSession, evidenceEvent, enrollment } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
 import { orgTerms } from "./services/glossary.js";
 import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, OFFTOPIC_REPLY, orgBannedWords, quotaFor, setOrgBannedWords } from "./services/contentGuard.js";
@@ -1593,6 +1593,15 @@ app.get("/api/sessions/meet/connect", async (c) => {
   if (!gcal.isConfigured()) return c.json({ error: "Google no está configurado en el servidor" }, 400);
   return c.redirect(gcal.authUrl(ctx.userId + "|meet", ["https://www.googleapis.com/auth/calendar.events", gcal.MEET_SCOPE]));
 });
+// Solo reuniones desde que la persona empezó su formación (primera matrícula o primer test; si no, su alta en la empresa):
+// nada de su trabajo anterior a SkillUp.
+async function trainingStart(orgId: string, userId: string): Promise<Date> {
+  const [e] = await db.select({ at: sql<Date | null>`min(${enrollment.createdAt})` }).from(enrollment).where(and(eq(enrollment.organizationId, orgId), eq(enrollment.userId, userId)));
+  const [a] = await db.select({ at: sql<Date | null>`min(${assessmentAttempt.startedAt})` }).from(assessmentAttempt).where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId)));
+  const [m] = await db.select({ at: member.createdAt }).from(member).where(and(eq(member.organizationId, orgId), eq(member.userId, userId)));
+  const dates = [e?.at, a?.at].filter((x): x is Date => !!x).map((x) => new Date(x));
+  return dates.length ? new Date(Math.min(...dates.map((d) => d.getTime()))) : (m?.at ? new Date(m.at) : new Date());
+}
 function meetHint(err: string): string {
   const e = err.toLowerCase();
   if (e.includes("has not been used") || e.includes("service_disabled") || e.includes("is disabled")) return "La API de Google Meet no está activada en el proyecto de Google Cloud de la plataforma. Avisa al administrador.";
@@ -1607,7 +1616,8 @@ app.get("/api/sessions/meet/recent", async (c) => {
   const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
   const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
   if (!access) return c.json({ error: "Conecta Google Meet primero." }, 400);
-  const recs = await gcal.recentConferences(access);
+  const from = await trainingStart(ctx.orgId, ctx.userId);
+  const recs = await gcal.recentConferences(access, from);
   if (!recs.ok) return c.json({ error: meetHint(recs.error) }, 502);
   const out = [];
   for (const rec of (recs.data.conferenceRecords ?? []).slice(0, 15)) {
@@ -1616,7 +1626,7 @@ app.get("/api/sessions/meet/recent", async (c) => {
     out.push({ record: rec.name, transcript: tr?.name ?? null, start: rec.startTime, end: rec.endTime ?? null,
       minutes: rec.endTime ? Math.round((Date.parse(rec.endTime) - Date.parse(rec.startTime)) / 60000) : null });
   }
-  return c.json({ meetings: out });
+  return c.json({ meetings: out, from: from.toISOString() });
 });
 app.post("/api/sessions/meet/load", async (c) => {
   const ctx = await getAuthContext(c);
@@ -1628,6 +1638,8 @@ app.post("/api/sessions/meet/load", async (c) => {
   const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
   const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
   if (!access) return c.json({ error: "Conecta Google Meet primero." }, 400);
+  const started = await gcal.conferenceStart(access, parsed.data.record);
+  if (!started || started < await trainingStart(ctx.orgId, ctx.userId)) return c.json({ error: "Solo se pueden analizar reuniones desde que empezaste tu formación en SkillUp." }, 403);
   const t = await gcal.transcriptLines(access, parsed.data.record, parsed.data.transcript);
   if (!t.ok) return c.json({ error: meetHint(t.error) }, 502);
   const t0 = t.lines.find((l) => l.start)?.start;
@@ -1653,7 +1665,8 @@ app.post("/api/sessions/analyze", async (c) => {
   const d = parsed.data;
   if (d.skillKey && !(await sessionSkills(ctx.orgId)).some((k) => k.key === d.skillKey)) return c.json({ error: "tema no válido" }, 400);
   const m = sessionsSvc.metrics(st.lines, d.trainer);
-  const a = await sessionsSvc.analyze({ orgId: ctx.orgId, userId: ctx.userId, title: d.title, topic: d.topic, lines: st.lines, trainer: d.trainer, catalog: COURSE_TITLES });
+  const knowledge = await sessionKnowledge(ctx.orgId, ctx.userId, d.skillKey);
+  const a = await sessionsSvc.analyze({ orgId: ctx.orgId, userId: ctx.userId, title: d.title, topic: d.topic, lines: st.lines, trainer: d.trainer, catalog: COURSE_TITLES, knowledge });
   if (!a) return c.json({ error: "No se ha podido analizar ahora. Inténtalo de nuevo en un momento." }, 503);
   sessionStash.delete(d.id); // la transcripción no se guarda
   const id = await sessionsSvc.save(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, title: d.title, topic: d.topic, skillKey: d.skillKey, source: st.source, heldAt: st.heldAt, metrics: m, analysis: a });
@@ -1661,6 +1674,58 @@ app.post("/api/sessions/analyze", async (c) => {
   if (a.necesidades[0] && a.momentos[0]) await factsSvc.applyOps(svcDeps, ctx.orgId, ctx.userId, [{ op: "add", layer: "ensenanza",
     text: `Cuando forma a su equipo, le conviene trabajar: ${a.necesidades[0]}`, evidence: a.momentos[0].cita }], { type: "practica", ref: d.title }).catch(() => 0);
   return c.json({ id, metrics: m, analysis: a, recommended: a.recomendados.map((s2) => ({ slug: s2, title: COURSE_TITLES[s2] || s2 })) });
+});
+// 1.24.0: el agente de feedback conoce Brandooers SkillUp: metodología (Guía del Coach), el curso que enseñaba,
+// la ficha validada de su empresa y lo que sabemos de la persona. Extractos recortados, nunca los cursos enteros.
+async function sessionKnowledge(orgId: string, userId: string, skillKey: string | null): Promise<sessionsSvc.Knowledge> {
+  const coach = await courseBlocks("guia-coach-odoo").catch(() => null);
+  let curso: string | null = null;
+  if (skillKey) {
+    const sk = await skillCourses(orgId, skillKey).catch(() => null);
+    const blocks = sk?.slugs[0] ? await courseBlocks(sk.slugs[0]).catch(() => null) : null;
+    if (blocks?.length) curso = `«${sk!.name}»\n` + sessionsSvc.courseDigest(blocks);
+  }
+  return {
+    metodologia: coach?.length ? sessionsSvc.courseDigest(coach, 900, 6500) : null,
+    curso,
+    empresa: await companyProfileSvc.promptFor(svcDeps, orgId).catch(() => null),
+    persona: factsSvc.summarize(await factsSvc.list(svcDeps, orgId, userId).catch(() => [])) || null,
+  };
+}
+
+// 1.24.0: la presentación. Las capturas salen del vídeo o de la pantalla compartida en el navegador de la persona
+// (el vídeo nunca se sube); llegan una a una (nginx admite 1 MB por petición) y se analizan juntas. No se guardan.
+// ponytail: en memoria de proceso, 1 h; un reinicio obliga a volver a capturarlas.
+const frameStash = new Map<string, { frames: sessionsSvc.Frame[]; expires: number }>();
+app.post("/api/sessions/frames", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`frames:${ctx.orgId}:${ctx.userId}`, 60, 600_000)) return c.json({ error: "demasiadas capturas, espera un momento" }, 429);
+  const parsed = z.object({ t: z.number().int().min(0).max(86_400), data: z.string().min(1000).max(600_000).regex(/^[A-Za-z0-9+/=]+$/), reset: z.boolean().optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "captura no válida" }, 400);
+  const key = `${ctx.orgId}:${ctx.userId}`;
+  const cur = !parsed.data.reset && frameStash.get(key)?.expires! > Date.now() ? frameStash.get(key)! : { frames: [], expires: 0 };
+  if (cur.frames.length >= 24) return c.json({ error: "como mucho 24 capturas" }, 400);
+  cur.frames.push({ t: parsed.data.t, data: parsed.data.data });
+  cur.expires = Date.now() + 3_600_000;
+  frameStash.set(key, cur);
+  return c.json({ count: cur.frames.length });
+});
+app.post("/api/sessions/:id/slides", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`slides:${ctx.orgId}:${ctx.userId}`, 6, 86_400_000)) return c.json({ error: "Has analizado varias presentaciones hoy: vuelve mañana." }, 429);
+  const [row] = await db.select().from(trainingSession).where(and(eq(trainingSession.id, c.req.param("id")), eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId)));
+  if (!row) return c.json({ error: "no encontrada" }, 404);
+  const key = `${ctx.orgId}:${ctx.userId}`, st = frameStash.get(key);
+  if (!st || st.expires < Date.now() || st.frames.length < 2) return c.json({ error: "Faltan las capturas de la presentación. Vuelve a elegir el vídeo o a grabar la pantalla." }, 400);
+  const knowledge = await sessionKnowledge(ctx.orgId, ctx.userId, row.skillKey);
+  const r = await sessionsSvc.analyzeSlides({ orgId: ctx.orgId, userId: ctx.userId, title: row.title, topic: row.topic || "", frames: st.frames, knowledge });
+  if (!r) return c.json({ error: "No se ha podido analizar la presentación ahora. Inténtalo de nuevo." }, 503);
+  frameStash.delete(key); // las capturas no se guardan
+  await db.update(trainingSession).set({ analysis: { ...(row.analysis ?? {}), presentacion: r } as Record<string, unknown> }).where(eq(trainingSession.id, row.id));
+  return c.json(r);
 });
 app.get("/api/sessions", async (c) => {
   const ctx = await getAuthContext(c);

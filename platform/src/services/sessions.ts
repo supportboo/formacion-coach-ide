@@ -152,11 +152,34 @@ export interface Analysis {
 
 const clip = (s: unknown, n: number) => typeof s === "string" ? s.replace(/\s+/g, " ").trim().slice(0, n) : "";
 
-export async function analyze(a: { orgId: string; userId: string; title: string; topic: string; lines: Line[]; trainer: string; catalog: Record<string, string> }): Promise<Analysis | null> {
+/** Conocimiento de Brandooers SkillUp que el agente usa como vara de medir (1.24.0). Todo opcional. */
+export interface Knowledge { metodologia?: string | null; curso?: string | null; empresa?: string | null; persona?: string | null }
+
+/** Extracto de un curso: apartados de cada bloque y el arranque de su texto, recortado. */
+export function courseDigest(blocks: { title: string; headings: string[]; text: string }[], perBlock = 700, max = 7000): string {
+  let out = "";
+  for (const b of blocks) {
+    const row = `■ ${b.title}\n  Apartados: ${b.headings.slice(0, 8).join(" · ")}\n  ${b.text.replace(/\s+/g, " ").slice(0, perBlock)}\n`;
+    if (out.length + row.length > max) break;
+    out += row;
+  }
+  return out;
+}
+
+function knowledgeBlock(k: Knowledge | undefined): string {
+  if (!k) return "";
+  const part = (t: string, v?: string | null) => v ? `\n\n${t}:\n${v}` : "";
+  return part("METODOLOGÍA BRANDOOERS PARA FORMAR (Guía del Coach, úsala como vara de medir y cítala al recomendar)", k.metodologia)
+    + part("CONTENIDO DEL CURSO QUE ENSEÑABA (fuente de verdad: lo que lo contradiga va a «errores»)", k.curso)
+    + part("FICHA DE SU EMPRESA (validada: usa su vocabulario y respeta sus límites)", k.empresa)
+    + part("LO QUE SABEMOS DE ESTA PERSONA (para orientar el feedback a su objetivo)", k.persona);
+}
+
+export async function analyze(a: { orgId: string; userId: string; title: string; topic: string; lines: Line[]; trainer: string; catalog: Record<string, string>; knowledge?: Knowledge }): Promise<Analysis | null> {
   const { llm } = await import("../container.js");
   const trainerText = a.lines.filter((l) => l.speaker === a.trainer).map((l) => l.text).join("\n");
   const cat = Object.entries(a.catalog).map(([id, t]) => `${id}: ${t}`).join("\n");
-  const content = `SESIÓN: ${a.title}\nTEMA: ${a.topic || "(no indicado)"}\nCRITERIOS:\n${CRITERIA.map((c, i) => `${i + 1}. ${c}`).join("\n")}\nCATÁLOGO:\n${cat}\n\nTRANSCRIPCIÓN:\n${forModel(a.lines, a.trainer)}`;
+  const content = `SESIÓN: ${a.title}\nTEMA: ${a.topic || "(no indicado)"}\nCRITERIOS:\n${CRITERIA.map((c, i) => `${i + 1}. ${c}`).join("\n")}\nCATÁLOGO:\n${cat}${knowledgeBlock(a.knowledge)}\n\nTRANSCRIPCIÓN:\n${forModel(a.lines, a.trainer)}`;
   const out = firstJson<Record<string, unknown>>(await llm.generate({ system: SYS, messages: [{ role: "user", content }], model: env.MODEL_SENIOR, maxTokens: 1800, kind: "session_analysis", orgId: a.orgId, userId: a.userId, timeoutMs: 90_000 }).catch(() => "{}"));
   if (!out || !Array.isArray(out.criterios)) return null;
   const got = out.criterios as { cumple?: unknown; cita?: unknown }[];
@@ -193,4 +216,50 @@ export async function save(deps: SvcDeps, a: { orgId: string; userId: string; ti
     context: a.title.slice(0, 300), score: a.analysis.score, independence: "enseno", aiHelp: "ninguna", detail: { sessionId: id },
   });
   return id;
+}
+
+/* ------------------------------------------------------------------ presentación con visión (1.24.0) */
+// Las imágenes salen del vídeo o de la pantalla compartida EN EL NAVEGADOR de la persona: el vídeo nunca se sube.
+// Solo se analizan diapositivas y pantalla, nunca a las personas que aparezcan. Las imágenes no se guardan.
+
+export interface Frame { t: number; data: string }
+export interface Slide { n: number; t: number; titulo: string; legible: "si" | "parcial" | "no"; texto: "poco" | "adecuado" | "excesivo"; unaIdea: boolean; problemas: string[]; mejora: string }
+export interface SlidesAnalysis { score: number; diapositivas: Slide[]; fuertes: string[]; mejoras: string[]; resumen: string }
+
+const SLIDES_SYS = `Eres diseñador de presentaciones formativas y formador de formadores en SkillUp. Te paso capturas de la pantalla que un formador compartió durante una sesión (en orden, con el minuto). Analiza SOLO el contenido de pantalla: diapositivas, documentos, demos. Si aparecen personas (vídeo de participantes), ignóralas por completo: ni las describas ni las identifiques. Si una captura no muestra contenido útil (solo caras, pantalla en negro), márcala con "titulo":"(sin contenido)".
+Para cada captura: "titulo" (el de la diapositiva o de qué va, 3-8 palabras), "legible" = "si" | "parcial" | "no" (tamaño de letra y contraste para verse en una videollamada), "texto" = "poco" | "adecuado" | "excesivo" (cantidad de texto para leer mientras se escucha), "unaIdea" = true si transmite una sola idea clara, "problemas" (0-3: errores de ortografía, datos sin fuente, gráficos ilegibles, incoherencias), "mejora" (una frase concreta).
+Además: "fuertes" (2-3 cosas que funcionan en el conjunto), "mejoras" (2-3 cambios que más mejorarían la presentación), "resumen" (2 frases). Español de España, tuteo.
+Devuelve SOLO JSON: {"diapositivas":[{"titulo":"…","legible":"si","texto":"adecuado","unaIdea":true,"problemas":["…"],"mejora":"…"}],"fuertes":["…"],"mejoras":["…"],"resumen":"…"}`;
+
+/** Nota con reglas fijas: legible 40 (parcial 20) + cantidad de texto 30 + una sola idea 30, media de las diapositivas con contenido. */
+export function slidesScore(slides: Pick<Slide, "titulo" | "legible" | "texto" | "unaIdea">[]): number {
+  const useful = slides.filter((s) => s.titulo !== "(sin contenido)");
+  if (!useful.length) return 0;
+  const pts = useful.map((s) => (s.legible === "si" ? 40 : s.legible === "parcial" ? 20 : 0) + (s.texto === "excesivo" ? 0 : 30) + (s.unaIdea ? 30 : 0));
+  return Math.round(pts.reduce((a, b) => a + b, 0) / useful.length);
+}
+
+export async function analyzeSlides(a: { orgId: string; userId: string; title: string; topic: string; frames: Frame[]; knowledge?: Knowledge }): Promise<SlidesAnalysis | null> {
+  const { llm } = await import("../container.js");
+  const frames = [...a.frames].sort((x, y) => x.t - y.t).slice(0, 24);
+  const list = frames.map((f, i) => `Captura ${i + 1}: minuto ${Math.floor(f.t / 60)}:${String(f.t % 60).padStart(2, "0")}`).join("\n");
+  const out = firstJson<Record<string, unknown>>(await llm.generate({
+    system: SLIDES_SYS, messages: [{ role: "user", content: `SESIÓN: ${a.title}\nTEMA: ${a.topic || "(no indicado)"}${knowledgeBlock(a.knowledge ? { metodologia: a.knowledge.metodologia, curso: a.knowledge.curso } : undefined)}\n\n${list}` }],
+    images: frames.map((f) => ({ mime: "image/jpeg" as const, data: f.data })),
+    model: env.MODEL_SENIOR, maxTokens: 2500, kind: "session_slides", orgId: a.orgId, userId: a.userId, timeoutMs: 120_000,
+  }).catch(() => "{}"));
+  if (!out || !Array.isArray(out.diapositivas)) return null;
+  const arr = (x: unknown) => Array.isArray(x) ? x : [];
+  const one = <T extends string>(v: unknown, ok: readonly T[], dflt: T): T => (ok as readonly string[]).includes(String(v)) ? v as T : dflt;
+  const diapositivas: Slide[] = (out.diapositivas as Record<string, unknown>[]).slice(0, frames.length).map((d, i) => ({
+    n: i + 1, t: frames[i]!.t, titulo: clip(d?.titulo, 80) || "(sin título)",
+    legible: one(d?.legible, ["si", "parcial", "no"] as const, "parcial"), texto: one(d?.texto, ["poco", "adecuado", "excesivo"] as const, "adecuado"),
+    unaIdea: d?.unaIdea === true, problemas: arr(d?.problemas).map((x) => clip(x, 160)).filter(Boolean).slice(0, 3), mejora: clip(d?.mejora, 200),
+  }));
+  return {
+    score: slidesScore(diapositivas), diapositivas,
+    fuertes: arr(out.fuertes).map((x) => clip(x, 200)).filter(Boolean).slice(0, 3),
+    mejoras: arr(out.mejoras).map((x) => clip(x, 200)).filter(Boolean).slice(0, 3),
+    resumen: clip(out.resumen, 400),
+  };
 }

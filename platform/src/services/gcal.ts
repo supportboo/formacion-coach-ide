@@ -78,11 +78,16 @@ async function meetGet<T>(access: string, path: string): Promise<{ ok: true; dat
 }
 
 export interface MeetRecord { name: string; startTime: string; endTime?: string; space?: string }
-/** Reuniones de los últimos N días (la API de Meet borra las transcripciones a los 30 días). */
-export async function recentConferences(access: string, days = 30) {
-  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+/** Reuniones desde `from` (como mucho 30 días: la API de Meet borra las transcripciones a los 30 días). */
+export async function recentConferences(access: string, from?: Date, days = 30) {
+  const floor = Date.now() - days * 86_400_000;
+  const since = new Date(Math.max(floor, from ? from.getTime() : floor)).toISOString();
   const q = new URLSearchParams({ pageSize: "50", filter: `start_time>="${since}"` });
   return meetGet<{ conferenceRecords?: MeetRecord[] }>(access, "/conferenceRecords?" + q.toString());
+}
+export async function conferenceStart(access: string, record: string): Promise<Date | null> {
+  const r = await meetGet<MeetRecord>(access, `/${record}`);
+  return r.ok && r.data.startTime ? new Date(r.data.startTime) : null;
 }
 export async function transcriptsOf(access: string, record: string) {
   return meetGet<{ transcripts?: { name: string; state?: string }[] }>(access, `/${record}/transcripts`);

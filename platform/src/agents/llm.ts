@@ -10,6 +10,8 @@ export interface LlmCall {
   timeoutMs?: number;
   // Idioma de salida forzado (es|en|ca|pt|fr). Si falta, el envoltorio central lo resuelve por userId.
   lang?: string;
+  // 1.24.0: imágenes (base64) que acompañan al ÚLTIMO mensaje del usuario, para análisis con visión.
+  images?: { mime: "image/jpeg" | "image/png"; data: string }[];
 }
 export interface LlmUsage { orgId: string | null; userId?: string; kind: string; model: string; inputTokens: number; outputTokens: number }
 export type UsageRecorder = (u: LlmUsage) => Promise<void>;
@@ -28,7 +30,9 @@ export class AnthropicLlm implements Llm {
       model,
       max_tokens: call.maxTokens ?? 1024,
       system: call.system,
-      messages: call.messages.map((m) => ({ role: m.role, content: m.content })),
+      messages: call.messages.map((m, i) => i === call.messages.length - 1 && m.role === "user" && call.images?.length
+        ? { role: m.role, content: [...call.images.map((im) => ({ type: "image" as const, source: { type: "base64" as const, media_type: im.mime, data: im.data } })), { type: "text" as const, text: m.content }] }
+        : { role: m.role, content: m.content }),
     }, call.timeoutMs ? { timeout: call.timeoutMs } : undefined);
     if (this.onUsage) {
       // Coste real devuelto por Anthropic, nunca estimado. Si falla el registro, no rompe la respuesta al usuario.
@@ -62,7 +66,10 @@ export class GeminiLlm implements Llm {
     const model = call.model && call.model.startsWith("gemini") ? call.model : this.model;
     const body = {
       systemInstruction: { parts: [{ text: call.system }] },
-      contents: call.messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
+      contents: call.messages.map((m, i) => ({ role: m.role === "assistant" ? "model" : "user", parts: [
+        ...(i === call.messages.length - 1 && m.role === "user" ? (call.images ?? []).map((im) => ({ inline_data: { mime_type: im.mime, data: im.data } })) : []),
+        { text: m.content },
+      ] })),
       generationConfig: {
         maxOutputTokens: call.maxTokens ?? 1024,
         // Sin "pensamiento" en Flash: respuesta más rápida para chat/voz y todos los tokens para el texto.

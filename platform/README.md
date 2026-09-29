@@ -1,4 +1,4 @@
-# SkillUp · Brandooers — v1.23.0
+# SkillUp · Brandooers — v1.24.0
 
 Formación para equipos que mide lo que la persona **aplica en su trabajo**, no las horas que pasa delante de la pantalla. Cada empresa tiene su espacio, sus tutores de IA y un contenido que se adapta a la situación real de cada persona.
 
@@ -21,7 +21,8 @@ Todo lo de esta lista está en producción. Entre paréntesis, la versión en qu
 
 **Para quien aprende**
 - **Entrar con Google** (1.23.0): con la cuenta de Google de la empresa, sin otra contraseña; también para aceptar invitaciones.
-- **Formaciones que impartes** (1.22.0): importa de Google Meet (o sube la transcripción de) una sesión en la que formaste a tu equipo y recibe feedback con frases tuyas como prueba, las dudas del grupo, qué practicar y formaciones recomendadas; cuenta como evidencia de transferencia. Solo se evalúa a quien forma y la transcripción no se guarda.
+- **Formaciones que impartes** (1.22.0, 1.24.0): también revisa las diapositivas desde la grabación o grabando la pantalla mientras forma (el vídeo no sale de su ordenador), con la metodología de Brandooers y el contenido real del curso como referencia; solo reuniones desde que empieza su formación.
+- **Formaciones que impartes · origen** (1.22.0): importa de Google Meet (o sube la transcripción de) una sesión en la que formaste a tu equipo y recibe feedback con frases tuyas como prueba, las dudas del grupo, qué practicar y formaciones recomendadas; cuenta como evidencia de transferencia. Solo se evalúa a quien forma y la transcripción no se guarda.
 - **Repaso de 3 minutos** (1.20.0): las preguntas que la persona falló, unos días después y espaciadas hasta que las acierta dos veces, más «¿dónde lo vas a usar esta semana?».
 - **Demostrar sin ayuda y enseñar** (1.19.0): prácticas sin tutor sacadas del contenido real del curso y «explícaselo a un compañero»; se revisan con frases literales de la respuesta como prueba y separan en la ficha lo que la persona hace con ayuda y sin ayuda de la IA.
 - **Tu capacidad y tu siguiente mejor paso** (1.18.0): por cada competencia, conocimiento, aplicación, autonomía y transferencia calculados solo con sus evidencias, con confianza, vigencia y «¿Por qué creemos esto?»; en Inicio, una sola acción recomendada con su porqué.

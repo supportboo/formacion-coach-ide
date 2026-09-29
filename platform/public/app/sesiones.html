@@ -54,6 +54,12 @@ ul.b{margin:4px 0 0;padding-left:18px;display:grid;gap:4px}
   <label for="ttl" class="muted" style="font-size:13px;display:block;margin-top:12px">Título de la sesión</label><input type="text" id="ttl" maxlength="200" placeholder="Formación de onboarding para partners nuevos">
   <label for="tpc" class="muted" style="font-size:13px;display:block;margin-top:10px">De qué trataba (opcional)</label><input type="text" id="tpc" maxlength="200" placeholder="Cómo cualificar a un partner">
   <label for="skl" class="muted" style="font-size:13px;display:block;margin-top:10px">Tema que enseñaste (suma a tu capacidad)</label><select id="skl"><option value="">Ninguno en concreto</option></select>
+  <div style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:14px">
+    <b style="color:var(--ink)">Tu presentación (opcional)</b>
+    <p class="muted" style="margin:4px 0 10px;font-size:13.5px">Añade la grabación de la sesión o graba tu pantalla mientras formas, y también revisaré tus diapositivas: si se leen, cuánta letra tienen, si transmiten una idea. El vídeo no sale de tu ordenador: solo se envían las capturas de los cambios de pantalla (como mucho 24), y a las personas que aparezcan no se las analiza.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn ghost" style="cursor:pointer">ELEGIR LA GRABACIÓN<input type="file" id="vid" accept="video/*" hidden></label><button class="btn ghost" type="button" id="scr">GRABAR MI PANTALLA</button><button class="btn ghost" type="button" id="scrStop" hidden>PARAR</button></div>
+    <p class="muted" id="capMsg" aria-live="polite" style="margin:8px 0 0;font-size:13.5px"></p>
+  </div>
   <label style="display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:14px"><input type="checkbox" id="cons" style="margin-top:4px"><span>Los asistentes sabían que la sesión se grababa y que se usaría para mejorar mi forma de formar.</span></label>
   <button class="btn" id="go" type="button" style="margin-top:12px">ANALIZAR</button>
   <p class="muted" id="m2" aria-live="polite" style="margin:10px 0 0"></p>
@@ -71,7 +77,52 @@ try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElemen
 function $(id){ return document.getElementById(id); }
 function e(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 function fmt(iso){ return iso?new Date(iso).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}):''; }
-var PREP=null;
+var PREP=null, CAP=[];
+// 1.24.0: capturas de la presentación en el navegador. Se guarda una captura cada vez que la pantalla cambia de verdad.
+var MAXC=24, KEEP=120;
+function sig(v){ var c=document.createElement('canvas'); c.width=32; c.height=18; var x=c.getContext('2d'); x.drawImage(v,0,0,32,18); var d=x.getImageData(0,0,32,18).data, o=[]; for(var i=0;i<d.length;i+=4) o.push((d[i]+d[i+1]+d[i+2])/3); return o; }
+function diff(a,b){ var s=0; for(var i=0;i<a.length;i++) s+=Math.abs(a[i]-b[i]); return s/a.length/255; }
+function shot(v){ var w=Math.min(1280,v.videoWidth||1280), h=Math.round(w*(v.videoHeight||720)/(v.videoWidth||1280)); var c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(v,0,0,w,h); return c.toDataURL('image/jpeg',0.7).split(',')[1]; }
+var last=null, pool=[];
+function consider(v,t){ var g=sig(v); if(last&&diff(g,last)<0.06) return false; last=g; pool.push({t:Math.round(t),data:shot(v)}); if(pool.length>KEEP) pool.splice(1,1); return true; }
+function pick(){ if(pool.length<=MAXC) return pool.slice(); var out=[]; for(var i=0;i<MAXC;i++) out.push(pool[Math.round(i*(pool.length-1)/(MAXC-1))]); return out; }
+function capDone(){ CAP=pick(); $('capMsg').textContent=CAP.length>=2?CAP.length+' capturas de tu presentación listas: se analizarán junto a la sesión.':'No he encontrado cambios de pantalla suficientes.'; }
+function once(el,ev){ return new Promise(function(ok){ el.addEventListener(ev,function h(){ el.removeEventListener(ev,h); ok(); }); }); }
+$('vid').onchange=async function(){ var f=this.files[0]; if(!f) return; last=null; pool=[]; CAP=[];
+  var v=document.createElement('video'); v.muted=true; v.preload='auto'; v.src=URL.createObjectURL(f);
+  $('capMsg').textContent='Leyendo el vídeo en tu ordenador…';
+  try{ await once(v,'loadedmetadata'); var dur=v.duration, step=Math.max(10,dur/150);
+    for(var t=Math.min(5,dur/2); t<dur; t+=step){ v.currentTime=t; await once(v,'seeked'); consider(v,t); $('capMsg').textContent='Buscando cambios de pantalla… '+Math.round(t/dur*100)+' %'; }
+    capDone();
+  }catch(ex){ $('capMsg').textContent='No he podido leer ese vídeo. Prueba con el MP4 que Meet guarda en Drive.'; }
+  URL.revokeObjectURL(v.src); };
+var stream=null, timer=null, t0=0;
+$('scr').onclick=async function(){ if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){ $('capMsg').textContent='Tu navegador no permite compartir pantalla. Usa Chrome o Edge en ordenador.'; return; }
+  try{ stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:1},audio:false}); }catch(ex){ $('capMsg').textContent='No se ha compartido la pantalla.'; return; }
+  last=null; pool=[]; CAP=[]; t0=Date.now();
+  var v=document.createElement('video'); v.muted=true; v.srcObject=stream; await v.play();
+  $('scr').hidden=true; $('scrStop').hidden=false;
+  $('capMsg').textContent='Grabando tu pantalla: comparte la ventana de tu presentación y da tu formación. Deja esta pestaña abierta y pulsa PARAR al terminar.';
+  function tick(){ if(consider(v,(Date.now()-t0)/1000)) $('capMsg').textContent='Grabando… '+pool.length+' cambios de pantalla capturados. Pulsa PARAR al terminar.'; }
+  tick(); timer=setInterval(tick,15000);
+  stream.getVideoTracks()[0].addEventListener('ended',stopScr); };
+function stopScr(){ clearInterval(timer); if(stream) stream.getTracks().forEach(function(tr){ tr.stop(); }); stream=null; $('scr').hidden=false; $('scrStop').hidden=true; capDone(); }
+$('scrStop').onclick=stopScr;
+async function slides(id){
+  if(CAP.length<2) return null;
+  for(var i=0;i<CAP.length;i++){ $('m2').textContent='Enviando tu presentación ('+(i+1)+'/'+CAP.length+')…'; await SkillUp.api('/api/sessions/frames',{method:'POST',body:{t:CAP[i].t,data:CAP[i].data,reset:i===0}}); }
+  $('m2').textContent='Revisando tus diapositivas…';
+  var r=await SkillUp.api('/api/sessions/'+encodeURIComponent(id)+'/slides',{method:'POST'}); CAP=[]; pool=[]; return r;
+}
+var LEG={si:'Se lee bien',parcial:'Se lee con esfuerzo',no:'No se lee'}, TXT={poco:'poco texto',adecuado:'texto justo',excesivo:'demasiado texto'};
+function slidesHtml(p){ if(!p) return '';
+  var h='<h2 class="s">Tu presentación · '+p.score+'/100</h2>'+(p.resumen?'<p style="margin:0 0 6px">'+e(p.resumen)+'</p>':'');
+  if(p.fuertes&&p.fuertes.length) h+='<p style="margin:6px 0 2px"><b style="color:var(--ink)">Funciona:</b></p><ul class="b">'+p.fuertes.map(function(x){return '<li>'+e(x)+'</li>';}).join('')+'</ul>';
+  if(p.mejoras&&p.mejoras.length) h+='<p style="margin:8px 0 2px"><b style="color:var(--ink)">Lo que más la mejoraría:</b></p><ul class="b">'+p.mejoras.map(function(x){return '<li>'+e(x)+'</li>';}).join('')+'</ul>';
+  h+='<ul class="crit">'+p.diapositivas.map(function(d){ var bad=d.legible!=='si'||d.texto==='excesivo'||!d.unaIdea;
+    return '<li><span class="tag '+(bad?'t-parcial':'t-si')+'">min '+Math.floor(d.t/60)+'</span><b>'+e(d.titulo)+'</b><div class="muted" style="font-size:13px;margin-top:3px">'+e(LEG[d.legible])+' · '+e(TXT[d.texto])+' · '+(d.unaIdea?'una idea clara':'mezcla ideas')+'</div>'
+      +(d.problemas.length?'<div style="font-size:13.5px;margin-top:3px">'+d.problemas.map(e).join(' · ')+'</div>':'')+(d.mejora?'<div style="font-size:13.5px;margin-top:3px">→ '+e(d.mejora)+'</div>':'')+'</li>'; }).join('')+'</ul>';
+  return h; }
 function tab(meet){ $('tMeet').setAttribute('aria-selected',String(meet)); $('tUp').setAttribute('aria-selected',String(!meet)); $('pMeet').hidden=!meet; $('pUp').hidden=meet; }
 $('tMeet').onclick=function(){ tab(true); }; $('tUp').onclick=function(){ tab(false); };
 function prepared(r){
@@ -83,11 +134,12 @@ function prepared(r){
 // Google Meet
 SkillUp.api('/api/sessions/meet/status').then(function(st){
   if(!st.configured){ $('meetMsg').textContent='La conexión con Google no está disponible en esta plataforma. Sube la transcripción a mano.'; tab(false); return; }
-  if(!st.meet){ $('meetMsg').innerHTML='Conecta tu cuenta de Google Workspace para ver tus reuniones de los últimos 30 días que tienen transcripción. Solo se lee la transcripción, nunca la grabación.<br><a class="btn" style="margin-top:10px" href="/api/sessions/meet/connect">CONECTAR GOOGLE MEET</a>'; return; }
+  if(!st.meet){ $('meetMsg').innerHTML='Conecta tu cuenta de Google Workspace para ver tus reuniones con transcripción desde que empezaste tu formación (nunca las anteriores). Solo se lee la transcripción.<br><a class="btn" style="margin-top:10px" href="/api/sessions/meet/connect">CONECTAR GOOGLE MEET</a>'; return; }
   $('meetMsg').textContent='Buscando tus reuniones con transcripción…';
   SkillUp.api('/api/sessions/meet/recent').then(function(d){
     var ok=d.meetings.filter(function(m){return m.transcript;});
-    $('meetMsg').textContent=ok.length?'Reuniones de los últimos 30 días con transcripción (Google las borra a los 30 días):':'No hay reuniones recientes con transcripción. Activa «Transcripción» en Meet la próxima vez o sube el documento a mano.';
+    var desde=d.from?' desde que empezaste tu formación ('+new Date(d.from).toLocaleDateString('es-ES',{day:'numeric',month:'long'})+')':'';
+    $('meetMsg').textContent=ok.length?'Tus reuniones con transcripción'+desde+'. Google las borra a los 30 días:':'No hay reuniones con transcripción'+desde+'. Activa «Transcripción» en Meet en tu próxima formación o sube el documento a mano.';
     $('meetList').innerHTML=ok.map(function(m,i){ return '<div class="it"><span><b>'+e(new Date(m.start).toLocaleString('es-ES',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))+'</b>'+(m.minutes?' <span class="muted">· '+m.minutes+' min</span>':'')+'</span><button class="btn ghost" type="button" data-i="'+i+'">ANALIZAR</button></div>'; }).join('');
     $('meetList').querySelectorAll('[data-i]').forEach(function(b){ b.onclick=async function(){ var m=ok[+b.dataset.i]; b.disabled=true; $('m1').textContent='Leyendo la transcripción de Meet…';
       try{ prepared(await SkillUp.api('/api/sessions/meet/load',{method:'POST',body:{record:m.record,transcript:m.transcript}})); }catch(ex){ $('m1').textContent=ex.message||'No se ha podido leer.'; b.disabled=false; } }; });
@@ -105,7 +157,9 @@ $('go').onclick=async function(){ var b=this, t=document.querySelector('input[na
   if(!$('cons').checked){ $('m2').textContent='Confirma que los asistentes sabían que se grababa.'; return; }
   b.disabled=true; $('m2').textContent='Analizando tu sesión frase a frase. Puede tardar un minuto…';
   try{ var r=await SkillUp.api('/api/sessions/analyze',{method:'POST',body:{id:PREP.id,trainer:t.value,title:$('ttl').value.trim(),topic:$('tpc').value.trim(),skillKey:$('skl').value||null,consent:true}});
-    $('step2').hidden=true; $('paste').value=''; show({id:r.id,title:$('ttl').value.trim(),metrics:r.metrics,analysis:r.analysis,recommended:r.recommended}); hist();
+    var shown={id:r.id,title:$('ttl').value.trim(),metrics:r.metrics,analysis:r.analysis,recommended:r.recommended};
+    if(CAP.length>=2){ try{ shown.analysis.presentacion=await slides(r.id); }catch(ex){ $('m2').textContent=(ex.message||'No se ha podido revisar la presentación')+'. El resto del análisis está listo.'; } }
+    $('step2').hidden=true; $('paste').value=''; show(shown); hist();
   }catch(ex){ $('m2').textContent=ex.message||'No se ha podido analizar.'; } b.disabled=false; };
 var LBL={si:'Cumple',parcial:'A medias',no:'No aparece'};
 function hints(m){ var h=[];
@@ -124,6 +178,7 @@ function show(s){ var m=s.metrics||{}, a=s.analysis||{};
   if(a.errores&&a.errores.length) h+='<h2 class="s">Revisa estas afirmaciones</h2><ul class="crit">'+a.errores.map(function(x){ return '<li><q style="margin:0 0 4px">«'+e(x.cita)+'»</q>'+e(x.por_que)+'</li>'; }).join('')+'</ul>';
   if(a.dudas&&a.dudas.length) h+='<h2 class="s">Dudas que tuvo el grupo</h2><p class="muted" style="margin:0 0 4px;font-size:13.5px">Refuérzalas en la próxima sesión o en el material.</p><ul class="b">'+a.dudas.map(function(x){return '<li>'+e(x)+'</li>';}).join('')+'</ul>';
   if(a.necesidades&&a.necesidades.length) h+='<h2 class="s">Lo que más te conviene practicar como formador</h2><ul class="b">'+a.necesidades.map(function(x){return '<li>'+e(x)+'</li>';}).join('')+'</ul>';
+  h+=slidesHtml(a.presentacion);
   if(s.recommended&&s.recommended.length) h+='<h2 class="s">Formaciones recomendadas para ti</h2><div class="lst">'+s.recommended.map(function(r){ return '<div class="it"><b>'+e(r.title)+'</b><a class="btn ghost" href="/app/curso.html?src=/'+e(r.slug)+'.html">ABRIR</a></div>'; }).join('')+'</div>';
   h+='<p class="muted" style="margin:14px 0 0;font-size:13px">Cada «cumple» se apoya en una frase literal tuya; lo que no se puede señalar en la transcripción no cuenta.</p><button class="btn ghost" type="button" id="del" style="margin-top:12px">BORRAR ESTE ANÁLISIS</button></div>';
   $('result').innerHTML=h; $('result').scrollIntoView({behavior:'smooth'});
