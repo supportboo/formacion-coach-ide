@@ -280,6 +280,9 @@ export const rubric = pgTable("rubric", {
   organizationId: text("organization_id").notNull(),
   competencyId: text("competency_id").notNull(),
   criteria: jsonb("criteria").$type<{ label: string; weight?: number }[]>().notNull(),
+  // Correlativo por organización+competencia (1, 2, 3...); no se recalifica una validación
+  // histórica cuando cambia la rúbrica futura, así que `validation.rubricId` fija cuál se usó.
+  version: integer("version").notNull().default(1),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("rubric_org_idx").on(t.organizationId) }));
 
@@ -320,6 +323,8 @@ export const validation = pgTable("validation", {
   validatorId: text("validator_id").notNull(),
   decision: text("decision").notNull(), // aprobado | rechazado
   feedback: text("feedback"),
+  // Rúbrica vigente en el momento de validar (null si la competencia aún no tenía rúbrica publicada).
+  rubricId: text("rubric_id").references(() => rubric.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("val_org_idx").on(t.organizationId) }));
 
