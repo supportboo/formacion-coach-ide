@@ -218,6 +218,13 @@
       "when": 1790720012880,
       "tag": "0030_evidence_event",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1790721089225,
+      "tag": "0031_rubric_version",
+      "breakpoints": true
     }
   ]
 }
