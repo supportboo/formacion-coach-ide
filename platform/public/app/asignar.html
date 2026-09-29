@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Asignar pruebas</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/assess.css">
+</head>
+<body>
+<div class="top"><span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>     <linearGradient id="blg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <linearGradient id="blg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <radialGradient id="bli1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>     <radialGradient id="bli2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>     </defs>     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>   </svg>ers<span class="sk">SkillUp</span></span><a class="back" href="/app/panel.html">Panel de empresa</a></div>
+<main class="wrap" id="wrap"><div class="loader"><div class="spin"></div>Cargando…</div></main>
+<script src="/app/i18n.js"></script>
+<script src="/app/api.js"></script>
+<script src="/app/nav.js" defer></script>
+<script src="/app/dictation.js"></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+var wrap=document.getElementById('wrap');
+var ME=null, TEAM=[], COURSES=[], TIPO='test_bloque';
+var TIPOS=[['test_bloque','Test de bloque'],['examen_final','Examen final'],['roleplay','Roleplay'],['caso','Caso práctico']];
+var LABEL={test_bloque:'Test de bloque',examen_final:'Examen final',roleplay:'Roleplay',caso:'Caso práctico'};
+function toast(t){ document.querySelectorAll('.toast').forEach(function(x){x.remove();}); var d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(function(){d.remove();},3500); }
+function fmt(d){ try{ return new Date(d).toLocaleString('es-ES',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+
+function page(){
+  var people=TEAM.filter(function(p){ return p.userId!==ME.userId; }).map(function(p){ return '<option value="'+E(p.userId)+'">'+E(p.name||p.email)+'</option>'; }).join('');
+  var courses=COURSES.map(function(c){ return '<option value="'+E(c.slug)+'">'+E(c.name)+'</option>'; }).join('');
+  var admin=(ME.role==='admin'||ME.role==='direccion'||ME.platformAdmin);
+  wrap.innerHTML='<h1 class="pt">Asignar pruebas</h1><p class="lead">Pide a una persona de tu equipo un test de bloque, un intento del examen final, un roleplay o un caso práctico, para el día y la hora que acordéis. Le llega aviso en su inicio y por correo, y aquí ves cómo le ha ido.</p>'
+    +'<div class="card"><h2>Nueva asignación</h2>'
+    +'<label class="f" for="who">Persona</label><select class="in" id="who">'+(people||'<option value="">No hay nadie más en tu equipo</option>')+'</select>'
+    +'<label class="f">Qué</label><div class="seg" id="tipo" role="radiogroup">'+TIPOS.map(function(t){ return '<button type="button" role="radio" aria-checked="'+(t[0]===TIPO)+'" data-t="'+t[0]+'"'+(t[0]===TIPO?' class="on"':'')+'>'+t[1]+'</button>'; }).join('')+'</div>'
+    +'<div id="fCurso"><label class="f" for="curso">Curso</label><select class="in" id="curso">'+courses+'</select></div>'
+    +'<div id="fBloque"><label class="f" for="bloque">Bloque</label><select class="in" id="bloque"><option>Cargando…</option></select></div>'
+    +'<div id="fRp" hidden><label class="f" for="tema">Tema</label><input class="in" id="tema" maxlength="200" placeholder="Por ejemplo: un partner que quiere más margen">'
+      +'<div class="row" style="margin-top:10px"><button type="button" class="btn ghost sm" id="draft">Que el agente prepare un borrador</button></div>'
+      +'<label class="f" for="titulo">Título</label><input class="in" id="titulo" maxlength="200">'
+      +'<label class="f" for="brief">Instrucciones para el agente</label><textarea class="in" id="brief" maxlength="1500" placeholder="Eres… Te comportas…"></textarea></div>'
+    +'<label class="f" for="cuando">Fecha y hora (opcional)</label><input class="in" type="datetime-local" id="cuando"><p class="muted" style="margin:6px 0 0">Sin fecha, le aparece ya. Con fecha, le aparece como programado y se abre ese día.</p>'
+    +'<label class="f" for="msg">Mensaje para la persona (opcional)</label><textarea class="in" id="msg" maxlength="600" placeholder="Por qué se lo pides y qué esperas"></textarea>'
+    +'<div class="row" style="margin-top:14px"><button class="btn" id="go">Asignar</button><span class="err" id="err"></span></div></div>'
+    +'<h2 style="font-family:var(--fh);color:var(--ink);font-size:20px;margin:24px 0 10px">Asignadas'+(admin?' en la empresa':' por ti')+'</h2><div class="list" id="list"><div class="loader">Cargando…</div></div>'
+    +(admin?'<div class="card" style="margin-top:22px"><h2>Roleplays de control</h2><p class="muted" style="margin:0 0 10px">Cada cuántos bloques se propone un roleplay dentro de cada curso. 0 = sin roleplays de control.</p><div id="cfg"></div><div class="row" style="margin-top:12px"><button class="btn sm" id="cfgSave">Guardar</button></div></div>':'');
+  var seg=document.getElementById('tipo');
+  seg.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ TIPO=b.dataset.t; seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===b); x.setAttribute('aria-checked',x===b?'true':'false'); }); sync(); }; });
+  document.getElementById('curso').onchange=loadBlocks;
+  document.getElementById('draft').onclick=draft;
+  document.getElementById('go').onclick=assign;
+  if(admin){ renderCfg(); document.getElementById('cfgSave').onclick=saveCfg; }
+  sync(); loadBlocks(); loadList();
+}
+function sync(){
+  var test=TIPO==='test_bloque'||TIPO==='examen_final';
+  document.getElementById('fCurso').hidden=!test; document.getElementById('fBloque').hidden=TIPO!=='test_bloque'; document.getElementById('fRp').hidden=test;
+}
+function loadBlocks(){
+  var sel=document.getElementById('bloque'), slug=document.getElementById('curso').value;
+  sel.innerHTML='<option>Cargando…</option>';
+  SkillUp.api('/api/learning/assess/outline?slug='+encodeURIComponent(slug)).then(function(o){
+    sel.innerHTML=(o.blocks||[]).map(function(b){ return '<option value="'+b.i+'">Bloque '+(b.i+1)+' · '+E(b.title)+'</option>'; }).join('');
+  }).catch(function(){ sel.innerHTML='<option value="">No se pudieron cargar los bloques</option>'; });
+}
+function draft(){
+  var tema=document.getElementById('tema').value.trim(), b=document.getElementById('draft');
+  if(tema.length<2){ document.getElementById('err').textContent='Escribe primero el tema.'; return; }
+  b.disabled=true; b.textContent='Preparando…';
+  SkillUp.api('/api/learning/challenges/draft',{method:'POST',body:{tipo:TIPO==='caso'?'caso':'roleplay',tema:tema}}).then(function(r){
+    document.getElementById('titulo').value=r.titulo||''; document.getElementById('brief').value=r.brief||'';
+  }).catch(function(e){ document.getElementById('err').textContent=e.message||'No se pudo preparar.'; }).then(function(){ b.disabled=false; b.textContent='Que el agente prepare un borrador'; });
+}
+function assign(){
+  var err=document.getElementById('err'); err.textContent='';
+  var who=document.getElementById('who').value; if(!who){ err.textContent='Elige a una persona.'; return; }
+  var body={assignedToUserId:who,tipo:TIPO,mensaje:document.getElementById('msg').value.trim()||undefined};
+  var when=document.getElementById('cuando').value; if(when) body.programadoPara=new Date(when).toISOString();
+  if(TIPO==='test_bloque'||TIPO==='examen_final'){ body.curso=document.getElementById('curso').value; if(TIPO==='test_bloque'){ var bl=document.getElementById('bloque').value; if(bl===''){ err.textContent='Elige un bloque.'; return; } body.bloque=Number(bl); } }
+  else { body.tema=document.getElementById('tema').value.trim()||undefined; body.titulo=document.getElementById('titulo').value.trim(); body.brief=document.getElementById('brief').value.trim(); if(!body.titulo||!body.brief){ err.textContent='Falta el título o las instrucciones (puedes pedir un borrador al agente).'; return; } }
+  var g=document.getElementById('go'); g.disabled=true;
+  SkillUp.api('/api/learning/challenges',{method:'POST',body:body}).then(function(){
+    toast('Asignado'); document.getElementById('msg').value=''; document.getElementById('cuando').value=''; loadList();
+  }).catch(function(e){ err.textContent=e.message||'No se pudo asignar.'; }).then(function(){ g.disabled=false; });
+}
+function estado(r){
+  if(r.estado==='hecho') return '<span class="chip ok">Hecho</span>';
+  if(r.estado==='en_validacion') return '<span class="chip teal">En validación</span>';
+  if(r.disponibilidad==='programado') return '<span class="chip warn">Programado</span>';
+  return '<span class="chip">Pendiente</span>';
+}
+function loadList(){
+  var l=document.getElementById('list');
+  SkillUp.api('/api/learning/challenges/assigned').then(function(d){
+    var items=(d&&d.items)||[];
+    if(!items.length){ l.innerHTML='<div class="card"><p class="muted" style="margin:0">Todavía no has asignado nada.</p></div>'; return; }
+    l.innerHTML=items.map(function(r){
+      return '<div class="item" style="flex-wrap:wrap"><div class="tx"><b>'+E(r.learnerName||'')+' · '+E(r.titulo||'')+'</b><small>'+E(LABEL[r.tipo]||r.tipo)+(r.programadoPara?' · '+E(fmt(r.programadoPara)):'')+(r.by?' · de '+E(r.by):'')+'</small>'
+        +(r.resultado?'<small style="color:var(--ink);margin-top:6px;white-space:pre-wrap">'+E(String(r.resultado).slice(0,600))+'</small>':'')+(r.mensaje?'<small>Tu mensaje: '+E(r.mensaje)+'</small>':'')+'</div>'+estado(r)+'</div>';
+    }).join('');
+  }).catch(function(e){ l.innerHTML='<p class="err">'+E(e.message||'No se pudo cargar.')+'</p>'; });
+}
+function renderCfg(){
+  document.getElementById('cfg').innerHTML=COURSES.map(function(c){
+    return '<div class="item" style="margin-bottom:8px"><div class="tx"><b>'+E(c.name)+'</b></div><select class="in" data-s="'+E(c.slug)+'" style="width:auto;min-width:150px" aria-label="Roleplay cada cuántos bloques en '+E(c.name)+'">'+[0,1,2,3,4,5,6].map(function(n){ return '<option value="'+n+'"'+(n===c.every?' selected':'')+'>'+(n?'Cada '+n+' bloque'+(n>1?'s':''):'Sin roleplays')+'</option>'; }).join('')+'</select></div>';
+  }).join('');
+}
+function saveCfg(){
+  var m={}; document.querySelectorAll('#cfg select').forEach(function(s){ m[s.dataset.s]=Number(s.value); });
+  SkillUp.api('/api/config/assessment',{method:'POST',body:{roleplayEvery:m}}).then(function(){ toast('Guardado'); }).catch(function(e){ toast(e.message||'No se pudo guardar'); });
+}
+
+SkillUp.requireSession('/app/login.html').then(function(s){ if(!s) return;
+  SkillUp.api('/api/org/me').then(function(me){
+    ME={userId:s.user.id,role:me.role,platformAdmin:!!me.platformAdmin};
+    if(!ME.platformAdmin && ['team_leader','admin','direccion','inspirador'].indexOf(me.role)<0){ wrap.innerHTML='<div class="card"><p class="muted" style="margin:0">Esta página es para responsables de equipo.</p></div>'; return; }
+    return Promise.all([SkillUp.api('/api/org/team'),SkillUp.api('/api/config/assessment')]).then(function(r){ TEAM=r[0]||[]; COURSES=(r[1]&&r[1].courses)||[]; page(); });
+  }).catch(function(e){ wrap.innerHTML='<div class="card"><p class="err">'+E(e.message||'No se pudo cargar.')+'</p></div>'; });
+});
+})();
+</script>
+</body>
+</html>

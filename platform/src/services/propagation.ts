@@ -1,5 +1,5 @@
-import { and, desc, eq, sql } from "drizzle-orm";
-import { coaching, competency, pointsLedger, user } from "../db/schema.js";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { coaching, competency, levelByCompetency, pointsLedger, user, validation } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 import { getLevel, setLevelAtLeast } from "./learning.js";
 
@@ -7,7 +7,8 @@ export const POINTS_TEACH = 50; // se cobra SOLO cuando el alumno aprueba
 export const MULT_CRITICAL = 1.5;
 export const MULT_CROSS_TEAM = 1.5;
 export const DEFAULT_CAP = 3; // alumnos simultáneos por coach (antifraude: calidad, no volumen)
-export const REFERENTE_MENTEES = 2; // mentees a N2 para ascender a Referente (N3)
+export const REFERENTE_MENTEES = 3;
+export const COACH_MENTEES = 5; // mentees a N2 para ascender a Referente (N3)
 
 /** Temporada actual (trimestre). Runtime; los tests pasan season explícito para determinismo. */
 export function currentSeason(now = new Date()): string {
@@ -53,7 +54,7 @@ async function isCritical(deps: SvcDeps, orgId: string, competencyId: string): P
   return c?.critical ?? false;
 }
 
-async function awardPoints(
+export async function awardPoints(
   deps: SvcDeps, orgId: string, userId: string, season: string, points: number, reason: string, refId?: string,
 ): Promise<void> {
   await deps.db.insert(pointsLedger).values({
@@ -141,4 +142,54 @@ export async function onLearnerReachedN2(
     paid++;
   }
   return { coachesPaid: paid };
+}
+
+
+export async function grantCoachN4(
+  deps: SvcDeps,
+  args: { orgId: string; granterId: string; granterRole: string; platformAdmin?: boolean; coachUserId: string; competencyId: string },
+): Promise<{ level: number; menteesLogrados: number }> {
+  const canGrant = !!args.platformAdmin || args.granterRole === "admin" || args.granterRole === "inspirador";
+  if (!canGrant) throw new Error("solo admin/inspirador (panel de defensa) puede nombrar Coach");
+  if (args.granterId === args.coachUserId && !args.platformAdmin) throw new Error("nadie firma su propia defensa de Coach");
+  const level = await getLevel(deps, args.orgId, args.coachUserId, args.competencyId);
+  if (level < 3) throw new Error("debe ser Referente (N3) antes de optar a Coach");
+  const [row] = await deps.db.select({ n: sql<number>`count(*)::int` }).from(coaching).where(and(
+    eq(coaching.organizationId, args.orgId), eq(coaching.coachId, args.coachUserId),
+    eq(coaching.competencyId, args.competencyId), eq(coaching.status, "logrado"),
+  ));
+  const mentees = row?.n ?? 0;
+  if (mentees < COACH_MENTEES) throw new Error("faltan alumnos llevados a N2 para Coach: " + mentees + "/" + COACH_MENTEES);
+  await setLevelAtLeast(deps, args.orgId, args.coachUserId, args.competencyId, 4);
+  return { level: 4, menteesLogrados: mentees };
+}
+
+
+export const RECERT_STALE_DAYS = 365; // recertificacion anual de Referente/Coach
+
+export interface RecertRow { userId: string; name: string; competencyId: string; level: number; ultimaActividad: string | null; vigente: boolean }
+
+/**
+ * Recertificacion anual (N3/N4). NO degrada automaticamente: informa de quien esta vigente y
+ * quien lleva mas de un anio sin validar (recert pendiente), para que un humano (admin) renueve
+ * o retire. Actividad = ultima validacion hecha por la persona, o si no, cuando alcanzo el nivel.
+ */
+export async function recertStatus(deps: SvcDeps, orgId: string, staleDays = RECERT_STALE_DAYS): Promise<RecertRow[]> {
+  const holders = await deps.db.select({
+    userId: levelByCompetency.userId, name: user.name,
+    competencyId: levelByCompetency.competencyId, level: levelByCompetency.level, since: levelByCompetency.updatedAt,
+  }).from(levelByCompetency)
+    .innerJoin(user, eq(levelByCompetency.userId, user.id))
+    .where(and(eq(levelByCompetency.organizationId, orgId), gte(levelByCompetency.level, 3)));
+  const cutoff = Date.now() - staleDays * 86400000;
+  const out: RecertRow[] = [];
+  for (const h of holders) {
+    const [v] = await deps.db.select({ at: validation.createdAt }).from(validation)
+      .where(and(eq(validation.organizationId, orgId), eq(validation.validatorId, h.userId)))
+      .orderBy(desc(validation.createdAt)).limit(1);
+    const last = v?.at ? new Date(v.at as any) : (h.since ? new Date(h.since as any) : null);
+    const vigente = last ? last.getTime() >= cutoff : false;
+    out.push({ userId: h.userId, name: h.name, competencyId: h.competencyId, level: h.level, ultimaActividad: last ? last.toISOString().slice(0, 10) : null, vigente });
+  }
+  return out;
 }

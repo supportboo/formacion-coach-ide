@@ -3,7 +3,9 @@ import { certificate, pointsLedger, rewardGrant, rewardRule } from "../db/schema
 import type { SvcDeps } from "./org.js";
 import { currentSeason } from "./propagation.js";
 
-export type RewardKind = "certificado" | "titulo" | "punto" | "perk" | "senal_rrhh";
+// Tipos de recompensa configurables. Los 4 nuevos (insignia/tarjeta_regalo/bonus/reconocimiento) amplían
+// el catálogo del panel (presets "qué, cuánto, cómo"); su ENTREGA de los monetarios es un proceso humano.
+export type RewardKind = "certificado" | "titulo" | "punto" | "perk" | "senal_rrhh" | "insignia" | "tarjeta_regalo" | "bonus" | "reconocimiento";
 
 export interface RuleInput {
   orgId: string; event: string; params?: Record<string, unknown>;
@@ -17,6 +19,14 @@ export async function defineRule(deps: SvcDeps, input: RuleInput): Promise<strin
     reward: input.reward, rewardParams: input.rewardParams ?? null, active: input.active ?? true,
   });
   return id;
+}
+
+/** Reglas de recompensa de la empresa (para el panel: ver, editar, borrar). */
+export async function listRules(deps: SvcDeps, orgId: string) {
+  return deps.db.select().from(rewardRule).where(eq(rewardRule.organizationId, orgId));
+}
+export async function deleteRule(deps: SvcDeps, orgId: string, id: string) {
+  await deps.db.delete(rewardRule).where(and(eq(rewardRule.organizationId, orgId), eq(rewardRule.id, id)));
 }
 
 function certCode(newId: () => string): string {
@@ -73,34 +83,39 @@ export async function evaluateRules(
   const rules = await deps.db.select().from(rewardRule)
     .where(and(eq(rewardRule.organizationId, ev.orgId), eq(rewardRule.event, ev.event), eq(rewardRule.active, true)));
 
-  const granted: Granted[] = [];
-  for (const r of rules) {
-    // filtro por competencia si la regla la acota
-    const ruleComp = r.params?.["competencyId"] as string | undefined;
-    if (ruleComp && ruleComp !== ev.competencyId) continue;
+  // Un evento puede disparar varias reglas (certificado + puntos + perk...); si el proceso
+  // muere a mitad, no debe quedar el evento a medio premiar.
+  return deps.db.transaction(async (tx) => {
+    const txDeps: SvcDeps = { ...deps, db: tx as unknown as SvcDeps["db"] };
+    const granted: Granted[] = [];
+    for (const r of rules) {
+      // filtro por competencia si la regla la acota
+      const ruleComp = r.params?.["competencyId"] as string | undefined;
+      if (ruleComp && ruleComp !== ev.competencyId) continue;
 
-    const rp = r.rewardParams ?? {};
-    if (r.reward === "certificado") {
-      const title = (rp["title"] as string) ?? "Certificado de competencia";
-      const cert = await issueCertificate(deps, {
-        orgId: ev.orgId, userId: ev.userId, competencyId: ev.competencyId, title,
-        evidence: { event: ev.event, ...ev.context },
-      });
-      granted.push({ reward: "certificado", ruleId: r.id, refId: cert.code });
-    } else if (r.reward === "punto") {
-      const pts = Number(rp["points"] ?? 0);
-      await deps.db.insert(pointsLedger).values({
-        id: deps.newId(), organizationId: ev.orgId, userId: ev.userId, season: currentSeason(),
-        points: pts, reason: `regla:${ev.event}`, refId: r.id,
-      });
-      granted.push({ reward: "punto", ruleId: r.id });
-    } else {
-      // titulo | perk | senal_rrhh -> se registra la concesión (no salarial)
-      await deps.db.insert(rewardGrant).values({
-        id: deps.newId(), organizationId: ev.orgId, userId: ev.userId, ruleId: r.id, reward: r.reward, refId: ev.competencyId ?? null,
-      });
-      granted.push({ reward: r.reward as RewardKind, ruleId: r.id });
+      const rp = r.rewardParams ?? {};
+      if (r.reward === "certificado") {
+        const title = (rp["title"] as string) ?? "Certificado de competencia";
+        const cert = await issueCertificate(txDeps, {
+          orgId: ev.orgId, userId: ev.userId, competencyId: ev.competencyId, title,
+          evidence: { event: ev.event, ...ev.context },
+        });
+        granted.push({ reward: "certificado", ruleId: r.id, refId: cert.code });
+      } else if (r.reward === "punto") {
+        const pts = Number(rp["points"] ?? rp["amount"] ?? 0);
+        await tx.insert(pointsLedger).values({
+          id: deps.newId(), organizationId: ev.orgId, userId: ev.userId, season: currentSeason(),
+          points: pts, reason: `regla:${ev.event}`, refId: r.id,
+        });
+        granted.push({ reward: "punto", ruleId: r.id });
+      } else {
+        // titulo | perk | senal_rrhh -> se registra la concesión (no salarial)
+        await tx.insert(rewardGrant).values({
+          id: deps.newId(), organizationId: ev.orgId, userId: ev.userId, ruleId: r.id, reward: r.reward, refId: ev.competencyId ?? null,
+        });
+        granted.push({ reward: r.reward as RewardKind, ruleId: r.id });
+      }
     }
-  }
-  return granted;
+    return granted;
+  });
 }

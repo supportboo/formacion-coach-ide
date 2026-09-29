@@ -1,4 +1,19 @@
-# Formaciones · Odoo I+D+E (Brandooers)
+# Brandooers · SkillUp
+
+Repositorio oficial de **Brandooers** y de **SkillUp**, su plataforma de formación para equipos (cuenta GitHub `supportboo`).
+
+| Qué | Dónde |
+|---|---|
+| **SkillUp** (la aplicación: servidor, pantallas, pruebas) | carpeta [`platform/`](./platform) · README completo en [`platform/README.md`](./platform/README.md) · historial en [`platform/CHANGELOG.md`](./platform/CHANGELOG.md) |
+| Web de Brandooers | `brandooers.html` y páginas de la raíz |
+| Formaciones estáticas originales (legado) | páginas de la raíz, descritas abajo |
+| Producción | VPS `brandooers-vps`: https://brandooers.com y https://skillup.brandooers.com, servidos desde un checkout de este repositorio en `/var/www/brandooers` |
+
+Cómo se publica: `git push` de la rama y `deploy/deploy.sh` en el VPS (detalle en `platform/README.md`). Nunca editar en el servidor.
+
+---
+
+## Legado: formaciones estáticas del equipo Odoo I+D+E
 
 Plataforma de formación del equipo Odoo I+D+E (**Brandooers**): la escuela del equipo, de rookie a experto. Sitio estático, sin servidor, alojado en GitHub Pages. Un hub que enlaza varios cursos y **rutas de aprendizaje** que conectan cursos entre sí (p. ej. Outbound → módulo Webinars → *próximamente* Marketing).
 
@@ -52,4 +67,4 @@ A partir de ahí, cada visita queda en la hoja y el dashboard la lee.
 
 ## Deploy
 
-Alojado en GitHub Pages (cuenta MHGRPM / Odoo). Para actualizar: edita, `git commit`, `git push`. GitHub Pages republica solo.
+Se sirve desde el VPS junto a SkillUp (ver tabla de arriba), no desde GitHub Pages.

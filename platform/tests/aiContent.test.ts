@@ -26,12 +26,19 @@ describe("shuffleExam", () => {
 });
 
 describe("sesión de examen (memoria de proceso, un solo uso)", () => {
+  const me = { orgId: "o1", userId: "u1" };
   it("se puede leer una vez y luego desaparece", () => {
-    storeExamSession("ex1", ["a", "b"]);
-    expect(takeExamSession("ex1")).toEqual(["a", "b"]);
-    expect(takeExamSession("ex1")).toBeNull();
+    storeExamSession("ex1", ["a", "b"], { ...me, competencyId: "c1" });
+    expect(takeExamSession("ex1", me)).toEqual({ correctAnswers: ["a", "b"], competencyId: "c1" });
+    expect(takeExamSession("ex1", me)).toBeNull();
   });
   it("un id desconocido devuelve null", () => {
-    expect(takeExamSession("no-existe")).toBeNull();
+    expect(takeExamSession("no-existe", me)).toBeNull();
+  });
+  it("otra persona u otra empresa no puede entregarlo ni gastarlo", () => {
+    storeExamSession("ex2", ["a"], { ...me, competencyId: "c1" });
+    expect(takeExamSession("ex2", { orgId: "o1", userId: "otro" })).toBeNull();
+    expect(takeExamSession("ex2", { orgId: "otra", userId: "u1" })).toBeNull();
+    expect(takeExamSession("ex2", me)?.competencyId).toBe("c1"); // sigue disponible para su dueño
   });
 });

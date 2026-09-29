@@ -1,10 +1,16 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne, or } from "drizzle-orm";
 import {
-  agentMessage, agentThread, appliedCase, auditLog, certificate, coaching,
-  enrollment, fundaeParticipation, levelByCompetency, onboardingProfile,
-  pointsLedger, rewardGrant, testAttempt, user, validation,
+  agentMessage, agentThread, annotation, appliedCase, assessmentAttempt, auditLog, certificate, coaching,
+  enrollment, evidence, evidenceEvent, feedback, fundaeParticipation, trainingSession, learnerFact, levelByCompetency, member, onboardingProfile,
+  pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
+import { eraseActivity, exportActivity } from "./activity.js";
+
+function userCases(deps: SvcDeps, orgId: string, userId: string) {
+  return deps.db.select({ id: appliedCase.id }).from(appliedCase)
+    .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
+}
 
 /**
  * Derecho de acceso/portabilidad (RGPD art. 15/20): todo lo que sabemos de este usuario
@@ -13,6 +19,9 @@ import type { SvcDeps } from "./org.js";
  */
 export async function exportUserData(deps: SvcDeps, orgId: string, userId: string) {
   const [profile] = await deps.db.select().from(user).where(eq(user.id, userId));
+  const threads = await deps.db.select().from(agentThread)
+    .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId)));
+  const caseIds = (await userCases(deps, orgId, userId)).map((c) => c.id);
 
   return {
     identity: profile ? { id: profile.id, name: profile.name, email: profile.email } : null,
@@ -40,8 +49,37 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       .where(and(eq(rewardGrant.organizationId, orgId), eq(rewardGrant.userId, userId))),
     fundaeParticipation: await deps.db.select().from(fundaeParticipation)
       .where(and(eq(fundaeParticipation.organizationId, orgId), eq(fundaeParticipation.userId, userId))),
-    chatThreads: await deps.db.select().from(agentThread)
-      .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId))),
+    // Course notes/highlights/questions, onboarding answers and roleplay transcripts.
+    notes: await deps.db.select().from(annotation)
+      .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId))),
+    teamDna: await deps.db.select().from(teamDna)
+      .where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId))),
+    // 1.12.0: ficha viva (lo que sabemos de él para adaptar su formación, con fuente y evidencia).
+    learnerFacts: await deps.db.select().from(learnerFact)
+      .where(and(eq(learnerFact.organizationId, orgId), eq(learnerFact.userId, userId))),
+    teamProfile: await deps.db.select().from(teamProfile)
+      .where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId))),
+    roleplays: await deps.db.select().from(roleplaySession)
+      .where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId))),
+    assessments: await deps.db.select().from(assessmentAttempt)
+      .where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId))),
+    chatThreads: threads,
+    // 1.17.0: el contenido de las conversaciones con el tutor, no solo la lista de hilos.
+    chatMessages: threads.length ? await deps.db.select().from(agentMessage)
+      .where(inArray(agentMessage.threadId, threads.map((t) => t.id))) : [],
+    evidences: await deps.db.select().from(evidence).where(and(eq(evidence.organizationId, orgId), or(
+      eq(evidence.createdBy, userId),
+      caseIds.length ? and(eq(evidence.ownerType, "applied_case"), inArray(evidence.ownerId, caseIds)) : undefined))),
+    // 1.3.0: actividad en directo (páginas, secciones, tiempo activo, acciones, avisos recibidos). Máx. 90 días.
+    activity: await exportActivity(deps, orgId, userId),
+    // 1.19.0-1.22.0: demostraciones, teach-back, repasos y formaciones reales analizadas (sin transcripciones: no se guardan).
+    capabilityEvidence: await deps.db.select().from(evidenceEvent)
+      .where(and(eq(evidenceEvent.organizationId, orgId), eq(evidenceEvent.userId, userId))),
+    trainingSessions: await deps.db.select().from(trainingSession)
+      .where(and(eq(trainingSession.organizationId, orgId), eq(trainingSession.userId, userId))),
+    // 1.4.0: valoraciones de respuestas de la IA y sugerencias enviadas.
+    feedback: await deps.db.select().from(feedback)
+      .where(and(eq(feedback.organizationId, orgId), eq(feedback.userId, userId))),
   };
 }
 
@@ -55,6 +93,10 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
  * certificate, rewardGrant, pointsLedger, coaching, fundaeParticipation.
  */
 export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string): Promise<void> {
+  // An org admin may only erase members of their own organization (user rows are global).
+  const [m] = await deps.db.select({ id: member.id }).from(member)
+    .where(and(eq(member.organizationId, orgId), eq(member.userId, userId)));
+  if (!m) throw new Error("ese usuario no pertenece a tu organización");
   const myThreads = await deps.db.select({ id: agentThread.id }).from(agentThread)
     .where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId)));
   const threadIds = myThreads.map((t) => t.id);
@@ -63,12 +105,39 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   }
   await deps.db.delete(agentThread).where(and(eq(agentThread.organizationId, orgId), eq(agentThread.userId, userId)));
   await deps.db.delete(onboardingProfile).where(and(eq(onboardingProfile.organizationId, orgId), eq(onboardingProfile.userId, userId)));
-  await deps.db.update(appliedCase).set({ submission: null })
+  // Free text: course notes/questions/company summary and roleplay transcripts.
+  await deps.db.delete(annotation).where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId)));
+  // Personality/learning profile: personal data with no legal retention duty.
+  await deps.db.delete(teamDna).where(and(eq(teamDna.organizationId, orgId), eq(teamDna.userId, userId)));
+  await deps.db.delete(teamProfile).where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
+  await deps.db.delete(learnerFact).where(and(eq(learnerFact.organizationId, orgId), eq(learnerFact.userId, userId)));
+  await eraseActivity(deps, orgId, userId);
+  // Evidencias propias y análisis de formaciones: contienen frases literales de la persona.
+  await deps.db.delete(evidenceEvent).where(and(eq(evidenceEvent.organizationId, orgId), eq(evidenceEvent.userId, userId)));
+  await deps.db.delete(trainingSession).where(and(eq(trainingSession.organizationId, orgId), eq(trainingSession.userId, userId)));
+  // Ratings and suggestions carry free text and conversation snapshots.
+  await deps.db.delete(feedback).where(and(eq(feedback.organizationId, orgId), eq(feedback.userId, userId)));
+  await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));
+  // Exam answers are free text; the numeric result stays in testAttempt (ROI) and the certificate.
+  await deps.db.delete(assessmentAttempt).where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId)));
+  // 1.17.0: el enunciado del caso se personaliza con su situación y las evidencias/feedback hablan de él:
+  // se borran; queda solo el estado del caso (para niveles y ROI).
+  const caseIds = (await userCases(deps, orgId, userId)).map((c) => c.id);
+  await deps.db.update(appliedCase).set({ submission: null, prompt: "[borrado a petición de la persona]" })
     .where(and(eq(appliedCase.organizationId, orgId), eq(appliedCase.userId, userId)));
+  await deps.db.delete(evidence).where(and(eq(evidence.organizationId, orgId), eq(evidence.createdBy, userId)));
+  if (caseIds.length) {
+    await deps.db.delete(evidence).where(and(eq(evidence.organizationId, orgId), eq(evidence.ownerType, "applied_case"), inArray(evidence.ownerId, caseIds)));
+    await deps.db.update(validation).set({ feedback: null }).where(and(eq(validation.organizationId, orgId), inArray(validation.caseId, caseIds)));
+  }
   await deps.db.insert(auditLog).values({
     id: deps.newId(), organizationId: orgId, userId: null,
     action: "privacy.erase", meta: { erasedUserId: userId },
   });
   // Borra identidad real (nombre/email). session/account/member caen en cascada.
-  await deps.db.delete(user).where(eq(user.id, userId));
+  // If the person also belongs to another organization, only leave this one.
+  const [other] = await deps.db.select({ id: member.id }).from(member)
+    .where(and(eq(member.userId, userId), ne(member.organizationId, orgId)));
+  if (other) await deps.db.delete(member).where(and(eq(member.organizationId, orgId), eq(member.userId, userId)));
+  else await deps.db.delete(user).where(eq(user.id, userId));
 }

@@ -1,15 +1,28 @@
-﻿import { and, eq } from "drizzle-orm";
+﻿import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import * as demoSvc from "./services/demonstrate.js";
+import * as reviewSvc from "./services/review.js";
+import * as resilienceSvc from "./services/resilience.js";
+import * as sessionsSvc from "./services/sessions.js";
+import * as capabilitySvc from "./services/capability.js";
+import * as teamsSvc from "./services/teams.js";
+import * as actSvc from "./services/activity.js";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { z } from "zod";
-import { auth } from "./auth/auth.js";
+import { auth, lastResetLink } from "./auth/auth.js";
+import { capabilitiesFor } from "./auth/capabilities.js";
 import { env } from "./config/env.js";
-import { getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
-import { chat } from "./agents/chat.js";
-import { ROLES } from "./agents/registry.js";
-import { ingestDocument } from "./rag/rag.js";
-import { appliedCase } from "./db/schema.js";
+import { ACCOUNT_SOURCE, getAccountState, getAuthContext, getPlatformAdminSession, isPlatformAdmin, type AuthCtx } from "./http/context.js";
+import { chat, onboardingMarker } from "./agents/chat.js";
+import { ROLES, REGISTRY } from "./agents/registry.js";
+import { ingestDocument, retrieve } from "./rag/rag.js";
+import { sendMail } from "./services/mailer.js";
+import { appliedCase, competency, learningPath, ragDocument, user, member, organization, annotation, agentThread, agentMessage, roleplaySession, onboardingProfile, teamDna, teamProfile, auditLog, certificate, assessmentAttempt, courseCompetency, trainingSession, evidenceEvent, enrollment } from "./db/schema.js";
 import { chatDeps, db, llm, newId } from "./container.js";
+import { orgTerms } from "./services/glossary.js";
+import { bannedFor, BLOCKED_REPLY, CAP_REPLY, findBanned, OFFTOPIC_REPLY, orgBannedWords, quotaFor, setOrgBannedWords } from "./services/contentGuard.js";
 import * as aiContent from "./services/aiContent.js";
 import { rateLimited } from "./util/rateLimit.js";
 import * as catalogSvc from "./services/catalog.js";
@@ -19,19 +32,70 @@ import * as propagationSvc from "./services/propagation.js";
 import * as orgSvc from "./services/org.js";
 import * as configSvc from "./services/config.js";
 import * as rewardsSvc from "./services/rewards.js";
+import * as coursePanelSvc from "./services/coursePanel.js";
 import * as fundaeSvc from "./services/fundae.js";
 import * as analyticsSvc from "./services/analytics.js";
+import * as roiSvc from "./services/roi.js";
+import * as gamificationSvc from "./services/gamification.js";
 import * as costsSvc from "./services/costs.js";
 import * as roleplaySvc from "./services/roleplay.js";
 import * as privacySvc from "./services/privacy.js";
 import * as billingSvc from "./services/billing.js";
+import * as creditsSvc from "./services/credits.js";
 import * as careerSvc from "./services/career.js";
 import * as remindersSvc from "./services/reminders.js";
+import * as voiceSvc from "./services/voice.js";
+import * as notesSvc from "./services/notes.js";
+import * as onboardingSvc from "./services/onboarding.js";
+import * as teamdnaSvc from "./services/teamdna.js";
+import * as teamprofileSvc from "./services/teamprofile.js";
+import * as resourcesSvc from "./services/resources.js";
+import * as adaptSvc from "./services/adapt.js";
+import * as pathSvc from "./services/path.js";
+import * as factsSvc from "./services/learnerFacts.js";
+import * as companyProfileSvc from "./services/companyProfile.js";
+import * as microSvc from "./services/micropractice.js";
+import * as workforceSvc from "./services/workforce.js";
+import * as videosSvc from "./services/videos.js";
+import * as langSvc from "./services/lang.js";
+import * as translateSvc from "./services/translate.js";
+import * as followupSvc from "./services/followup.js";
+import * as moderationSvc from "./services/moderation.js";
+import * as curationSvc from "./services/curation.js";
+import * as gcal from "./services/gcal.js";
+import * as assessSvc from "./services/assessment.js";
+import { auditPlatformAccess, registerLiveRoutes } from "./http/live.js";
+import { registerDashboardRoutes } from "./http/dashboards.js";
+import { registerFeedbackRoutes } from "./http/feedback.js";
+import { registerCreditRoutes } from "./http/credits.js";
 
 const svcDeps = { db, newId };
 const hasRole = (ctx: AuthCtx, ...roles: string[]) => roles.includes(ctx.role);
 
+// Estado de cuenta: ver getAccountState en http/context.ts (fuente reservada ACCOUNT_SOURCE).
+async function setAccountState(orgId: string, userId: string, state: string): Promise<void> {
+  const rows = await db.select().from(annotation)
+    .where(and(eq(annotation.organizationId, orgId), eq(annotation.userId, userId), eq(annotation.source, ACCOUNT_SOURCE)))
+    .orderBy(desc(annotation.createdAt));
+  if (rows[0]) await db.update(annotation).set({ body: "[cuenta] " + state }).where(eq(annotation.id, rows[0].id));
+  else await notesSvc.create(svcDeps, orgId, userId, { source: ACCOUNT_SOURCE, kind: "insight", body: "[cuenta] " + state });
+}
+async function isApproved(orgId: string, userId: string): Promise<boolean> {
+  const s = await getAccountState(orgId, userId);
+  return s === null || s === "aprobado";
+}
+
 export const app = new Hono();
+
+// Cabeceras de seguridad base (defensa en profundidad; sin CSP para no romper el inline de la app).
+app.use("*", async (c, next) => {
+  await next();
+  if (!c.res) return;
+  c.res.headers.set("X-Content-Type-Options", "nosniff");
+  c.res.headers.set("X-Frame-Options", "SAMEORIGIN");
+  c.res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  c.res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+});
 
 app.get("/health", (c) => c.json({ ok: true, service: "skillup-platform" }));
 
@@ -39,14 +103,420 @@ app.get("/health", (c) => c.json({ ok: true, service: "skillup-platform" }));
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 // Frontend de SkillUp (estático, sin build) servido por el mismo proceso.
-app.get("/app", (c) => c.redirect("/app/login.html"));
+app.get("/app", (c) => c.redirect("/app/inicio.html"));
+app.get("/app/", (c) => c.redirect("/app/inicio.html"));
+// El HTML de la app no se cachea: así cada deploy se ve al instante (evita el "no veo los cambios").
+// Los assets versionables (js/css) mantienen su caché normal.
+app.use("/app/*", async (c, next) => {
+  await next();
+  if (c.req.path.endsWith(".html") && c.res) {
+    const h = new Headers(c.res.headers);
+    h.set("Cache-Control", "no-cache, must-revalidate");
+    c.res = new Response(c.res.body, { status: c.res.status, headers: h });
+  }
+});
 app.use("/app/*", serveStatic({ root: "./public" }));
 app.get("/verificar", serveStatic({ path: "./public/verificar.html" }));
 
+// Contenido de curso: los HTML viven en el webroot del hub (../), protegidos por nginx con el
+// login antiguo (8090). El alumno de la app autentica con better-auth (8080) y no tiene esa
+// cookie, por eso "no cargaba ningun curso". Aqui los servimos tras validar la sesion de la app.
+// Montado bajo /api/learning/ para que nginx lo proxee al backend de la plataforma sin tocar su config.
+const COURSE_SLUGS = new Set([
+  "index", "outbound-sales", "reclutamiento-partners", "marketing-partners",
+  "negociacion-partner-manager", "objeciones-partner-manager", "prospeccion-social-selling",
+  "guia-coach-odoo",
+]);
+const COURSE_ROOT = resolve(process.cwd(), "..");
+app.get("/api/learning/course-src", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // Guardarraíl de seguridad: cuenta pendiente de aprobación no puede abrir cursos todavía.
+  if (!isPlatformAdmin(ctx) && !(await isApproved(ctx.orgId, ctx.userId))) {
+    return c.json({ error: "cuenta pendiente de aprobación", pending: true }, 403);
+  }
+  const slug = String(c.req.query("slug") || "").toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(slug) || !COURSE_SLUGS.has(slug)) return c.json({ error: "curso no encontrado" }, 404);
+  try {
+    const html = await readFile(resolve(COURSE_ROOT, slug + ".html"), "utf8");
+    return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+  } catch {
+    return c.json({ error: "curso no encontrado" }, 404);
+  }
+});
+
+// Traducción automática de una sección de curso (1.5.0). POST (no GET) porque el cliente manda el HTML de la
+// sección tal como la pinta; el servidor comprueba que ese texto está de verdad en el curso antes de gastar IA.
+// Caché global por (curso, sección, idioma, hash): cada sección se traduce una vez para toda la plataforma.
+const courseTextCache = new Map<string, { text: string; at: number }>();
+async function courseSquashed(slug: string): Promise<string> {
+  const hit = courseTextCache.get(slug);
+  if (hit && Date.now() - hit.at < 10 * 60_000) return hit.text;
+  const text = translateSvc.squash(await readFile(resolve(COURSE_ROOT, slug + ".html"), "utf8"));
+  courseTextCache.set(slug, { text, at: Date.now() });
+  return text;
+}
+const translateBody = z.object({
+  src: z.string().min(1).max(120), section: z.number().int().min(0).max(1000),
+  lang: z.enum(langSvc.LANGS), html: z.string().min(1).max(translateSvc.MAX_SECTION_HTML),
+});
+app.post("/api/learning/translate", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !(await isApproved(ctx.orgId, ctx.userId))) return c.json({ error: "cuenta pendiente de aprobación", pending: true }, 403);
+  const parsed = translateBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const { lang, section, html } = parsed.data;
+  const slug = parsed.data.src.replace(/^\//, "").replace(/\.html$/, "").toLowerCase();
+  if (!/^[a-z0-9-]+$/.test(slug) || !COURSE_SLUGS.has(slug)) return c.json({ error: "curso no encontrado" }, 404);
+  if (lang === "es") return c.json({ html: null, reason: "original" });
+  const hash = translateSvc.srcHash(html);
+  const hit = await translateSvc.cached(svcDeps, slug, section, lang, hash);
+  if (hit) return c.json({ html: hit, cached: true });
+  // Solo los fallos de caché gastan IA: límite por persona y por empresa (el tope diario de IA lo aplica llm).
+  if (rateLimited(`tr:${ctx.orgId}:${ctx.userId}`, 20, 60_000) || rateLimited(`tr:${ctx.orgId}`, 60, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  let text: string;
+  try { text = await courseSquashed(slug); } catch { return c.json({ error: "curso no encontrado" }, 404); }
+  if (!translateSvc.isFromCourse(html, text)) return c.json({ error: "la sección no coincide con el curso" }, 400);
+  try {
+    const out = await translateSvc.translateSection(svcDeps, llm, { orgId: ctx.orgId, course: slug, section, lang, html, model: env.MODEL_FAST });
+    return c.json(out ? { html: out, cached: false } : { html: null, reason: "estructura" });
+  } catch (e) {
+    return c.json({ html: null, reason: "ia", error: (e as Error).message }, 503);
+  }
+});
+
+// --- Onboarding-2: "Crea tu ruta de aprendizaje". El alumno pide temas/objetivo/compromiso y los
+// agentes (LLM) montan una ruta a medida SOLO con los cursos disponibles (+ modulos nuevos a
+// preparar). Se guarda como notas source='ruta' y gobierna que el inicio muestre solo lo pedido.
+const AVAILABLE_COURSES = [
+  { src: "/index.html", name: "Guia del Coach", desc: "Acompañar a quien llega en sus primeros meses." },
+  { src: "/prospeccion-social-selling.html", name: "Prospeccion con IA", desc: "Encontrar y abrir con criterio." },
+  { src: "/outbound-sales.html", name: "Outbound Sales", desc: "Vender en frio sin sonar a vendedor." },
+  { src: "/reclutamiento-partners.html", name: "Reclutamiento de Partners", desc: "Captar partners de 0 a 100." },
+  { src: "/marketing-partners.html", name: "Marketing para Partners", desc: "Generar demanda B2B." },
+  { src: "/negociacion-partner-manager.html", name: "Negociacion", desc: "Cerrar sin perder margen." },
+  { src: "/objeciones-partner-manager.html", name: "Objeciones", desc: "Manejar el no y darle la vuelta." },
+];
+const COURSE_SRCS = new Set(AVAILABLE_COURSES.map((x) => x.src));
+const routeBody = z.object({
+  // temas admite pegar listas largas (p. ej. un volcado de temas): límite generoso para no dar 400.
+  temas: z.string().min(2).max(8000),
+  objetivo: z.string().max(2000).optional(),
+  compromiso: z.string().max(500).optional(),
+  plazo: z.string().max(200).optional(),
+});
+interface RutaModulo { titulo: string; resumen: string; courseSrc: string | null }
+interface RutaPlan { titulo: string; resumen: string; modulos: RutaModulo[] }
+
+async function readRutaPlan(orgId: string, userId: string): Promise<RutaPlan | null> {
+  const items = await notesSvc.list(svcDeps, orgId, userId, "ruta").catch(() => [] as { body: string | null }[]);
+  for (let i = items.length - 1; i >= 0; i--) {
+    const b = String(items[i]?.body || "");
+    if (b.indexOf("[ruta-plan]") === 0) { try { return JSON.parse(b.slice("[ruta-plan]".length).trim()) as RutaPlan; } catch { return null; } }
+  }
+  return null;
+}
+
+app.get("/api/learning/route", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ plan: await readRutaPlan(ctx.orgId, ctx.userId) });
+});
+// Micro-subtemas de un módulo (para las burbujas tipo cerebro/Graphify). Cacheado por tema (proceso).
+const subtopicCache = new Map<string, string[]>();
+app.get("/api/learning/subtopics", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const topic = String(c.req.query("topic") || "").slice(0, 160).trim();
+  if (!topic) return c.json({ subtopics: [] });
+  const key = topic.toLowerCase();
+  const cached = subtopicCache.get(key);
+  if (cached) return c.json({ subtopics: cached });
+  if (rateLimited(`sub:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones" }, 429);
+  try {
+    const out = await llm.generate({
+      system: "Devuelve SOLO un array JSON de 4 a 6 subtemas concretos y accionables (cadenas cortas de 2-5 palabras) del tema dado, en español de España, sin inventar. Sin markdown. Formato: [\"...\",\"...\"]",
+      messages: [{ role: "user", content: "Tema del módulo: " + topic }], maxTokens: 300, orgId: ctx.orgId, userId: ctx.userId, kind: "chat",
+    });
+    let arr = aiContent.firstJson<string[]>(out);
+    if (!Array.isArray(arr)) arr = [];
+    arr = arr.map((x) => String(x).slice(0, 60)).filter(Boolean).slice(0, 6);
+    if (arr.length) subtopicCache.set(key, arr);
+    return c.json({ subtopics: arr });
+  } catch { return c.json({ subtopics: [] }); }
+});
+
+// Agente creador de cursos: propone los siguientes módulos de la ruta según el perfil y lo que ya tiene.
+app.post("/api/learning/suggest-modules", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({
+    have: z.array(z.string().max(160)).max(80).optional(),
+    profile: z.string().max(600).optional(),
+    after: z.string().max(160).optional(),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ modules: [] });
+  if (rateLimited(`sug:${ctx.orgId}:${ctx.userId}`, 12, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const have = (parsed.data.have || []).map((s) => s.trim()).filter(Boolean).slice(0, 80);
+  const profile = (parsed.data.profile || "").trim().slice(0, 600);
+  const after = (parsed.data.after || "").trim().slice(0, 160);
+  try {
+    const out = await llm.generate({
+      system: "Eres el agente creador de cursos de una plataforma de formación profesional. Propones los siguientes módulos que la persona debería aprender para progresar, en español de España, concretos y accionables, sin inventar certificaciones ni datos. NUNCA repitas un módulo que ya tenga. Devuelve SOLO un array JSON de 3 a 4 objetos con el formato {\"titulo\":\"...\",\"resumen\":\"una frase de para qué sirve\"}. Sin markdown, sin texto fuera del array.",
+      messages: [{ role: "user", content:
+        (profile ? ("Perfil y objetivo de la persona: " + profile + "\n") : "") +
+        (after ? ("El nuevo módulo va justo después de: " + after + "\n") : "") +
+        "Módulos que YA tiene en su ruta (no repetir ninguno):\n" + (have.length ? have.map((h) => "- " + h).join("\n") : "(ninguno todavía)") +
+        "\n\nPropón 3-4 módulos NUEVOS y distintos que encajen y hagan avanzar su aprendizaje." }],
+      maxTokens: 500, orgId: ctx.orgId, userId: ctx.userId, kind: "chat",
+    });
+    let arr = aiContent.firstJson<Array<{ titulo?: string; resumen?: string }>>(out);
+    if (!Array.isArray(arr)) arr = [];
+    const seen = new Set(have.map((h) => h.toLowerCase()));
+    const modules = arr
+      .map((m) => ({ titulo: String(m?.titulo || "").slice(0, 120).trim(), resumen: String(m?.resumen || "").slice(0, 240).trim() }))
+      .filter((m) => m.titulo && !seen.has(m.titulo.toLowerCase()))
+      .slice(0, 4);
+    return c.json({ modules });
+  } catch { return c.json({ modules: [] }); }
+});
+
+app.post("/api/learning/route/build", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited("route:" + ctx.orgId + ":" + ctx.userId, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = routeBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const { temas, objetivo, compromiso, plazo } = parsed.data;
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
+  // P16: el nivel que el alumno declaró en el onboarding ([nivel]) adapta la profundidad de la ruta.
+  const nivel = await (async () => {
+    const rows = await db.select({ body: annotation.body }).from(annotation)
+      .where(and(eq(annotation.organizationId, ctx.orgId), eq(annotation.userId, ctx.userId), eq(annotation.source, "onboarding")))
+      .orderBy(desc(annotation.createdAt));
+    const r = rows.find((x) => String(x.body || "").startsWith("[nivel]"));
+    return r ? String(r.body).slice("[nivel]".length).trim() : null;
+  })().catch(() => null);
+  const especialidad = await pathSvc.getSpecialty(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
+  const catalogo = AVAILABLE_COURSES.map((x) => `- src:"${x.src}" | ${x.name}: ${x.desc}`).join("\n");
+  const perfil = [profile?.sector && `sector ${profile.sector}`, profile?.puesto && `puesto ${profile.puesto}`, nivel && `se ve a sí mismo: ${nivel}`].filter(Boolean).join(", ");
+  const system =
+    "Eres el orquestador de aprendizaje de Brandooers SkillUp. El alumno quiere dominar unos temas y tu montas SU ruta. " +
+    "Selecciona y ORDENA solo los cursos del catalogo que de verdad sirvan a lo que pide (courseSrc debe ser EXACTAMENTE uno de los \"src\" del catalogo). " +
+    "Si pide algo que NINGUN curso cubre, añade como mucho 2 modulos nuevos con courseSrc:null (se prepararan aparte). No metas cursos que no ha pedido para rellenar. " +
+    "Entre 2 y 6 modulos. " + (perfil ? "Perfil del alumno: " + perfil + ". " : "") +
+    (especialidad ? `Su especialidad elegida es "${COURSE_TITLES[especialidad] || especialidad}" (src "/${especialidad}.html"): si encaja con lo que pide, ese curso va en la ruta y pesa más. ` : "") +
+    (nivel ? `Ajusta la PROFUNDIDAD a su nivel declarado (${nivel}): si tiene soltura o experiencia, salta lo básico y empieza más arriba; si empieza, incluye los fundamentos. ` : "") +
+    "Español de España, claro, sin inventar. Responde SOLO JSON valido, sin markdown.\n" +
+    "Catalogo disponible:\n" + catalogo + "\n\n" +
+    "Formato: {\"titulo\":\"...\",\"resumen\":\"1-2 frases\",\"modulos\":[{\"titulo\":\"...\",\"resumen\":\"1 frase\",\"courseSrc\":\"/xxx.html\"|null}]}";
+  let plan: RutaPlan;
+  try {
+    const out = await llm.generate({
+      system,
+      messages: [{ role: "user", content: `Temas que quiero dominar: ${temas}.` + (objetivo ? ` Mi objetivo: ${objetivo}.` : "") + (compromiso ? ` Me comprometo a: ${compromiso}.` : "") + (plazo ? ` Plazo: ${plazo}.` : "") }],
+      maxTokens: 1200, orgId: ctx.orgId, userId: ctx.userId, kind: "chat",
+    });
+    plan = aiContent.firstJson<RutaPlan>(out);
+  } catch {
+    return c.json({ error: "no pude montar la ruta ahora, intentalo de nuevo" }, 502);
+  }
+  plan.titulo = String(plan.titulo || "Tu ruta de aprendizaje").slice(0, 120);
+  plan.resumen = String(plan.resumen || "").slice(0, 300);
+  plan.modulos = (Array.isArray(plan.modulos) ? plan.modulos : []).slice(0, 6).map((m) => ({
+    titulo: String(m.titulo || "").slice(0, 120),
+    resumen: String(m.resumen || "").slice(0, 240),
+    courseSrc: m.courseSrc && COURSE_SRCS.has(m.courseSrc) ? m.courseSrc : null,
+  })).filter((m) => m.titulo);
+  if (!plan.modulos.length) return c.json({ error: "no pude montar la ruta, reformula los temas" }, 422);
+  try {
+    await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "ruta", kind: "insight", body: "[tema] " + temas });
+    if (objetivo) await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "ruta", kind: "insight", body: "[objetivo] " + objetivo });
+    if (compromiso) await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "ruta", kind: "insight", body: "[compromiso] " + compromiso });
+    if (plazo) await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "ruta", kind: "insight", body: "[plazo] " + plazo });
+    await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "ruta", kind: "insight", body: "[ruta-plan] " + JSON.stringify(plan) });
+  } catch { /* la ruta se devuelve igual aunque falle el guardado */ }
+  return c.json({ plan });
+});
+
+// --- Videos externos reales (YouTube), tipo Netflix: novedades / para ti / brandooers favs / mas vistos / mas valorados.
+// Nunca inventamos video ni valoracion: todo sale de la API real de YouTube o de reproducciones reales dentro de SkillUp. ---
+app.get("/api/learning/videos", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // Each unseen topic spends shared YouTube quota (all tenants): cap per user.
+  if (rateLimited(`videos:${ctx.orgId}:${ctx.userId}`, 15, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const topic = String(c.req.query("topic") || "").trim().slice(0, 120);
+  if (!topic) return c.json({ error: "falta topic" }, 400);
+  // Idioma de los vídeos: el que pida el selector o, por defecto, el de la persona (1.5.0).
+  const lang = langSvc.normalizeLang(c.req.query("lang")) ?? await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
+  return c.json(await videosSvc.forTopic(svcDeps, topic, lang));
+});
+
+// --- Recursos del curso (vídeos, podcasts, libros, herramientas) verificados y puntuados por el agente de calidad, con
+// afiliación detrás del control de calidad. Pestañas en el orden del formato preferido del Team DNA; «para ti» según su tiempo. ---
+const resourcesBody = z.object({ topic: z.string().trim().min(2).max(200), outline: z.string().max(4000).default("") });
+app.post("/api/learning/resources", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // A cold course costs 2 LLM calls + YouTube quota; cached per course+language for 14 days (empty results are never cached).
+  if (rateLimited(`resources:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = resourcesBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const lang = await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
+  const [groups, tp, ritmo] = await Promise.all([
+    resourcesSvc.forCourse(svcDeps, parsed.data.topic, parsed.data.outline, lang),
+    teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null),
+    onboardingMarker(db, ctx.orgId, ctx.userId, "[ritmo]").catch(() => null),
+  ]);
+  // Formato preferido: del perfil completo o, si aún no lo ha terminado, de lo ya respondido del DNA.
+  const formato = tp?.result?.pedagogy?.formato ?? teamprofileSvc.pedagogyOf(tp?.answers ?? {}).formato ?? null;
+  // Herramientas excluidas por la ficha validada de esta empresa (además de la lista global).
+  const cp = await companyProfileSvc.get(svcDeps, ctx.orgId).catch(() => null);
+  if (cp?.validatedAt) groups.tool = (groups.tool ?? []).filter((t) => !companyProfileSvc.isExcluded(cp.profile, t));
+  return c.json({ groups, order: resourcesSvc.tabOrder(formato), forYou: resourcesSvc.forYou(groups, formato, ritmo), lang });
+});
+
+// --- Contenido vivo: bloque «Para ti» de cada sección con lo que el alumno ya ha contado (ejemplo + práctica + pregunta).
+// El núcleo del curso no cambia; se regenera solo cuando cambia lo que sabemos de él. ---
+const adaptBody = z.object({ src: z.string().trim().min(1).max(200), card: z.number().int().min(0).max(1000), title: z.string().trim().min(1).max(300), text: z.string().max(6000).default("") });
+app.post("/api/learning/adapt", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`adapt:${ctx.orgId}:${ctx.userId}`, 30, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = adaptBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  const block = await adaptSvc.forSection(svcDeps, ctx.orgId, ctx.userId, d.src, d.card, d.title, d.text).catch((e) => { console.warn("[adapt] failed", String(e).slice(0, 200)); return null; });
+  return block ? c.json(block) : c.json({ error: "no disponible" }, 503);
+});
+
+app.get("/api/learning/videos/home", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // La portada busca en varios temas a la vez (cuota compartida): mismo límite por persona que la búsqueda por tema.
+  if (rateLimited(`videos:${ctx.orgId}:${ctx.userId}`, 15, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const lang = langSvc.normalizeLang(c.req.query("lang")) ?? await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG);
+  const catalogTopics = AVAILABLE_COURSES.map((x) => x.name);
+  const plan = await readRutaPlan(ctx.orgId, ctx.userId).catch(() => null);
+  const paraTiTopics = (plan?.modulos || []).map((m) => m.titulo).filter(Boolean);
+  const [global, paraTi, favs, fb] = await Promise.all([
+    videosSvc.aggregate(svcDeps, catalogTopics, 12, lang),
+    paraTiTopics.length ? videosSvc.aggregate(svcDeps, paraTiTopics, 12, lang) : null,
+    videosSvc.brandooersFavs(svcDeps, 12, lang),
+    notesSvc.list(svcDeps, ctx.orgId, ctx.userId, "video_feedback").catch(() => [] as { body: string | null }[]),
+  ]);
+  // "No mostrar más": ocultamos los vídeos que el usuario marcó como hide (su valoración más reciente por vídeo).
+  const seen = new Set<string>(), hidden = new Set<string>();
+  for (const n of fb) { let o: { y?: string; k?: string }; try { o = JSON.parse(String(n.body || "")); } catch { continue; } if (!o.y || seen.has(o.y)) continue; seen.add(o.y); if (o.k === "hide") hidden.add(o.y); }
+  const flt = (list: { youtubeId: string }[]) => (list || []).filter((v) => !hidden.has(v.youtubeId));
+  return c.json({
+    novedades: flt(global.novedades),
+    masVistos: flt(global.masVistos),
+    masValorados: flt(global.masValorados),
+    paraTi: paraTi ? flt(paraTi.masVistos) : [],
+    brandooersFavs: flt(favs),
+    lang,
+  });
+});
+// Like / dislike / "no mostrar más" de un vídeo (se guarda la valoración más reciente por vídeo).
+app.post("/api/learning/videos/feedback", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ youtubeId: z.string().min(3).max(32), kind: z.enum(["like", "dislike", "hide"]), title: z.string().max(300).optional(), thumbnail: z.string().max(500).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "video_feedback", kind: "insight", body: JSON.stringify({ y: parsed.data.youtubeId, k: parsed.data.kind, t: parsed.data.title || "", th: parsed.data.thumbnail || "" }) });
+  return c.json({ ok: true });
+});
+// Semáforo para el superadmin: qué contenido gusta y cuál no (valoración más reciente por usuario y vídeo).
+app.get("/api/analytics/video-feedback", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !WORKFORCE_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const rows = await db.select({ userId: annotation.userId, body: annotation.body }).from(annotation)
+    .where(and(eq(annotation.organizationId, ctx.orgId), eq(annotation.source, "video_feedback"))).orderBy(desc(annotation.createdAt));
+  const seen = new Set<string>(); const per = new Map<string, { youtubeId: string; title: string; thumbnail: string; like: number; dislike: number; hide: number }>();
+  for (const r of rows) { let o: { y?: string; k?: string; t?: string; th?: string }; try { o = JSON.parse(String(r.body || "")); } catch { continue; } if (!o.y) continue; const key = r.userId + "|" + o.y; if (seen.has(key)) continue; seen.add(key);
+    let p = per.get(o.y); if (!p) { p = { youtubeId: o.y, title: o.t || "", thumbnail: o.th || "", like: 0, dislike: 0, hide: 0 }; per.set(o.y, p); }
+    if (o.k === "like") p.like++; else if (o.k === "dislike") p.dislike++; else if (o.k === "hide") p.hide++; }
+  return c.json({ videos: [...per.values()].sort((a, b) => (b.like + b.dislike + b.hide) - (a.like + a.dislike + a.hide)) });
+});
+
+const watchBody = z.object({ youtubeId: z.string().min(3).max(32), title: z.string().max(300), thumbnail: z.string().max(500), lang: z.enum(langSvc.LANGS).optional() });
+app.post("/api/learning/videos/watch", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = watchBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await videosSvc.logWatch(svcDeps, ctx.orgId, ctx.userId, parsed.data);
+  return c.json({ ok: true });
+});
+
+// --- Google Calendar (OAuth por usuario; token guardado en annotation source=gcal_token) ---
+async function gcalRefresh(orgId: string, userId: string): Promise<string | null> {
+  return (await gcalToken(orgId, userId))?.r ?? null;
+}
+/** El permiso de Google más reciente de la persona (con los alcances concedidos, desde 1.22.0). */
+async function gcalToken(orgId: string, userId: string): Promise<{ r: string; s?: string } | null> {
+  const rows = await notesSvc.list(svcDeps, orgId, userId, "gcal_token").catch(() => [] as { body: string | null }[]);
+  for (const n of rows) { try { const o = JSON.parse(String(n.body || "")); if (o && o.r) return o as { r: string; s?: string }; } catch { /* siguiente */ } }
+  return null;
+}
+app.get("/api/gcal/status", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ configured: gcal.isConfigured(), connected: !!(await gcalRefresh(ctx.orgId, ctx.userId)) });
+});
+app.get("/api/gcal/connect", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.redirect("/app/login.html");
+  if (!gcal.isConfigured()) return c.json({ error: "Google Calendar no está configurado en el servidor" }, 400);
+  return c.redirect(gcal.authUrl(ctx.userId));
+});
+app.get("/api/gcal/callback", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.redirect("/app/login.html");
+  const code = c.req.query("code");
+  const back = String(c.req.query("state") || "").endsWith("|meet") ? "/app/sesiones.html?meet=" : "/app/ruta.html?gcal=";
+  if (!code) return c.redirect(back + "err");
+  const tok = await gcal.exchangeCode(code);
+  if (!tok || !tok.refresh_token) return c.redirect(back + "err");
+  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "gcal_token", kind: "insight", body: JSON.stringify({ r: tok.refresh_token, s: tok.scope || "", at: Date.now() }) });
+  return c.redirect(back + "ok");
+});
+app.post("/api/gcal/sync", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
+  if (!refresh) return c.json({ error: "no conectado" }, 400);
+  const access = await gcal.accessFromRefresh(refresh);
+  if (!access) return c.json({ error: "no pude renovar el acceso; vuelve a conectar" }, 400);
+  const parsed = z.object({ events: z.array(z.object({ summary: z.string().min(1).max(200), description: z.string().max(1000).optional(), startISO: z.string().min(10), endISO: z.string().min(10) })).max(60) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  let created = 0; let firstError = "";
+  for (const ev of parsed.data.events) {
+    const res = await gcal.insertEvent(access, ev);
+    if (res.ok) created++; else if (!firstError) firstError = res.error || "error desconocido";
+  }
+  let hint: string | undefined;
+  if (created === 0 && firstError) {
+    const e = firstError.toLowerCase();
+    if (e.includes("has not been used") || e.includes("accessnotconfigured") || e.includes("is disabled") || e.includes("service_disabled"))
+      hint = "La API de Google Calendar no está activada en tu proyecto de Google Cloud. Actívala en https://console.cloud.google.com/apis/library/calendar-json.googleapis.com y vuelve a sincronizar.";
+    else if (e.includes("insufficient") || e.includes("insufficientpermissions") || e.startsWith("403"))
+      hint = "Google no concedió permiso sobre tu calendario. Desconecta y vuelve a conectar aceptando el permiso de calendario.";
+    else if (e.startsWith("401") || e.includes("invalid_grant"))
+      hint = "La conexión con Google caducó. Vuelve a conectar Google Calendar.";
+  }
+  return c.json({ created, attempted: parsed.data.events.length, error: firstError || undefined, hint });
+});
+
 const chatBody = z.object({
-  message: z.string().min(1),
+  message: z.string().min(1).max(20000),
   threadId: z.string().optional(),
-  role: z.string().optional(),
+  display: z.string().max(4000).optional(), // lo que el alumno escribió (sin instrucciones internas)
+  source: z.string().max(120).regex(/^[a-z0-9-]+$/i).optional(), // curso del hilo
 });
 
 // Cada usuario habla con su agente de rol. Todo acotado a su organización.
@@ -59,12 +529,287 @@ app.post("/api/agent/chat", async (c) => {
   }
   const parsed = chatBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const role = parsed.data.role ?? ctx.role;
+  // Guardia de uso (services/contentGuard.ts): sin llamar a la IA si hay palabras prohibidas o se superó el tope diario.
+  const visible = parsed.data.display ?? parsed.data.message;
+  const hit = findBanned(visible, await bannedFor(db, ctx.orgId));
+  if (hit) {
+    await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.blocked", meta: { reason: "banned_word", word: hit } }).catch(() => {});
+    return c.json({ threadId: parsed.data.threadId ?? null, reply: BLOCKED_REPLY, blocked: true });
+  }
+  // Límite pensado para no frenar lo útil: solo cuentan los desvíos (bromas, probar el bot, temas ajenos). Pasado el
+  // margen del día, un modelo barato comprueba el mensaje antes de gastar en la respuesta; contar su vida real o su
+  // trabajo siempre pasa. El tope total es solo una red de seguridad contra abusos extremos.
+  const q0 = await quotaFor(db, ctx.orgId, ctx.userId, env.CHAT_DAILY_USER_CAP, env.CHAT_OFFTOPIC_DAILY_CAP);
+  if (env.CHAT_DAILY_USER_CAP > 0 && q0.used >= env.CHAT_DAILY_USER_CAP) {
+    return c.json({ threadId: parsed.data.threadId ?? null, reply: CAP_REPLY(env.CHAT_DAILY_USER_CAP), blocked: true, quota: q0 });
+  }
+  if (env.CHAT_OFFTOPIC_DAILY_CAP > 0 && q0.offTopic >= env.CHAT_OFFTOPIC_DAILY_CAP) {
+    const verdict = await llm.generate({
+      system: "Clasificas un mensaje de un alumno a su tutor de formación profesional. Responde solo SI o NO. SI = trata de su trabajo, su empresa, sus clientes, su equipo, su formación, dudas del curso o su situación personal real cuando afecta a su trabajo. NO = bromas, probar al bot, temas ajenos o tonterías.",
+      messages: [{ role: "user", content: visible.slice(0, 1500) }], model: env.MODEL_FAST, maxTokens: 3,
+      orgId: ctx.orgId, userId: ctx.userId, kind: "offtopic_check", lang: "es", // SI/NO siempre en español para interpretarlo bien
+    }).catch(() => "SI");
+    if (/^\s*no/i.test(verdict)) {
+      await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.offtopic", meta: { prechecked: true } }).catch(() => {});
+      return c.json({ threadId: parsed.data.threadId ?? null, reply: OFFTOPIC_REPLY, blocked: true, quota: { ...q0, offTopic: q0.offTopic + 1 } });
+    }
+  }
   const res = await chat(chatDeps, {
     orgId: ctx.orgId, orgName: ctx.orgName, userId: ctx.userId, userName: ctx.userName,
-    role, threadId: parsed.data.threadId, message: parsed.data.message,
+    role: ctx.role, threadId: parsed.data.threadId, message: parsed.data.message,
+    display: parsed.data.display, source: parsed.data.source,
   });
+  return c.json({ ...res, quota: await quotaFor(db, ctx.orgId, ctx.userId, env.CHAT_DAILY_USER_CAP, env.CHAT_OFFTOPIC_DAILY_CAP) });
+});
+
+// Coach de voz proactivo (BOO): saluda con seguimiento REAL — reconoce, motiva, hace seguimiento y
+// suelta una broma amable. Solo con hechos reales del alumno (nada de fechas ni plazos inventados).
+// Práctica de hoy con los tutores (barra bajo cada chat).
+app.get("/api/agent/quota", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json(await quotaFor(db, ctx.orgId, ctx.userId, env.CHAT_DAILY_USER_CAP, env.CHAT_OFFTOPIC_DAILY_CAP));
+});
+
+// Palabras prohibidas propias de la empresa (la lista base va siempre). Solo admin/dirección (o superadmin) la cambia.
+app.get("/api/agent/banned", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !["admin", "direccion"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ words: await orgBannedWords(db, ctx.orgId), baseCount: (await bannedFor(db, ctx.orgId)).length - (await orgBannedWords(db, ctx.orgId)).length });
+});
+app.put("/api/agent/banned", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !["admin", "direccion"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const parsed = z.object({ words: z.array(z.string().max(60)).max(300) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const words = await setOrgBannedWords(db, newId, ctx.orgId, ctx.userId, parsed.data.words);
+  await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "banned.update", meta: { count: words.length } });
+  return c.json({ words });
+});
+
+// Glosario aprendido de la empresa (para que el dictado por voz escriba bien marcas y cargos).
+app.get("/api/agent/terms", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ terms: await orgTerms(db, ctx.orgId).catch(() => []) });
+});
+
+app.get("/api/agent/coach", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`coach:${ctx.orgId}:${ctx.userId}`, 8, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const hour = Math.max(0, Math.min(23, Number(c.req.query("h")) || new Date().getHours()));
+  const place = String(c.req.query("place") || "").replace(/[^a-zñáéíóú ]/gi, "").slice(0, 12); // solo si el usuario lo declaró; jamás detectado
+  const dayMs = 86_400_000, now = Date.now();
+  const all = await notesSvc.listAll(svcDeps, ctx.orgId, ctx.userId).catch(() => [] as { body: string | null; createdAt: Date; source: string | null }[]);
+  const ts = (x: { createdAt: Date }) => new Date(x.createdAt).getTime();
+  const newest = all[0];
+  const daysSince = newest ? Math.max(0, Math.floor((now - ts(newest)) / dayMs)) : null; // "días sin venir" nunca negativo
+  const activeDays = new Set(all.filter((a) => now - ts(a) < 30 * dayMs).map((a) => new Date(a.createdAt).toISOString().slice(0, 10))).size;
+  const retos = all.filter((a) => a.source === "reto").map((r) => { try { return JSON.parse(String(r.body || "").slice(6).trim()) as { titulo?: string; estado?: string; createdAt?: string }; } catch { return null; } }).filter((x): x is { titulo?: string; estado?: string; createdAt?: string } => !!x);
+  const pend = retos.filter((r) => r.estado !== "hecho");
+  const oldestPendingDays = pend.length ? Math.max(...pend.map((r) => r.createdAt ? Math.floor((now - new Date(r.createdAt).getTime()) / dayMs) : 0)) : null;
+  const plan = await readRutaPlan(ctx.orgId, ctx.userId).catch(() => null);
+  const mods = plan?.modulos?.length || 0;
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
+  const objetivo = (() => { for (const n of all) { if (n.source === "ruta" && String(n.body || "").startsWith("[objetivo]")) return String(n.body).slice("[objetivo]".length).trim().slice(0, 160); } return null; })();
+  const tp = await teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId).catch(() => null);
+  const motiva = tp?.result ? teamprofileSvc.motivationLine(tp.result) : "";
+  const name = (ctx.userName || "").split(" ")[0] || "";
+  const franja = hour < 6 ? "de madrugada" : hour < 13 ? "por la mañana" : hour < 21 ? "por la tarde" : "de noche";
+  const hechos = [
+    name && `Se llama ${name}.`,
+    daysSince === null ? "Es de sus primeras veces por aquí." : daysSince === 0 ? "Ha estado activo hoy." : daysSince === 1 ? "Su última actividad fue ayer." : `Lleva ${daysSince} días sin pasarse.`,
+    activeDays > 1 ? `Ha estado activo ${activeDays} días distintos este último mes.` : "",
+    pend.length ? `Tiene ${pend.length} reto${pend.length > 1 ? "s" : ""} pendiente${pend.length > 1 ? "s" : ""} de su responsable${pend[0]?.titulo ? ` (el primero: "${pend[0].titulo}")` : ""}${oldestPendingDays != null && oldestPendingDays >= 2 ? `, el más antiguo esperando ${oldestPendingDays} días` : ""}.` : "No tiene retos pendientes.",
+    mods ? `Su ruta de aprendizaje tiene ${mods} módulo${mods > 1 ? "s" : ""}.` : "Aún no ha montado su ruta de aprendizaje.",
+    objetivo ? `Su objetivo: ${objetivo}.` : "",
+    profile?.puesto ? `Su puesto: ${profile.puesto}.` : "",
+    motiva ? `Lo que le motiva (de su perfil; úsalo para el empujón, sin nombrar el test): ${motiva}` : "",
+    place ? `Dice estar ahora en ${place}.` : "",
+    `Ahora es ${franja}.`,
+  ].filter(Boolean).join(" ");
+  const system =
+    "Eres BOO, el coach de voz de Brandooers: cercano, motivador y con chispa, como un entrenador que se alegra de verte. " +
+    "Saluda en voz alta a esta persona en 2 o 3 frases cortas. Español de España, natural, de tú, sin markdown, sin emojis, sin listas. " +
+    "Usa SOLO los hechos que te doy: no inventes fechas, plazos ni datos. Reconócele por su nombre y por lo que trae entre manos. " +
+    "Hazle seguimiento con cariño (si lleva días sin venir, recupéralo con humor amable; si va bien, celébralo) y remátalo con UN empujón concreto a su próximo paso real (un reto pendiente, o montar/seguir su ruta). " +
+    "Mete UNA broma ligera y amable ligada a su situación, nunca sobre su físico ni ofensiva. Máximo 45 palabras. Devuelve SOLO la frase hablada, sin comillas.";
+  let text: string;
+  try {
+    const out = await llm.generate({ system, messages: [{ role: "user", content: "Hechos reales de la persona: " + hechos + "\n\nSalúdale ahora." }], maxTokens: 160, orgId: ctx.orgId, userId: ctx.userId, kind: "chat" });
+    text = String(out || "").trim().replace(/^["'«]+|["'»]+$/g, "").slice(0, 400);
+  } catch { text = ""; }
+  if (!text) text = `¡Hola${name ? " " + name : ""}! Me alegra verte. ` + (pend.length ? `Tienes ${pend.length} reto${pend.length > 1 ? "s" : ""} esperándote, ¿le entramos?` : mods ? "Tu ruta te espera, sigamos por donde lo dejaste." : "¿Montamos tu ruta de aprendizaje y arrancamos?");
+  return c.json({ text, signals: { daysSince, pendientes: pend.length, modulos: mods, activeDays } });
+});
+
+// --- Voz del asistente (ElevenLabs). Lista de voces: Marc primero + peninsulares humanas. ---
+// --- Anotaciones del alumno sobre el curso (subrayar, nota, pregunta, repasar) ---
+app.get("/api/notes/list", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const source = c.req.query("source");
+  const items = source ? await notesSvc.list(svcDeps, ctx.orgId, ctx.userId, source) : await notesSvc.listAll(svcDeps, ctx.orgId, ctx.userId);
+  return c.json({ items });
+});
+const noteBody = z.object({ source: z.string().min(1).max(300), card: z.number().int().min(0).optional(), cardTitle: z.string().max(300).optional(), kind: z.enum(["highlight", "note", "question", "review", "insight"]), quote: z.string().max(2000).optional(), body: z.string().max(4000).optional() });
+const BIENVENIDA_LABEL: Record<string, string> = { rol: "Mi puesto", objetivo: "La situación que quiero resolver", freno: "Lo que me frena al aprender", nivel: "Mi nivel", ritmo: "Tiempo por semana", trato: "Cómo quiero que me hable el tutor", intentado: "Lo que ya he probado" };
+app.post("/api/notes/add", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = noteBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  if (parsed.data.source === ACCOUNT_SOURCE) return c.json({ error: "source reservado" }, 400);
+  const id = await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, parsed.data);
+  // Ficha viva (1.12.0): las respuestas del alumno (Tu turno, Para ti) y su bienvenida alimentan su ficha, en segundo plano.
+  const d = parsed.data, body = String(d.body || "").trim();
+  if (d.kind === "insight" && body) {
+    if (d.source.startsWith("/") && !body.startsWith("[")) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, body, { type: "practica", ref: d.cardTitle ?? undefined, scope: d.source });
+    const m = d.source === "onboarding" ? body.match(/^\[(rol|objetivo|freno|nivel|ritmo|trato|intentado)\]\s*([\s\S]+)/) : null;
+    if (m) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, `${BIENVENIDA_LABEL[m[1]!]}: ${m[2]}`, { type: "bienvenida" });
+  }
+  return c.json({ id });
+});
+app.delete("/api/notes/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!(await notesSvc.remove(svcDeps, ctx.orgId, ctx.userId, c.req.param("id")))) return c.json({ error: "nota no encontrada" }, 404);
+  return c.json({ ok: true });
+});
+// --- Onboarding: analizar la web de la empresa para preparar a los tutores ---
+const companyBody = z.object({ url: z.string().min(3).max(200) });
+app.post("/api/onboarding/company", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited("onb:" + ctx.orgId + ":" + ctx.userId, 8, 60000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = companyBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const res = await onboardingSvc.analyzeCompany(parsed.data.url);
+  if (!res) return c.json({ error: "no pude leer esa web" }, 502);
+  try { await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: "onboarding", kind: "insight", body: "[Empresa " + res.source + "] " + res.summary }); } catch (e) {}
   return c.json(res);
+});
+/* ---------- Team DNA (arquetipos de fortaleza, determinista) ---------- */
+// Catálogo (preguntas + arquetipos + familias) para pintar el test y el certificado.
+app.get("/api/teamdna/catalog", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({
+    questions: teamdnaSvc.QUESTIONS, archetypes: teamdnaSvc.ARCHETYPES,
+    families: teamdnaSvc.FAMILIES, familyLabel: teamdnaSvc.FAMILY_LABEL, familySub: teamdnaSvc.FAMILY_SUB,
+  });
+});
+app.get("/api/teamdna/me", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const row = await teamdnaSvc.getDna(svcDeps, ctx.orgId, ctx.userId);
+  if (!row) return c.json({ dna: null });
+  return c.json({ dna: row, archetype: teamdnaSvc.archetypeByKey(row.archetype) ?? null });
+});
+app.post("/api/teamdna/answers", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ answers: z.array(z.enum(["vision", "accion", "analisis", "personas"])).min(4).max(40) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const result = teamdnaSvc.scoreDna(parsed.data.answers);
+  await teamdnaSvc.saveDna(svcDeps, ctx.orgId, ctx.userId, result, parsed.data.answers);
+  return c.json({ dna: result, archetype: teamdnaSvc.archetypeByKey(result.archetypeKey) ?? null });
+});
+// Mezcla del equipo (para gestores): cobertura de familias y arquetipos, peso medio.
+const DNA_MANAGERS = ["admin", "direccion", "team_leader", "inspirador"];
+app.get("/api/teamdna/team", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !DNA_MANAGERS.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await teamdnaSvc.teamAggregate(svcDeps, ctx.orgId));
+});
+
+/* ---------- Team DNA v2: perfil combinado (eneagrama + Big Five + Hexad + pedagogía), determinista ---------- */
+app.get("/api/teamdna/profile/catalog", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ blocks: teamprofileSvc.BLOCKS, likert: teamprofileSvc.LIKERT, total: teamprofileSvc.ALL_IDS.length });
+});
+app.get("/api/teamdna/profile/me", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const row = await teamprofileSvc.getProfile(svcDeps, ctx.orgId, ctx.userId);
+  return c.json({ answers: row?.answers ?? {}, completedAt: row?.completedAt ?? null, view: row?.result ? teamprofileSvc.profileView(row.result) : null });
+});
+const profileAnswersBody = z.object({ answers: z.record(z.string().regex(/^[ebhp]\d{1,2}$/), z.number().int().min(0).max(5)) });
+app.post("/api/teamdna/profile/answers", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = profileAnswersBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const answers = await teamprofileSvc.saveAnswers(svcDeps, ctx.orgId, ctx.userId, parsed.data.answers);
+  return c.json({ saved: Object.keys(answers).length, missing: teamprofileSvc.missingItems(answers).length });
+});
+app.post("/api/teamdna/profile/finish", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const out = await teamprofileSvc.finish(svcDeps, ctx.orgId, ctx.userId);
+  if ("missing" in out) return c.json({ error: "faltan respuestas", missing: out.missing }, 400);
+  return c.json({ view: teamprofileSvc.profileView(out.result) });
+});
+app.post("/api/teamdna/profile/restart", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  await teamprofileSvc.restart(svcDeps, ctx.orgId, ctx.userId);
+  return c.json({ ok: true });
+});
+// Perfiles del equipo (gestores): cómo es y cómo aprende cada persona, para acompañarla mejor.
+app.get("/api/teamdna/profile/team", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !DNA_MANAGERS.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ members: await teamprofileSvc.teamProfiles(svcDeps, ctx.orgId) });
+});
+
+app.get("/api/voice/voices", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json(await voiceSvc.listVoices());
+});
+
+const ttsBody = z.object({ text: z.string().min(1).max(1200), voiceId: z.string().min(1) });
+// 1.17.0 (auditoría): voz solo de la lista y dentro del tope diario de IA de la empresa (el gasto de voz cuenta).
+async function voiceBlocked(ctx: { orgId: string }, voiceId: string): Promise<string | null> {
+  if (!voiceSvc.allowedVoice(voiceId)) return "voz no permitida";
+  if (env.ORG_AI_DAILY_CAP_USD > 0 && (await costsSvc.orgCost(svcDeps, ctx.orgId, 1)).usd >= env.ORG_AI_DAILY_CAP_USD)
+    return "Se ha alcanzado el límite de uso de IA de tu empresa por hoy. Vuelve mañana o pide al administrador que lo amplíe.";
+  return null;
+}
+app.post("/api/voice/tts", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited("tts:" + ctx.orgId + ":" + ctx.userId, 40, 60000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = ttsBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const blocked = await voiceBlocked(ctx, parsed.data.voiceId);
+  if (blocked) return c.json({ error: blocked }, blocked === "voz no permitida" ? 400 : 429);
+  const audio = await voiceSvc.synthesize(parsed.data.text, parsed.data.voiceId, await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG));
+  if (!audio) return c.json({ error: "voz no disponible" }, 503);
+  await costsSvc.recordVoice(svcDeps, ctx.orgId, ctx.userId, parsed.data.text.length).catch(() => {});
+  return new Response(audio, { headers: { "content-type": "audio/mpeg", "cache-control": "no-store" } });
+});
+// Voz con marcas de tiempo por carácter, para resaltar la palabra que se está diciendo (karaoke), pedido por Marc.
+app.post("/api/voice/tts-timed", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited("ttst:" + ctx.orgId + ":" + ctx.userId, 40, 60000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = ttsBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const blocked = await voiceBlocked(ctx, parsed.data.voiceId);
+  if (blocked) return c.json({ error: blocked }, blocked === "voz no permitida" ? 400 : 429);
+  const timed = await voiceSvc.synthesizeWithTimestamps(parsed.data.text, parsed.data.voiceId, await langSvc.getUserLang(db, ctx.userId).catch(() => langSvc.DEFAULT_LANG));
+  if (!timed) return c.json({ error: "voz no disponible" }, 503);
+  await costsSvc.recordVoice(svcDeps, ctx.orgId, ctx.userId, parsed.data.text.length).catch(() => {});
+  return c.json(timed);
 });
 
 const ingestBody = z.object({
@@ -163,6 +908,7 @@ app.post("/api/catalog/lessons/generate", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, ...CATALOG_WRITERS)) return c.json({ error: "requiere admin/direccion/inspirador" }, 403);
+  if (!(await isApproved(ctx.orgId, ctx.userId))) return c.json({ error: "cuenta pendiente de aprobación", pending: true }, 403);
   if (rateLimited(`gen:${ctx.orgId}`, 20, 60_000)) return c.json({ error: "demasiadas generaciones, espera un momento" }, 429);
   const parsed = z.object({ pathId: z.string().min(1), competencyId: z.string().min(1), topic: z.string().min(1) })
     .safeParse(await c.req.json().catch(() => ({})));
@@ -214,38 +960,39 @@ app.get("/api/learning/onboarding", async (c) => {
   return c.json({ done: !!profile });
 });
 
-// El dashboard consulta esto al entrar para saber si mandar al usuario a onboarding primero.
-app.get("/api/learning/onboarding", async (c) => {
-  const ctx = await getAuthContext(c);
-  if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
-  return c.json({ done: !!profile });
-});
-
 app.post("/api/learning/enroll", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   const parsed = z.object({ pathId: z.string().min(1), competencyId: z.string().optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const id = await learningSvc.enroll(svcDeps, ctx.orgId, ctx.userId, parsed.data.pathId, parsed.data.competencyId);
-  return c.json({ id });
+  try {
+    const id = await learningSvc.enroll(svcDeps, ctx.orgId, ctx.userId, parsed.data.pathId, parsed.data.competencyId);
+    return c.json({ id });
+  } catch (e) { return c.json({ error: (e as Error).message }, 404); }
 });
 app.get("/api/learning/mine", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  return c.json(await learningSvc.listMyEnrollments(svcDeps, ctx.orgId, ctx.userId));
+  const rows = await learningSvc.listMyEnrollments(svcDeps, ctx.orgId, ctx.userId);
+  // P16: enriquecemos con nombre de competencia y nivel actual para que "demuéstralo y salta"
+  // solo aparezca en competencias reales del catálogo donde el alumno aún está a nivel 0.
+  const cids = [...new Set(rows.map((r) => r.competencyId).filter((x): x is string => !!x))];
+  const names = new Map<string, string>();
+  const levels = new Map<string, number>();
+  await Promise.all(cids.map(async (cid) => {
+    const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, cid).catch(() => null);
+    if (comp) names.set(cid, comp.name);
+    levels.set(cid, await learningSvc.getLevel(svcDeps, ctx.orgId, ctx.userId, cid).catch(() => 0));
+  }));
+  return c.json(rows.map((r) => ({
+    ...r,
+    competencyName: r.competencyId ? names.get(r.competencyId) ?? null : null,
+    level: r.competencyId ? levels.get(r.competencyId) ?? 0 : null,
+  })));
 });
 
-app.post("/api/learning/test", async (c) => {
-  const ctx = await getAuthContext(c);
-  if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  const parsed = z.object({ pathId: z.string().min(1), competencyId: z.string().min(1), score: z.number().min(0).max(100) })
-    .safeParse(await c.req.json().catch(() => ({})));
-  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const r = await learningSvc.recordKnowledgeTest(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, ...parsed.data });
-  return c.json(r);
-});
+// La ruta antigua POST /api/learning/test aceptaba la nota del navegador y concedía N1: retirada (auditoría 28-09).
 
 // IA genera el test adaptado al sector/puesto del propio empleado (doctrina: nunca genérico).
 app.post("/api/learning/test/generate", async (c) => {
@@ -256,15 +1003,20 @@ app.post("/api/learning/test/generate", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
   if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  // Guardián de coste: caso entregado sin validar en esta competencia -> no regeneramos test.
+  try { await validationSvc.assertCanProgress(svcDeps, ctx.orgId, ctx.userId, parsed.data.competencyId); }
+  catch (e) { return c.json({ error: (e as Error).message }, 409); }
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
     const exam = await aiContent.generateExam(llm, {
       competencyName: comp.name, sector: profile?.sector ?? undefined, puesto: profile?.puesto ?? undefined,
+      empresa: extras.empresa,
       orgId: ctx.orgId, userId: ctx.userId,
     });
     const { questions, correctAnswers } = aiContent.shuffleExam(exam);
     const examId = newId();
-    aiContent.storeExamSession(examId, correctAnswers);
+    aiContent.storeExamSession(examId, correctAnswers, { orgId: ctx.orgId, userId: ctx.userId, competencyId: parsed.data.competencyId });
     return c.json({ examId, questions });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
@@ -277,11 +1029,16 @@ app.post("/api/learning/test/submit", async (c) => {
     examId: z.string().min(1), pathId: z.string().min(1), competencyId: z.string().min(1), answers: z.array(z.string()),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const correctAnswers = aiContent.takeExamSession(parsed.data.examId);
-  if (!correctAnswers) return c.json({ error: "examen no encontrado o caducado, genera uno nuevo" }, 410);
-  const score = aiContent.scoreExam(correctAnswers, parsed.data.answers);
+  const session = aiContent.takeExamSession(parsed.data.examId, { orgId: ctx.orgId, userId: ctx.userId });
+  if (!session) return c.json({ error: "examen no encontrado o caducado, genera uno nuevo" }, 410);
+  // La competencia es la del examen generado, no la que diga el navegador; el itinerario tiene que ser de esa competencia.
+  if (parsed.data.competencyId !== session.competencyId) return c.json({ error: "el examen no corresponde a esa competencia" }, 400);
+  const [path] = await db.select({ id: learningPath.id }).from(learningPath)
+    .where(and(eq(learningPath.id, parsed.data.pathId), eq(learningPath.organizationId, ctx.orgId), eq(learningPath.competencyId, session.competencyId))).limit(1);
+  if (!path) return c.json({ error: "itinerario no válido para esta competencia" }, 400);
+  const score = aiContent.scoreExam(session.correctAnswers, parsed.data.answers);
   const r = await learningSvc.recordKnowledgeTest(svcDeps, {
-    orgId: ctx.orgId, userId: ctx.userId, pathId: parsed.data.pathId, competencyId: parsed.data.competencyId, score,
+    orgId: ctx.orgId, userId: ctx.userId, pathId: path.id, competencyId: session.competencyId, score,
   });
   return c.json({ score, ...r });
 });
@@ -329,11 +1086,16 @@ app.post("/api/validation/cases/generate", async (c) => {
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
   if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  // Guardián de coste: si ya tiene un caso entregado sin validar en esta competencia, no generamos otro.
+  try { await validationSvc.assertCanProgress(svcDeps, ctx.orgId, ctx.userId, parsed.data.competencyId); }
+  catch (e) { return c.json({ error: (e as Error).message }, 409); }
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
     const prompt = await aiContent.generateCasePrompt(llm, {
       competencyName: comp.name, sector: profile?.sector ?? undefined,
       puesto: profile?.puesto ?? undefined, motivo: profile?.motivo ?? undefined,
+      empresa: extras.empresa, freno: extras.freno,
       orgId: ctx.orgId, userId: ctx.userId,
     });
     const id = await validationSvc.createCase(svcDeps, {
@@ -351,9 +1113,18 @@ app.post("/api/validation/cases", async (c) => {
     userId: z.string().optional(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  // The competency must belong to the caller's org (no referencing another tenant's ids).
+  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+  if (!comp) return c.json({ error: "competencia no encontrada en esta organización" }, 404);
   const canAssignOthers = hasRole(ctx, "admin", "inspirador", "team_leader");
-  const userId = (canAssignOthers && parsed.data.userId) ? parsed.data.userId : ctx.userId;
-  const id = await validationSvc.createCase(svcDeps, { orgId: ctx.orgId, userId, ...parsed.data });
+  let userId = ctx.userId;
+  if (canAssignOthers && parsed.data.userId && parsed.data.userId !== ctx.userId) {
+    const [m] = await db.select({ id: member.id }).from(member)
+      .where(and(eq(member.organizationId, ctx.orgId), eq(member.userId, parsed.data.userId)));
+    if (!m) return c.json({ error: "ese usuario no pertenece a tu organización" }, 404);
+    userId = parsed.data.userId;
+  }
+  const id = await validationSvc.createCase(svcDeps, { orgId: ctx.orgId, userId, competencyId: parsed.data.competencyId, pathId: parsed.data.pathId, prompt: parsed.data.prompt });
   return c.json({ id });
 });
 
@@ -363,7 +1134,7 @@ app.post("/api/validation/cases/:id/submit", async (c) => {
   const parsed = z.object({ submission: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   try {
-    await validationSvc.submitCase(svcDeps, ctx.orgId, c.req.param("id"), parsed.data.submission);
+    await validationSvc.submitCase(svcDeps, ctx.orgId, ctx.userId, c.req.param("id"), parsed.data.submission);
     return c.json({ ok: true });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
@@ -383,7 +1154,14 @@ app.post("/api/validation/cases/:id/evidence", async (c) => {
 app.get("/api/validation/cases/:id/evidence", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  return c.json(await validationSvc.listEvidence(svcDeps, ctx.orgId, c.req.param("id")));
+  const caseId = c.req.param("id");
+  // Solo el dueño del caso o quien puede validarlo ven su evidencia (no cualquier miembro de la org).
+  const [caseRow] = await db.select().from(appliedCase).where(and(eq(appliedCase.id, caseId), eq(appliedCase.organizationId, ctx.orgId)));
+  if (!caseRow) return c.json({ error: "caso no encontrado en esta organización" }, 404);
+  if (caseRow.userId !== ctx.userId && !(await validationSvc.canValidate(svcDeps, ctx.orgId, ctx.userId, ctx.role, caseRow.competencyId))) {
+    return c.json({ error: "sin permiso para ver la evidencia de este caso" }, 403);
+  }
+  return c.json(await validationSvc.listEvidence(svcDeps, ctx.orgId, caseId));
 });
 
 app.get("/api/validation/cases/:id/suggest", async (c) => {
@@ -411,13 +1189,20 @@ app.get("/api/validation/cases/:id/suggest", async (c) => {
 app.get("/api/validation/pending", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  return c.json(await validationSvc.listPendingCases(svcDeps, ctx.orgId, ctx.userId, ctx.role));
+  const rows = await validationSvc.listPendingCases(svcDeps, ctx.orgId, ctx.userId, ctx.role);
+  // Validators decide on people and skills, not ids: add learner and competency names.
+  const uids = [...new Set(rows.map((r) => r.userId))], cids = [...new Set(rows.map((r) => r.competencyId))];
+  const people = uids.length ? await db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, uids)) : [];
+  const comps = cids.length ? await db.select({ id: competency.id, name: competency.name }).from(competency)
+    .where(and(eq(competency.organizationId, ctx.orgId), inArray(competency.id, cids))) : [];
+  const pn = new Map(people.map((p) => [p.id, p.name])), cn = new Map(comps.map((x) => [x.id, x.name]));
+  return c.json(rows.map((r) => ({ ...r, learnerName: pn.get(r.userId) ?? null, competencyName: cn.get(r.competencyId) ?? null })));
 });
 
 app.post("/api/validation/cases/:id/decide", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  const parsed = z.object({ decision: z.enum(["aprobado", "rechazado"]), feedback: z.string().optional() })
+  const parsed = z.object({ decision: z.enum(["aprobado", "rechazado"]), feedback: z.string().max(4000).optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   try {
@@ -427,7 +1212,7 @@ app.post("/api/validation/cases/:id/decide", async (c) => {
     });
     let cascade: { coachesPaid: number } | null = null;
     let rewards: rewardsSvc.Granted[] = [];
-    if (parsed.data.decision === "aprobado" && result.level === 2) {
+    if (parsed.data.decision === "aprobado" && result.reachedN2) {
       const [caseRow] = await db.select().from(appliedCase).where(eq(appliedCase.id, caseId));
       if (caseRow) {
         cascade = await propagationSvc.onLearnerReachedN2(svcDeps, {
@@ -436,6 +1221,24 @@ app.post("/api/validation/cases/:id/decide", async (c) => {
         rewards = await rewardsSvc.evaluateRules(svcDeps, {
           orgId: ctx.orgId, event: "n2", userId: caseRow.userId, competencyId: caseRow.competencyId,
         });
+        // Cerebro que crece: destila una buena práctica anónima del caso aprobado y la ingesta al
+        // RAG de la organización, para que el tutor la reutilice con todo el equipo. Best-effort:
+        // si la IA falla, la validación ya está hecha y no se rompe.
+        try {
+          if (caseRow.submission) {
+            const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, caseRow.competencyId);
+            const bp = await aiContent.distillBestPractice(llm, {
+              competencyName: comp?.name || "competencia", prompt: caseRow.prompt,
+              submission: caseRow.submission, feedback: parsed.data.feedback, orgId: ctx.orgId, userId: ctx.userId,
+            });
+            // Curador de datos: escrub de nombres/emails antes de que entre al cerebro compartido.
+            const cnames = await curationSvc.orgMemberNames(svcDeps, ctx.orgId).catch(() => [] as string[]);
+            await ingestDocument(chatDeps, ctx.orgId, {
+              title: curationSvc.scrubPII(`Buena práctica · ${bp.title}`, cnames).text.slice(0, 200),
+              kind: "buena_practica", refId: caseId, text: curationSvc.scrubPII(bp.body, cnames).text,
+            });
+          }
+        } catch (e) {}
       }
     }
     return c.json({ ...result, cascade, rewards });
@@ -451,15 +1254,25 @@ app.post("/api/roleplay/start", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas sesiones, espera un momento" }, 429);
-  const parsed = z.object({ competencyId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  const parsed = z.object({ competencyId: z.string().optional(), topic: z.string().max(160).optional(), brief: z.string().max(1500).optional() }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
-  if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  let competencyName = "";
+  const competencyId = parsed.data.competencyId || "libre";
+  if (parsed.data.competencyId) {
+    const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+    if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+    competencyName = comp.name;
+  } else if (parsed.data.topic && parsed.data.topic.trim()) {
+    competencyName = parsed.data.topic.trim();
+  } else {
+    return c.json({ error: "indica una competencia o un tema para practicar" }, 400);
+  }
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
   try {
     const turn = await roleplaySvc.startRoleplay(svcDeps, llm, {
-      competencyId: parsed.data.competencyId, competencyName: comp.name,
-      sector: profile?.sector, puesto: profile?.puesto, orgId: ctx.orgId, userId: ctx.userId,
+      competencyId, competencyName, brief: parsed.data.brief,
+      sector: profile?.sector, puesto: profile?.puesto, empresa: extras.empresa, orgId: ctx.orgId, userId: ctx.userId,
     });
     return c.json(turn);
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
@@ -468,16 +1281,21 @@ app.post("/api/roleplay/:id/reply", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
-  const parsed = z.object({ message: z.string().min(1), competencyId: z.string().min(1) })
+  const parsed = z.object({ message: z.string().min(1), competencyId: z.string().optional(), topic: z.string().max(160).optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
-  if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  const rpHit = findBanned(parsed.data.message, await bannedFor(db, ctx.orgId));
+  if (rpHit) {
+    await db.insert(auditLog).values({ id: newId(), organizationId: ctx.orgId, userId: ctx.userId, action: "chat.blocked", meta: { reason: "banned_word", word: rpHit, where: "roleplay" } }).catch(() => {});
+    return c.json({ sessionId: c.req.param("id"), reply: BLOCKED_REPLY, status: "activo", blocked: true });
+  }
+  const comp = (parsed.data.competencyId && parsed.data.competencyId !== "libre") ? await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId) : null;
+  const competencyName = comp?.name || (parsed.data.topic && parsed.data.topic.trim()) || "la práctica";
   const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
   try {
     const turn = await roleplaySvc.replyRoleplay(svcDeps, llm, {
       orgId: ctx.orgId, userId: ctx.userId, sessionId: c.req.param("id"), message: parsed.data.message,
-      competencyName: comp.name, sector: profile?.sector, puesto: profile?.puesto,
+      competencyName, sector: profile?.sector, puesto: profile?.puesto,
     });
     return c.json(turn);
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
@@ -485,21 +1303,788 @@ app.post("/api/roleplay/:id/reply", async (c) => {
 app.post("/api/roleplay/:id/close", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  const parsed = z.object({ competencyId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ competencyId: z.string().optional(), topic: z.string().max(160).optional() }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
-  const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
-  if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+  const comp = (parsed.data.competencyId && parsed.data.competencyId !== "libre") ? await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId) : null;
+  const competencyName = comp?.name || (parsed.data.topic && parsed.data.topic.trim()) || "la práctica";
   try {
     const summary = await roleplaySvc.closeRoleplay(svcDeps, llm, {
-      orgId: ctx.orgId, userId: ctx.userId, sessionId: c.req.param("id"), competencyName: comp.name,
+      orgId: ctx.orgId, userId: ctx.userId, sessionId: c.req.param("id"), competencyName,
     });
-    return c.json(summary);
+    // La práctica no es un callejón sin salida: se captura a memoria del alumno (no se pierde) para
+    // que el tutor y el seguimiento la tengan en cuenta. La validación sigue siendo humana.
+    try {
+      const areas = (summary.areasDeMejora || []).slice(0, 3).join("; ");
+      await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, {
+        source: "roleplay", kind: "insight",
+        body: `[roleplay ${competencyName}] ${summary.resumen}${areas ? " · A mejorar: " + areas : ""}`,
+      });
+    } catch (e) {}
+    // Puntos por practicar (1.2.0): solo si hubo conversación de verdad (3+ intervenciones del alumno), con tope diario.
+    const points = (summary.learnerTurns ?? 0) >= 3
+      ? await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "practica:roleplay", assessSvc.POINTS.roleplay, c.req.param("id")).catch(() => 0)
+      : 0;
+    return c.json({ ...summary, points });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
 });
 app.get("/api/roleplay/mine", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   return c.json(await roleplaySvc.myRoleplays(svcDeps, ctx.orgId, ctx.userId));
+});
+
+/* ============================================================
+ * EVALUACIÓN (1.2.0) — test personalizado por bloque, examen final certificable (80 %),
+ * roleplays de control con entrevista previa y puntos por practicar. Todo acotado por empresa.
+ * Las preguntas se guardan con su clave en assessment_attempt y al cliente solo va la versión pública.
+ * ============================================================ */
+const COURSE_TITLES: Record<string, string> = {
+  index: "Guía del Coach", "outbound-sales": "Outbound Sales", "reclutamiento-partners": "Reclutamiento de Partners",
+  "marketing-partners": "Marketing para Partners", "negociacion-partner-manager": "Negociación con Partners",
+  "objeciones-partner-manager": "Objeciones de Partners", "prospeccion-social-selling": "Prospección con IA", "guia-coach-odoo": "Guía del Coach (Odoo)",
+};
+const courseCache = new Map<string, assessSvc.CourseBlock[]>();
+// ponytail: caché por proceso; el contenido de los cursos cambia con cada despliegue (reinicio).
+async function courseBlocks(slug: string): Promise<assessSvc.CourseBlock[] | null> {
+  if (!COURSE_SLUGS.has(slug)) return null;
+  const hit = courseCache.get(slug); if (hit) return hit;
+  try {
+    const blocks = assessSvc.parseCourseBlocks(await readFile(resolve(COURSE_ROOT, slug + ".html"), "utf8"));
+    if (!blocks.length) return null;
+    courseCache.set(slug, blocks); return blocks;
+  } catch { return null; }
+}
+const normSlug = (s: string) => s.replace(/^\//, "").replace(/\.html$/, "").toLowerCase();
+const slugSchema = z.string().max(120).transform(normSlug).refine((s) => COURSE_SLUGS.has(s), "curso no válido");
+const courseSrc = (slug: string) => "/" + slug + ".html";
+
+type Reto = Record<string, unknown> & { id?: string; tipo?: string; estado?: string; programadoPara?: string; curso?: string; bloque?: number; byId?: string; createdAt?: string };
+async function readRetos(orgId: string, userId?: string): Promise<{ rowId: string; userId: string; reto: Reto }[]> {
+  const conds = [eq(annotation.organizationId, orgId), eq(annotation.source, "reto")];
+  if (userId) conds.push(eq(annotation.userId, userId));
+  const rows = await db.select({ id: annotation.id, userId: annotation.userId, body: annotation.body }).from(annotation).where(and(...conds));
+  const out: { rowId: string; userId: string; reto: Reto }[] = [];
+  for (const r of rows) { const b = String(r.body || ""); if (b.indexOf("[reto]") !== 0) continue; try { out.push({ rowId: r.id, userId: r.userId, reto: JSON.parse(b.slice(6).trim()) }); } catch { /* fila rota */ } }
+  return out;
+}
+async function markRetoDone(orgId: string, userId: string, retoId: string, patch: Record<string, unknown>): Promise<void> {
+  const hit = (await readRetos(orgId, userId)).find((x) => x.reto.id === retoId);
+  if (!hit) return;
+  const obj = { ...hit.reto, ...patch, estado: "hecho", completedAt: new Date().toISOString() };
+  await db.update(annotation).set({ body: "[reto] " + JSON.stringify(obj) }).where(and(eq(annotation.id, hit.rowId), eq(annotation.organizationId, orgId)));
+}
+async function canOpenCourses(ctx: AuthCtx): Promise<boolean> { return isPlatformAdmin(ctx) || isApproved(ctx.orgId, ctx.userId); }
+const bestScore = (rows: { score: number | null }[]) => rows.reduce<number | null>((m, a) => (a.score !== null && (m === null || a.score > m) ? a.score : m), null);
+
+// --- Bienvenida v2 (1.14.0): si la empresa ya tiene ficha validada no se pregunta su web; micropráctica con entregable. ---
+app.get("/api/learning/company-ready", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const cp = await companyProfileSvc.get(svcDeps, ctx.orgId).catch(() => null);
+  return c.json({ ready: !!cp?.validatedAt });
+});
+const microBody = z.object({ situacion: z.string().trim().min(3).max(600), rol: z.string().trim().max(600).default("") });
+app.post("/api/learning/micropractice", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`micro:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = microBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const empresa = await companyProfileSvc.promptFor(svcDeps, ctx.orgId).catch(() => null);
+  const sc = await microSvc.scenario(ctx.orgId, ctx.userId, parsed.data.situacion, parsed.data.rol, empresa);
+  return sc ? c.json(sc) : c.json({ error: "no disponible" }, 503);
+});
+const microEval = z.object({ escenario: z.string().trim().min(10).max(1500), pregunta: z.string().trim().min(3).max(600), respuesta: z.string().trim().min(2).max(3000), situacion: z.string().trim().max(600).default(""),
+  course: z.object({ src: z.string().trim().min(1).max(200), title: z.string().trim().min(1).max(200) }).optional() });
+app.post("/api/learning/micropractice/eval", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`microeval:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = microEval.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  // Su respuesta alimenta la ficha viva como práctica (declarado, con cita literal).
+  factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, d.respuesta, { type: "practica", ref: "Micropráctica de bienvenida", scope: "bienvenida" });
+  const ev = await microSvc.evaluate(ctx.orgId, ctx.userId, { escenario: d.escenario, pregunta: d.pregunta }, d.respuesta, d.situacion);
+  // Diagnóstico de curso (1.15.0): nivel provisional «observado» en su ficha para ese curso; no toca la acreditación N1-N4.
+  if (ev?.nivel && d.course) await factsSvc.applyOps(svcDeps, ctx.orgId, ctx.userId, [{ op: "add", layer: "competencia",
+    text: `En «${d.course.title}»: nivel ${ev.nivel} en la micropráctica de inicio (estimación provisional)`, evidence: d.respuesta.slice(0, 200) }],
+    { type: "test", ref: d.course.title, scope: d.course.src }).catch(() => 0);
+  return ev ? c.json(ev) : c.json({ error: "no disponible" }, 503);
+});
+
+// --- Circuito de módulo (1.15.0): cierre con entregable y siguiente acción, y «¿Lo aplicaste? ¿Qué pasó?». ---
+const closeBody = z.object({ src: z.string().trim().min(1).max(200), module: z.number().int().min(0).max(200), name: z.string().trim().min(1).max(200), sections: z.array(z.string().max(200)).max(40).default([]) });
+app.post("/api/learning/module-close", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`close:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = closeBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  const out = await adaptSvc.forModuleClose(svcDeps, ctx.orgId, ctx.userId, d.src, d.module, d.name, d.sections).catch(() => null);
+  return out ? c.json(out) : c.json({ error: "no disponible" }, 503);
+});
+// Compromisos «Lo aplicaré» de hace 3 días o más que aún no tienen respuesta de qué pasó.
+app.get("/api/learning/applied/pending", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const rows = await db.select({ source: annotation.source, card: annotation.card, cardTitle: annotation.cardTitle, body: annotation.body, createdAt: annotation.createdAt })
+    .from(annotation).where(and(eq(annotation.organizationId, ctx.orgId), eq(annotation.userId, ctx.userId), eq(annotation.kind, "insight"),
+      sql`(${annotation.body} like '[adopcion:aplicar]%' or ${annotation.body} like '[aplicado:%')`));
+  const closed = new Set(rows.filter((r) => String(r.body).startsWith("[aplicado:")).map((r) => r.source + "#" + r.card));
+  const cutoff = Date.now() - 3 * 864e5;
+  const pending = rows.filter((r) => String(r.body).startsWith("[adopcion:aplicar]") && !closed.has(r.source + "#" + r.card) && new Date(r.createdAt).getTime() <= cutoff)
+    .slice(0, 5).map((r) => ({ source: r.source, card: r.card, title: r.cardTitle || String(r.body).replace("[adopcion:aplicar]", "").trim() }));
+  return c.json({ pending });
+});
+const appliedBody = z.object({ source: z.string().trim().min(1).max(200), card: z.number().int().min(0).max(1000), title: z.string().trim().max(300).default(""), result: z.enum(["si", "parcial", "no"]), text: z.string().trim().max(2000).default("") });
+app.post("/api/learning/applied", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = appliedBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const d = parsed.data;
+  await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: d.source, card: d.card, cardTitle: d.title, kind: "insight", body: `[aplicado:${d.result}] ${d.title}` });
+  if (d.text.length >= 15) factsSvc.extractLater(svcDeps, ctx.orgId, ctx.userId, `Sobre «${d.title}», lo que pasó al aplicarlo: ${d.text}`, { type: "practica", ref: d.title, scope: d.source });
+  return c.json({ ok: true });
+});
+
+// --- Ficha viva del alumno (1.12.0): «Así estoy adaptando tu formación». Solo el propio alumno la ve y la gestiona. ---
+app.get("/api/learning/facts", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const facts = await factsSvc.list(svcDeps, ctx.orgId, ctx.userId, false);
+  return c.json({ layers: factsSvc.LAYERS.map((k) => ({ key: k, label: factsSvc.LAYER_LABEL[k] })), facts });
+});
+const factPatch = z.object({ text: z.string().trim().min(1).max(240).optional(), active: z.boolean().optional(), confirm: z.boolean().optional() });
+app.patch("/api/learning/facts/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = factPatch.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  if (!(await factsSvc.patch(svcDeps, ctx.orgId, ctx.userId, c.req.param("id"), parsed.data))) return c.json({ error: "dato no encontrado" }, 404);
+  return c.json({ ok: true });
+});
+const factAdd = z.object({ layer: z.enum(factsSvc.LAYERS), text: z.string().trim().min(3).max(240) });
+app.post("/api/learning/facts", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`facts:${ctx.orgId}:${ctx.userId}`, 30, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = factAdd.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  return c.json({ id: await factsSvc.addByLearner(svcDeps, ctx.orgId, ctx.userId, parsed.data.layer, parsed.data.text) });
+});
+
+// --- Itinerario a especialista: base → especialidad → especialista → coach que atrae a compañeros a su área. ---
+const SPECIALTIES = [...COURSE_SLUGS].filter((s) => !pathSvc.COACH_COURSES.has(s));
+// 1.18.0 (arquitectura V2, fase 1): estado de capacidad de la propia persona, con sus evidencias y el siguiente paso.
+app.get("/api/learning/capability", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`cap:${ctx.orgId}:${ctx.userId}`, 30, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const raw = await capabilitySvc.loadRaw(svcDeps, ctx.orgId, ctx.userId, { titles: COURSE_TITLES, blockCount: async (s) => (await courseBlocks(s))?.length ?? null });
+  return c.json({ skills: capabilitySvc.statesOf(raw) });
+});
+// 1.19.0 (V2 fase 2): demostración sin ayuda y teach-back. El escenario y los criterios salen del contenido real del curso.
+async function skillCourses(orgId: string, skillKey: string): Promise<{ name: string; slugs: string[] } | null> {
+  const [kind, id] = [skillKey.slice(0, skillKey.indexOf(":")), skillKey.slice(skillKey.indexOf(":") + 1)];
+  if (kind === "curso") return COURSE_SLUGS.has(id) ? { name: COURSE_TITLES[id] || id, slugs: [id] } : null;
+  if (kind !== "comp") return null;
+  const comp = await catalogSvc.getCompetency(svcDeps, orgId, id);
+  if (!comp) return null;
+  const links = await db.select({ source: courseCompetency.source }).from(courseCompetency)
+    .where(and(eq(courseCompetency.organizationId, orgId), eq(courseCompetency.competencyId, id)));
+  return { name: comp.name, slugs: links.map((l) => l.source).filter((x) => COURSE_SLUGS.has(x)) };
+}
+app.post("/api/learning/demo/start", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`demo:${ctx.orgId}:${ctx.userId}`, 6, 600_000)) return c.json({ error: "Has empezado varias seguidas: espera unos minutos." }, 429);
+  const parsed = z.object({ skillKey: z.string().min(3).max(120), mode: z.enum(["demostracion", "teach_back"]) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const sk = await skillCourses(ctx.orgId, parsed.data.skillKey);
+  if (!sk) return c.json({ error: "capacidad no encontrada" }, 404);
+  if (!sk.slugs.length) return c.json({ error: "Esta competencia aún no tiene ningún curso vinculado. Pide a tu administrador que lo vincule en el Panel." }, 400);
+  const slug = sk.slugs[Math.floor(Math.random() * sk.slugs.length)]!;
+  const blocks = await courseBlocks(slug);
+  if (!blocks?.length) return c.json({ error: "No se ha podido leer el curso." }, 503);
+  const passed = await db.select({ block: assessmentAttempt.block }).from(assessmentAttempt).where(and(
+    eq(assessmentAttempt.organizationId, ctx.orgId), eq(assessmentAttempt.userId, ctx.userId), eq(assessmentAttempt.source, slug),
+    eq(assessmentAttempt.kind, "block"), eq(assessmentAttempt.passed, true)));
+  const perfil = factsSvc.summarize(await factsSvc.list(svcDeps, ctx.orgId, ctx.userId).catch(() => []));
+  const s = await demoSvc.start({ orgId: ctx.orgId, userId: ctx.userId, mode: parsed.data.mode, skillKey: parsed.data.skillKey, skillName: sk.name,
+    blocks, passedBlocks: passed.map((p) => p.block), perfil, newId });
+  if (!s) return c.json({ error: "No se ha podido preparar ahora. Inténtalo de nuevo en un momento." }, 503);
+  return c.json({ id: s.id, mode: s.mode, skillName: s.skillName, block: s.block, escenario: s.escenario, pregunta: s.pregunta });
+  // Los criterios y conceptos esperados se enseñan al final, con la revisión: antes quitarían valor a la prueba.
+});
+app.post("/api/learning/demo/submit", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`demosub:${ctx.orgId}:${ctx.userId}`, 6, 600_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ id: z.string().min(1).max(64), respuesta: z.string().trim().min(40, "Escribe un poco más: al menos un par de frases.").max(4000) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: parsed.error.issues[0]?.message || "datos no válidos" }, 400);
+  const s = demoSvc.takeSession(parsed.data.id, { orgId: ctx.orgId, userId: ctx.userId });
+  if (!s) return c.json({ error: "Esta práctica ha caducado. Empieza otra." }, 410);
+  const r = await demoSvc.judge(s, parsed.data.respuesta);
+  if (!r) return c.json({ error: "No se ha podido revisar ahora. Inténtalo de nuevo." }, 503);
+  await demoSvc.record(svcDeps, s, r);
+  return c.json({ ...r, mode: s.mode, block: s.block });
+});
+// 1.20.0 (V2 fase 6a): repaso de 3 minutos con los errores reales de sus tests, espaciado.
+app.get("/api/learning/review", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`review:${ctx.orgId}:${ctx.userId}`, 20, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const { errors, reviews } = await reviewSvc.load(svcDeps, ctx.orgId, ctx.userId);
+  const items = reviewSvc.due(errors, reviews, new Date());
+  if (c.req.query("peek") === "1") return c.json({ due: items.length });
+  if (!items.length) return c.json({ id: null, items: [] });
+  const id = newId();
+  return c.json({ id, items: reviewSvc.open(id, ctx.orgId, ctx.userId, items).map((x) => ({ ...x, courseTitle: COURSE_TITLES[x.source] || x.source })) });
+});
+app.post("/api/learning/review/answer", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ id: z.string().min(1).max(64), i: z.number().int().min(0).max(10), choice: z.number().int().min(0).max(10) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  const r = reviewSvc.answer(parsed.data.id, { orgId: ctx.orgId, userId: ctx.userId }, parsed.data.i, parsed.data.choice);
+  if (!r) return c.json({ error: "Este repaso ha caducado o ya está respondido." }, 410);
+  await reviewSvc.record(svcDeps, ctx.orgId, ctx.userId, r.item, r.correct);
+  return c.json({ correct: r.correct, correctIndex: r.correctIndex, explain: r.explain });
+});
+// 1.22.0: formaciones reales que imparte la persona (Google Meet o transcripción). Solo se evalúa a quien forma,
+// el resto se anonimiza, la transcripción no se guarda (vive en memoria 1 h) y hace falta confirmar el consentimiento.
+// ponytail: transcripciones preparadas en memoria de proceso; un reinicio obliga a volver a subirla.
+const sessionStash = new Map<string, { orgId: string; userId: string; lines: sessionsSvc.Line[]; source: "subida" | "meet"; heldAt: Date | null; expires: number }>();
+async function sessionSkills(orgId: string) {
+  const comps = await db.select({ id: competency.id, name: competency.name }).from(competency).where(eq(competency.organizationId, orgId));
+  return [...comps.map((c) => ({ key: `comp:${c.id}`, name: c.name })), ...[...COURSE_SLUGS].map((sl) => ({ key: `curso:${sl}`, name: COURSE_TITLES[sl] || sl }))];
+}
+async function stashLines(ctx: { orgId: string; userId: string }, lines: sessionsSvc.Line[], source: "subida" | "meet", heldAt: Date | null) {
+  const who = sessionsSvc.speakers(lines);
+  if (lines.length < 6 || who.length < 2) return { error: "No encuentro una conversación con al menos dos personas. Usa la transcripción con los nombres de quien habla (por ejemplo, «Ana: …»)." };
+  const id = newId();
+  sessionStash.set(id, { orgId: ctx.orgId, userId: ctx.userId, lines, source, heldAt, expires: Date.now() + 3_600_000 });
+  return { id, speakers: who.slice(0, 30), lines: lines.length, skills: await sessionSkills(ctx.orgId) };
+}
+app.post("/api/sessions/prepare", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`sessprep:${ctx.orgId}:${ctx.userId}`, 20, 600_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ transcript: z.string().min(50).max(400_000) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "Pega o sube la transcripción completa (texto)." }, 400);
+  const r = await stashLines(ctx, sessionsSvc.parseTranscript(parsed.data.transcript), "subida", null);
+  return "error" in r ? c.json(r, 400) : c.json(r);
+});
+app.get("/api/sessions/meet/status", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const t = await gcalToken(ctx.orgId, ctx.userId);
+  return c.json({ configured: gcal.isConfigured(), meet: !!t && String(t.s || "").includes("meetings.space") });
+});
+app.get("/api/sessions/meet/connect", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.redirect("/app/login.html");
+  if (!gcal.isConfigured()) return c.json({ error: "Google no está configurado en el servidor" }, 400);
+  return c.redirect(gcal.authUrl(ctx.userId + "|meet", ["https://www.googleapis.com/auth/calendar.events", gcal.MEET_SCOPE]));
+});
+// Solo reuniones desde que la persona empezó su formación (primera matrícula o primer test; si no, su alta en la empresa):
+// nada de su trabajo anterior a SkillUp.
+async function trainingStart(orgId: string, userId: string): Promise<Date> {
+  const [e] = await db.select({ at: sql<Date | null>`min(${enrollment.createdAt})` }).from(enrollment).where(and(eq(enrollment.organizationId, orgId), eq(enrollment.userId, userId)));
+  const [a] = await db.select({ at: sql<Date | null>`min(${assessmentAttempt.startedAt})` }).from(assessmentAttempt).where(and(eq(assessmentAttempt.organizationId, orgId), eq(assessmentAttempt.userId, userId)));
+  const [m] = await db.select({ at: member.createdAt }).from(member).where(and(eq(member.organizationId, orgId), eq(member.userId, userId)));
+  const dates = [e?.at, a?.at].filter((x): x is Date => !!x).map((x) => new Date(x));
+  return dates.length ? new Date(Math.min(...dates.map((d) => d.getTime()))) : (m?.at ? new Date(m.at) : new Date());
+}
+function meetHint(err: string): string {
+  const e = err.toLowerCase();
+  if (e.includes("has not been used") || e.includes("service_disabled") || e.includes("is disabled")) return "La API de Google Meet no está activada en el proyecto de Google Cloud de la plataforma. Avisa al administrador.";
+  if (e.startsWith("403") || e.includes("insufficient")) return "Google no ha dado permiso para leer tus reuniones. Vuelve a conectar y acepta el permiso de Meet. Solo funciona con cuentas de Google Workspace (Business Standard o superior).";
+  if (e.startsWith("401") || e.includes("invalid_grant")) return "La conexión con Google ha caducado. Vuelve a conectar.";
+  return "Google no ha respondido. Inténtalo en un momento o sube la transcripción a mano.";
+}
+app.get("/api/sessions/meet/recent", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`meetlist:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
+  const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
+  if (!access) return c.json({ error: "Conecta Google Meet primero." }, 400);
+  const from = await trainingStart(ctx.orgId, ctx.userId);
+  const recs = await gcal.recentConferences(access, from);
+  if (!recs.ok) return c.json({ error: meetHint(recs.error) }, 502);
+  const out = [];
+  for (const rec of (recs.data.conferenceRecords ?? []).slice(0, 15)) {
+    const t = await gcal.transcriptsOf(access, rec.name);
+    const tr = t.ok ? (t.data.transcripts ?? []).find((x) => x.state !== "STARTED") : undefined;
+    out.push({ record: rec.name, transcript: tr?.name ?? null, start: rec.startTime, end: rec.endTime ?? null,
+      minutes: rec.endTime ? Math.round((Date.parse(rec.endTime) - Date.parse(rec.startTime)) / 60000) : null });
+  }
+  return c.json({ meetings: out, from: from.toISOString() });
+});
+app.post("/api/sessions/meet/load", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`meetload:${ctx.orgId}:${ctx.userId}`, 10, 600_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ record: z.string().regex(/^conferenceRecords\/[\w-]+$/), transcript: z.string().regex(/^conferenceRecords\/[\w-]+\/transcripts\/[\w-]+$/) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success || !parsed.data.transcript.startsWith(parsed.data.record + "/")) return c.json({ error: "reunión no válida" }, 400);
+  const refresh = await gcalRefresh(ctx.orgId, ctx.userId);
+  const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
+  if (!access) return c.json({ error: "Conecta Google Meet primero." }, 400);
+  const started = await gcal.conferenceStart(access, parsed.data.record);
+  if (!started || started < await trainingStart(ctx.orgId, ctx.userId)) return c.json({ error: "Solo se pueden analizar reuniones desde que empezaste tu formación en SkillUp." }, 403);
+  const t = await gcal.transcriptLines(access, parsed.data.record, parsed.data.transcript);
+  if (!t.ok) return c.json({ error: meetHint(t.error) }, 502);
+  const t0 = t.lines.find((l) => l.start)?.start;
+  const base = t0 ? Date.parse(t0) : null;
+  const lines = t.lines.map((l) => ({ speaker: l.speaker, text: l.text, start: base != null && l.start ? (Date.parse(l.start) - base) / 1000 : null }));
+  const merged: sessionsSvc.Line[] = [];
+  for (const x of lines) { const last = merged[merged.length - 1]; if (last && last.speaker === x.speaker) last.text += " " + x.text; else merged.push({ ...x }); }
+  const r = await stashLines(ctx, merged, "meet", base != null ? new Date(base) : null);
+  return "error" in r ? c.json(r, 400) : c.json(r);
+});
+app.post("/api/sessions/analyze", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`sessan:${ctx.orgId}:${ctx.userId}`, 6, 86_400_000)) return c.json({ error: "Has analizado varias sesiones hoy: vuelve mañana." }, 429);
+  const parsed = z.object({
+    id: z.string().min(1).max(64), trainer: z.string().min(1).max(80), title: z.string().trim().min(3).max(200), topic: z.string().trim().max(200).default(""),
+    skillKey: z.string().max(120).nullable().default(null), consent: z.literal(true),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "Revisa los datos y confirma que los asistentes sabían que se grababa." }, 400);
+  const st = sessionStash.get(parsed.data.id);
+  if (!st || st.orgId !== ctx.orgId || st.userId !== ctx.userId || st.expires < Date.now()) return c.json({ error: "La transcripción ha caducado. Vuelve a subirla." }, 410);
+  if (!st.lines.some((l) => l.speaker === parsed.data.trainer)) return c.json({ error: "Elige quién eres tú en la transcripción." }, 400);
+  const d = parsed.data;
+  if (d.skillKey && !(await sessionSkills(ctx.orgId)).some((k) => k.key === d.skillKey)) return c.json({ error: "tema no válido" }, 400);
+  const m = sessionsSvc.metrics(st.lines, d.trainer);
+  const knowledge = await sessionKnowledge(ctx.orgId, ctx.userId, d.skillKey);
+  const a = await sessionsSvc.analyze({ orgId: ctx.orgId, userId: ctx.userId, title: d.title, topic: d.topic, lines: st.lines, trainer: d.trainer, catalog: COURSE_TITLES, knowledge });
+  if (!a) return c.json({ error: "No se ha podido analizar ahora. Inténtalo de nuevo en un momento." }, 503);
+  sessionStash.delete(d.id); // la transcripción no se guarda
+  const id = await sessionsSvc.save(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, title: d.title, topic: d.topic, skillKey: d.skillKey, source: st.source, heldAt: st.heldAt, metrics: m, analysis: a });
+  // Lo que más le conviene trabajar como formador pasa a su ficha (con cita literal), para adaptar su formación.
+  if (a.necesidades[0] && a.momentos[0]) await factsSvc.applyOps(svcDeps, ctx.orgId, ctx.userId, [{ op: "add", layer: "ensenanza",
+    text: `Cuando forma a su equipo, le conviene trabajar: ${a.necesidades[0]}`, evidence: a.momentos[0].cita }], { type: "practica", ref: d.title }).catch(() => 0);
+  return c.json({ id, metrics: m, analysis: a, recommended: a.recomendados.map((s2) => ({ slug: s2, title: COURSE_TITLES[s2] || s2 })) });
+});
+// 1.24.0: el agente de feedback conoce Brandooers SkillUp: metodología (Guía del Coach), el curso que enseñaba,
+// la ficha validada de su empresa y lo que sabemos de la persona. Extractos recortados, nunca los cursos enteros.
+async function sessionKnowledge(orgId: string, userId: string, skillKey: string | null): Promise<sessionsSvc.Knowledge> {
+  const coach = await courseBlocks("guia-coach-odoo").catch(() => null);
+  let curso: string | null = null;
+  if (skillKey) {
+    const sk = await skillCourses(orgId, skillKey).catch(() => null);
+    const blocks = sk?.slugs[0] ? await courseBlocks(sk.slugs[0]).catch(() => null) : null;
+    if (blocks?.length) curso = `«${sk!.name}»\n` + sessionsSvc.courseDigest(blocks);
+  }
+  return {
+    metodologia: coach?.length ? sessionsSvc.courseDigest(coach, 900, 6500) : null,
+    curso,
+    empresa: await companyProfileSvc.promptFor(svcDeps, orgId).catch(() => null),
+    persona: factsSvc.summarize(await factsSvc.list(svcDeps, orgId, userId).catch(() => [])) || null,
+  };
+}
+
+// 1.24.0: la presentación. Las capturas salen del vídeo o de la pantalla compartida en el navegador de la persona
+// (el vídeo nunca se sube); llegan una a una (nginx admite 1 MB por petición) y se analizan juntas. No se guardan.
+// ponytail: en memoria de proceso, 1 h; un reinicio obliga a volver a capturarlas.
+const frameStash = new Map<string, { frames: sessionsSvc.Frame[]; expires: number }>();
+app.post("/api/sessions/frames", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`frames:${ctx.orgId}:${ctx.userId}`, 60, 600_000)) return c.json({ error: "demasiadas capturas, espera un momento" }, 429);
+  const parsed = z.object({ t: z.number().int().min(0).max(86_400), data: z.string().min(1000).max(600_000).regex(/^[A-Za-z0-9+/=]+$/), reset: z.boolean().optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "captura no válida" }, 400);
+  const key = `${ctx.orgId}:${ctx.userId}`;
+  const cur = !parsed.data.reset && frameStash.get(key)?.expires! > Date.now() ? frameStash.get(key)! : { frames: [], expires: 0 };
+  if (cur.frames.length >= 24) return c.json({ error: "como mucho 24 capturas" }, 400);
+  cur.frames.push({ t: parsed.data.t, data: parsed.data.data });
+  cur.expires = Date.now() + 3_600_000;
+  frameStash.set(key, cur);
+  return c.json({ count: cur.frames.length });
+});
+app.post("/api/sessions/:id/slides", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`slides:${ctx.orgId}:${ctx.userId}`, 6, 86_400_000)) return c.json({ error: "Has analizado varias presentaciones hoy: vuelve mañana." }, 429);
+  const [row] = await db.select().from(trainingSession).where(and(eq(trainingSession.id, c.req.param("id")), eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId)));
+  if (!row) return c.json({ error: "no encontrada" }, 404);
+  const key = `${ctx.orgId}:${ctx.userId}`, st = frameStash.get(key);
+  if (!st || st.expires < Date.now() || st.frames.length < 2) return c.json({ error: "Faltan las capturas de la presentación. Vuelve a elegir el vídeo o a grabar la pantalla." }, 400);
+  const knowledge = await sessionKnowledge(ctx.orgId, ctx.userId, row.skillKey);
+  const r = await sessionsSvc.analyzeSlides({ orgId: ctx.orgId, userId: ctx.userId, title: row.title, topic: row.topic || "", frames: st.frames, knowledge });
+  if (!r) return c.json({ error: "No se ha podido analizar la presentación ahora. Inténtalo de nuevo." }, 503);
+  frameStash.delete(key); // las capturas no se guardan
+  await db.update(trainingSession).set({ analysis: { ...(row.analysis ?? {}), presentacion: r } as Record<string, unknown> }).where(eq(trainingSession.id, row.id));
+  return c.json(r);
+});
+app.get("/api/sessions", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const rows = await db.select({ id: trainingSession.id, title: trainingSession.title, score: trainingSession.score, heldAt: trainingSession.heldAt, createdAt: trainingSession.createdAt, source: trainingSession.source })
+    .from(trainingSession).where(and(eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId))).orderBy(desc(trainingSession.createdAt)).limit(50);
+  return c.json({ sessions: rows });
+});
+app.get("/api/sessions/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const [r] = await db.select().from(trainingSession).where(and(eq(trainingSession.id, c.req.param("id")), eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId)));
+  if (!r) return c.json({ error: "no encontrada" }, 404);
+  const a = r.analysis as { recomendados?: string[] } | null;
+  return c.json({ ...r, recommended: (a?.recomendados ?? []).map((s2) => ({ slug: s2, title: COURSE_TITLES[s2] || s2 })) });
+});
+app.delete("/api/sessions/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const id = c.req.param("id");
+  const del = await db.delete(trainingSession).where(and(eq(trainingSession.id, id), eq(trainingSession.organizationId, ctx.orgId), eq(trainingSession.userId, ctx.userId))).returning({ id: trainingSession.id });
+  if (!del.length) return c.json({ error: "no encontrada" }, 404);
+  await db.delete(evidenceEvent).where(and(eq(evidenceEvent.organizationId, ctx.orgId), eq(evidenceEvent.userId, ctx.userId), sql`${evidenceEvent.detail}->>'sessionId' = ${id}`));
+  return c.json({ ok: true });
+});
+// Curso ↔ competencia (admin y dirección): lo que se hace en el curso suma a esa competencia.
+app.get("/api/org/course-skills", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const [links, comps] = await Promise.all([
+    db.select({ source: courseCompetency.source, competencyId: courseCompetency.competencyId }).from(courseCompetency).where(eq(courseCompetency.organizationId, ctx.orgId)),
+    db.select({ id: competency.id, name: competency.name }).from(competency).where(eq(competency.organizationId, ctx.orgId)),
+  ]);
+  return c.json({ courses: [...COURSE_SLUGS].map((s) => ({ source: s, title: COURSE_TITLES[s] || s, competencyId: links.find((l) => l.source === s)?.competencyId ?? null })), competencies: comps });
+});
+app.put("/api/org/course-skills/:source", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const source = c.req.param("source");
+  if (!COURSE_SLUGS.has(source)) return c.json({ error: "curso desconocido" }, 404);
+  const parsed = z.object({ competencyId: z.string().min(1).max(64).nullable() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  await db.delete(courseCompetency).where(and(eq(courseCompetency.organizationId, ctx.orgId), eq(courseCompetency.source, source)));
+  if (parsed.data.competencyId) {
+    const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, parsed.data.competencyId);
+    if (!comp) return c.json({ error: "competencia no encontrada" }, 404);
+    await db.insert(courseCompetency).values({ id: newId(), organizationId: ctx.orgId, source, competencyId: comp.id, createdBy: ctx.userId });
+  }
+  return c.json({ ok: true });
+});
+app.get("/api/learning/path", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const specialty = await pathSvc.getSpecialty(svcDeps, ctx.orgId, ctx.userId);
+  const slug = specialty && SPECIALTIES.includes(specialty) ? specialty : null;
+  let pct = 0, certified = false;
+  if (slug) {
+    const [blocks, atts, certs] = await Promise.all([
+      courseBlocks(slug),
+      assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, slug),
+      db.select().from(certificate).where(and(eq(certificate.organizationId, ctx.orgId), eq(certificate.userId, ctx.userId))),
+    ]);
+    certified = certs.some((x) => (x.evidence as { source?: string } | null)?.source === slug);
+    const passed = (blocks ?? []).filter((b) => {
+      const best = bestScore(atts.filter((a) => a.kind === "block" && a.block === b.i && a.status === "corregido"));
+      return best !== null && best >= assessSvc.BLOCK_PASS_MARK;
+    }).length;
+    pct = pathSvc.coursePct(passed, blocks?.length ?? 0, certified);
+  }
+  const coach = await creditsSvc.canSpend(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, role: ctx.role, platformAdmin: isPlatformAdmin(ctx) }).catch(() => false);
+  const stage = pathSvc.stageOf({ specialty: slug, pct, certified, coach });
+  return c.json({
+    stage, stages: pathSvc.STAGES, specialty: slug ? { slug, title: COURSE_TITLES[slug] || slug, pct, certified } : null,
+    options: SPECIALTIES.map((s) => ({ slug: s, title: COURSE_TITLES[s] || s })),
+    coachCourse: { slug: "index", title: COURSE_TITLES["index"] || "Guía del Coach" },
+    invites: slug ? { sent: await pathSvc.invitesSent(svcDeps, ctx.orgId, ctx.userId, slug), goal: pathSvc.INVITE_GOAL } : null,
+  });
+});
+const specialtyBody = z.object({ slug: z.string().refine((s) => SPECIALTIES.includes(s)) });
+app.post("/api/learning/path/specialty", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = specialtyBody.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "especialidad no válida" }, 400);
+  await pathSvc.setSpecialty(svcDeps, ctx.orgId, ctx.userId, parsed.data.slug);
+  return c.json({ ok: true });
+});
+app.post("/api/learning/path/invite", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`invite:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const slug = await pathSvc.getSpecialty(svcDeps, ctx.orgId, ctx.userId);
+  if (!slug || !SPECIALTIES.includes(slug)) return c.json({ error: "elige antes tu especialidad" }, 400);
+  return c.json({ sent: await pathSvc.recordInvite(svcDeps, ctx.orgId, ctx.userId, slug), goal: pathSvc.INVITE_GOAL });
+});
+
+app.get("/api/learning/assess/outline", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const sp = slugSchema.safeParse(c.req.query("slug") || "");
+  if (!sp.success) return c.json({ error: "curso no encontrado" }, 404);
+  const slug = sp.data; const blocks = await courseBlocks(slug);
+  if (!blocks) return c.json({ error: "curso no encontrado" }, 404);
+  await assessSvc.expireStaleFinals(svcDeps, ctx.orgId, ctx.userId, slug);
+  const [atts, cfg, retos, rps, certs] = await Promise.all([
+    assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, slug),
+    assessSvc.getAssessConfig(svcDeps, ctx.orgId),
+    readRetos(ctx.orgId, ctx.userId),
+    db.select({ source: roleplaySession.source, status: roleplaySession.status }).from(roleplaySession)
+      .where(and(eq(roleplaySession.organizationId, ctx.orgId), eq(roleplaySession.userId, ctx.userId))),
+    db.select().from(certificate).where(and(eq(certificate.organizationId, ctx.orgId), eq(certificate.userId, ctx.userId))),
+  ]);
+  const now = new Date();
+  const graded = new Set<number>();
+  const perBlock = blocks.map((b) => {
+    const mine = atts.filter((a) => a.kind === "block" && a.block === b.i && a.status === "corregido");
+    if (mine.length) graded.add(b.i);
+    const best = bestScore(mine);
+    return { i: b.i, title: b.title, headings: b.headings, attempts: mine.length, best, passed: best !== null && best >= assessSvc.BLOCK_PASS_MARK };
+  });
+  const finals = atts.filter((a) => a.kind === "final");
+  const extra = retos.filter((r) => r.reto.tipo === "examen_final" && r.reto.curso === slug && assessSvc.retoAvailability(r.reto, now) === "disponible").length;
+  const open = finals.find((a) => a.status === "abierto" && a.deadlineAt && a.deadlineAt > now);
+  const gate = assessSvc.finalExamGate(finals.filter((a) => a !== open).map((a) => ({ startedAt: a.startedAt, passed: a.passed, status: a.status })), extra, now);
+  const cert = certs.find((x) => (x.evidence as { source?: string } | null)?.source === slug);
+  const done = new Set(rps.filter((r) => r.status === "cerrado" && r.source && r.source.startsWith(slug + "#")).map((r) => Number(r.source!.split("#")[1])));
+  return c.json({
+    slug, course: COURSE_TITLES[slug] || slug, blocks: perBlock,
+    roleplayEvery: assessSvc.roleplayEveryFor(cfg, slug), checkpointsDone: [...done].filter(Number.isFinite),
+    passMarks: { block: assessSvc.BLOCK_PASS_MARK, final: assessSvc.FINAL_PASS_MARK },
+    final: {
+      unlocked: assessSvc.finalUnlocked(blocks.length, graded), missing: perBlock.filter((b) => !graded.has(b.i)).map((b) => b.i),
+      minutes: assessSvc.FINAL_MINUTES, maxAttempts: assessSvc.FINAL_MAX_ATTEMPTS, cooldownHours: assessSvc.FINAL_COOLDOWN_HOURS,
+      attempts: finals.length, best: bestScore(finals), passed: finals.some((a) => a.passed), open: open ? { id: open.id, deadlineAt: open.deadlineAt } : null,
+      canStart: !!open || gate.allowed, reason: open ? null : gate.reason ?? null, remaining: gate.remaining,
+      certificate: cert ? { code: cert.code, issuedAt: cert.issuedAt } : null,
+    },
+  });
+});
+
+app.post("/api/learning/assess/quiz", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!(await canOpenCourses(ctx))) return c.json({ error: "cuenta pendiente de aprobación" }, 403);
+  if (rateLimited(`assess:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ slug: slugSchema, block: z.number().int().min(0).max(200), assignmentId: z.string().max(80).optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const { slug, block, assignmentId } = parsed.data;
+  const blocks = await courseBlocks(slug);
+  const b = blocks?.[block];
+  if (!b) return c.json({ error: "bloque no encontrado" }, 404);
+  if ((await assessSvc.countBlockQuizzesToday(svcDeps, ctx.orgId, ctx.userId, slug, block)) >= assessSvc.BLOCK_QUIZ_DAILY_MAX) {
+    return c.json({ error: `Hoy ya has hecho ${assessSvc.BLOCK_QUIZ_DAILY_MAX} tests de este bloque. Repasa el contenido y vuelve mañana.` }, 429);
+  }
+  const course = COURSE_TITLES[slug] || slug;
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, courseSrc(slug), new Set(b.headings));
+    const items = await assessSvc.generateBlockQuiz(llm, { orgId: ctx.orgId, userId: ctx.userId, course, learner, block: b });
+    const id = await assessSvc.createAttempt(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, source: slug, kind: "block", block, items, assignmentId });
+    return c.json({ attemptId: id, kind: "block", course, block: { i: b.i, title: b.title }, passMark: assessSvc.BLOCK_PASS_MARK, items: assessSvc.publicItems(items) });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+});
+
+app.post("/api/learning/assess/final", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!(await canOpenCourses(ctx))) return c.json({ error: "cuenta pendiente de aprobación" }, 403);
+  if (rateLimited(`assessfinal:${ctx.orgId}:${ctx.userId}`, 3, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ slug: slugSchema, assignmentId: z.string().max(80).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const { slug, assignmentId } = parsed.data;
+  const blocks = await courseBlocks(slug);
+  if (!blocks) return c.json({ error: "curso no encontrado" }, 404);
+  await assessSvc.expireStaleFinals(svcDeps, ctx.orgId, ctx.userId, slug);
+  const atts = await assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, slug);
+  const graded = new Set(atts.filter((a) => a.kind === "block" && a.status === "corregido").map((a) => a.block));
+  if (!assessSvc.finalUnlocked(blocks.length, graded)) return c.json({ error: "Antes del examen final haz el test de cada bloque." }, 409);
+  const course = COURSE_TITLES[slug] || slug;
+  const now = new Date();
+  const finals = atts.filter((a) => a.kind === "final");
+  const open = finals.find((a) => a.status === "abierto" && a.deadlineAt && a.deadlineAt > now);
+  if (open) { // reanudar: un examen abierto nunca se regenera (ni coste ni preguntas nuevas a la carta)
+    const row = await assessSvc.getAttempt(svcDeps, ctx.orgId, ctx.userId, open.id);
+    return c.json({ attemptId: open.id, kind: "final", course, resumed: true, deadlineAt: open.deadlineAt, passMark: assessSvc.FINAL_PASS_MARK, items: assessSvc.publicItems((row!.questions as unknown) as assessSvc.Item[]) });
+  }
+  const retos = await readRetos(ctx.orgId, ctx.userId);
+  const extra = retos.filter((r) => r.reto.tipo === "examen_final" && r.reto.curso === slug && assessSvc.retoAvailability(r.reto, now) === "disponible").length;
+  const gate = assessSvc.finalExamGate(finals.map((a) => ({ startedAt: a.startedAt, passed: a.passed, status: a.status })), extra, now);
+  if (!gate.allowed) return c.json({ error: gate.reason, nextAt: gate.nextAt ?? null }, 409);
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, courseSrc(slug));
+    const items = await assessSvc.generateFinalExam(llm, { orgId: ctx.orgId, userId: ctx.userId, course, learner, blocks });
+    const deadlineAt = new Date(Date.now() + assessSvc.FINAL_MINUTES * 60_000); // el reloj empieza cuando ya tienes las preguntas
+    const id = await assessSvc.createAttempt(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, source: slug, kind: "final", block: -1, items, assignmentId, deadlineAt });
+    return c.json({ attemptId: id, kind: "final", course, deadlineAt, passMark: assessSvc.FINAL_PASS_MARK, items: assessSvc.publicItems(items) });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+});
+
+function resultPayload(items: assessSvc.Item[], answers: unknown[], results: assessSvc.ItemResult[]) {
+  return items.map((it, i) => ({
+    type: it.type, q: it.q, options: it.type === "mc" ? it.options : undefined, correct: it.type === "mc" ? it.correct : undefined,
+    ideal: it.type === "open" ? it.ideal : undefined, answer: answers[i] ?? null,
+    earned: results[i]?.earned ?? 0, max: results[i]?.max ?? it.points, feedback: results[i]?.feedback ?? "",
+  }));
+}
+
+app.post("/api/learning/assess/:id/submit", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`assesssub:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ answers: z.array(z.union([z.number().int().min(0).max(9), z.string().max(4000), z.null()])).max(40) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const att = await assessSvc.getAttempt(svcDeps, ctx.orgId, ctx.userId, c.req.param("id"));
+  if (!att) return c.json({ error: "evaluación no encontrada" }, 404);
+  const items = (att.questions as unknown) as assessSvc.Item[];
+  const kind = att.kind === "final" ? "final" : "block";
+  const passMark = kind === "final" ? assessSvc.FINAL_PASS_MARK : assessSvc.BLOCK_PASS_MARK;
+  if (att.status === "corregido") { // idempotente: volver a entregar devuelve la misma nota y no suma puntos
+    return c.json({ score: att.score, passed: att.passed, kind, passMark, items: resultPayload(items, att.answers ?? [], (att.results as unknown as assessSvc.ItemResult[]) ?? []), points: 0 });
+  }
+  if (att.status === "caducado") return c.json({ error: "Se acabó el tiempo de este examen." }, 410);
+  const now = new Date();
+  const firstSubmit = att.submittedAt ?? now;
+  if (att.deadlineAt && firstSubmit.getTime() > att.deadlineAt.getTime() + assessSvc.SUBMIT_GRACE_MS) {
+    await assessSvc.expireStaleFinals(svcDeps, ctx.orgId, ctx.userId, att.source, now);
+    return c.json({ error: "Se acabó el tiempo de este examen." }, 410);
+  }
+  // Las respuestas se fijan en la primera entrega (si la corrección falla y se reintenta, cuentan las mismas).
+  const answers = (att.answers as unknown[] | null) ?? parsed.data.answers.slice(0, items.length);
+  if (!att.submittedAt) {
+    await db.update(assessmentAttempt).set({ answers, submittedAt: now })
+      .where(and(eq(assessmentAttempt.id, att.id), eq(assessmentAttempt.organizationId, ctx.orgId)));
+  }
+  const course = COURSE_TITLES[att.source] || att.source;
+  let grades: Map<number, { score: number; feedback: string }>;
+  try { grades = await assessSvc.gradeOpenAnswers(llm, { orgId: ctx.orgId, userId: ctx.userId, course, items, answers }); }
+  catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+  const scored = assessSvc.scoreAttempt(items, answers, grades);
+  const passed = assessSvc.isPassed(kind, scored.pct);
+  const prevBest = kind === "block"
+    ? bestScore((await assessSvc.listAttempts(svcDeps, ctx.orgId, ctx.userId, att.source)).filter((a) => a.kind === "block" && a.block === att.block && a.status === "corregido" && a.id !== att.id))
+    : null;
+  await assessSvc.saveGraded(svcDeps, ctx.orgId, att.id, { answers, results: scored.results, score: scored.pct, passed });
+  await assessSvc.recordForRoi(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, source: att.source, kind, block: att.block, score: scored.pct, passed }).catch(() => {});
+  let points = 0; let cert: { code: string } | null = null;
+  if (kind === "block") {
+    points = await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "evaluacion:test_bloque", assessSvc.quizPointsDelta(scored.pct, prevBest), att.id);
+  } else if (passed) {
+    points = await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "evaluacion:examen_final", assessSvc.POINTS.finalPass, att.id);
+    cert = await rewardsSvc.issueCertificate(svcDeps, {
+      orgId: ctx.orgId, userId: ctx.userId, title: course,
+      evidence: { kind: "examen_final", source: att.source, score: scored.pct, attemptId: att.id, issuer: env.CERT_ISSUER, accreditation: env.CERT_ACCREDITATION || null },
+    });
+  }
+  if (att.assignmentId) {
+    await markRetoDone(ctx.orgId, ctx.userId, att.assignmentId, { resultado: `Nota ${scored.pct}/100 · ${passed ? "superado" : "no superado"}`, score: scored.pct, attemptId: att.id }).catch(() => {});
+  }
+  return c.json({ score: scored.pct, passed, kind, passMark, earned: scored.earned, total: scored.total, items: resultPayload(items, answers, scored.results), points, certificate: cert ? { code: cert.code } : null });
+});
+
+// Contexto del roleplay: curso (y hasta qué bloque) o tema libre. Devuelve tema, temario y fuente.
+async function roleplayScope(b: { slug?: string; upToBlock?: number; topic?: string }): Promise<{ topic: string; syllabus: string; src: string | null; source: string | null } | null> {
+  if (b.slug) {
+    const blocks = await courseBlocks(b.slug);
+    if (!blocks) return null;
+    const course = COURSE_TITLES[b.slug] || b.slug;
+    const upTo = b.upToBlock !== undefined ? Math.min(b.upToBlock, blocks.length - 1) : blocks.length - 1;
+    const covered = blocks.slice(0, upTo + 1);
+    const recent = b.upToBlock !== undefined ? covered.slice(-3) : covered;
+    const per = Math.floor(6000 / Math.max(1, recent.length));
+    const syllabus = "Bloques vistos: " + covered.map((x) => x.title).join(" · ") + "\n\n" + recent.map((x) => `## ${x.title}\n${x.text.slice(0, per)}`).join("\n\n");
+    const focus = b.topic && b.topic.trim() ? " · " + b.topic.trim() : (b.upToBlock !== undefined ? " · " + recent.slice(-2).map((x) => x.title).join(", ") : "");
+    return { topic: (course + focus).slice(0, 200), syllabus, src: courseSrc(b.slug), source: b.upToBlock !== undefined ? `${b.slug}#${upTo}` : b.slug };
+  }
+  const t = (b.topic || "").trim();
+  return t.length >= 3 ? { topic: t.slice(0, 200), syllabus: t, src: null, source: null } : null;
+}
+const scopeSchema = { slug: slugSchema.optional(), upToBlock: z.number().int().min(0).max(200).optional(), topic: z.string().max(200).optional() };
+
+app.post("/api/roleplay/interview", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas sesiones, espera un momento" }, 429);
+  const parsed = z.object(scopeSchema).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const scope = await roleplayScope(parsed.data);
+  if (!scope) return c.json({ error: "elige un curso o escribe un tema para practicar" }, 400);
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, scope.src);
+    const preguntas = await assessSvc.interviewQuestions(llm, { orgId: ctx.orgId, userId: ctx.userId, topic: scope.topic, syllabus: scope.syllabus, learner, model: env.MODEL_FAST });
+    return c.json({ topic: scope.topic, preguntas });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 502); }
+});
+
+app.post("/api/roleplay/checkpoint", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`roleplay:${ctx.orgId}:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas sesiones, espera un momento" }, 429);
+  const parsed = z.object({ ...scopeSchema, interview: z.array(z.object({ q: z.string().max(300), a: z.string().max(2000) })).max(4).optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const scope = await roleplayScope(parsed.data);
+  if (!scope) return c.json({ error: "elige un curso o escribe un tema para practicar" }, 400);
+  const interview = (parsed.data.interview ?? []).map((x) => ({ q: x.q.trim(), a: x.a.trim() })).filter((x) => x.q);
+  // Las respuestas de la entrevista son datos reales del alumno: se guardan como sus notas (memoria del tutor).
+  for (const x of interview) {
+    if (!x.a) continue;
+    await notesSvc.create(svcDeps, ctx.orgId, ctx.userId, { source: scope.src || "roleplay", kind: "insight", cardTitle: "Entrevista", body: `[entrevista] ${x.q} — ${x.a}`.slice(0, 2400) }).catch(() => {});
+  }
+  const interviewPts = await assessSvc.awardAssessPoints(svcDeps, ctx.orgId, ctx.userId, "practica:entrevista", assessSvc.interviewPoints(interview.map((x) => x.a)));
+  const profile = await learningSvc.getOnboardingProfile(svcDeps, ctx.orgId, ctx.userId);
+  const extras = await learningSvc.getOnboardingExtras(svcDeps, ctx.orgId, ctx.userId);
+  try {
+    const learner = await assessSvc.learnerContext(svcDeps, ctx.orgId, ctx.userId, scope.src);
+    const brief = await assessSvc.roleplayBrief(llm, { orgId: ctx.orgId, userId: ctx.userId, topic: scope.topic, syllabus: scope.syllabus, interview, learner });
+    const turn = await roleplaySvc.startRoleplay(svcDeps, llm, {
+      competencyId: "libre", competencyName: scope.topic, brief: brief.brief, source: scope.source, topic: brief.titulo, interview,
+      sector: profile?.sector, puesto: profile?.puesto, empresa: extras.empresa, orgId: ctx.orgId, userId: ctx.userId,
+    });
+    return c.json({ ...turn, titulo: brief.titulo, topic: scope.topic, points: interviewPts });
+  } catch (e) { return c.json({ error: String((e as Error).message), points: interviewPts }, 502); }
+});
+
+// 1.23.0: la pantalla de entrada pregunta si «Entrar con Google» está disponible (público, sin datos).
+app.get("/api/config/sso", (c) => c.json({ google: gcal.isConfigured() }));
+app.get("/api/config/assessment", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const cfg = await assessSvc.getAssessConfig(svcDeps, ctx.orgId);
+  return c.json({ ...cfg, defaultEvery: assessSvc.ROLEPLAY_EVERY_DEFAULT, courses: [...COURSE_SLUGS].map((s) => ({ slug: s, name: COURSE_TITLES[s] || s, every: assessSvc.roleplayEveryFor(cfg, s) })) });
+});
+app.post("/api/config/assessment", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin", "direccion") && !isPlatformAdmin(ctx)) return c.json({ error: "solo admin/dirección" }, 403);
+  const parsed = z.object({ roleplayEvery: z.record(z.string().max(120), z.number().int().min(0).max(6)) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const clean: Record<string, number> = {};
+  for (const [k, v] of Object.entries(parsed.data.roleplayEvery)) { const s = normSlug(k); if (COURSE_SLUGS.has(s)) clean[s] = v; }
+  return c.json({ ok: true, ...(await assessSvc.saveAssessConfig(svcDeps, ctx.orgId, { roleplayEvery: clean })) });
+});
+
+// Mis certificados (para pintarlos e imprimirlos). La verificación pública va aparte y devuelve lo mínimo.
+app.get("/api/certificates/mine", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const rows = await db.select().from(certificate).where(and(eq(certificate.organizationId, ctx.orgId), eq(certificate.userId, ctx.userId))).orderBy(desc(certificate.issuedAt));
+  return c.json({
+    holderName: ctx.userName, orgName: ctx.orgName,
+    items: rows.map((r) => {
+      const ev = (r.evidence ?? {}) as { kind?: string; source?: string; score?: number; issuer?: string; accreditation?: string | null };
+      return { code: r.code, title: r.title, issuedAt: r.issuedAt, expiresAt: r.expiresAt, kind: ev.kind ?? null, source: ev.source ?? null, score: ev.score ?? null,
+        issuer: ev.issuer || env.CERT_ISSUER, accreditation: ev.accreditation || env.CERT_ACCREDITATION || null };
+    }),
+  });
 });
 
 /* ============================================================
@@ -517,6 +2102,53 @@ app.post("/api/propagation/coaching", async (c) => {
     });
     return c.json({ id });
   } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+app.post("/api/propagation/grant-coach", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "inspirador")) return c.json({ error: "solo admin/inspirador" }, 403);
+  const parsed = z.object({ coachUserId: z.string().min(1), competencyId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  try {
+    const res = await propagationSvc.grantCoachN4(svcDeps, { orgId: ctx.orgId, granterId: ctx.userId, granterRole: ctx.role, platformAdmin: isPlatformAdmin(ctx), coachUserId: parsed.data.coachUserId, competencyId: parsed.data.competencyId });
+    return c.json(res);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+app.get("/api/propagation/recert-status", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "direccion", "inspirador", "team_leader")) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ recert: await propagationSvc.recertStatus(svcDeps, ctx.orgId) });
+});
+app.post("/api/catalog/course-panel", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // 1.6.0: crear un curso con IA cuesta créditos de creación y lo puede hacer quien llega a nivel Coach.
+  const spender = { orgId: ctx.orgId, userId: ctx.userId, role: ctx.role, platformAdmin: isPlatformAdmin(ctx) };
+  if (!(await creditsSvc.canSpend(svcDeps, spender))) return c.json({ error: "Crear cursos con IA está reservado a quien llega a nivel Coach (N4) en alguna competencia, o a los roles coach, admin y dirección." }, 403);
+  const parsed = z.object({ tema: z.string().min(3).max(200), publico: z.string().max(200).optional(), competencyId: z.string().optional(), confirm: z.boolean().optional() })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  if (!parsed.data.confirm) {
+    const credits = (await creditsSvc.getPrices(svcDeps)).curso_ia;
+    const saldo = await creditsSvc.balance(svcDeps, ctx.orgId);
+    return c.json({ costGate: true, credits, balance: saldo, aviso: `Crear el curso con el panel de expertos cuesta ${credits} créditos (tu empresa tiene ${saldo}). Reenvía con confirm:true para ejecutarlo.` });
+  }
+  if (rateLimited(`coursepanel:${ctx.orgId}`, 4, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  let spend;
+  try {
+    spend = await creditsSvc.spendCredits(svcDeps, spender, "curso_ia", 1, `course-panel:${parsed.data.tema.slice(0, 80)}`);
+  } catch (e) {
+    if (e instanceof creditsSvc.CreditError) return c.json({ error: e.message }, e.status);
+    return c.json({ error: String((e as Error).message) }, 400);
+  }
+  try {
+    const res = await coursePanelSvc.runCoursePanel(svcDeps, llm, { orgId: ctx.orgId, userId: ctx.userId, tema: parsed.data.tema, publico: parsed.data.publico, competencyId: parsed.data.competencyId });
+    return c.json({ ...res, credits: { spent: spend.spent, balance: spend.balance } });
+  } catch (e) {
+    await creditsSvc.refundSpend(svcDeps, ctx.orgId, spend.entryId).catch(() => {});
+    return c.json({ error: String((e as Error).message) }, 400);
+  }
 });
 app.get("/api/propagation/points", async (c) => {
   const ctx = await getAuthContext(c);
@@ -547,6 +2179,23 @@ app.post("/api/org/bootstrap-admin", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (await orgSvc.hasAdmin(svcDeps, ctx.orgId)) return c.json({ error: "esta empresa ya tiene admin" }, 403);
   await orgSvc.setMemberRole(svcDeps, ctx.orgId, ctx.userId, "admin");
+  // Registro externo: queda PENDIENTE de aprobación por el superadmin y se le avisa por correo.
+  try {
+    await setAccountState(ctx.orgId, ctx.userId, "pendiente");
+    const base = env.APP_URL || env.BETTER_AUTH_URL;
+    const link = `${base}/app/superadmin.html#usuarios`;
+    // Name and company are typed by an unapproved stranger: escape before putting them in HTML mail.
+    const esc = (s: string) => s.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+    const who = esc(ctx.userName), mail = esc(ctx.userEmail), org = esc(ctx.orgName);
+    for (const adminEmail of env.PLATFORM_ADMIN_EMAILS) {
+      await sendMail({
+        to: adminEmail,
+        subject: "Nuevo registro pendiente de aprobación · SkillUp",
+        text: `Se ha registrado ${ctx.userName} (${ctx.userEmail}) en la empresa "${ctx.orgName}". Revisa y aprueba (o no) desde la consola:\n${link}`,
+        html: `<p>Nuevo registro <b>pendiente de aprobación</b>:</p><p><b>${who}</b> (${mail}) — empresa "${org}".</p><p><a href="${link}" style="display:inline-block;background:#1a9aa0;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-family:Arial,sans-serif">Revisar y aprobar</a></p><p style="color:#888;font-size:13px">Hasta que lo apruebes, esa persona puede hacer el onboarding pero no abrir cursos.</p>`,
+      });
+    }
+  } catch (e) { /* no bloquear el alta si falla el aviso */ }
   return c.json({ ok: true });
 });
 
@@ -556,12 +2205,62 @@ app.get("/api/org/team", async (c) => {
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   return c.json(await orgSvc.listMembers(svcDeps, ctx.orgId));
 });
+// Equipos (1.16.0): admin y dirección asignan a cada coach o team leader las personas que ve en «Mi equipo».
+const TEAM_ADMIN_ROLES = ["admin", "direccion"];
+app.get("/api/org/teams", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const [members, links] = await Promise.all([orgSvc.listMembers(svcDeps, ctx.orgId), teamsSvc.list(svcDeps, ctx.orgId)]);
+  return c.json({ members, links });
+});
+app.put("/api/org/teams/:managerId", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !TEAM_ADMIN_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const parsed = z.object({ learnerIds: z.array(z.string().min(1).max(64)).max(500) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const managerId = c.req.param("managerId");
+  if (!(await actSvc.isMember(svcDeps, ctx.orgId, managerId))) return c.json({ error: "esa persona no está en esta empresa" }, 404);
+  const saved = await teamsSvc.setTeam(svcDeps, ctx.orgId, managerId, parsed.data.learnerIds, ctx.userId);
+  return c.json({ saved });
+});
 
 // El menu de la app (hub.html / dashboard.html) consulta esto para saber que opciones mostrar segun el rol.
 app.get("/api/org/me", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  return c.json({ role: ctx.role, platformAdmin: isPlatformAdmin(ctx) });
+  const pa = isPlatformAdmin(ctx);
+  const approved = pa || await isApproved(ctx.orgId, ctx.userId);
+  const chosen = await langSvc.getUserLangChoice(db, ctx.userId).catch(() => null);
+  return c.json({ role: ctx.role, platformAdmin: pa, approved, capabilities: capabilitiesFor({ role: ctx.role, platformAdmin: pa }),
+    lang: chosen ?? langSvc.DEFAULT_LANG, langChosen: !!chosen, langs: langSvc.LANGS });
+});
+// Idioma de la plataforma (1.5.0): lo elige la persona en la bienvenida y lo cambia cuando quiera desde el menú.
+app.put("/api/org/me/lang", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (rateLimited(`lang:${ctx.userId}`, 10, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ lang: z.enum(langSvc.LANGS) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "idioma no válido" }, 400);
+  await langSvc.setUserLang(db, ctx.userId, parsed.data.lang);
+  return c.json({ lang: parsed.data.lang });
+});
+// Matriz de equipo (admin): comportamiento REAL agregado por miembro, nunca un test de personalidad.
+const WORKFORCE_ROLES = ["admin", "direccion", "team_leader", "inspirador"];
+app.get("/api/org/workforce", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !WORKFORCE_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  const members = await workforceSvc.orgWorkforce(svcDeps, ctx.orgId);
+  return c.json({ members });
+});
+// Conocimiento acumulado por cada tutor (crece con el uso; de solo lectura, no editable). Para el panel.
+app.get("/api/analytics/knowledge", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !WORKFORCE_ROLES.includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ agents: await workforceSvc.agentsKnowledge(svcDeps, ctx.orgId) });
 });
 
 // El plugin organization de better-auth solo conoce sus propios roles (owner/admin/member) y
@@ -571,7 +2270,7 @@ app.get("/api/org/me", async (c) => {
 app.put("/api/org/members/:userId/role", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
+  if (!isPlatformAdmin(ctx)) return c.json({ error: "solo el superadmin puede cambiar roles o permisos" }, 403);
   const parsed = z.object({ role: z.enum(ROLES) }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   await orgSvc.setMemberRole(svcDeps, ctx.orgId, c.req.param("userId"), parsed.data.role);
@@ -584,6 +2283,10 @@ app.put("/api/org/members/:userId/role", async (c) => {
 app.get("/api/config/company", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  // Business config (salary-linked flag, level labels): managers only, not every employee.
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "direccion", "team_leader", "inspirador")) {
+    return c.json({ error: "sin permiso" }, 403);
+  }
   return c.json(await configSvc.getCompanyConfig(svcDeps, ctx.orgId));
 });
 app.put("/api/config/company", async (c) => {
@@ -597,18 +2300,59 @@ app.put("/api/config/company", async (c) => {
   return c.json({ ok: true });
 });
 
+// --- Ficha de la empresa (1.13.0): la prepara y la valida un responsable; solo la validada llega a tutor, «Para ti» y recursos. ---
+const PROFILE_ROLES = ["admin", "direccion", "team_leader", "inspirador"] as const;
+app.get("/api/config/company/profile", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...PROFILE_ROLES)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await companyProfileSvc.get(svcDeps, ctx.orgId));
+});
+app.put("/api/config/company/profile", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...PROFILE_ROLES)) return c.json({ error: "sin permiso" }, 403);
+  const parsed = companyProfileSvc.profileSchema.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos" }, 400);
+  await companyProfileSvc.save(svcDeps, ctx.orgId, ctx.userId, parsed.data);
+  return c.json({ ok: true });
+});
+app.post("/api/config/company/profile/draft", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...PROFILE_ROLES)) return c.json({ error: "sin permiso" }, 403);
+  if (rateLimited(`profdraft:${ctx.orgId}`, 5, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ url: z.string().trim().min(4).max(300) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "falta la web" }, 400);
+  const draft = await companyProfileSvc.draftFromWeb(parsed.data.url).catch(() => null);
+  return draft ? c.json({ draft }) : c.json({ error: "no se ha podido leer esa web" }, 422);
+});
+
 app.post("/api/config/reward-rules", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
-  if (!hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
   const parsed = z.object({
     event: z.string().min(1), params: z.record(z.unknown()).optional(),
-    reward: z.enum(["certificado", "titulo", "punto", "perk", "senal_rrhh"]),
+    reward: z.enum(["certificado", "titulo", "punto", "perk", "senal_rrhh", "insignia", "tarjeta_regalo", "bonus", "reconocimiento"]),
     rewardParams: z.record(z.unknown()).optional(), active: z.boolean().optional(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const id = await rewardsSvc.defineRule(svcDeps, { orgId: ctx.orgId, ...parsed.data });
   return c.json({ id });
+});
+app.get("/api/config/reward-rules", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin", "direccion", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ rules: await rewardsSvc.listRules(svcDeps, ctx.orgId) });
+});
+app.delete("/api/config/reward-rules/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  await rewardsSvc.deleteRule(svcDeps, ctx.orgId, c.req.param("id"));
+  return c.json({ ok: true });
 });
 
 app.post("/api/rewards/evaluate", async (c) => {
@@ -628,15 +2372,41 @@ app.post("/api/rewards/evaluate", async (c) => {
 app.get("/api/certificates/:code/verify", async (c) => {
   const cert = await rewardsSvc.verifyCertificate(svcDeps, c.req.param("code"));
   if (!cert) return c.json({ valid: false }, 404);
+  // Lo mínimo para verificar: a nombre de quién, qué, cuándo y quién lo emite (sin email ni empresa).
+  const [holder] = await db.select({ name: user.name }).from(user).where(eq(user.id, cert.userId));
+  const ev = (cert.evidence ?? {}) as { kind?: string; score?: number; issuer?: string; accreditation?: string | null };
   return c.json({
     valid: !cert.expired, expired: cert.expired,
     title: cert.title, issuedAt: cert.issuedAt, expiresAt: cert.expiresAt,
+    holderName: holder?.name ?? null, issuer: ev.issuer || env.CERT_ISSUER, accreditation: ev.accreditation || env.CERT_ACCREDITATION || null,
+    score: ev.kind === "examen_final" ? ev.score ?? null : null,
   });
 });
 
 /* ============================================================
  * FUNDAE — acción formativa bonificable (España).
  * ============================================================ */
+// 1.17.0: expediente FUNDAE con fechas (AAAA-MM-DD) y revisión punto por punto.
+const fundaeDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).transform((d) => new Date(d + "T00:00:00Z"));
+app.get("/api/fundae/actions", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  return c.json({ actions: await fundaeSvc.listActions(svcDeps, ctx.orgId) });
+});
+app.patch("/api/fundae/actions/:id", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin")) return c.json({ error: "solo admin" }, 403);
+  const d = fundaeDate.nullable().optional();
+  const parsed = z.object({ startDate: d, endDate: d, rltInformedAt: d, fundaeNotifiedAt: d, qualitySurveyAt: d }).strict()
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  try {
+    await fundaeSvc.updateDates(svcDeps, ctx.orgId, c.req.param("id"), parsed.data);
+    return c.json(await fundaeSvc.exportJustification(svcDeps, ctx.orgId, c.req.param("id")));
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
 app.post("/api/fundae/actions", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
@@ -644,6 +2414,7 @@ app.post("/api/fundae/actions", async (c) => {
   const parsed = z.object({
     title: z.string().min(1), horas: z.number(), tutorId: z.string().min(1),
     competencyId: z.string().optional(), relatedPuesto: z.string().optional(), esCertProfesionalidad: z.boolean().optional(),
+    startDate: fundaeDate.optional(), endDate: fundaeDate.optional(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   try {
@@ -657,9 +2428,10 @@ app.post("/api/fundae/participations", async (c) => {
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "admin", "coach", "team_leader")) return c.json({ error: "sin permiso" }, 403);
   const parsed = z.object({
-    actionId: z.string().min(1), userId: z.string().min(1), controlsTotal: z.number(), controlsDone: z.number(),
+    actionId: z.string().min(1), userId: z.string().min(1), controlsTotal: z.number().int(), controlsDone: z.number().int(),
   }).safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  if (!(await actSvc.isMember(svcDeps, ctx.orgId, parsed.data.userId))) return c.json({ error: "esa persona no está en esta empresa" }, 404);
   try {
     const r = await fundaeSvc.recordParticipation(svcDeps, { orgId: ctx.orgId, ...parsed.data });
     return c.json(r);
@@ -689,6 +2461,23 @@ app.get("/api/platform/history", async (c) => {
   const days = Number(c.req.query("days") ?? 90);
   return c.json(await analyticsSvc.platformSnapshotHistory(svcDeps, days));
 });
+// Métricas ricas: de TODA la plataforma (totales) o de una empresa concreta (?orgId=). Toda la data para el superadmin.
+app.get("/api/platform/metrics", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const orgId = c.req.query("orgId");
+  if (orgId) return c.json({ orgId, metrics: await analyticsSvc.orgMetrics(svcDeps, orgId) });
+  const orgs = await db.select({ id: organization.id, name: organization.name }).from(organization);
+  const per = await Promise.all(orgs.map(async (o) => ({ orgId: o.id, orgName: o.name, metrics: await analyticsSvc.orgMetrics(svcDeps, o.id) })));
+  const totals = per.reduce((a, x) => ({
+    orgs: a.orgs + 1, members: a.members + x.metrics.members, activeLearners: a.activeLearners + x.metrics.activeLearners,
+    casesApproved: a.casesApproved + x.metrics.casesApproved, roleplays: a.roleplays + x.metrics.roleplays,
+    coaches: a.coaches + x.metrics.coaches, totalPoints: a.totalPoints + x.metrics.totalPoints,
+    questionsAsked: a.questionsAsked + x.metrics.questionsAsked, applicationCheckins: a.applicationCheckins + x.metrics.application.checkins,
+    bestPracticesInBrain: a.bestPracticesInBrain + x.metrics.bestPracticesInBrain, criticalRisks: a.criticalRisks + x.metrics.criticalRisks.length,
+  }), { orgs: 0, members: 0, activeLearners: 0, casesApproved: 0, roleplays: 0, coaches: 0, totalPoints: 0, questionsAsked: 0, applicationCheckins: 0, bestPracticesInBrain: 0, criticalRisks: 0 });
+  return c.json({ totals, orgs: per });
+});
 app.get("/api/platform/cost", async (c) => {
   const admin = await getPlatformAdminSession(c);
   if (!admin) return c.json({ error: "no autenticado o sin acceso de superadmin" }, 401);
@@ -698,6 +2487,475 @@ app.get("/api/platform/cost", async (c) => {
     costsSvc.platformOnlyCost(svcDeps, days),
   ]);
   return c.json({ days, total, orchestrator: platformOnly });
+});
+
+/* ============================================================
+ * SUPERADMIN — gestión avanzada transversal a todas las empresas (consola de control).
+ * Todo bajo getPlatformAdminSession: solo el dueño de la plataforma.
+ * ============================================================ */
+app.get("/api/platform/orgs", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const rows = await db.select({ id: organization.id, name: organization.name, slug: organization.slug, metadata: organization.metadata }).from(organization).orderBy(desc(organization.createdAt));
+  const orgs: Array<Record<string, unknown>> = [];
+  for (const o of rows) {
+    let status = "activa"; try { const m = o.metadata ? JSON.parse(o.metadata) : {}; if (m && m.status) status = String(m.status); } catch { /* metadata no-JSON */ }
+    const sub = await billingSvc.getSubscription(svcDeps, o.id).catch(() => null);
+    const mem = await db.select({ id: member.id }).from(member).where(eq(member.organizationId, o.id));
+    orgs.push({
+      id: o.id, name: o.name, slug: o.slug, status, members: mem.length,
+      subscription: sub ? { tier: sub.tier, seats: sub.seats, status: sub.status, currentPeriodEnd: sub.currentPeriodEnd } : null,
+    });
+  }
+  return c.json({ orgs });
+});
+
+// Lista los 6 perfiles de prueba para el selector rapido del banner de impersonacion. A diferencia
+// de /api/platform/users, tambien la puede llamar una sesion YA impersonada (perdio el email de
+// superadmin), siempre que sea fruto de una impersonacion real (session.impersonatedBy) - nunca un
+// usuario normal cualquiera.
+app.get("/api/platform/test-profiles", async (c) => {
+  const s = await auth.api.getSession({ headers: c.req.raw.headers });
+  if (!s?.session || !s.user) return c.json({ error: "no autenticado" }, 401);
+  const by = (s.session as { impersonatedBy?: string }).impersonatedBy;
+  const allowed = isPlatformAdmin({ userEmail: s.user.email, userId: s.user.id }) || (!!by && env.PLATFORM_ADMIN_USER_IDS.includes(by));
+  if (!allowed) return c.json({ error: "sin acceso" }, 403);
+  const rows = await db.select({
+    userId: user.id, name: user.name, organizationId: member.organizationId, orgRole: member.orgRole,
+  }).from(member).innerJoin(user, eq(member.userId, user.id)).innerJoin(organization, eq(organization.id, member.organizationId))
+    .where(eq(organization.name, "QA - Perfiles de prueba"));
+  return c.json({ profiles: rows });
+});
+
+// Reinicia un perfil de prueba a "recien registrado": borra sus notas (onboarding, ruta, progreso de
+// cursos) para que al volver a entrar arranque el onboarding real desde cero. Guardarraiz: solo deja
+// tocar usuarios de la organizacion "QA - Perfiles de prueba", nunca un usuario real.
+app.post("/api/platform/test-profiles/reset", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const [target] = await db.select({ orgName: organization.name }).from(member)
+    .innerJoin(organization, eq(organization.id, member.organizationId))
+    .where(eq(member.userId, parsed.data.userId));
+  if (!target || target.orgName !== "QA - Perfiles de prueba") return c.json({ error: "solo se pueden reiniciar perfiles de prueba" }, 403);
+  await db.delete(annotation).where(eq(annotation.userId, parsed.data.userId));
+  return c.json({ ok: true });
+});
+
+app.get("/api/platform/users", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const rows = await db.select({
+    userId: user.id, name: user.name, email: user.email, createdAt: user.createdAt,
+    organizationId: member.organizationId, orgName: organization.name, orgRole: member.orgRole,
+  }).from(user)
+    .leftJoin(member, eq(member.userId, user.id))
+    .leftJoin(organization, eq(organization.id, member.organizationId))
+    .orderBy(desc(user.createdAt));
+  const admins = env.PLATFORM_ADMIN_EMAILS;
+  return c.json({ users: rows.map((r) => ({ ...r, platformAdmin: admins.includes((r.email || "").toLowerCase()) })) });
+});
+
+app.post("/api/platform/users/set-role", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1), role: z.enum(ROLES) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await orgSvc.setMemberRole(svcDeps, parsed.data.organizationId, parsed.data.userId, parsed.data.role);
+  return c.json({ ok: true });
+});
+
+// Superadmin sends a password-reset link (same better-auth flow as "He olvidado mi contraseña").
+// If the mail was not delivered, the link comes back ONLY to the superadmin to hand over by hand.
+app.post("/api/platform/users/reset-password", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const [u] = await db.select({ email: user.email }).from(user).where(eq(user.id, parsed.data.userId));
+  if (!u) return c.json({ error: "usuario no encontrado" }, 404);
+  const key = u.email.toLowerCase();
+  lastResetLink.delete(key);
+  await auth.api.requestPasswordReset({ body: { email: u.email } });
+  const r = lastResetLink.get(key);
+  if (!r) return c.json({ error: "no se pudo generar el enlace" }, 500);
+  return c.json({ email: u.email, sent: r.delivered, link: r.delivered ? undefined : r.link });
+});
+
+// Soporte: el superadmin fija una contraseña nueva a un usuario cuando el correo de reset no llega.
+// Si no envía una, se genera una temporal y se devuelve SOLO al superadmin para entregarla en mano.
+app.post("/api/platform/users/set-password", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), newPassword: z.string().min(8).max(200).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido (contraseña mínimo 8)" }, 400);
+  const [u] = await db.select({ email: user.email }).from(user).where(eq(user.id, parsed.data.userId));
+  if (!u) return c.json({ error: "usuario no encontrado" }, 404);
+  // Temporal legible si el superadmin no escribe una: "Boo-XXXX-2026".
+  // Temporal de alta entropía (10 hex del uuid, ~40 bits) si el superadmin no escribe una.
+  const pwd = parsed.data.newPassword ?? `Boo-${newId().replace(/-/g, "").slice(0, 10)}-2026`;
+  try {
+    await auth.api.setUserPassword({ body: { userId: parsed.data.userId, newPassword: pwd }, headers: c.req.raw.headers });
+  } catch (e) { return c.json({ error: "no se pudo cambiar la contraseña: " + String((e as Error).message) }, 400); }
+  return c.json({ email: u.email, password: pwd, generated: !parsed.data.newPassword });
+});
+
+// Revisión de los tutores: qué instrucciones lleva cada agente por rol.
+// Herramientas/capacidades REALES de cada agente (lo que el código les da: RAG, contexto, casos…).
+const AGENT_MEMORIA = [
+  "Cerebro RAG de SU empresa: solo lecciones publicadas, casos y buenas prácticas ANÓNIMAS ya curadas",
+  "Contexto real del usuario: sector, puesto, ruta, avance, estilo, objetivo y freno del onboarding",
+  "Historial de su propia conversación (nunca la de otra persona)",
+];
+const AGENT_TOOLS: Record<string, string[]> = {
+  empleado: ["Recuperación del cerebro RAG (citando fuente)", "Casos prácticos de su puesto", "Juego de rol de conversaciones difíciles", "Compromiso de aplicación semanal"],
+  coach: ["Recuperación del cerebro RAG", "Seguimiento (check-ins) del aprendiz", "Buenas prácticas del equipo (anónimas)"],
+  team_leader: ["Panel de métricas del equipo", "Riesgos de dependencia y cobertura", "Moderación entre personas (consenso)"],
+  inspirador: ["Rúbricas y validación de casos", "Control de calidad del contenido", "Buenas prácticas del cerebro"],
+  admin: ["Configuración de empresa (etiquetas de nivel, recompensas)", "Alta de competencias, rutas y lecciones"],
+  direccion: ["Métricas agregadas y ROI", "Cobertura, transferencia interna y autonomía"],
+};
+app.get("/api/platform/agents", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const agents = Object.values(REGISTRY).map((a) => ({
+    role: a.role, title: a.title, model: a.model,
+    system: a.system({ orgName: "(empresa)", userName: "(usuario)", contextSnippets: [], sector: null, puesto: null }),
+    tools: AGENT_TOOLS[a.role] ?? [], memoria: AGENT_MEMORIA,
+  }));
+  // Resumen del cerebro (todas las empresas): documentos por tipo + curador de datos activo.
+  const kinds = await db.select({ kind: ragDocument.kind, n: sql<number>`count(*)::int` })
+    .from(ragDocument).groupBy(ragDocument.kind).catch(() => [] as { kind: string; n: number }[]);
+  const brain = {
+    docsByKind: Object.fromEntries(kinds.map((k) => [k.kind, k.n])),
+    total: kinds.reduce((s, k) => s + k.n, 0),
+    curador: "El curador de datos anonimiza cada experiencia antes de que entre al cerebro: quita nombres, clientes y datos privados; solo deja pasar la enseñanza. Ningún agente cuenta a un usuario lo de otro.",
+  };
+  return c.json({ agents, brain });
+});
+
+// Conocimiento de los tutores (base RAG): revisar y añadir conocimiento específico a una empresa.
+app.get("/api/platform/knowledge", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const rows = await db.select({
+    id: ragDocument.id, title: ragDocument.title, kind: ragDocument.kind,
+    organizationId: ragDocument.organizationId, orgName: organization.name, createdAt: ragDocument.createdAt,
+  }).from(ragDocument)
+    .leftJoin(organization, eq(organization.id, ragDocument.organizationId))
+    .orderBy(desc(ragDocument.createdAt));
+  return c.json({ docs: rows });
+});
+
+app.post("/api/platform/knowledge", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ organizationId: z.string().min(1), title: z.string().min(1).max(200), text: z.string().min(1).max(20000), kind: z.string().max(40).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  try {
+    const r = await ingestDocument(chatDeps, parsed.data.organizationId, { title: parsed.data.title, text: parsed.data.text, kind: parsed.data.kind });
+    return c.json(r);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+
+// Registros pendientes de aprobación (anti-infiltrados). Lista + aprobar.
+app.get("/api/platform/pending", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const rows = await db.select({ organizationId: annotation.organizationId, userId: annotation.userId, body: annotation.body, createdAt: annotation.createdAt })
+    .from(annotation).where(eq(annotation.source, "cuenta")).orderBy(desc(annotation.createdAt));
+  const seen: Record<string, string> = {};
+  for (const r of rows) {
+    const key = r.organizationId + "|" + r.userId;
+    if (seen[key]) continue; // primera (más reciente) gana
+    const m = String(r.body || "").match(/^\[(?:cuenta|aprobacion)\]\s*(\w+)/i);
+    seen[key] = m ? (m[1] ?? "").toLowerCase() : "";
+  }
+  const out: Array<Record<string, unknown>> = [];
+  for (const key of Object.keys(seen)) {
+    if (seen[key] !== "pendiente") continue;
+    const [orgId = "", userId = ""] = key.split("|");
+    const [u] = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, userId));
+    const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, orgId));
+    out.push({ userId, organizationId: orgId, name: u?.name || "", email: u?.email || "", orgName: o?.name || "" });
+  }
+  return c.json({ pending: out });
+});
+
+app.post("/api/platform/users/approve", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await setAccountState(parsed.data.organizationId, parsed.data.userId, "aprobado");
+  return c.json({ ok: true });
+});
+
+// Activar / desactivar / re-marcar pendiente una cuenta.
+app.post("/api/platform/users/set-state", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1), state: z.enum(["aprobado", "desactivado", "pendiente", "archivado"]) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await setAccountState(parsed.data.organizationId, parsed.data.userId, parsed.data.state);
+  await db.insert(auditLog).values({ id: newId(), organizationId: parsed.data.organizationId, userId: null,
+    action: "platform.set-state", meta: { by: admin.userId, target: parsed.data.userId, state: parsed.data.state } });
+  return c.json({ ok: true });
+});
+
+// A3: ajustar puntos a mano (corrige el ranking) con motivo y auditoría. Puede ser negativo.
+app.post("/api/platform/users/adjust-points", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1),
+    delta: z.number().int().min(-100000).max(100000), reason: z.string().min(1).max(200) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const [m] = await db.select({ id: member.id }).from(member)
+    .where(and(eq(member.organizationId, parsed.data.organizationId), eq(member.userId, parsed.data.userId)));
+  if (!m) return c.json({ error: "ese usuario no pertenece a esa organización" }, 404);
+  await propagationSvc.awardPoints(svcDeps, parsed.data.organizationId, parsed.data.userId,
+    propagationSvc.currentSeason(), parsed.data.delta, "ajuste manual: " + parsed.data.reason);
+  await db.insert(auditLog).values({ id: newId(), organizationId: parsed.data.organizationId, userId: null,
+    action: "platform.adjust-points", meta: { by: admin.userId, target: parsed.data.userId, delta: parsed.data.delta, reason: parsed.data.reason } });
+  return c.json({ ok: true });
+});
+
+// Reactivar y hacer que rehaga el onboarding: borra su perfil, ADN y ruta; vuelve a "aprobado" (A2).
+app.post("/api/platform/users/reset-onboarding", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1), organizationId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const { organizationId: oid, userId: uid } = parsed.data;
+  await db.delete(onboardingProfile).where(and(eq(onboardingProfile.organizationId, oid), eq(onboardingProfile.userId, uid)));
+  await db.delete(teamDna).where(and(eq(teamDna.organizationId, oid), eq(teamDna.userId, uid)));
+  await db.delete(teamProfile).where(and(eq(teamProfile.organizationId, oid), eq(teamProfile.userId, uid)));
+  await db.delete(annotation).where(and(eq(annotation.organizationId, oid), eq(annotation.userId, uid), eq(annotation.source, "ruta")));
+  await db.delete(annotation).where(and(eq(annotation.organizationId, oid), eq(annotation.userId, uid), eq(annotation.source, "onboarding")));
+  await setAccountState(oid, uid, "aprobado");
+  await db.insert(auditLog).values({ id: newId(), organizationId: oid, userId: null,
+    action: "platform.reset-onboarding", meta: { by: admin.userId, target: uid } });
+  return c.json({ ok: true });
+});
+
+// Estado de cuenta de cada persona (para pintar activo/pendiente/desactivado en la tabla).
+app.get("/api/platform/users/states", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const rows = await db.select({ organizationId: annotation.organizationId, userId: annotation.userId, body: annotation.body })
+    .from(annotation).where(eq(annotation.source, "cuenta")).orderBy(desc(annotation.createdAt));
+  const states: Record<string, string> = {};
+  for (const r of rows) {
+    const key = r.organizationId + "|" + r.userId; if (states[key]) continue;
+    const m = String(r.body || "").match(/^\[(?:cuenta|aprobacion)\]\s*(\w+)/i);
+    if (m) states[key] = (m[1] ?? "").toLowerCase();
+  }
+  return c.json({ states });
+});
+
+// Borrar una persona (cascada a account/session/member). Irreversible; el cliente confirma.
+app.post("/api/platform/users/delete", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ userId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  if (parsed.data.userId === admin.userId) return c.json({ error: "no puedes borrar tu propia cuenta desde aquí" }, 400);
+  await db.insert(auditLog).values({ id: newId(), organizationId: "", userId: null,
+    action: "platform.delete-user", meta: { by: admin.userId, target: parsed.data.userId } });
+  await db.delete(user).where(eq(user.id, parsed.data.userId));
+  return c.json({ ok: true });
+});
+
+// Borrar un documento de conocimiento (RAG) — sus chunks caen por cascada.
+app.post("/api/platform/knowledge/delete", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ id: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await db.delete(ragDocument).where(eq(ragDocument.id, parsed.data.id));
+  return c.json({ ok: true });
+});
+
+// Estado de una empresa (activa/archivada/inactiva) — guardado en organization.metadata (JSON).
+app.post("/api/platform/orgs/status", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ organizationId: z.string().min(1), status: z.enum(["activa", "archivada", "inactiva"]) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const [o] = await db.select({ metadata: organization.metadata }).from(organization).where(eq(organization.id, parsed.data.organizationId));
+  let meta: Record<string, unknown> = {}; try { meta = o?.metadata ? JSON.parse(o.metadata) : {}; } catch { meta = {}; }
+  meta.status = parsed.data.status;
+  await db.update(organization).set({ metadata: JSON.stringify(meta) }).where(eq(organization.id, parsed.data.organizationId));
+  return c.json({ ok: true });
+});
+
+// Borrar una empresa entera (cascada a miembros, datos…). Irreversible; el cliente confirma.
+app.post("/api/platform/orgs/delete", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ organizationId: z.string().min(1) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await db.delete(organization).where(eq(organization.id, parsed.data.organizationId));
+  return c.json({ ok: true });
+});
+
+// Editar el precio (o etiqueta) de un plan.
+app.post("/api/platform/tiers/set", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({ tier: z.string().min(1), label: z.string().min(1).optional(), pricePerSeatCents: z.number().int().min(0), currency: z.string().optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  await billingSvc.setPricingTier(svcDeps, parsed.data.tier as never, parsed.data.label || parsed.data.tier, parsed.data.pricePerSeatCents);
+  return c.json({ ok: true });
+});
+
+/* ============================================================
+ * RETOS (challenges) — un responsable/Team Leader (o el superadmin) reta a un miembro con un caso
+ * concreto o un roleplay, escribiendo o dictando las INSTRUCCIONES para el agente tutor. Los agentes
+ * preparan un borrador (draft) y el humano influye. La validación de si aplica sigue siendo humana.
+ * ============================================================ */
+const CHALLENGE_MANAGERS = ["team_leader", "admin", "direccion", "inspirador"];
+
+app.post("/api/learning/challenges/draft", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...CHALLENGE_MANAGERS)) return c.json({ error: "requiere responsable/admin" }, 403);
+  if (rateLimited(`challdraft:${ctx.orgId}:${ctx.userId}`, 12, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const parsed = z.object({ tipo: z.enum(["roleplay", "caso"]), tema: z.string().min(2).max(200), dificultad: z.string().max(40).optional(), notas: z.string().max(600).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const { tipo, tema, dificultad, notas } = parsed.data;
+  const system = tipo === "roleplay"
+    ? "Preparas el BRIEF para un agente tutor que hará de personaje en un roleplay de práctica. Español de España, claro. El brief se lo lee el agente, en 2ª persona (\"Eres... Te comportas...\"): personaje, situación, objeciones o dureza. Responde SOLO JSON: {\"titulo\":\"...\",\"brief\":\"...\"}."
+    : "Preparas el ENUNCIADO de un caso práctico real que alguien tendrá que resolver y demostrar en su trabajo. Español de España, claro y aplicable. Responde SOLO JSON: {\"titulo\":\"...\",\"brief\":\"enunciado del caso\"}.";
+  try {
+    const out = await llm.generate({
+      system, messages: [{ role: "user", content: `Tema: ${tema}.` + (dificultad ? ` Dificultad: ${dificultad}.` : "") + (notas ? ` Notas del responsable: ${notas}.` : "") }],
+      maxTokens: 700, orgId: ctx.orgId, userId: ctx.userId, kind: "challenge_draft",
+    });
+    const draft = aiContent.firstJson<{ titulo: string; brief: string }>(out);
+    return c.json({ titulo: String(draft.titulo || tema).slice(0, 160), brief: String(draft.brief || "").slice(0, 1500) });
+  } catch { return c.json({ error: "no pude preparar el borrador, intentalo de nuevo" }, 502); }
+});
+
+app.post("/api/learning/challenges", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...CHALLENGE_MANAGERS)) return c.json({ error: "requiere responsable/admin" }, 403);
+  // 1.2.0: además de roleplay/caso, un test de bloque o un intento del examen final, con fecha y mensaje.
+  const parsed = z.object({
+    assignedToUserId: z.string().min(1), tipo: z.enum(["roleplay", "caso", "test_bloque", "examen_final"]),
+    titulo: z.string().max(200).optional(), brief: z.string().max(1500).optional(),
+    tema: z.string().max(200).optional(), competencyId: z.string().optional(), dificultad: z.string().max(40).optional(),
+    curso: slugSchema.optional(), bloque: z.number().int().min(0).max(200).optional(),
+    programadoPara: z.string().datetime({ offset: true }).optional(), mensaje: z.string().max(600).optional(),
+    organizationId: z.string().optional(), // solo el superadmin puede retar en otra empresa
+  }).superRefine((d, k) => {
+    if ((d.tipo === "roleplay" || d.tipo === "caso") && !(d.titulo && d.titulo.trim() && d.brief && d.brief.trim())) k.addIssue({ code: "custom", message: "falta título o instrucciones" });
+    if ((d.tipo === "test_bloque" || d.tipo === "examen_final") && !d.curso) k.addIssue({ code: "custom", message: "falta el curso" });
+    if (d.tipo === "test_bloque" && d.bloque === undefined) k.addIssue({ code: "custom", message: "falta el bloque" });
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: parsed.error.issues[0]?.message || "cuerpo invalido" }, 400);
+  const d = parsed.data;
+  const orgId = (isPlatformAdmin(ctx) && d.organizationId) ? d.organizationId : ctx.orgId;
+  const [tgt] = await db.select().from(member).where(and(eq(member.organizationId, orgId), eq(member.userId, d.assignedToUserId)));
+  if (!tgt) return c.json({ error: "esa persona no está en esa organización" }, 400);
+  let titulo = (d.titulo || "").trim();
+  if (d.tipo === "test_bloque" || d.tipo === "examen_final") {
+    const blocks = await courseBlocks(d.curso!);
+    if (!blocks) return c.json({ error: "curso no encontrado" }, 404);
+    if (d.tipo === "test_bloque" && !blocks[d.bloque!]) return c.json({ error: "bloque no encontrado" }, 400);
+    const course = COURSE_TITLES[d.curso!] || d.curso!;
+    if (!titulo) titulo = d.tipo === "examen_final" ? `Examen final · ${course}` : `Test del bloque ${d.bloque! + 1} · ${blocks[d.bloque!]!.title}`.slice(0, 200);
+  }
+  const reto = {
+    id: newId(), tipo: d.tipo, titulo, brief: d.brief || "",
+    tema: d.tema || "", competencyId: d.competencyId || "", dificultad: d.dificultad || "",
+    curso: d.curso || "", bloque: d.bloque ?? null, programadoPara: d.programadoPara || null, mensaje: d.mensaje || "",
+    by: ctx.userName, byId: ctx.userId, createdAt: new Date().toISOString(), estado: "pendiente",
+  };
+  await notesSvc.create(svcDeps, orgId, d.assignedToUserId, { source: "reto", kind: "insight", body: "[reto] " + JSON.stringify(reto) });
+  // Aviso a la persona: correo (si hay proveedor) y evento en su Google Calendar si lo tiene conectado. No bloquea.
+  void (async () => {
+    const [u] = await db.select({ email: user.email, name: user.name }).from(user).where(eq(user.id, d.assignedToUserId));
+    const when = reto.programadoPara ? new Date(reto.programadoPara).toLocaleString("es-ES", { timeZone: "Europe/Madrid", dateStyle: "full", timeStyle: "short" }) : "";
+    const link = `${env.APP_URL.replace(/\/$/, "")}/app/reto.html?id=${encodeURIComponent(reto.id)}`;
+    if (u?.email) {
+      await sendMail({
+        to: u.email, subject: `${ctx.userName} te ha asignado: ${titulo}`,
+        text: `Hola${u.name ? " " + u.name : ""}:\n\n${ctx.userName} te ha asignado «${titulo}» en SkillUp.${when ? `\nFecha: ${when}.` : ""}${reto.mensaje ? `\n\nSu mensaje: ${reto.mensaje}` : ""}\n\nEntra aquí: ${link}\n`,
+      }).catch(() => {});
+    }
+    if (reto.programadoPara) {
+      const refresh = await gcalRefresh(orgId, d.assignedToUserId);
+      const access = refresh ? await gcal.accessFromRefresh(refresh) : null;
+      if (access) {
+        const start = new Date(reto.programadoPara);
+        const mins = d.tipo === "examen_final" ? assessSvc.FINAL_MINUTES + 15 : 30;
+        await gcal.insertEvent(access, { summary: `SkillUp · ${titulo}`, description: `${reto.mensaje ? reto.mensaje + "\n\n" : ""}${link}`, startISO: start.toISOString(), endISO: new Date(start.getTime() + mins * 60_000).toISOString() });
+      }
+    }
+  })().catch(() => {});
+  return c.json({ id: reto.id });
+});
+
+// Lo que un responsable ha asignado y cómo va (estado y resultado). Admin/dirección ven los de toda la empresa.
+app.get("/api/learning/challenges/assigned", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !hasRole(ctx, ...CHALLENGE_MANAGERS)) return c.json({ error: "requiere responsable/admin" }, 403);
+  const all = hasRole(ctx, "admin", "direccion") || isPlatformAdmin(ctx);
+  const [rows, people] = await Promise.all([readRetos(ctx.orgId), orgSvc.listMembers(svcDeps, ctx.orgId)]);
+  const names = new Map(people.map((p) => [p.userId, p.name]));
+  const now = new Date();
+  const items = rows.filter((r) => all || r.reto.byId === ctx.userId)
+    .map((r) => ({ ...r.reto, learnerId: r.userId, learnerName: names.get(r.userId) || "", disponibilidad: assessSvc.retoAvailability(r.reto, now) }))
+    .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+  return c.json({ items });
+});
+
+app.get("/api/learning/challenges/mine", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const items = await notesSvc.list(svcDeps, ctx.orgId, ctx.userId, "reto").catch(() => [] as { body: string | null }[]);
+  const now = new Date();
+  const retos = items.map((it) => { const b = String(it.body || ""); if (b.indexOf("[reto]") !== 0) return null; try { return JSON.parse(b.slice(6).trim()); } catch { return null; } }).filter(Boolean)
+    .map((r) => ({ ...r, disponibilidad: assessSvc.retoAvailability(r, now) }));
+  return c.json({ retos });
+});
+
+// El alumno marca su reto como hecho (al cerrar el roleplay o entregar el caso). Guarda el resultado
+// para que su responsable lo revise. La validación de si aplica la competencia sigue siendo humana.
+app.post("/api/learning/challenges/:id/complete", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({ resultado: z.string().max(6000).optional() }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
+  const rows = await db.select().from(annotation).where(and(eq(annotation.organizationId, ctx.orgId), eq(annotation.userId, ctx.userId), eq(annotation.source, "reto")));
+  const target = rows.find((r) => { try { return JSON.parse(String(r.body || "").slice(6).trim()).id === c.req.param("id"); } catch { return false; } });
+  if (!target) return c.json({ error: "reto no encontrado" }, 404);
+  let obj: Record<string, unknown> = {};
+  try { obj = JSON.parse(String(target.body).slice(6).trim()); } catch { obj = {}; }
+  obj.estado = "hecho"; obj.completedAt = new Date().toISOString();
+  if (parsed.data.resultado) obj.resultado = parsed.data.resultado.slice(0, 6000);
+  // P6: un reto de tipo "caso" con competencia entra en la cola de validación humana (no solo "hecho").
+  let caseId: string | null = null;
+  if (obj.tipo === "caso" && typeof obj.competencyId === "string" && obj.competencyId) {
+    const comp = await catalogSvc.getCompetency(svcDeps, ctx.orgId, obj.competencyId);
+    if (comp) {
+      try {
+        caseId = await validationSvc.createCase(svcDeps, {
+          orgId: ctx.orgId, userId: ctx.userId, competencyId: obj.competencyId,
+          prompt: String(obj.titulo || "Reto") + ": " + String(obj.brief || ""),
+        });
+        await validationSvc.submitCase(svcDeps, ctx.orgId, ctx.userId, caseId, parsed.data.resultado || "(entregado desde el reto)");
+        obj.caseId = caseId; obj.estado = "en_validacion";
+      } catch { caseId = null; }
+    }
+  }
+  await db.update(annotation).set({ body: "[reto] " + JSON.stringify(obj) }).where(eq(annotation.id, target.id));
+  return c.json({ ok: true, caseId, enValidacion: !!caseId });
 });
 
 const assistantBody = z.object({ message: z.string().min(1) });
@@ -712,16 +2970,71 @@ app.post("/api/platform/assistant", async (c) => {
   const parsed = assistantBody.safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo invalido" }, 400);
   const summary = await analyticsSvc.platformSummary(svcDeps);
-  const system = "Eres el orquestador de Brandooers SkillUp, hablando con el superadmin (dueno del negocio). "
-    + "Espanol de Espana, directo, sin inventar cifras. Estos son los datos reales de TODAS las empresas cliente "
-    + "ahora mismo (uno por organizacion): " + JSON.stringify(summary) + ". "
-    + "Responde solo con base en estos datos. Si te piden ejecutar una accion (invitar a alguien, cambiar una "
-    + "configuracion, borrar algo), dilo con claridad: todavia no tienes esa capacidad conectada, solo informas.";
-  const reply = await llm.generate({
+  // Personas (compactas) para que pueda proponer una acción sobre alguien real.
+  const people = (await db.select({ email: user.email, name: user.name, org: organization.name, role: member.orgRole })
+    .from(user).leftJoin(member, eq(member.userId, user.id)).leftJoin(organization, eq(organization.id, member.organizationId))
+    .orderBy(desc(user.createdAt)).limit(150))
+    .filter((p) => p.org).map((p) => `${p.name} <${p.email}> · ${p.org} · ${p.role || "empleado"}`);
+  const system = "Eres el orquestador (JARVIS) de Brandooers SkillUp, hablando con el superadmin. "
+    + "Espanol de Espana, directo, sin inventar. Datos reales por empresa: " + JSON.stringify(summary) + ". "
+    + "Personas (nombre <email> · empresa · rol): " + JSON.stringify(people) + ". "
+    + "Por defecto INFORMAS con texto. PERO si el superadmin te pide claramente EJECUTAR una de estas acciones, "
+    + "responde SOLO con este JSON (sin texto alrededor): {\"accion\":\"aprobar|estado|rol|puntos|password\",\"email\":\"<email exacto de la lista>\",\"empresa\":\"<nombre empresa>\",\"estado\":\"aprobado|desactivado|archivado\",\"rol\":\"empleado|coach|team_leader|inspirador|admin|direccion\",\"delta\":<entero>,\"motivo\":\"...\",\"confirmar\":\"frase clara de lo que vas a hacer para que el superadmin confirme\"}. "
+    + "Incluye solo los campos que la accion necesita (aprobar/estado/rol/puntos requieren email+empresa; puntos requiere delta+motivo; estado requiere estado; rol requiere rol; password solo email). "
+    + "Si no estas seguro de a quien se refiere o falta un dato, NO propongas accion: pregunta en texto. Nunca borres nada.";
+  const raw = await llm.generate({
     system, messages: [{ role: "user", content: parsed.data.message }], maxTokens: 500,
     orgId: null, userId: admin.userId, kind: "orchestrator",
   });
-  return c.json({ reply });
+  // ¿Ha propuesto una acción? (JSON con accion válida). Si no, es texto normal.
+  if (raw.indexOf("{") >= 0 && /"accion"/.test(raw)) {
+    try {
+      const prop = aiContent.firstJson<Record<string, unknown>>(raw);
+      if (prop && typeof prop.accion === "string" && ["aprobar", "estado", "rol", "puntos", "password"].includes(prop.accion)) {
+        return c.json({ proposal: prop });
+      }
+    } catch { /* no era JSON válido → cae a texto */ }
+  }
+  return c.json({ reply: raw });
+});
+
+// A7 fase 2: ejecutar una acción PROPUESTA por el orquestador, tras confirmación del superadmin.
+// Whitelist cerrada; la IA nunca ejecuta, solo propone; aquí se valida y se audita.
+const EXEC_STATES = ["aprobado", "desactivado", "archivado"];
+app.post("/api/platform/execute", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const parsed = z.object({
+    accion: z.enum(["aprobar", "estado", "rol", "puntos", "password"]),
+    email: z.string().email(), empresa: z.string().optional(),
+    estado: z.string().optional(), rol: z.string().optional(),
+    delta: z.number().int().min(-100000).max(100000).optional(), motivo: z.string().max(200).optional(),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  const d = parsed.data;
+  const [u] = await db.select({ id: user.id }).from(user).where(eq(user.email, d.email.toLowerCase()));
+  if (!u) return c.json({ error: "no encuentro a nadie con ese email" }, 404);
+  // password es global por email; el resto necesita la organización.
+  if (d.accion === "password") {
+    lastResetLink.delete(d.email.toLowerCase());
+    await auth.api.requestPasswordReset({ body: { email: d.email } });
+    const r = lastResetLink.get(d.email.toLowerCase());
+    await db.insert(auditLog).values({ id: newId(), organizationId: "", userId: null, action: "jarvis.password", meta: { by: admin.userId, target: d.email } });
+    return c.json({ ok: true, sent: r?.delivered ?? false, link: r && !r.delivered ? r.link : undefined, hecho: "Enlace de contraseña generado para " + d.email });
+  }
+  // resolver organización por nombre (o la única del usuario)
+  const mems = await db.select({ orgId: member.organizationId, orgName: organization.name, orgRole: member.orgRole })
+    .from(member).leftJoin(organization, eq(organization.id, member.organizationId)).where(eq(member.userId, u.id));
+  let m = mems.find((x) => d.empresa && x.orgName && x.orgName.toLowerCase() === d.empresa.toLowerCase());
+  if (!m && mems.length === 1) m = mems[0];
+  if (!m) return c.json({ error: "dime en qué empresa (esa persona está en varias o ninguna)" }, 400);
+  const oid = m.orgId!;
+  if (d.accion === "aprobar") { await setAccountState(oid, u.id, "aprobado"); }
+  else if (d.accion === "estado") { if (!d.estado || !EXEC_STATES.includes(d.estado)) return c.json({ error: "estado no válido" }, 400); await setAccountState(oid, u.id, d.estado); }
+  else if (d.accion === "rol") { if (!d.rol || !ROLES.includes(d.rol as (typeof ROLES)[number])) return c.json({ error: "rol no válido" }, 400); await orgSvc.setMemberRole(svcDeps, oid, u.id, d.rol as (typeof ROLES)[number]); }
+  else if (d.accion === "puntos") { if (!d.delta || !d.motivo) return c.json({ error: "faltan puntos o motivo" }, 400); await propagationSvc.awardPoints(svcDeps, oid, u.id, propagationSvc.currentSeason(), d.delta, "JARVIS: " + d.motivo); }
+  await db.insert(auditLog).values({ id: newId(), organizationId: oid, userId: null, action: "jarvis." + d.accion, meta: { by: admin.userId, target: u.id, ...d } });
+  return c.json({ ok: true, hecho: "Hecho: " + d.accion + " · " + d.email + " · " + (m.orgName || oid) });
 });
 app.get("/api/analytics/panel", async (c) => {
   const ctx = await getAuthContext(c);
@@ -736,6 +3049,89 @@ app.get("/api/analytics/history", async (c) => {
   if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
   const days = Number(c.req.query("days") ?? 90);
   return c.json(await analyticsSvc.snapshotHistory(svcDeps, ctx.orgId, days));
+});
+// Métricas ricas de la empresa (barras de conocimiento, aplicación, coaches, industrias, ROI…). Null = sin datos.
+app.get("/api/analytics/metrics", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  await analyticsSvc.captureSnapshotIfNeeded(svcDeps, ctx.orgId).catch(() => {});
+  return c.json(await analyticsSvc.orgMetrics(svcDeps, ctx.orgId));
+});
+
+// 1.21.0 (V2 fase 8): mapa de resiliencia del conocimiento. Solo niveles oficiales y acompañamientos, nunca datos privados.
+app.get("/api/analytics/resilience", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!isPlatformAdmin(ctx) && !["admin", "direccion", "inspirador"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(resilienceSvc.resilience(await resilienceSvc.load(svcDeps, ctx.orgId)));
+});
+// Pirámides de conocimiento por competencia (quién en cada nivel) + alerta de dependencia.
+app.get("/api/analytics/pyramids", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  return c.json({ pyramids: await analyticsSvc.pyramids(svcDeps, ctx.orgId) });
+});
+
+// Perks por nivel (gamificación). Los ve cualquier miembro (para saber qué gana); los edita admin/dirección.
+app.get("/api/config/perks", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  return c.json({ perks: await gamificationSvc.getPerks(svcDeps, ctx.orgId), labels: (await configSvc.getCompanyConfig(svcDeps, ctx.orgId))?.levelLabels ?? null });
+});
+app.post("/api/config/perks", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
+  const parsed = z.object({ perks: z.record(z.string(), z.string().max(200)) }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  return c.json({ ok: true, perks: await gamificationSvc.savePerks(svcDeps, ctx.orgId, parsed.data.perks) });
+});
+
+// Informe de ROI (Kirkpatrick niveles 1-4 medidos + Phillips nivel 5 solo con datos de la empresa).
+app.get("/api/analytics/roi", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, ctx.orgId));
+  return c.json({ ...(await roiSvc.buildReport(svcDeps, ctx.orgId)), orgName: o?.name ?? "tu empresa" });
+});
+
+// Datos del estudio de ROI que introduce la empresa (costes, métricas de negocio, intangibles). Solo admin/dirección.
+app.post("/api/analytics/roi/inputs", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
+  const parsed = roiSvc.studySchema.safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "datos no válidos: " + parsed.error.issues.map((i) => i.path.join(".") + " " + i.message).join("; ") }, 400);
+  await roiSvc.saveStudy(svcDeps, ctx.orgId, ctx.userId, parsed.data);
+  return c.json({ ok: true });
+});
+
+// El analista redacta el resumen para dirección con las cifras del informe (rate-limited: llama a la IA).
+app.get("/api/analytics/roi/narrative", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!hasRole(ctx, "team_leader", "direccion", "admin", "inspirador")) return c.json({ error: "sin permiso" }, 403);
+  if (rateLimited(`roi:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, ctx.orgId));
+  const r = await roiSvc.buildReport(svcDeps, ctx.orgId);
+  try {
+    const texto = await roiSvc.roiNarrative(llm, o?.name ?? "tu empresa", r, { orgId: ctx.orgId, userId: ctx.userId });
+    return c.json({ narrative: texto });
+  } catch (e) { return c.json({ error: "no se pudo generar el informe: " + String((e as Error).message) }, 502); }
+});
+
+// Superadmin: informe de ROI de cualquier empresa (solo lectura, para la consola de control).
+app.get("/api/platform/roi/:orgId", async (c) => {
+  const admin = await getPlatformAdminSession(c);
+  if (!admin) return c.json({ error: "sin acceso de superadmin" }, 401);
+  const orgId = c.req.param("orgId");
+  const [o] = await db.select({ name: organization.name }).from(organization).where(eq(organization.id, orgId));
+  if (!o) return c.json({ error: "empresa no encontrada" }, 404);
+  auditPlatformAccess(orgId, admin.userId, c.req.path);
+  return c.json({ ...(await roiSvc.buildReport(svcDeps, orgId)), orgName: o.name });
 });
 app.get("/api/analytics/completion", async (c) => {
   const ctx = await getAuthContext(c);
@@ -755,6 +3151,24 @@ app.get("/api/analytics/cost", async (c) => {
   if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
   const days = Number(c.req.query("days") ?? 30);
   return c.json(await costsSvc.orgCost(svcDeps, ctx.orgId, days));
+});
+// Consumo personal: cada usuario ve su propio uso (tokens, contenidos generados) y su plan/asiento.
+app.get("/api/analytics/my-usage", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const usage = await costsSvc.userUsage(svcDeps, ctx.orgId, ctx.userId, 30);
+  const sub = await billingSvc.getSubscription(svcDeps, ctx.orgId).catch(() => null);
+  const tiers = await billingSvc.listPricingTiers(svcDeps).catch(() => [] as Awaited<ReturnType<typeof billingSvc.listPricingTiers>>);
+  const tier = sub ? tiers.find((t) => t.tier === sub.tier) : null;
+  return c.json({
+    tokens: usage.inputTokens + usage.outputTokens,
+    calls: usage.calls,
+    generated: usage.generated,
+    plan: sub ? { tier: sub.tier, seats: sub.seats, status: sub.status } : null,
+    seatPriceCents: tier ? tier.pricePerSeatCents : null,
+    currency: tier ? tier.currency : "EUR",
+    tierLabel: tier ? tier.label : null,
+  });
 });
 app.post("/api/analytics/baseline", async (c) => {
   const ctx = await getAuthContext(c);
@@ -785,7 +3199,11 @@ app.post("/api/privacy/users/:userId/erase", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
-  await privacySvc.eraseUserData(svcDeps, ctx.orgId, c.req.param("userId"));
+  try {
+    await privacySvc.eraseUserData(svcDeps, ctx.orgId, c.req.param("userId"));
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 404);
+  }
   return c.json({ ok: true });
 });
 
@@ -823,11 +3241,76 @@ app.get("/api/reminders/mine", async (c) => {
   return c.json(await remindersSvc.myReminders(svcDeps, ctx.orgId, ctx.userId, ctx.role));
 });
 
+// Seguimiento de aplicación (R3): el alumno cuenta cómo está aplicando lo que validó.
+// Se guarda como evidencia real -> alimenta el ROI de aplicación (nunca cifras inventadas).
+app.post("/api/followup", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  const parsed = z.object({
+    competencyId: z.string().min(1),
+    aplica: z.enum(["si", "parcial", "no"]),
+    impacto: z.string().max(800).optional(),
+    sensacion: z.number().min(1).max(5).optional(),
+  }).safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  try {
+    const id = await followupSvc.recordCheckin(svcDeps, { orgId: ctx.orgId, userId: ctx.userId, ...parsed.data });
+    return c.json({ id, ok: true });
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+
+// ROI de aplicación agregado de la organización (dirección/responsable): % que aplica lo aprendido
+// y sensación media, calculados de check-ins reales. Sin datos -> null, nunca un número falso.
+app.get("/api/followup/summary", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!["admin", "direccion", "team_leader", "inspirador"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  return c.json(await followupSvc.applicationRoi(svcDeps, ctx.orgId, 90));
+});
+
+// Moderación interdepartamental (R4): dirección describe dos departamentos (personas) y su conflicto;
+// el sistema los perfila por sus fortalezas reales (Team DNA) + buenas prácticas validadas del cerebro,
+// y propone consenso. Las prácticas de consenso se realimentan al cerebro (armonía que se alimenta).
+app.post("/api/moderation", async (c) => {
+  const ctx = await getAuthContext(c);
+  if (!ctx) return c.json({ error: "no autenticado" }, 401);
+  if (!["admin", "direccion"].includes(ctx.role)) return c.json({ error: "sin permiso" }, 403);
+  if (rateLimited(`moderation:${ctx.orgId}:${ctx.userId}`, 6, 60_000)) return c.json({ error: "demasiadas peticiones, espera un momento" }, 429);
+  const grupo = z.object({ nombre: z.string().min(1).max(80), userIds: z.array(z.string()).max(500) });
+  const parsed = z.object({ grupoA: grupo, grupoB: grupo, conflicto: z.string().min(3).max(2000) })
+    .safeParse(await c.req.json().catch(() => ({})));
+  if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
+  try {
+    const hits = await retrieve(chatDeps.store, chatDeps.emb, ctx.orgId, parsed.data.conflicto, 4).catch(() => []);
+    const result = await moderationSvc.moderateBetween(svcDeps, llm, {
+      orgId: ctx.orgId, grupoA: parsed.data.grupoA, grupoB: parsed.data.grupoB,
+      conflicto: parsed.data.conflicto, contexto: hits.map((h) => h.content),
+    });
+    // Realimenta las buenas prácticas de consenso al cerebro de la organización (best-effort).
+    try {
+      if (result.buenasPracticas.length) {
+        const modNames = await curationSvc.orgMemberNames(svcDeps, ctx.orgId).catch(() => [] as string[]);
+        await ingestDocument(chatDeps, ctx.orgId, {
+          title: `Consenso ${parsed.data.grupoA.nombre}–${parsed.data.grupoB.nombre}`.slice(0, 200),
+          kind: "buena_practica", text: curationSvc.scrubPII(result.buenasPracticas.join("\n"), modNames).text,
+        });
+      }
+    } catch (e) {}
+    await db.insert(auditLog).values({
+      id: newId(), organizationId: ctx.orgId, userId: ctx.userId,
+      action: "moderation.run", meta: { a: parsed.data.grupoA.nombre, b: parsed.data.grupoB.nombre },
+    });
+    return c.json(result);
+  } catch (e) { return c.json({ error: String((e as Error).message) }, 400); }
+});
+
 /* ============================================================
  * FACTURACIÓN (Stripe) — niveles de precio, suscripción, checkout, webhook.
  * ============================================================ */
+// Solo los planes a la venta (inmersivo retirado en 1.6.0; sus datos siguen en la tabla).
 app.get("/api/billing/tiers", async (c) => {
-  return c.json(await billingSvc.listPricingTiers(svcDeps));
+  const sale = billingSvc.SALE_TIERS as readonly string[];
+  return c.json((await billingSvc.listPricingTiers(svcDeps)).filter((t) => sale.includes(t.tier)));
 });
 
 app.get("/api/billing/subscription", async (c) => {
@@ -840,7 +3323,7 @@ app.post("/api/billing/checkout", async (c) => {
   const ctx = await getAuthContext(c);
   if (!ctx) return c.json({ error: "no autenticado" }, 401);
   if (!hasRole(ctx, "admin", "direccion")) return c.json({ error: "solo admin/dirección" }, 403);
-  const parsed = z.object({ tier: z.enum(billingSvc.TIERS), seats: z.number().min(1).optional() })
+  const parsed = z.object({ tier: z.enum(billingSvc.SALE_TIERS), seats: z.number().min(1).optional() })
     .safeParse(await c.req.json().catch(() => ({})));
   if (!parsed.success) return c.json({ error: "cuerpo inválido" }, 400);
   const seats = parsed.data.seats ?? ((await orgSvc.listMembers(svcDeps, ctx.orgId)).length || 1);
@@ -866,3 +3349,9 @@ app.post("/api/billing/webhook", async (c) => {
   await billingSvc.applyStripeEvent(svcDeps, event);
   return c.json({ received: true });
 });
+
+// Supervisión en directo (1.3.0): tablero, ficha, intervención humana y métricas de uso.
+registerLiveRoutes(app, COURSE_TITLES, async (slug) => (await courseBlocks(slug))?.length ?? null);
+registerDashboardRoutes(app, COURSE_TITLES, (orgId) => readRetos(orgId));
+registerFeedbackRoutes(app);
+registerCreditRoutes(app);

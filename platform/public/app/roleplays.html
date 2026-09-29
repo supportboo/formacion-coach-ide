@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Roleplays</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/assess.css">
+</head>
+<body>
+<div class="top"><span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>     <linearGradient id="blg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <linearGradient id="blg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <radialGradient id="bli1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>     <radialGradient id="bli2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>     </defs>     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>   </svg>ers<span class="sk">SkillUp</span></span><a class="back" id="back" href="/app/inicio.html">Inicio</a></div>
+<main class="wrap">
+  <div id="stage"></div>
+  <section id="histWrap" hidden><h2 style="font-family:var(--fh);color:var(--ink);font-size:20px;margin:26px 0 10px">Tus roleplays</h2><div class="list" id="hist"></div></section>
+</main>
+<script src="/app/i18n.js"></script>
+<script src="/app/api.js"></script>
+<script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
+<script src="/app/nav.js" defer></script>
+<script src="/app/dictation.js"></script>
+<script src="/app/eyes-loader.js"></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+var P=new URLSearchParams(location.search);
+var SLUG=String(P.get('src')||P.get('slug')||'').replace(/^\//,'').replace(/\.html$/,'');
+var UPTO=P.get('upTo'), CARD=P.get('card');
+var CHECKPOINT=!!(SLUG && UPTO!==null && UPTO!=='');
+var stage=document.getElementById('stage');
+var COURSES=[], SCOPE=null, SID=null, TOPIC='', HIST=[];
+var MIC='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg>';
+if(SLUG) document.getElementById('back').href='/app/curso.html?src='+encodeURIComponent('/'+SLUG+'.html')+(CARD?'&card='+encodeURIComponent(CARD):'');
+if(SLUG) document.getElementById('back').textContent='Volver al curso';
+
+function toast(t){ document.querySelectorAll('.toast').forEach(function(x){x.remove();}); var d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(function(){d.remove();},3800); }
+function loading(msg){ if(window.EyesLoader){ EyesLoader.mount(stage,msg,'Mientras preparo el caso, juega un poco.',{expect:15}); return; } stage.innerHTML='<div class="loader"><div class="spin"></div>'+E(msg)+'</div>'; }
+function courseName(s){ for(var i=0;i<COURSES.length;i++) if(COURSES[i].slug===s) return COURSES[i].name; return s; }
+
+/* ---------- 1. elegir ---------- */
+function picker(){
+  var opts=COURSES.map(function(c){ return '<option value="'+E(c.slug)+'"'+(c.slug===SLUG?' selected':'')+'>'+E(c.name)+'</option>'; }).join('');
+  stage.innerHTML='<h1 class="pt">Roleplays</h1><p class="lead">Practica conversaciones de tu trabajo con un personaje que te lo pone difícil. Primero te hago unas preguntas sobre tu situación real y, con eso, preparo el caso. Al terminar te digo qué hiciste bien y qué mejorar.</p>'
+    +'<div class="card"><h2>Nuevo roleplay</h2><div class="seg" role="tablist"><button type="button" class="on" data-m="curso" role="tab" aria-selected="true">De un curso</button><button type="button" data-m="libre" role="tab" aria-selected="false">Tema libre</button></div>'
+    +'<div id="mCurso"><label class="f" for="rpCourse">Curso</label><select class="in" id="rpCourse">'+opts+'</select><label class="f" for="rpFocus">En qué quieres centrarte (opcional)</label><input class="in" id="rpFocus" maxlength="160" placeholder="Por ejemplo: un partner que pide más margen"></div>'
+    +'<div id="mLibre" hidden><label class="f" for="rpTopic">Qué situación quieres practicar</label><textarea class="in" id="rpTopic" maxlength="200" placeholder="Por ejemplo: llamar a un distribuidor que dejó de comprarnos hace seis meses"></textarea></div>'
+    +'<label class="opt" style="margin-top:14px"><input type="checkbox" id="rpIv" checked><span><b style="color:var(--ink)">Antes, unas preguntas sobre tu situación real</b><br><small class="muted">Así el caso se parece a tu día a día. Te suma puntos si respondes con detalle.</small></span></label>'
+    +'<div class="row" style="margin-top:14px"><button class="btn" id="rpGo">Preparar el roleplay</button><span class="err" id="rpErr"></span></div></div>';
+  var mode='curso';
+  stage.querySelectorAll('.seg button').forEach(function(b){ b.onclick=function(){ mode=b.dataset.m; stage.querySelectorAll('.seg button').forEach(function(x){ x.classList.toggle('on',x===b); x.setAttribute('aria-selected',x===b?'true':'false'); }); document.getElementById('mCurso').hidden=mode!=='curso'; document.getElementById('mLibre').hidden=mode!=='libre'; }; });
+  document.getElementById('rpGo').onclick=function(){
+    var err=document.getElementById('rpErr'); err.textContent='';
+    if(mode==='curso'){ SCOPE={slug:document.getElementById('rpCourse').value}; var f=document.getElementById('rpFocus').value.trim(); if(f) SCOPE.topic=f; }
+    else { var t=document.getElementById('rpTopic').value.trim(); if(t.length<3){ err.textContent='Cuéntame qué situación quieres practicar.'; return; } SCOPE={topic:t}; }
+    if(document.getElementById('rpIv').checked) interview(); else begin([]);
+  };
+}
+
+/* ---------- 2. entrevista ---------- */
+function interview(){
+  loading('Preparando unas preguntas sobre tu situación…');
+  SkillUp.api('/api/roleplay/interview',{method:'POST',body:SCOPE}).then(function(r){
+    TOPIC=r.topic||'';
+    var qs=r.preguntas||[];
+    if(!qs.length){ stage.innerHTML='<div class="card"><p class="hand" style="margin:0 0 6px">ya te conozco bastante</p><p class="lead">Con lo que me has contado antes tengo contexto de sobra para este tema. Vamos directos.</p><button class="btn" id="goNow">Empezar el roleplay</button></div>'; document.getElementById('goNow').onclick=function(){ begin([]); }; return; }
+    var html='<span class="chip teal">'+(CHECKPOINT?'Roleplay de control':'Entrevista rápida')+'</span><h1 class="pt" style="margin-top:10px">Antes de empezar, cuéntame</h1><p class="lead">'+E(TOPIC)+'. Responde con tu caso real: es lo que convierte la práctica en algo útil para ti (y suma puntos).</p>';
+    qs.forEach(function(q,i){ html+='<section class="q"><div class="qn">Pregunta '+(i+1)+' de '+qs.length+'</div><p class="qt">'+E(q)+'</p><div class="inrow"><textarea class="in" data-i="'+i+'" rows="3" aria-label="'+E(q)+'" placeholder="Tu situación, con detalle…"></textarea><button type="button" class="mic" data-m="'+i+'" aria-label="Dictar">'+MIC+'</button></div></section>'; });
+    html+='<div class="row"><button class="btn" id="ivGo">Empezar el roleplay</button><button class="btn ghost" id="ivSkip">Saltar</button></div>';
+    stage.innerHTML=html;
+    if(window.SkillUpDictation) stage.querySelectorAll('[data-m]').forEach(function(m){ var t=stage.querySelector('textarea[data-i="'+m.dataset.m+'"]'); SkillUpDictation.attach(m,{append:true,get:function(){return t.value;},set:function(v){t.value=v;}}); });
+    document.getElementById('ivGo').onclick=function(){ begin(qs.map(function(q,i){ return {q:q,a:stage.querySelector('textarea[data-i="'+i+'"]').value.trim()}; })); };
+    document.getElementById('ivSkip').onclick=function(){ begin([]); };
+  }).catch(function(e){ stage.innerHTML='<div class="card"><p class="err">'+E(e.message||'No se pudo preparar.')+'</p><button class="btn ghost" id="bk">Volver</button></div>'; document.getElementById('bk').onclick=picker; });
+}
+
+/* ---------- 3. roleplay ---------- */
+function begin(iv){
+  loading('Preparando el caso y el personaje…');
+  var body=Object.assign({},SCOPE,{interview:iv});
+  SkillUp.api('/api/roleplay/checkpoint',{method:'POST',body:body}).then(function(r){
+    SID=r.sessionId; TOPIC=r.topic||TOPIC;
+    if(r.points) toast('+'+r.points+' puntos por contarme tu situación');
+    chat(r.titulo||TOPIC,[{role:'assistant',content:r.reply}]);
+  }).catch(function(e){ stage.innerHTML='<div class="card"><p class="err">'+E(e.message||'No se pudo empezar.')+'</p><button class="btn ghost" id="bk">Volver</button></div>'; document.getElementById('bk').onclick=picker; });
+}
+function chat(title,transcript){
+  stage.innerHTML='<span class="chip teal">Roleplay en curso</span><h1 class="pt" style="margin-top:10px;font-size:24px">'+E(title)+'</h1><p class="muted" style="margin:0 0 12px">Habla como lo harías de verdad. Cuando lo tengas, pulsa Terminar y te digo cómo lo has hecho.</p>'
+    +'<div class="card"><div class="log" id="log" aria-live="polite"></div><div class="inrow"><input class="in" id="in" placeholder="Tu respuesta…" aria-label="Tu respuesta"><button class="mic" id="mic" type="button" aria-label="Dictar">'+MIC+'</button><button class="btn" id="send" style="flex:none;width:auto">Enviar</button></div>'
+    +'<div class="row" style="margin-top:12px;justify-content:center"><button class="btn ghost" id="fin">Terminar y ver cómo lo hice</button></div></div>';
+  var log=document.getElementById('log'), inp=document.getElementById('in');
+  function bub(role,t){ var d=document.createElement('div'); d.className='msgb '+(role==='user'?'u':'a'); d.textContent=t; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+  var turn=0; function rate(el,txt,prompt){ if(txt&&window.SUFeedback)SUFeedback.attach(el,{ref:'roleplay:'+SID+':'+(turn++),answer:txt,prompt:prompt,page:'roleplays',course:TOPIC,agent:'Roleplay'}); }
+  transcript.forEach(function(m){ var el=bub(m.role,m.content); if(m.role==='assistant') rate(el,m.content,''); });
+  async function send(){ var t=inp.value.trim(); if(!t) return; inp.value=''; bub('user',t); var th=bub('assistant','…');
+    try{ var r=await SkillUp.api('/api/roleplay/'+SID+'/reply',{method:'POST',body:{message:t,topic:TOPIC}}); th.textContent=r.reply||'…'; rate(th,r.reply,t); }catch(e){ th.textContent='(ahora no puedo seguir, inténtalo en un momento)'; } }
+  document.getElementById('send').onclick=send;
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter') send(); });
+  if(window.SkillUpDictation){ var d=SkillUpDictation.attach(document.getElementById('mic'),{conversation:true,get:function(){return inp.value;},set:function(v){inp.value=v;},done:function(){ Promise.resolve(send()).then(function(){ if(d) d.replyDone(); }); }}); }
+  document.getElementById('fin').onclick=function(){ var b=this; b.disabled=true; b.textContent='Analizando…';
+    SkillUp.api('/api/roleplay/'+SID+'/close',{method:'POST',body:{topic:TOPIC}}).then(summary).catch(function(e){ b.disabled=false; b.textContent='Terminar y ver cómo lo hice'; toast(e.message||'No se pudo cerrar'); }); };
+  inp.focus();
+}
+function summary(s){
+  var li=function(a){ return (a||[]).map(function(x){ return '<li>'+E(x)+'</li>'; }).join(''); };
+  var back=SLUG?'<a class="btn" href="/app/curso.html?src='+encodeURIComponent('/'+SLUG+'.html')+(CARD?'&card='+encodeURIComponent(CARD):'')+'">Volver al curso</a>':'';
+  stage.innerHTML='<div class="card"><div class="score">'+(s.valoracion!=null?'<div class="ring" style="--p:'+(s.valoracion*10)+';--c:'+(s.valoracion>=7?'#54C79A':(s.valoracion>=5?'#F0C645':'#E2506A'))+'"><b>'+s.valoracion+'</b></div>':'')
+    +'<div class="txt"><h2 style="font-family:var(--fh);color:var(--ink);margin:0 0 4px">Cómo lo has hecho</h2><p class="muted" style="margin:0">'+E(s.resumen||'')+'</p>'+(s.points?'<p class="hand" style="margin:6px 0 0">+'+s.points+' puntos por practicar</p>':(s.learnerTurns!=null&&s.learnerTurns<3?'<p class="muted" style="margin:6px 0 0">Los puntos llegan a partir de 3 intervenciones tuyas.</p>':''))+'</div></div>'
+    +(li(s.fortalezas)?'<h3 style="color:var(--green);font-size:15px;margin:16px 0 6px">Lo que has hecho bien</h3><ul>'+li(s.fortalezas)+'</ul>':'')
+    +(li(s.areasDeMejora)?'<h3 style="color:var(--gold);font-size:15px;margin:14px 0 6px">Para mejorar</h3><ul>'+li(s.areasDeMejora)+'</ul>':'')
+    +'<p class="muted" style="margin-top:10px">La valoración (0-10) es orientativa: quien valida si aplicas la competencia es una persona.</p>'
+    +'<div class="row" style="margin-top:14px">'+back+'<button class="btn ghost" id="more">Otro roleplay</button></div></div>';
+  if(s.points) toast('+'+s.points+' puntos');
+  if(s.resumen&&window.SUFeedback) SUFeedback.attach(stage.querySelector('.score'),{ref:'roleplay-sum:'+SID,answer:s.resumen,page:'roleplays',course:TOPIC,agent:'Valoración de roleplay'});
+  document.getElementById('more').onclick=function(){ CHECKPOINT=false; picker(); };
+  loadHist();
+}
+
+/* ---------- historial ---------- */
+function loadHist(){
+  SkillUp.api('/api/roleplay/mine').then(function(rows){
+    HIST=Array.isArray(rows)?rows:[];
+    var w=document.getElementById('histWrap'), h=document.getElementById('hist');
+    if(!HIST.length){ w.hidden=true; return; }
+    w.hidden=false;
+    h.innerHTML=HIST.map(function(r,i){
+      var fb=r.feedback||{}, open=r.status!=='cerrado';
+      var when=''; try{ when=new Date(r.createdAt).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}); }catch(e){}
+      var src=r.source?courseName(String(r.source).split('#')[0]):'Tema libre';
+      return '<div class="item" style="flex-wrap:wrap"><div class="tx"><b>'+E(r.topic||'Roleplay')+'</b><small>'+E(src)+' · '+E(when)+(r.source&&String(r.source).indexOf('#')>0?' · de control':'')+'</small></div>'
+        +(open?'<button class="btn sm" data-c="'+i+'">Continuar</button>':(r.score!=null?'<span class="chip '+(r.score>=7?'ok':(r.score>=5?'warn':'bad'))+'">'+r.score+'/10</span>':'<span class="chip">Cerrado</span>'))
+        +(!open?'<button class="btn sm ghost" data-d="'+i+'" aria-expanded="false">Ver</button>':'')
+        +'<div class="tx" data-det="'+i+'" hidden style="flex-basis:100%;margin-top:8px">'+(fb.resumen||r.summary?'<p style="margin:0 0 6px">'+E(fb.resumen||r.summary)+'</p>':'')
+        +((fb.areasDeMejora||[]).length?'<small style="color:var(--gold)">Para mejorar: '+E(fb.areasDeMejora.join(' · '))+'</small>':'')
+        +((r.interview||[]).length?'<small>Tu contexto: '+E(r.interview.map(function(x){return x.a;}).filter(Boolean).join(' · ').slice(0,400))+'</small>':'')+'</div></div>';
+    }).join('');
+    h.querySelectorAll('[data-d]').forEach(function(b){ b.onclick=function(){ var d=h.querySelector('[data-det="'+b.dataset.d+'"]'); d.hidden=!d.hidden; b.setAttribute('aria-expanded',d.hidden?'false':'true'); b.textContent=d.hidden?'Ver':'Ocultar'; }; });
+    h.querySelectorAll('[data-c]').forEach(function(b){ b.onclick=function(){ var r=HIST[+b.dataset.c]; SID=r.id; TOPIC=r.topic||''; if(r.source) SLUG=String(r.source).split('#')[0]; chat(r.topic||'Roleplay',r.transcript||[]); window.scrollTo(0,0); }; });
+  }).catch(function(){});
+}
+
+SkillUp.requireSession('/app/login.html').then(function(s){ if(!s) return;
+  SkillUp.api('/api/config/assessment').then(function(c){ COURSES=(c&&c.courses)||[]; }).catch(function(){}).then(function(){
+    if(CHECKPOINT){ SCOPE={slug:SLUG,upToBlock:Number(UPTO)}; interview(); }
+    else picker();
+    loadHist();
+  });
+});
+})();
+</script>
+</body>
+</html>

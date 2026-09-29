@@ -1,6 +1,7 @@
 import {
   pgTable, text, timestamp, boolean, integer, real, jsonb, uniqueIndex, index,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 /* ============================================================
  * AUTH (better-auth + organization plugin) — multi-tenant.
@@ -14,6 +15,13 @@ export const user = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  // Campos del plugin "admin" de better-auth (impersonar usuarios de prueba). Nullable: nadie los tenia antes.
+  role: text("role"),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
+  // Idioma de la plataforma elegido por la persona (es|en|ca|pt|fr). Null = nunca eligió -> español.
+  lang: text("lang"),
 });
 
 export const session = pgTable("session", {
@@ -26,6 +34,8 @@ export const session = pgTable("session", {
   activeOrganizationId: text("active_organization_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  // Plugin "admin": de quien es la sesion real cuando un superadmin esta impersonando a este usuario.
+  impersonatedBy: text("impersonated_by"),
 });
 
 export const account = pgTable("account", {
@@ -171,6 +181,9 @@ export const agentThread = pgTable("agent_thread", {
   userId: text("user_id").notNull(),
   role: text("role").notNull(),
   title: text("title"),
+  // 1.3.0 (supervisión en directo): curso del que sale el hilo del tutor (slug), para que el responsable
+  // sepa de qué curso es cada conversación. Null en hilos anteriores o del agente general.
+  source: text("source"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("thread_org_idx").on(t.organizationId) }));
 
@@ -178,8 +191,15 @@ export const agentMessage = pgTable("agent_message", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id").notNull(),
   threadId: text("thread_id").notNull().references(() => agentThread.id, { onDelete: "cascade" }),
-  sender: text("sender").notNull(), // user | agent
+  sender: text("sender").notNull(), // user | agent | coach (persona humana: coach, team leader, admin…)
   content: text("content").notNull(),
+  // 1.3.0: lo que el alumno ve de su propio mensaje (sin las instrucciones internas que curso.html antepone
+  // para la IA). Null = mensaje interno (p. ej. la síntesis de memoria) o anterior a 1.3.0.
+  display: text("display"),
+  // Autor humano cuando sender = coach.
+  authorId: text("author_id"),
+  authorName: text("author_name"),
+  authorRole: text("author_role"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byThread: index("msg_thread_idx").on(t.threadId) }));
 
@@ -216,6 +236,51 @@ export const enrollment = pgTable("enrollment", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("enr_org_idx").on(t.organizationId) }));
 
+/* 1.18.0 — Curso ↔ competencia: lo que la persona hace en un curso (tests, examen, roleplays) suma a la
+ * capacidad de esa competencia. Sin vínculo, cada curso cuenta como una capacidad propia. */
+export const courseCompetency = pgTable("course_competency", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  source: text("source").notNull(), // slug del curso (outbound-sales, …)
+  competencyId: text("competency_id").notNull(),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ uniq: uniqueIndex("course_competency_org_source_uniq").on(t.organizationId, t.source) }));
+
+/* 1.19.0 — Evidencias nativas (arquitectura V2, fase 2): solo lo que no existe en otra tabla. Las demás
+ * evidencias (tests, roleplays, casos…) se derivan en services/capability.ts. */
+export const evidenceEvent = pgTable("evidence_event", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  skillKey: text("skill_key").notNull(),          // comp:<id> | curso:<slug>
+  type: text("type").notNull(),                   // demostracion | teach_back
+  dimension: text("dimension").notNull(),         // conocimiento | aplicacion | autonomia | transferencia
+  context: text("context"),                       // escenario o tema trabajado
+  score: integer("score"),                        // 0-100
+  independence: text("independence").notNull(),   // guiado | asistido | independiente | enseno
+  aiHelp: text("ai_help").notNull(),              // ninguna | pista | explicacion | reescritura | solucion
+  detail: jsonb("detail").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byUser: index("evidence_event_user_idx").on(t.organizationId, t.userId) }));
+
+/* 1.22.0 — Formaciones reales que imparte la persona (Google Meet o transcripción subida). Solo se guarda el
+ * resultado del análisis: la transcripción nunca se almacena. */
+export const trainingSession = pgTable("training_session", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),              // quien formó (y el único evaluado)
+  title: text("title").notNull(),
+  topic: text("topic"),
+  skillKey: text("skill_key"),                    // comp:<id> | curso:<slug> que enseñó
+  source: text("source").notNull(),               // subida | meet
+  heldAt: timestamp("held_at"),
+  score: integer("score"),
+  metrics: jsonb("metrics").$type<Record<string, unknown>>(),
+  analysis: jsonb("analysis").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byUser: index("training_session_user_idx").on(t.organizationId, t.userId) }));
+
 // Nivel por competencia (no global): 0 ninguno · 1 En formación · 2 Aplica · 3 Referente · 4 Custodio
 export const levelByCompetency = pgTable("level_by_competency", {
   id: text("id").primaryKey(),
@@ -249,6 +314,9 @@ export const rubric = pgTable("rubric", {
   organizationId: text("organization_id").notNull(),
   competencyId: text("competency_id").notNull(),
   criteria: jsonb("criteria").$type<{ label: string; weight?: number }[]>().notNull(),
+  // Correlativo por organización+competencia (1, 2, 3...); no se recalifica una validación
+  // histórica cuando cambia la rúbrica futura, así que `validation.rubricId` fija cuál se usó.
+  version: integer("version").notNull().default(1),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("rubric_org_idx").on(t.organizationId) }));
 
@@ -289,6 +357,8 @@ export const validation = pgTable("validation", {
   validatorId: text("validator_id").notNull(),
   decision: text("decision").notNull(), // aprobado | rechazado
   feedback: text("feedback"),
+  // Rúbrica vigente en el momento de validar (null si la competencia aún no tenía rúbrica publicada).
+  rubricId: text("rubric_id").references(() => rubric.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("val_org_idx").on(t.organizationId) }));
 
@@ -327,6 +397,13 @@ export const companyConfig = pgTable("company_config", {
   organizationId: text("organization_id").primaryKey(),
   levelLabels: jsonb("level_labels").$type<Record<string, string>>(), // {"2":"Facturador","3":"Referente"}
   salaryLinked: boolean("salary_linked").notNull().default(false),
+  // 1.3.0: los responsables pueden seguir la sesión en directo (siempre con aviso visible al alumno).
+  liveSupervision: boolean("live_supervision").notNull().default(true),
+  // 1.13.0: ficha de la empresa (oferta, públicos, terminología, herramientas, prioridades, límites). Solo cuenta para
+  // tutor, «Para ti» y recursos cuando un responsable la ha validado (profileValidatedAt).
+  profile: jsonb("profile").$type<Record<string, unknown>>(),
+  profileValidatedAt: timestamp("profile_validated_at"),
+  profileValidatedBy: text("profile_validated_by"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -392,6 +469,12 @@ export const fundaeAction = pgTable("fundae_action", {
   relatedPuesto: text("related_puesto"),
   tutorId: text("tutor_id").notNull(),
   esCertProfesionalidad: boolean("es_cert_profesionalidad").notNull().default(false),
+  // 1.17.0: expediente — fechas que exige FUNDAE (null = aún no hecho).
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  rltInformedAt: timestamp("rlt_informed_at"),      // información a la representación legal (≥15 días antes)
+  fundaeNotifiedAt: timestamp("fundae_notified_at"), // comunicación de inicio (≥2 días naturales antes)
+  qualitySurveyAt: timestamp("quality_survey_at"),   // cuestionario de calidad pasado a los participantes
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({ byOrg: index("fundae_org_idx").on(t.organizationId) }));
 
@@ -429,6 +512,30 @@ export const subscription = pgTable("subscription", {
   currentPeriodEnd: timestamp("current_period_end"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// Créditos de creación (1.6.0). 1 crédito = 0,10 €. Monedero por empresa = suma del libro.
+// Precio en créditos de cada cosa que se crea; lo edita el superadmin (valores por defecto en la migración 0024).
+export const creditPrice = pgTable("credit_price", {
+  item: text("item").primaryKey(), // voz_narrada | avatar_estandar | avatar_realista | avatar_propio | clonar_voz | curso_ia
+  credits: integer("credits").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Libro de créditos: compras (+), gastos (-), devoluciones (+). Saldo = sum(delta). Solo se inserta.
+export const creditLedger = pgTable("credit_ledger", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  delta: integer("delta").notNull(),
+  reason: text("reason").notNull(), // compra | gasto | devolucion
+  item: text("item"),
+  ref: text("ref"), // compra: id de la sesión de Stripe (idempotencia) · gasto: referencia del contenido
+  userId: text("user_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  byOrg: index("credit_ledger_org_idx").on(t.organizationId, t.createdAt),
+  // Una sesión de Stripe se abona una sola vez aunque el webhook llegue repetido.
+  purchaseOnce: uniqueIndex("credit_ledger_purchase_uq").on(t.ref).where(sql`reason = 'compra'`),
+}));
 
 // Línea base del piloto: foto del punto de partida para medir el antes/después.
 export const baselineSnapshot = pgTable("baseline_snapshot", {
@@ -470,7 +577,36 @@ export const roleplaySession = pgTable("roleplay_session", {
   summary: text("summary"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   closedAt: timestamp("closed_at"),
+  // 1.2.0 (evaluación): de qué curso sale el roleplay, tema legible, valoración orientativa 0-10,
+  // feedback completo y la entrevista previa (preguntas y respuestas reales del alumno).
+  source: text("source"),
+  topic: text("topic"),
+  score: integer("score"),
+  feedback: jsonb("feedback").$type<Record<string, unknown>>(),
+  interview: jsonb("interview").$type<{ q: string; a: string }[]>(),
 }, (t) => ({ byOrg: index("roleplay_org_idx").on(t.organizationId) }));
+
+/* Evaluación por bloques y examen final de un curso (1.2.0). Las preguntas guardan la clave de
+ * corrección y NUNCA se envían tal cual al cliente. kind: block | final. block = -1 en el final. */
+export const assessmentAttempt = pgTable("assessment_attempt", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  source: text("source").notNull(), // slug del curso
+  kind: text("kind").notNull(),
+  block: integer("block").notNull().default(-1),
+  questions: jsonb("questions").$type<Record<string, unknown>[]>().notNull(),
+  answers: jsonb("answers").$type<unknown[]>(),
+  results: jsonb("results").$type<Record<string, unknown>[]>(),
+  score: integer("score"),
+  passed: boolean("passed"),
+  status: text("status").notNull().default("abierto"), // abierto | corregido | caducado
+  assignmentId: text("assignment_id"),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
+  deadlineAt: timestamp("deadline_at"),
+  submittedAt: timestamp("submitted_at"),
+  gradedAt: timestamp("graded_at"),
+}, (t) => ({ byUser: index("assess_org_user_src_idx").on(t.organizationId, t.userId, t.source) }));
 
 // Foto diaria de las metricas del panel (una por empresa y dia). A diferencia de baselineSnapshot
 // (el "antes" del piloto, capturado a mano una vez), esta se captura sola -- sin cron ni cola de
@@ -500,6 +636,192 @@ export const schema = {
   coaching, pointsLedger,
   companyConfig, rewardRule, certificate, rewardGrant, careerPath,
   fundaeAction, fundaeParticipation,
-  pricingTier, subscription,
-  baselineSnapshot, aiUsage, roleplaySession, analyticsSnapshot,
+  pricingTier, subscription, creditPrice, creditLedger,
+  baselineSnapshot, aiUsage, roleplaySession, analyticsSnapshot, assessmentAttempt,
 };
+
+/* Anotaciones del alumno sobre el curso (subrayar, nota, pregunta, repasar). Por org + usuario. */
+export const annotation = pgTable("annotation", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  source: text("source").notNull(),
+  card: integer("card").notNull().default(0),
+  cardTitle: text("card_title"),
+  kind: text("kind").notNull(),
+  quote: text("quote"),
+  body: text("body"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byUserSrc: index("annotation_user_src").on(t.organizationId, t.userId, t.source) }));
+
+/* Team DNA: foto de fortalezas del usuario (arquetipo + pesos por familia). Una fila por usuario/org. */
+export const teamDna = pgTable("team_dna", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  weights: jsonb("weights").$type<Record<string, number>>().notNull(),
+  primary: text("primary").notNull(),
+  secondary: text("secondary").notNull(),
+  archetype: text("archetype").notNull(),
+  near: jsonb("near").$type<string[]>().notNull().default([]),
+  answers: jsonb("answers").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({ byUser: uniqueIndex("team_dna_user_uidx").on(t.organizationId, t.userId) }));
+
+/* Team DNA v2: perfil combinado (eneagrama + Big Five + Hexad + preferencias pedagógicas).
+ * answers se guarda sobre la marcha (reanudable); result/brief solo al terminar. Una fila por usuario/org. */
+export const teamProfile = pgTable("team_profile", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  answers: jsonb("answers").$type<Record<string, number>>().notNull().default({}),
+  result: jsonb("result").$type<Record<string, unknown>>(),
+  brief: text("brief"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({ byUser: uniqueIndex("team_profile_user_uidx").on(t.organizationId, t.userId) }));
+
+/* Equipos (1.16.0, auditoría 28-09): a quién acompaña cada responsable (coach, team leader). El alcance «mi equipo»
+ * se resuelve con estas asignaciones (más las relaciones de coaching); sin asignaciones es vacío, nunca toda la empresa. */
+export const teamAssignment = pgTable("team_assignment", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  managerUserId: text("manager_user_id").notNull(),
+  learnerUserId: text("learner_user_id").notNull(),
+  createdBy: text("created_by"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ uq: uniqueIndex("team_assignment_uidx").on(t.organizationId, t.managerUserId, t.learnerUserId) }));
+
+/* Ficha viva del alumno (1.12.0): lo que sabemos de él para adaptar su formación, cada dato con fuente, evidencia y
+ * estado. PRIVADA del alumno: no se muestra a responsables ni entra en métricas de empresa (las capacidades acreditadas
+ * viven en level_by_competency). El alumno la ve, la confirma, la corrige o retira datos en /app/ficha.html. */
+export const learnerFact = pgTable("learner_fact", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  // contexto | objetivo | caso | competencia | preferencia | estrategia | aplicacion | ensenanza
+  layer: text("layer").notNull(),
+  text: text("text").notNull(),
+  // declarado | observado | inferido | confirmado | desactualizado
+  status: text("status").notNull().default("declarado"),
+  // bienvenida | tutor | practica | para_ti | test | validacion | alumno
+  sourceType: text("source_type").notNull(),
+  sourceRef: text("source_ref"),
+  evidence: text("evidence"),
+  scope: text("scope"),
+  active: boolean("active").notNull().default(true),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({ byUser: index("learner_fact_user_idx").on(t.organizationId, t.userId, t.active) }));
+
+/* Resultados de YouTube cacheados por tema, para no golpear la cuota de la API en cada carga.
+ * pinned queda sin usar aun: hueco para cuando haya curacion manual desde la Consola. */
+export const videoCache = pgTable("video_cache", {
+  id: text("id").primaryKey(),
+  topic: text("topic").notNull(),
+  sortType: text("sort_type").notNull(),
+  videos: jsonb("videos").notNull(),
+  pinned: boolean("pinned").notNull().default(false),
+  fetchedAt: timestamp("fetched_at").notNull().defaultNow(),
+}, (t) => ({ byTopicSort: uniqueIndex("video_cache_topic_sort_uidx").on(t.topic, t.sortType) }));
+
+/* Reproducciones internas de video dentro de SkillUp (slider "Brandooers Favs" = popularidad real del equipo). */
+export const videoEvent = pgTable("video_event", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  youtubeId: text("youtube_id").notNull(),
+  title: text("title").notNull(),
+  thumbnail: text("thumbnail").notNull(),
+  lang: text("lang"), // idioma de la selección donde se vio (1.5.0); null = anterior a 1.5.0 (todo era español)
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ byYoutubeId: index("video_event_youtube_idx").on(t.youtubeId) }));
+
+// Estudio de ROI (metodología Phillips) de una empresa: SOLO datos que introduce su admin/dirección
+// (costes completos, métricas de negocio antes/después o con grupo de control, aislamiento y
+// confianza, intangibles). Sin fila o con campos vacíos = "sin datos", nunca un valor por defecto.
+// Una fila por empresa (el periodo del estudio va dentro).
+export const roiStudy = pgTable("roi_study", {
+  organizationId: text("organization_id").primaryKey(),
+  periodStart: text("period_start"), // YYYY-MM-DD o null (todo el histórico)
+  periodEnd: text("period_end"),
+  costs: jsonb("costs").$type<Record<string, number | null>>().notNull().default({}),
+  impacts: jsonb("impacts").$type<Record<string, unknown>[]>().notNull().default([]),
+  intangibles: jsonb("intangibles").$type<string[]>().notNull().default([]),
+  updatedBy: text("updated_by"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+/* Actividad en directo (1.3.0): latido ligero y eventos de las páginas de aprendizaje. Sin grabación de
+ * pantalla, teclado ni cámara: solo página, curso, sección, % de lectura, tiempo activo y acciones
+ * (vídeo, test, roleplay, mensaje). Se conserva 90 días como máximo (services/activity.ts, RETENTION_DAYS).
+ * kind: hb (latido) | page | section | video | quiz_start | quiz_end | roleplay_start | roleplay_turn |
+ *       roleplay_end | chat_msg | nudge (aviso de un responsable) | notice (el alumno leyó el aviso de supervisión). */
+export const activityEvent = pgTable("activity_event", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  kind: text("kind").notNull(),
+  page: text("page"),
+  source: text("source"),
+  section: integer("section"),
+  sectionTitle: text("section_title"),
+  scrollPct: integer("scroll_pct"),
+  activeSec: integer("active_sec").notNull().default(0),
+  meta: jsonb("meta").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+  byOrgTime: index("activity_org_time_idx").on(t.organizationId, t.createdAt),
+  byUserTime: index("activity_org_user_time_idx").on(t.organizationId, t.userId, t.createdAt),
+}));
+
+/* Feedback (1.4.0): valoración de cada respuesta de la IA (pulgar arriba/abajo con motivos) y sugerencias generales
+ * de cualquier rol. Acotado por empresa. kind: rating | general. Un voto por persona y respuesta: target_key único
+ * por (empresa, persona) — msg:<id de agent_message> o ref:<referencia de la página>. El superadmin lo gestiona
+ * (estado, nota de resolución) y la persona ve el aviso cuando se resuelve (user_seen_at). */
+export const feedback = pgTable("feedback", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id").notNull(),
+  userId: text("user_id").notNull(),
+  kind: text("kind").notNull(), // rating | general
+  type: text("type"), // general: sugerencia | error | contenido | otro
+  rating: text("rating"), // rating: up | down
+  reasons: jsonb("reasons").$type<string[]>().notNull().default([]),
+  comment: text("comment"),
+  targetKey: text("target_key"),
+  messageId: text("message_id"),
+  answerText: text("answer_text"),
+  promptText: text("prompt_text"),
+  page: text("page"),
+  course: text("course"),
+  block: text("block"),
+  agent: text("agent"),
+  role: text("role"),
+  userAgent: text("user_agent"),
+  status: text("status").notNull().default("nuevo"), // nuevo | en_revision | resuelto | descartado
+  resolverId: text("resolver_id"),
+  resolverName: text("resolver_name"),
+  resolutionNote: text("resolution_note"),
+  resolvedAt: timestamp("resolved_at"),
+  userSeenAt: timestamp("user_seen_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => ({
+  oneVote: uniqueIndex("feedback_vote_uq").on(t.organizationId, t.userId, t.targetKey),
+  byOrgTime: index("feedback_org_time_idx").on(t.organizationId, t.createdAt),
+}));
+
+// Traducción automática de secciones de curso (1.5.0). Una fila por (curso, sección, idioma, hash del HTML de
+// origen): cada sección se traduce UNA vez para toda la plataforma y se invalida sola si cambia el original.
+export const contentTranslation = pgTable("content_translation", {
+  id: text("id").primaryKey(),
+  course: text("course").notNull(),
+  section: integer("section").notNull(),
+  lang: text("lang").notNull(),
+  srcHash: text("src_hash").notNull(),
+  html: text("html").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({ oneRow: uniqueIndex("content_translation_uq").on(t.course, t.section, t.lang, t.srcHash) }));

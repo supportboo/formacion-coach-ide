@@ -6,7 +6,8 @@ window.SkillUp = (function () {
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
       ...opts,
-      body: opts && opts.body ? JSON.stringify(opts.body) : undefined,
+      // better-auth rejects a JSON POST with no body (e.g. sign-out -> 400 and the session stays alive).
+      body: opts && opts.body ? JSON.stringify(opts.body) : (opts && opts.method && opts.method !== 'GET' ? '{}' : undefined),
     });
     let data = null;
     try { data = await res.json(); } catch { /* respuesta vacía */ }
@@ -19,7 +20,11 @@ window.SkillUp = (function () {
       const r = await fetch('/api/auth/get-session', { credentials: 'same-origin' });
       if (!r.ok) return null;
       const body = await r.json().catch(() => null);
-      return (body && (body.data || body)) || null; // el shape exacto puede venir envuelto en {data:...}
+      const s = (body && (body.data || body)) || null; // el shape exacto puede venir envuelto en {data:...}
+      // Perfiles de prueba: el banner se engancha aqui (no en requireSession) porque no todas las
+      // paginas llaman a requireSession - inicio.html, por ejemplo, usa session() directamente.
+      if (s && s.session && s.session.impersonatedBy) showImpersonationBanner(s);
+      return s;
     } catch { return null; }
   }
 
@@ -27,6 +32,50 @@ window.SkillUp = (function () {
     const s = await session();
     if (!s || !s.user) { window.location.href = redirectTo || '/app/login.html'; return null; }
     return s;
+  }
+
+  // Perfiles de prueba (Consola > Perfiles de prueba): banner fijo mientras el superadmin esta
+  // "dentro" de un usuario de prueba, con salida de un click. Se engancha solo desde requireSession,
+  // asi que aparece en cualquier pagina de la app sin tocarlas una a una.
+  var ROLE_LABEL = { empleado: 'Empleado', coach: 'Coach', team_leader: 'Team Leader', inspirador: 'Inspirador', admin: 'Admin', direccion: 'Dirección' };
+  function showImpersonationBanner(s) {
+    if (document.getElementById('impBanner')) return;
+    var b = document.createElement('div');
+    b.id = 'impBanner';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;display:flex;align-items:center;gap:10px;' +
+      'justify-content:center;padding:8px 14px;background:linear-gradient(120deg,#F0C645,#8a5f7c);color:#1a1820;' +
+      'font:700 13px Inter,system-ui,sans-serif;box-shadow:0 2px 14px rgba(0,0,0,.35)';
+    b.innerHTML = '<span>🧪 Perfil de prueba: ' + escHtml(s.user.name || s.user.email) + '</span>' +
+      '<select id="impSwitch" style="border:0;border-radius:8px;padding:5px 8px;font:inherit;font-weight:700;cursor:pointer;background:rgba(26,24,32,.25);color:#1a1820"><option value="">Cambiar a…</option></select>' +
+      '<button id="impExit" style="border:0;border-radius:8px;padding:5px 12px;font:inherit;font-weight:800;cursor:pointer;background:#1a1820;color:#fff">Salir</button>';
+    document.body.appendChild(b);
+    api('/api/org/me').then(function (me) {
+      var lbl = ROLE_LABEL[me && me.role] || (me && me.role);
+      if (lbl) b.querySelector('span').textContent = '🧪 Perfil de prueba: ' + (s.user.name || s.user.email) + ' · ' + lbl;
+    }).catch(function () {});
+    api('/api/platform/test-profiles').then(function (d) {
+      var sel = document.getElementById('impSwitch');
+      (d && d.profiles || []).forEach(function (p) {
+        if (p.userId === s.user.id) return; // no listarse a si mismo
+        var o = document.createElement('option');
+        o.value = p.userId; o.dataset.org = p.organizationId;
+        o.textContent = ROLE_LABEL[p.orgRole] || p.orgRole;
+        sel.appendChild(o);
+      });
+    }).catch(function () {});
+    document.getElementById('impSwitch').onchange = async function () {
+      var opt = this.selectedOptions[0]; if (!opt || !opt.value) return;
+      this.disabled = true;
+      await fetch('/api/auth/admin/stop-impersonating', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' }).catch(function () {});
+      await fetch('/api/auth/admin/impersonate-user', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ userId: opt.value }) }).catch(function () {});
+      await fetch('/api/auth/organization/set-active', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ organizationId: opt.dataset.org }) }).catch(function () {});
+      window.location.href = '/app/inicio.html';
+    };
+    document.getElementById('impExit').onclick = function () {
+      this.disabled = true; this.textContent = 'Saliendo…';
+      fetch('/api/auth/admin/stop-impersonating', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: '{}' })
+        .finally(function () { window.location.href = '/app/superadmin.html'; });
+    };
   }
 
   function escHtml(x) {

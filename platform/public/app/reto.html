@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Reto</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#1a1820;--panel:#221f2a;--ink:#F2EFF5;--body:#DAD4E2;--muted:#968EA4;
+  --aub:#8a5f7c;--aub2:#C69CB8;--teal:#1a9aa0;--teal2:#3FD8E0;--gold:#F0C645;--green:#54C79A;--red:#E2506A;
+  --line:rgba(180,150,205,.16);--sh:0 24px 70px rgba(0,0,0,.5);--soft:rgba(255,255,255,.05);
+  --ff:"Inter",system-ui,sans-serif;--fh:"Playfair Display",Georgia,serif;--fc:"Caveat",cursive;}
+:root[data-theme="light"]{color-scheme:light;--bg:#F3EFE7;--panel:#FFFFFF;--ink:#211E28;--body:#403A48;--muted:#837B90;
+  --aub:#7A4E6B;--aub2:#8A5578;--teal:#0F7F86;--teal2:#0B6E78;--gold:#9C7A10;--green:#2E9E73;--red:#C23A54;
+  --line:rgba(70,50,90,.16);--soft:rgba(60,42,84,.05);}
+*{box-sizing:border-box}body{margin:0;font-family:var(--ff);color:var(--body);min-height:100dvh;
+  background:radial-gradient(760px 460px at 50% -6%,rgba(113,75,103,.26),transparent 60%),var(--bg)}
+[hidden]{display:none!important}a{color:var(--teal2);text-decoration:none}
+.top{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+.top .b{font-weight:900;color:var(--ink)}.top .b .sk{font-family:var(--fc);color:var(--teal2);font-size:14px;margin-left:4px}
+.top a.back{margin-left:auto;font-size:13px;color:var(--muted)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 60px}
+.head h1{font-family:var(--fh);font-size:24px;color:var(--ink);margin:0 0 6px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.chip{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--soft);color:var(--aub2)}
+.chip.dif{color:var(--gold)}
+.by{color:var(--muted);font-size:13px;margin-bottom:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
+.btn{border:0;border-radius:12px;padding:12px 22px;font-weight:800;font-size:14px;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--teal),var(--aub));font-family:inherit}
+.btn.ghost{background:none;color:var(--teal2);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.log{display:flex;flex-direction:column;gap:9px;max-height:52vh;overflow:auto;margin-bottom:12px}
+.msgb{max-width:86%;padding:10px 14px;border-radius:15px;font-size:14.5px;line-height:1.5;animation:rise .3s both}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
+.msgb.a{align-self:flex-start;background:var(--soft);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msgb.u{align-self:flex-end;background:linear-gradient(120deg,var(--teal),var(--aub));color:#fff;border-bottom-right-radius:4px}
+.inrow{display:flex;gap:8px}
+.inrow input,textarea{flex:1;font:inherit;font-size:14.5px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--soft);color:var(--ink);outline:none;width:100%}
+textarea{min-height:120px;resize:vertical}
+.inrow input:focus,textarea:focus{border-color:var(--teal2)}
+.mic{width:46px;flex:none;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--teal2);cursor:pointer;display:grid;place-items:center}
+.mic.rec{background:#e74c3c;color:#fff;border-color:#e74c3c}
+.enun{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14.5px;line-height:1.55;color:var(--ink);margin-bottom:14px;white-space:pre-wrap}
+.sumbox h3{font-family:var(--fh);color:var(--ink);font-size:17px;margin:0 0 8px}
+.sumbox ul{margin:0 0 12px 18px;padding:0}.sumbox li{margin:4px 0;font-size:14px}
+.k{font-family:var(--fc);color:var(--teal2)}
+.loader{padding:40px;text-align:center;color:var(--muted)}
+.done{color:var(--green);font-weight:700}
+</style>
+<style>.blogo{display:inline-flex;align-items:baseline;font-weight:900;letter-spacing:-.02em;font-size:19px;color:var(--ink);user-select:none}.blogo .beyes{align-self:center;margin:0 1px}.blogo .sk{font-family:var(--fc);font-size:16px;color:var(--teal2);margin-left:6px}</style>
+</head>
+<body>
+<div class="top"><span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>     <linearGradient id="blg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <linearGradient id="blg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <radialGradient id="bli1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>     <radialGradient id="bli2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>     </defs>     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>   </svg>ers<span class="sk">SkillUp</span></span><a class="back" href="/app/inicio.html">← Inicio</a></div>
+<div class="wrap" id="wrap"><div class="loader" id="loader">Cargando tu reto…</div></div>
+<script src="/app/i18n.js"></script>
+<script src="/app/api.js"></script>
+<script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
+<script src="/app/nav.js" defer></script>
+<script src="/app/boo-eyes.js"></script>
+<script src="/app/dictation.js"></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var E=SkillUp.escHtml, wrap=document.getElementById('wrap');
+var id=new URLSearchParams(location.search).get('id')||'';
+var RETO=null, sid=null, topic='';
+
+function render(){
+  var t=RETO;
+  topic=t.tema||t.titulo||'la práctica';
+  var difChip=t.dificultad?'<span class="chip dif">'+E(t.dificultad)+'</span>':'';
+  var hecho=t.estado==='hecho';
+  var TIPO={caso:'Caso práctico',roleplay:'Roleplay',test_bloque:'Test de bloque',examen_final:'Examen final'};
+  var when=t.programadoPara?new Date(t.programadoPara).toLocaleString('es-ES',{dateStyle:'full',timeStyle:'short'}):'';
+  wrap.innerHTML='<div class="head"><div class="meta"><span class="chip">'+E(TIPO[t.tipo]||'Reto')+'</span>'+difChip+(hecho?'<span class="chip" style="color:var(--green)">hecho</span>':'')+(when?'<span class="chip dif">'+E(when)+'</span>':'')+'</div>'
+    +'<h1>'+E(t.titulo||'Reto de práctica')+'</h1></div>'
+    +'<div class="by">Te lo ha puesto '+E(t.by||'tu responsable')+(t.tema?' · sobre '+E(t.tema):'')+'</div>'
+    +(t.mensaje?'<div class="card" style="border-left:3px solid var(--gold)"><span class="k" style="font-size:17px">su mensaje</span><p style="margin:4px 0 0;font-size:14.5px;line-height:1.5">'+E(t.mensaje)+'</p></div>':'')
+    +'<div id="area"></div>';
+  var area=document.getElementById('area');
+  // Programado a futuro: se ve pero no se abre hasta la fecha acordada.
+  if(t.disponibilidad==='programado'&&!hecho){ area.innerHTML='<div class="card"><p style="margin:0;font-size:14.5px">Se abre el <b style="color:var(--ink)">'+E(when)+'</b>. Te avisaremos en tu inicio ese día.</p></div>'; return; }
+  if(t.tipo==='test_bloque'||t.tipo==='examen_final') renderTest(area);
+  else if(t.tipo==='caso') renderCaso(area); else renderRoleplay(area);
+}
+
+/* ---- ROLEPLAY ---- */
+function renderRoleplay(area){
+  area.innerHTML='<div class="card"><p style="margin:0 0 14px;color:var(--muted);font-size:14px">Vas a practicar una conversación con un personaje que hace de <span class="k">la otra parte</span>. Habla con naturalidad; cuando termines, te digo cómo lo has hecho.</p><button class="btn" id="startBtn">Empezar el roleplay</button></div>';
+  document.getElementById('startBtn').onclick=async function(){
+    this.disabled=true; this.textContent='Preparando…';
+    try{ var r=await SkillUp.api('/api/roleplay/start',{method:'POST',body:{topic:topic,brief:RETO.brief}}); sid=r.sessionId; chatUI(area,r.reply); }
+    catch(e){ area.innerHTML='<div class="card"><p class="err" style="color:var(--red)">No pude iniciar: '+E(e.message||'')+'</p></div>'; }
+  };
+}
+function chatUI(area,opening){
+  area.innerHTML='<div class="card"><div class="log" id="log"></div><div class="inrow"><input id="in" placeholder="Tu respuesta…"><button class="mic" id="mic" title="Dictar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></button><button class="btn" id="send" style="flex:none">Enviar</button></div>'
+    +'<div style="margin-top:12px;text-align:center"><button class="btn ghost" id="fin">Terminar y ver cómo lo hice</button></div></div>';
+  var log=document.getElementById('log'),inp=document.getElementById('in');
+  function bub(role,txt){var d=document.createElement('div');d.className='msgb '+role;d.textContent=txt;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+  var op=bub('a',opening||'…'),turn=0;
+  function rate(el,txt,prompt){ if(txt&&window.SUFeedback)SUFeedback.attach(el,{ref:'roleplay:'+sid+':'+(turn++),answer:txt,prompt:prompt,page:'reto',course:topic,agent:'Roleplay'}); }
+  rate(op,opening,'');
+  async function send(){var t=inp.value.trim();if(!t)return;inp.value='';bub('u',t);var th=bub('a','…');
+    try{var r=await SkillUp.api('/api/roleplay/'+sid+'/reply',{method:'POST',body:{message:t,topic:topic}});th.textContent=r.reply||'—';rate(th,r.reply,t);}
+    catch(e){th.textContent='(ahora no puedo seguir, inténtalo en un momento)';}}
+  document.getElementById('send').onclick=send;
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter')send();});
+  // roleplay en conversación: un toque y hablas; tras 5 s de silencio se envía y vuelve a escucharte
+  var dict=SkillUpDictation.attach(document.getElementById('mic'),{conversation:true,get:function(){return inp.value;},set:function(v){inp.value=v;},done:function(){Promise.resolve(send()).then(function(){if(dict)dict.replyDone();});}});
+  document.getElementById('fin').onclick=async function(){ this.disabled=true; this.textContent='Analizando…';
+    try{ var s=await SkillUp.api('/api/roleplay/'+sid+'/close',{method:'POST',body:{topic:topic}}); showSummary(area,s); }
+    catch(e){ this.disabled=false; this.textContent='Terminar y ver cómo lo hice'; }
+  };
+}
+function showSummary(area,s){
+  var f=(s.fortalezas||[]).map(function(x){return '<li>'+E(x)+'</li>';}).join('');
+  var a=(s.areasDeMejora||[]).map(function(x){return '<li>'+E(x)+'</li>';}).join('');
+  area.innerHTML='<div class="card sumbox"><h3>Cómo lo has hecho</h3>'+(s.resumen?'<p style="font-size:14.5px">'+E(s.resumen)+'</p>':'')
+    +(f?'<h3 style="font-size:15px;color:var(--green)">Lo que has hecho bien</h3><ul>'+f+'</ul>':'')
+    +(a?'<h3 style="font-size:15px;color:var(--gold)">Para mejorar</h3><ul>'+a+'</ul>':'')
+    +'<p style="color:var(--muted);font-size:13px">Esto es una ayuda; quien decide si aplica la competencia es una persona.</p>'
+    +'<a class="btn" href="/app/inicio.html" style="display:inline-block;text-decoration:none">Volver al inicio</a></div>';
+  if(s.resumen&&window.SUFeedback) SUFeedback.attach(area.querySelector('.sumbox p'),{ref:'roleplay-sum:'+sid,answer:s.resumen,page:'reto',course:topic,agent:'Valoración de roleplay'});
+  var resumen='Roleplay «'+topic+'». '+(s.resumen||'')+' Fortalezas: '+((s.fortalezas||[]).join('; '))+'. A mejorar: '+((s.areasDeMejora||[]).join('; '))+'.';
+  SkillUp.api('/api/learning/challenges/'+id+'/complete',{method:'POST',body:{resultado:resumen}}).catch(function(){});
+}
+
+/* ---- TEST DE BLOQUE / EXAMEN FINAL (1.2.0) ---- */
+function renderTest(area){
+  var t=RETO, src='/'+String(t.curso||'').replace(/^\//,'').replace(/\.html$/,'')+'.html';
+  var href='/app/evaluacion.html?src='+encodeURIComponent(src)+'&reto='+encodeURIComponent(t.id)+(t.tipo==='examen_final'?'&final=1':'&block='+Number(t.bloque||0));
+  area.innerHTML='<div class="card">'+(t.estado==='hecho'
+    ?'<p class="done">Hecho.</p>'+(t.resultado?'<div class="enun" style="margin-top:10px">'+E(t.resultado)+'</div>':'')
+    :'<p style="margin:0 0 14px;color:var(--muted);font-size:14px">'+(t.tipo==='examen_final'?'Examen final del curso: preguntas nuevas de todo el temario, con tiempo y nota mínima de 80/100. Tu responsable verá el resultado.':'Test personalizado de este bloque: preguntas hechas con lo que has visto y lo que has hablado con tu tutor. Tu responsable verá el resultado.')+'</p><a class="btn" href="'+href+'" style="display:inline-block;text-transform:uppercase;letter-spacing:.06em">'+(t.tipo==='examen_final'?'Empezar el examen':'Empezar el test')+'</a>')+'</div>';
+}
+
+/* ---- CASO ---- */
+function renderCaso(area){
+  var hecho=RETO.estado==='hecho';
+  area.innerHTML='<div class="card"><p style="margin:0 0 10px;color:var(--muted);font-size:13.5px">Enunciado del caso:</p><div class="enun">'+E(RETO.brief||'')+'</div>'
+    +(hecho?'<p class="done">Ya lo entregaste. Tu responsable lo revisará.</p>'+(RETO.resultado?'<div class="enun" style="margin-top:10px">'+E(RETO.resultado)+'</div>':'')
+      :'<label style="display:block;font-size:12px;text-transform:uppercase;letter-spacing:.02em;color:var(--muted);margin-bottom:6px">Tu resolución</label><textarea id="sol" placeholder="Explica cómo lo resolverías, con tu caso real…"></textarea><div style="margin-top:10px"><button class="btn" id="entregar">Entregar</button></div><div id="cmsg" style="margin-top:8px"></div>')
+    +'</div>';
+  if(hecho)return;
+  document.getElementById('entregar').onclick=async function(){
+    var msg=document.getElementById('cmsg'); var sol=document.getElementById('sol').value.trim();
+    if(sol.length<10){ msg.innerHTML='<span style="color:var(--red)">Escribe tu resolución (un poco más).</span>'; return; }
+    this.disabled=true; msg.textContent='Enviando…';
+    try{ await SkillUp.api('/api/learning/challenges/'+id+'/complete',{method:'POST',body:{resultado:sol}});
+      area.querySelector('.card').innerHTML='<p class="done">Entregado. Tu responsable lo revisará.</p><a class="btn" href="/app/inicio.html" style="display:inline-block;text-decoration:none;margin-top:10px">Volver al inicio</a>';
+    }catch(e){ this.disabled=false; msg.innerHTML='<span style="color:var(--red)">'+E(e.message||'No se pudo entregar')+'</span>'; }
+  };
+}
+
+SkillUp.requireSession('/app/login.html').then(function(s){ if(!s)return;
+  SkillUp.api('/api/learning/challenges/mine').then(function(d){
+    var list=(d&&d.retos)||[]; RETO=list.filter(function(r){return r&&r.id===id;})[0];
+    if(!RETO){ wrap.innerHTML='<div class="loader">No encuentro ese reto. <a href="/app/inicio.html">Volver al inicio</a></div>'; return; }
+    render();
+  }).catch(function(){ wrap.innerHTML='<div class="loader">No se pudo cargar. Recarga la página.</div>'; });
+});
+})();
+</script>
+<script src="/app/breadcrumbs.js" defer></script>
+<script src="/app/gestures.js" defer></script>
+</body>
+</html>

@@ -3,7 +3,7 @@ import { companyConfig } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
 
 const DEFAULT_LABELS: Record<string, string> = {
-  "1": "En formación", "2": "Aplica", "3": "Referente", "4": "Custodio",
+  "1": "En formación", "2": "Aplica", "3": "Referente", "4": "Coach",
 };
 
 /** Configura la empresa: nombres de niveles y si el reconocimiento se liga a salario (default no). */

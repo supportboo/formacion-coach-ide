@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SkillUp · Evaluación</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/assess.css">
+</head>
+<body>
+<div class="top"><span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>     <linearGradient id="blg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <linearGradient id="blg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>     <radialGradient id="bli1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>     <radialGradient id="bli2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>     </defs>     <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>     <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#blg2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#bli2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>   </svg>ers<span class="sk">SkillUp</span></span><a class="back" id="back" href="/app/inicio.html">Volver al curso</a></div>
+<main class="wrap" id="wrap"><div class="loader"><div class="spin"></div>Cargando…</div></main>
+<script src="/app/i18n.js"></script>
+<script src="/app/api.js"></script>
+<script src="/app/activity.js"></script>
+<script src="/app/feedback.js" defer></script>
+<script src="/app/nav.js" defer></script>
+<script src="/app/dictation.js"></script>
+<script src="/app/eyes-loader.js"></script>
+<script>
+(function(){
+"use strict";
+try{ if(localStorage.getItem('skillup-theme')==='light') document.documentElement.setAttribute('data-theme','light'); }catch(e){}
+var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+var P=new URLSearchParams(location.search);
+var SLUG=String(P.get('slug')||P.get('src')||'').replace(/^\//,'').replace(/\.html$/,'');
+var FINAL=P.get('final')==='1', BLOCK=FINAL?-1:Number(P.get('block')||0), RETO=P.get('reto')||'', CARD=P.get('card');
+var wrap=document.getElementById('wrap');
+var backHref='/app/curso.html?src='+encodeURIComponent('/'+SLUG+'.html')+(CARD?'&card='+encodeURIComponent(CARD):'');
+document.getElementById('back').href=backHref;
+var OUT=null, ATT=null, answers=[], timer=null;
+
+function loading(msg,sub){ if(window.EyesLoader){ EyesLoader.mount(wrap,msg,sub,{expect:/final/i.test(msg)?60:40}); return; } wrap.innerHTML='<div class="loader"><div class="spin"></div><b style="color:var(--ink)">'+E(msg)+'</b>'+(sub?'<p class="muted" style="margin-top:6px">'+E(sub)+'</p>':'')+'</div>'; }
+function fail(msg){ wrap.innerHTML='<div class="card"><p class="err">'+E(msg)+'</p><div class="row" style="margin-top:12px"><a class="btn ghost" href="'+E(backHref)+'">Volver al curso</a></div></div>'; }
+function toast(t){ document.querySelectorAll('.toast').forEach(function(x){x.remove();}); var d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(function(){d.remove();},3800); }
+function fmtDate(d){ try{ return new Date(d).toLocaleString('es-ES',{dateStyle:'long',timeStyle:'short'}); }catch(e){ return ''; } }
+
+/* ---------- portada ---------- */
+function intro(){
+  var o=OUT;
+  if(FINAL){
+    var f=o.final, body='';
+    if(f.passed && f.certificate){
+      body='<p class="lead">Ya aprobaste este examen. Tu certificado está listo.</p><div class="row"><a class="btn" href="/app/certificado.html?code='+encodeURIComponent(f.certificate.code)+'">Ver tu certificado</a></div>';
+    } else if(!f.unlocked){
+      var miss=f.missing.map(function(i){ var b=o.blocks[i]; return '<div class="item"><div class="tx"><b>Bloque '+(i+1)+' · '+E(b?b.title:'')+'</b><small>Test pendiente</small></div><a class="btn sm" href="/app/evaluacion.html?src='+encodeURIComponent('/'+SLUG+'.html')+'&block='+i+'">Hacer test</a></div>'; }).join('');
+      body='<p class="lead">El examen final se abre cuando hayas hecho el test de cada bloque. Te faltan:</p><div class="list">'+miss+'</div>';
+    } else {
+      body='<div class="list" style="margin-bottom:16px">'
+        +'<div class="item"><div class="tx"><b>Unas 24 preguntas de todo el curso</b><small>Opción múltiple con escenarios, respuestas breves y análisis de casos corregidos con rúbrica.</small></div></div>'
+        +'<div class="item"><div class="tx"><b>'+f.minutes+' minutos</b><small>El reloj empieza cuando tienes las preguntas. Al llegar a cero se entrega solo.</small></div></div>'
+        +'<div class="item"><div class="tx"><b>Nota mínima: '+o.passMarks.final+' %</b><small>Es difícil a propósito: certifica que dominas el curso.</small></div></div>'
+        +'<div class="item"><div class="tx"><b>'+(f.remaining)+' intento'+(f.remaining===1?'':'s')+' disponible'+(f.remaining===1?'':'s')+'</b><small>'+f.cooldownHours+' h de espera entre intentos. Cada intento tiene preguntas nuevas.</small></div></div></div>'
+        +(f.best!=null?'<p class="muted" style="margin-bottom:12px">Tu mejor nota hasta ahora: '+f.best+'/100.</p>':'')
+        +(f.canStart?'<div class="row"><button class="btn gold" id="go">'+(f.open?'Continuar el examen':'Empezar el examen final')+'</button></div>'
+          :'<p class="err">'+E(f.reason||'Ahora no puedes empezar el examen.')+'</p>');
+    }
+    wrap.innerHTML='<span class="chip warn">Examen final</span><h1 class="pt" style="margin-top:10px">'+E(o.course)+'</h1><p class="hand" style="margin:0 0 14px">la prueba que certifica lo que sabes</p><div class="card">'+body+'</div>';
+  } else {
+    var b=o.blocks[BLOCK];
+    if(!b){ fail('Ese bloque no existe en este curso.'); return; }
+    wrap.innerHTML='<span class="chip teal">Test del bloque '+(BLOCK+1)+' de '+o.blocks.length+'</span><h1 class="pt" style="margin-top:10px">'+E(b.title)+'</h1>'
+      +'<p class="hand" style="margin:0 0 14px">'+E(o.course)+'</p>'
+      +'<div class="card"><p class="lead" style="margin-bottom:12px">6 preguntas hechas para ti con lo que has visto en este bloque y lo que has hablado con tu tutor. Cuatro de opción múltiple y dos para responder con tus palabras (una es un caso).</p>'
+      +'<div class="row" style="margin-bottom:14px"><span class="chip">Para superarlo: '+o.passMarks.block+' %</span>'+(b.attempts?'<span class="chip '+(b.passed?'ok':'warn')+'">Tu mejor nota: '+b.best+'/100</span>':'')+'<span class="chip">Puedes repetirlo con preguntas nuevas</span></div>'
+      +'<button class="btn" id="go">'+(b.attempts?'Repetir con preguntas nuevas':'Empezar el test')+'</button></div>';
+  }
+  var go=document.getElementById('go'); if(go) go.onclick=start;
+}
+
+/* ---------- examen ---------- */
+function start(){
+  loading(FINAL?'Preparando tu examen final…':'Preparando tus preguntas…', FINAL?'Puede tardar hasta un minuto: se generan preguntas nuevas solo para ti.':'Unos segundos: se generan con lo que has visto y lo que has contado.');
+  var url=FINAL?'/api/learning/assess/final':'/api/learning/assess/quiz';
+  var body=FINAL?{slug:SLUG}:{slug:SLUG,block:BLOCK}; if(RETO) body.assignmentId=RETO;
+  SkillUp.api(url,{method:'POST',body:body}).then(function(r){ ATT=r; restore(); render(); }).catch(function(e){ fail(e.message||'No se pudo preparar la evaluación.'); });
+}
+function key(){ return 'skillup-assess:'+ATT.attemptId; }
+function restore(){ answers=ATT.items.map(function(){return null;}); try{ var s=JSON.parse(localStorage.getItem(key())||'null'); if(Array.isArray(s)&&s.length===answers.length) answers=s; }catch(e){} }
+function persist(){ try{ localStorage.setItem(key(),JSON.stringify(answers)); }catch(e){} updateBar(); }
+function answered(){ return answers.filter(function(a){ return a!==null && a!==''; }).length; }
+function updateBar(){ var s=document.getElementById('progFill'); if(s) s.style.width=(answered()/ATT.items.length*100)+'%'; var c=document.getElementById('progTxt'); if(c) c.textContent=answered()+' / '+ATT.items.length; }
+function label(it){ return it.type==='mc'?'Opción múltiple':(it.format==='caso'?'Caso':'Respuesta breve'); }
+function render(){
+  var head=FINAL?'Examen final · '+ATT.course:'Test del bloque '+(ATT.block.i+1)+' · '+ATT.block.title;
+  var html='<div class="xbar" role="region" aria-label="Progreso"><span id="progTxt" class="muted" style="font-weight:800">0 / '+ATT.items.length+'</span><div class="prog"><span id="progFill"></span></div>'+(FINAL?'<span class="clock" id="clock" aria-live="off">--:--</span>':'')+'</div>'
+    +'<h1 class="pt" style="font-size:22px">'+E(head)+'</h1>'+(ATT.resumed?'<p class="muted" style="margin:0 0 12px">Continúas donde lo dejaste. El reloj no se ha parado.</p>':'<p class="muted" style="margin:0 0 12px">Responde con calma. Las abiertas se corrigen con una rúbrica: concreta y aplica lo del curso.</p>');
+  ATT.items.forEach(function(it,i){
+    html+='<section class="q" data-i="'+i+'"><div class="qn">Pregunta '+(i+1)+' · '+label(it)+'<span class="pts">'+it.points+' pt'+(it.points>1?'s':'')+'</span></div><p class="qt">'+E(it.q)+'</p>';
+    if(it.type==='mc'){
+      html+='<div role="radiogroup" aria-label="Opciones de la pregunta '+(i+1)+'">'+it.options.map(function(o,oi){ return '<label class="opt'+(answers[i]===oi?' sel':'')+'"><input type="radio" name="q'+i+'" value="'+oi+'"'+(answers[i]===oi?' checked':'')+'><span>'+E(o)+'</span></label>'; }).join('')+'</div>';
+    } else {
+      html+='<div class="inrow"><textarea class="in" data-t="'+i+'" rows="'+(it.format==='caso'?6:4)+'" placeholder="'+(it.format==='caso'?'Qué está pasando, qué harías y por qué…':'Escribe o dicta tu respuesta…')+'" aria-label="Respuesta a la pregunta '+(i+1)+'">'+E(answers[i]||'')+'</textarea><button class="mic" type="button" data-m="'+i+'" aria-label="Dictar respuesta"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></button></div>';
+    }
+    html+='</section>';
+  });
+  html+='<div class="card"><div class="row"><button class="btn'+(FINAL?' gold':'')+'" id="send">Entregar</button><span class="muted" id="sendMsg"></span></div></div>';
+  wrap.innerHTML=html;
+  wrap.querySelectorAll('input[type=radio]').forEach(function(r){ r.onchange=function(){ var i=+r.name.slice(1); answers[i]=+r.value; r.closest('[role=radiogroup]').querySelectorAll('.opt').forEach(function(l){ l.classList.toggle('sel',l.contains(r)); }); persist(); }; });
+  wrap.querySelectorAll('textarea[data-t]').forEach(function(t){ t.oninput=function(){ answers[+t.dataset.t]=t.value; persist(); }; });
+  if(window.SkillUpDictation) wrap.querySelectorAll('[data-m]').forEach(function(m){ var t=wrap.querySelector('textarea[data-t="'+m.dataset.m+'"]'); SkillUpDictation.attach(m,{append:true,get:function(){return t.value;},set:function(v){t.value=v;answers[+m.dataset.m]=v;persist();}}); });
+  document.getElementById('send').onclick=function(){ submit(false); };
+  updateBar();
+  if(FINAL && ATT.deadlineAt) tick();
+}
+function tick(){
+  var end=new Date(ATT.deadlineAt).getTime(), c=document.getElementById('clock');
+  clearInterval(timer);
+  function step(){ var ms=end-Date.now(); if(ms<=0){ clearInterval(timer); if(c) c.textContent='00:00'; submit(true); return; }
+    var m=Math.floor(ms/60000), s=Math.floor(ms%60000/1000); if(c){ c.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s; c.classList.toggle('low',ms<5*60000); } }
+  timer=setInterval(step,1000); step();
+}
+function submit(auto){
+  var left=ATT.items.length-answered();
+  if(!auto && left>0 && !confirm('Te quedan '+left+' pregunta'+(left>1?'s':'')+' sin responder. ¿Entregar igualmente?')) return;
+  clearInterval(timer);
+  loading(auto?'Se acabó el tiempo. Corrigiendo…':'Corrigiendo…','Las respuestas abiertas se corrigen con su rúbrica.');
+  SkillUp.api('/api/learning/assess/'+encodeURIComponent(ATT.attemptId)+'/submit',{method:'POST',body:{answers:answers}}).then(function(r){
+    try{ localStorage.removeItem(key()); }catch(e){}
+    result(r);
+  }).catch(function(e){
+    wrap.innerHTML='<div class="card"><p class="err">'+E(e.message||'No se pudo corregir.')+'</p><p class="muted" style="margin:8px 0 12px">Tus respuestas están guardadas. Vuelve a intentarlo.</p><button class="btn" id="retry">Volver a entregar</button></div>';
+    document.getElementById('retry').onclick=function(){ submit(true); };
+  });
+}
+
+/* ---------- resultado ---------- */
+function result(r){
+  var ok=r.passed, col=ok?'#54C79A':(r.score>=r.passMark-15?'#F0C645':'#E2506A');
+  var title=FINAL?(ok?'¡Aprobado! Estás certificado':'Esta vez no ha llegado'):(ok?'Bloque superado':'Aún no, pero ya sabes qué repasar');
+  var sub=FINAL?(ok?'Has superado el examen final con '+r.score+'/100 (mínimo '+r.passMark+').':'Necesitas '+r.passMark+'/100 y has sacado '+r.score+'. Repasa lo que ha fallado abajo.')
+    :(ok?'Buen trabajo: '+r.score+'/100.':'Has sacado '+r.score+'/100 (se supera con '+r.passMark+'). Repasa y repítelo cuando quieras con preguntas nuevas.');
+  var cta='';
+  if(FINAL&&ok&&r.certificate) cta='<a class="btn gold" href="/app/certificado.html?code='+encodeURIComponent(r.certificate.code)+'">Ver tu certificado</a>';
+  else if(FINAL) cta='<a class="btn" href="'+E(backHref)+'">Repasar el curso</a>';
+  else cta='<a class="btn" href="'+E(backHref)+'">Seguir con el curso</a><button class="btn ghost" id="again">Repetir con preguntas nuevas</button>';
+  var html='<div class="card"><div class="score"><div class="ring" style="--p:'+r.score+';--c:'+col+'"><b>'+r.score+'</b></div><div class="txt"><h2 style="font-family:var(--fh);color:var(--ink)">'+E(title)+'</h2><p class="muted" style="margin:0">'+E(sub)+'</p>'
+    +(r.points?'<p class="hand" style="margin:6px 0 0">+'+r.points+' puntos para el ranking</p>':'')+'</div></div><div class="row" style="margin-top:16px">'+cta+'</div></div>'
+    +'<h2 style="font-family:var(--fh);color:var(--ink);font-size:19px;margin:18px 0 10px">Revisión pregunta a pregunta</h2>';
+  (r.items||[]).forEach(function(it,i){
+    html+='<section class="q"><div class="qn">Pregunta '+(i+1)+'<span class="pts" style="color:'+(it.earned===it.max?'var(--green)':(it.earned?'var(--gold)':'var(--red)'))+'">'+it.earned+' / '+it.max+'</span></div><p class="qt">'+E(it.q)+'</p>';
+    if(it.type==='mc'){
+      html+=it.options.map(function(o,oi){ var cls=oi===it.correct?' right':(oi===it.answer?' wrong':''); return '<div class="opt'+cls+'"><span>'+(oi===it.correct?'Correcta · ':(oi===it.answer?'Tu respuesta · ':''))+E(o)+'</span></div>'; }).join('');
+      if(it.feedback) html+='<div class="fb" data-ai="'+i+'">'+E(it.feedback)+'</div>';
+    } else {
+      html+='<div class="fb"><b>Tu respuesta:</b> '+E(it.answer||'(sin responder)')+'</div>'+(it.feedback?'<div class="fb" data-ai="'+i+'"><b>Corrección:</b> '+E(it.feedback)+'</div>':'')+(it.ideal?'<div class="fb" style="border-left-color:var(--teal2)"><b>Respuesta modelo:</b> '+E(it.ideal)+'</div>':'');
+    }
+    html+='</section>';
+  });
+  wrap.innerHTML=html; window.scrollTo(0,0);
+  // Valorar las explicaciones y correcciones que escribe la IA (feedback.js).
+  if(window.SUFeedback) wrap.querySelectorAll('[data-ai]').forEach(function(el){ var it=r.items[+el.getAttribute('data-ai')]; SUFeedback.attach(el,{ref:'assess:'+ATT.attemptId+':'+el.getAttribute('data-ai'),answer:it.feedback,prompt:it.q,page:'evaluacion',course:SLUG,block:FINAL?'Examen final':(ATT.block&&ATT.block.title)||'',agent:'Corrección'}); });
+  if(r.points) toast('+'+r.points+' puntos');
+  var again=document.getElementById('again'); if(again) again.onclick=start;
+}
+
+SkillUp.requireSession('/app/login.html').then(function(s){ if(!s) return;
+  if(!SLUG){ fail('Falta el curso.'); return; }
+  SkillUp.api('/api/learning/assess/outline?slug='+encodeURIComponent(SLUG)).then(function(o){ OUT=o; intro(); }).catch(function(e){ fail(e.message||'No se pudo cargar.'); });
+});
+})();
+</script>
+<script src="/app/breadcrumbs.js" defer></script>
+</body>
+</html>

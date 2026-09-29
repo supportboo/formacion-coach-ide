@@ -4,22 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SkillUp · Acceso</title>
+<meta name="description" content="Accede a SkillUp, la plataforma de formación de Brandooers: tu ruta de aprendizaje, tu tutor y tus retos.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="/app/theme.css">
 <style>
 body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--dark);
-  background-image:radial-gradient(circle at 15% 15%,rgba(0,212,255,.10),transparent 42%),radial-gradient(circle at 85% 85%,rgba(236,72,153,.10),transparent 42%)}
+  background-image:radial-gradient(circle at 15% 15%,rgba(63,216,224,.10),transparent 42%),radial-gradient(circle at 85% 85%,rgba(138,95,124,.10),transparent 42%)}
 .card{width:100%;max-width:400px;padding:36px;background:var(--dark2);border:1px solid rgba(255,255,255,.08);color:var(--ink);box-shadow:0 30px 70px rgba(0,0,0,.4)}
 .logohead{display:flex;justify-content:center;margin-bottom:26px}
 .blogo{color:#fff;font-size:24px}
-.kx{font-family:'Caveat',cursive;font-size:16px;color:#67E8F9;text-align:center;margin:-18px 0 24px}
+.kx{font-family:'Caveat',cursive;font-size:16px;color:#3FD8E0;text-align:center;margin:-18px 0 24px}
 h1{font-size:20px;text-align:center;margin-bottom:20px;color:#fff}
 label{color:var(--ink-mut)}
 input{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#fff}
 input::placeholder{color:#6b6480}
 .swap{text-align:center;margin-top:16px;font-size:13px;color:var(--ink-mut)}
-.swap a{color:#67E8F9;font-weight:700;text-decoration:none;cursor:pointer}
+.swap a{color:#3FD8E0;font-weight:700;text-decoration:none;cursor:pointer}
 .err{color:#fda4af;font-size:13px;margin-top:8px;min-height:16px}
 </style>
 </head>
@@ -27,10 +29,10 @@ input::placeholder{color:#6b6480}
 <div class="card">
   <div class="logohead">
     <span class="blogo">Brand<svg class="beyes" width="42" height="24" viewBox="0 0 100 58"><defs>
-      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-      <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-      <radialGradient id="i1"><stop offset="0%" stop-color="#A78BFA"/><stop offset="100%" stop-color="#5B21B6"/></radialGradient>
-      <radialGradient id="i2"><stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/></radialGradient>
+      <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+      <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+      <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+      <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
       </defs>
       <g class="socketL" transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle class="irisL" cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle class="pupilL" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
       <g class="socketR" transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle class="irisR" cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle class="pupilR" cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
@@ -38,14 +40,28 @@ input::placeholder{color:#6b6480}
   </div>
   <div class="kx">SkillUp</div>
   <h1 id="title">Entra a tu equipo</h1>
+  <div id="ssoBox" hidden>
+    <button class="btn btn-block" id="google" type="button" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;font-weight:700">
+      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
+      Entrar con Google
+    </button>
+    <p class="swap" style="margin:8px 0 14px">Con la cuenta de Google de tu empresa: sin otra contraseña que recordar.</p>
+    <div class="swap" style="margin:0 0 10px">o con tu email</div>
+  </div>
+  <form id="orgForm" hidden>
+    <label for="orgName2">Nombre de tu empresa</label><input id="orgName2" autocomplete="organization" required>
+    <button class="btn btn-grad btn-block" type="submit">Crear mi empresa y entrar</button>
+    <p class="swap" style="margin-top:10px">Si te han invitado a una empresa, abre el enlace de la invitación en lugar de crear una nueva.</p>
+    <div class="err" id="err2"></div>
+  </form>
   <form id="f">
     <div id="nameRow" style="display:none">
-      <label>Tu nombre</label><input id="name" autocomplete="name">
+      <label for="name">Tu nombre</label><input id="name" autocomplete="name">
     </div>
-    <label>Email</label><input id="email" type="email" required autocomplete="email">
-    <label>Contraseña</label><input id="password" type="password" required autocomplete="current-password" minlength="8">
+    <label for="email">Email</label><input id="email" type="email" required autocomplete="email">
+    <label for="password">Contraseña</label><input id="password" type="password" required autocomplete="current-password" minlength="8">
     <div id="orgRow" style="display:none">
-      <label>Nombre de tu empresa (si es la primera vez)</label><input id="orgName" autocomplete="organization">
+      <label for="orgName">Nombre de tu empresa (si es la primera vez)</label><input id="orgName" autocomplete="organization">
     </div>
     <button class="btn btn-grad btn-block" id="submit" type="submit">Entrar</button>
     <div class="err" id="err"></div>
@@ -53,10 +69,22 @@ input::placeholder{color:#6b6480}
   <div class="swap">
     <span id="swapText">¿Primera vez de tu empresa?</span> <a id="swapLink">Crear cuenta y empresa</a>
   </div>
+  <div class="swap" id="forgotRow" style="margin-top:10px"><a id="forgot">He olvidado mi contraseña</a></div>
 </div>
+<script src="/app/i18n.js"></script>
 <script src="/app/api.js"></script>
 <script>
 var mode = 'login';
+// better-auth answers in English; show the person a Spanish message.
+function authErrorEs(msg) {
+  msg = msg || '';
+  if (/invalid email or password|invalid password|user not found/i.test(msg)) return 'Email o contraseña incorrectos.';
+  if (/already exists/i.test(msg)) return 'Ya hay una cuenta con ese email. Entra con tu contraseña o usa «He olvidado mi contraseña».';
+  if (/too short|at least/i.test(msg)) return 'La contraseña debe tener al menos 8 caracteres.';
+  if (/invalid email/i.test(msg)) return 'El email no es válido.';
+  if (/too many|429/i.test(msg)) return 'Demasiados intentos. Espera un minuto y vuelve a probar.';
+  return msg || 'Ha ido mal, revisa los datos.';
+}
 function setMode(m) {
   mode = m;
   document.getElementById('title').textContent = m === 'login' ? 'Entra a tu equipo' : 'Crea tu cuenta y tu empresa';
@@ -68,6 +96,66 @@ function setMode(m) {
   document.getElementById('err').textContent = '';
 }
 document.getElementById('swapLink').addEventListener('click', function () { setMode(mode === 'login' ? 'signup' : 'login'); });
+
+// 1.23.0: «Entrar con Google» (sin contraseñas adicionales). Google devuelve aquí con ?sso=1.
+SkillUp.api('/api/config/sso').then(function (d) { if (d && d.google) document.getElementById('ssoBox').hidden = false; }).catch(function () {});
+document.getElementById('google').addEventListener('click', async function () {
+  var b = this; b.disabled = true;
+  try {
+    var r = await SkillUp.api('/api/auth/sign-in/social', { method: 'POST', body: { provider: 'google', callbackURL: location.origin + '/app/login.html?sso=1', errorCallbackURL: location.origin + '/app/login.html?sso=err' } });
+    if (r && r.url) window.location.href = r.url; else throw new Error('sin enlace');
+  } catch (ex) { document.getElementById('err').textContent = 'No se ha podido abrir Google. Inténtalo de nuevo.'; b.disabled = false; }
+});
+(async function afterGoogle() {
+  var q = new URLSearchParams(location.search);
+  if (q.get('sso') === 'err') { document.getElementById('err').textContent = 'No se ha completado la entrada con Google. Inténtalo de nuevo.'; return; }
+  if (q.get('sso') !== '1') return;
+  var mine = await SkillUp.api('/api/auth/organization/list').catch(function () { return null; });
+  if (!mine) return; // sin sesión: se queda en la pantalla de entrada
+  if (mine.length) {
+    await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: mine[0].id } });
+    window.location.href = '/app/inicio.html'; return;
+  }
+  // Primera vez y sin invitación: solo falta el nombre de su empresa.
+  document.getElementById('title').textContent = 'Un último paso';
+  ['f', 'ssoBox'].forEach(function (id) { document.getElementById(id).hidden = true; });
+  document.getElementById('f').style.display = 'none';
+  document.querySelectorAll('.swap').forEach(function (el) { if (!el.closest('#orgForm')) el.style.display = 'none'; });
+  document.getElementById('orgForm').hidden = false;
+  document.getElementById('orgName2').focus();
+})();
+document.getElementById('orgForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var n = document.getElementById('orgName2').value.trim(), er = document.getElementById('err2');
+  if (!n) return;
+  try {
+    var org = await SkillUp.api('/api/auth/organization/create', { method: 'POST', body: { name: n, slug: n.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now().toString(36).slice(-4) } });
+    await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: org.id } });
+    await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
+    window.location.href = '/app/inicio.html';
+  } catch (ex) { er.textContent = authErrorEs(ex.message); }
+});
+
+// Recuperar contraseña: envia un enlace al email (mensaje neutro, no revela si la cuenta existe).
+var forgot = document.getElementById('forgot');
+forgot.setAttribute('href', '#'); forgot.setAttribute('role', 'button');
+forgot.addEventListener('click', async function (e) {
+  e.preventDefault();
+  if (forgot.dataset.busy) return;
+  var err = document.getElementById('err');
+  var email = (document.getElementById('email').value || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    err.style.color = '#fda4af'; err.textContent = 'Escribe arriba el email con el que entras y vuelve a pulsar.';
+    document.getElementById('email').focus(); return;
+  }
+  forgot.dataset.busy = '1'; forgot.textContent = 'Enviando…';
+  try { await SkillUp.api('/api/auth/request-password-reset', { method: 'POST', body: { email: email, redirectTo: location.origin + '/app/reset.html' } }); }
+  catch (ex) { /* mensaje neutro igualmente: no revela si la cuenta existe */ }
+  err.style.color = '#3FD8E0';
+  err.textContent = 'Si ' + email + ' tiene cuenta, te llegará un correo con un enlace para cambiar la contraseña (caduca en 1 hora). Mira también en spam.';
+  forgot.textContent = 'Reenviar enlace';
+  setTimeout(function () { delete forgot.dataset.busy; }, 30000);
+});
 
 document.getElementById('f').addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -85,11 +173,17 @@ document.getElementById('f').addEventListener('submit', async function (e) {
       } catch (signupEx) {
         // La cuenta ya existe (p.ej. un intento previo se quedo a medias antes de crear la empresa) -> intenta entrar con los mismos datos en vez de bloquear.
         if (!/already exists/i.test(signupEx.message || '')) throw signupEx;
-        await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } });
+        await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } }).catch(function () { throw signupEx; });
       }
-      var org = await SkillUp.api('/api/auth/organization/create', { method: 'POST', body: { name: orgName, slug: orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now().toString(36).slice(-4) } });
-      await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: org.id } });
-      await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
+      // An existing account that already has a company just enters it (never a second company per repeated sign-up).
+      var existing = await SkillUp.api('/api/auth/organization/list').catch(function () { return []; });
+      if (existing.length) {
+        await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: existing[0].id } });
+      } else {
+        var org = await SkillUp.api('/api/auth/organization/create', { method: 'POST', body: { name: orgName, slug: orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now().toString(36).slice(-4) } });
+        await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: org.id } });
+        await SkillUp.api('/api/org/bootstrap-admin', { method: 'POST' });
+      }
     } else {
       await SkillUp.api('/api/auth/sign-in/email', { method: 'POST', body: { email: email, password: password } });
       // El login (a diferencia del registro) no deja la organizacion activa en la sesion nueva ->
@@ -97,9 +191,11 @@ document.getElementById('f').addEventListener('submit', async function (e) {
       var mine = await SkillUp.api('/api/auth/organization/list').catch(function () { return []; });
       if (mine.length) await SkillUp.api('/api/auth/organization/set-active', { method: 'POST', body: { organizationId: mine[0].id } });
     }
-    window.location.href = '/hub.html';
+    var me = await SkillUp.api('/api/org/me').catch(function () { return { role: 'empleado', platformAdmin: false }; });
+    var esGestor = me.platformAdmin || ['admin', 'direccion', 'team_leader', 'inspirador'].indexOf(me.role) !== -1;
+    window.location.href = '/app/inicio.html';
   } catch (ex) {
-    err.textContent = ex.message || 'Ha ido mal, revisa los datos';
+    err.textContent = authErrorEs(ex.message);
     btn.disabled = false;
   }
 });

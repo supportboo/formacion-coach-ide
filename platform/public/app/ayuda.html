@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp · Guía de uso</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app/theme.css">
+<style>
+.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px;margin-bottom:16px;box-shadow:var(--sh)}
+.hero h1{color:#fff;margin:0 0 6px;font-size:clamp(24px,6vw,34px);letter-spacing:-.02em}
+.hero p{margin:0;opacity:.96;font-size:15px;max-width:60ch;line-height:1.5}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.tab{border:1px solid var(--line);background:var(--panel);color:var(--body);border-radius:999px;padding:9px 16px;font-weight:700;font-size:14px;cursor:pointer}
+.tab.on{background:var(--grad);color:#fff;border-color:transparent}
+.prof{display:none}
+.prof.on{display:block}
+.pintro{background:var(--warm);border-radius:14px;padding:16px 18px;margin-bottom:20px}
+.pintro h2{margin:0 0 4px;color:var(--ink);font-size:20px}
+.pintro p{margin:0;color:var(--body);font-size:14.5px;line-height:1.55}
+.step{margin:0 0 34px}
+.step .n{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;font-size:15px;margin-right:10px;vertical-align:middle}
+.step h3{display:inline;color:var(--ink);font-size:18px;letter-spacing:-.01em}
+.step .desc{color:var(--body);font-size:14.5px;line-height:1.55;margin:8px 0 12px}
+.fig{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.12);line-height:0}
+.fig img{width:100%;display:block}
+.anno-svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.anno-svg .ln{fill:none;stroke:#ff5da2;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anno-svg .sh{fill:none;stroke:rgba(10,8,14,.75);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.anno-svg .ring{fill:rgba(255,93,162,.16);stroke:#ff5da2;stroke-width:2.5}
+.alabel{position:absolute;left:0;top:0;pointer-events:none;font-family:'Caveat',cursive;font-weight:700;font-size:22px;line-height:1.02;color:#ff5da2;background:rgba(16,12,22,.86);border:1px solid rgba(255,93,162,.35);border-radius:10px;padding:3px 9px 4px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.fig.narrow .alabel{font-size:17px;padding:2px 7px 3px}
+.figcap{font-size:12.5px;color:var(--mut);margin-top:7px;text-align:center}
+.mob{max-width:300px;margin:0 auto}
+@media(max-width:640px){.hero{padding:22px 18px;border-radius:16px}.tab{min-height:44px;padding:10px 16px}.step h3{font-size:17px}.step .n{width:28px;height:28px;font-size:14px}}
+
+/* ---- pestaña Mapa ---- */
+.map-track{display:flex; flex-direction:column; gap:6px; margin-bottom:28px}
+.map-row{display:flex; align-items:stretch; gap:10px; overflow-x:auto; padding-bottom:6px}
+.map-row .arrow{display:flex; align-items:center; color:var(--muted); font-size:20px; flex:none}
+.map-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; min-width:168px; flex:none; display:flex; flex-direction:column; gap:6px}
+.map-card.trunk{border-color:var(--grad, var(--line)); background:var(--soft)}
+.map-card .lvl{font-family:'Caveat',cursive; font-size:19px; color:#ff5da2; line-height:1}
+.map-card h4{margin:0; font-size:14.5px; color:var(--ink); font-weight:800}
+.map-card p{margin:0; font-size:12.5px; color:var(--muted); line-height:1.4}
+.map-card a.go{font-size:12px; font-weight:700; color:var(--teal2); margin-top:2px}
+.map-lane-label{font-size:11.5px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:18px 2px 8px}
+.map-cross{font-family:'Caveat',cursive; font-size:17px; color:#ff5da2; text-align:center; margin:4px 0 10px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="blogo">Brand<svg class="beyes" width="34" height="20" viewBox="0 0 100 58"><defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="50%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8a5f7c"/><stop offset="100%" stop-color="#C69CB8"/></linearGradient>
+    <radialGradient id="i1"><stop offset="0%" stop-color="#C69CB8"/><stop offset="100%" stop-color="#8a5f7c"/></radialGradient>
+    <radialGradient id="i2"><stop offset="0%" stop-color="#3FD8E0"/><stop offset="100%" stop-color="#1a9aa0"/></radialGradient>
+    </defs>
+    <g transform="translate(5,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g1)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i1)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+    <g transform="translate(53,0)"><ellipse cx="20" cy="36" rx="18" ry="18" fill="none" stroke="url(#g2)" stroke-width="3"/><circle cx="20" cy="36" r="7.5" fill="url(#i2)"/><circle cx="20" cy="36" r="3.5" fill="#0a0a0f"/></g>
+  </svg>ers<span class="sk">Guía de uso</span></span>
+  <nav><a href="/app/dashboard.html">← Mi panel</a></nav>
+</div>
+<div class="wrap">
+  <div class="hero">
+    <h1>Tu guía de SkillUp</h1>
+    <p>En dos minutos por perfil: qué haces aquí, dónde tocar y cómo sacarle partido. Elige tu perfil y sigue los pasos. Las flechas te marcan dónde poner el foco.</p>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div id="profiles"></div>
+</div>
+
+<script src="/app/i18n.js"></script>
+<script src="/app/api.js"></script>
+<script>
+function E(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+// Anotaciones ancladas a la captura: tx,ty = punto EXACTO que se explica (% de la imagen);
+// lx,ly = centro preferido del texto (% de la imagen) y w = ancho máximo del texto (% de la figura).
+// La flecha se calcula en cada cambio de tamaño desde el borde del texto hasta el punto, así que
+// siempre señala lo mismo a cualquier ancho. En pantallas estrechas el texto se recoloca junto al
+// punto (encima o debajo) con una flecha corta.
+function fig(img,mob,annos){
+  var i=FIGS.length; FIGS.push(annos||[]);
+  return '<div class="fig'+(mob?' mob':'')+'" data-fig="'+i+'"><img src="/app/help-shots/'+img+'" loading="lazy" alt="">'
+    +(annos&&annos.length?'<svg class="anno-svg" aria-hidden="true"></svg>'+annos.map(function(a){return '<div class="alabel">'+E(a.t)+'</div>';}).join(''):'')+'</div>';
+}
+var FIGS=[];
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function hit(a,b){return a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;}
+function layoutFig(el){
+  var annos=FIGS[+el.getAttribute('data-fig')], img=el.querySelector('img'), svg=el.querySelector('.anno-svg');
+  if(!annos||!annos.length||!svg) return;
+  var W=el.clientWidth, H=img.clientHeight; if(!W||!H) return;
+  var narrow=W<560; el.classList.toggle('narrow',narrow);
+  svg.setAttribute('width',W); svg.setAttribute('height',H);
+  var R=narrow?9:12, HEAD=narrow?9:12, placed=[], out='';
+  el.querySelectorAll('.alabel').forEach(function(lb,k){
+    var a=annos[k], tx=a.tx*W/100, ty=a.ty*H/100;
+    lb.style.maxWidth=(narrow?Math.min(W*.6,200):W*(a.w||22)/100)+'px';
+    var lw=lb.offsetWidth, lh=lb.offsetHeight, box;
+    function at(cx,cy){return {x:clamp(cx-lw/2,4,W-lw-4),y:clamp(cy-lh/2,4,H-lh-4),w:lw,h:lh};}
+    if(!narrow){ box=at(a.lx*W/100,a.ly*H/100); }
+    else{
+      var gap=R+26, cx=tx+(tx<W/2?1:-1)*Math.min(46,W*.12);
+      var up=at(cx,ty-gap-lh/2), dn=at(cx,ty+gap+lh/2);
+      var fitsUp=ty-gap-lh>=4, fitsDn=ty+gap+lh<=H-4;
+      box=(a.ty>=50?(fitsUp?up:dn):(fitsDn?dn:up));
+      if(placed.some(function(p){return hit(p,box);})) box=(box===up?dn:up);
+    }
+    placed.push(box);
+    lb.style.transform='translate('+Math.round(box.x)+'px,'+Math.round(box.y)+'px)';
+    // Flecha: del borde del texto al anillo que rodea el punto.
+    var cx0=box.x+lw/2, cy0=box.y+lh/2, dx=tx-cx0, dy=ty-cy0, d=Math.hypot(dx,dy)||1, ux=dx/d, uy=dy/d;
+    var t=Math.min(dx?(lw/2+5)/Math.abs(dx):1e9, dy?(lh/2+5)/Math.abs(dy):1e9);
+    var sx=cx0+dx*t, sy=cy0+dy*t, ex=tx-ux*(R+3), ey=ty-uy*(R+3), L=Math.hypot(ex-sx,ey-sy);
+    out+='<circle class="ring" cx="'+tx.toFixed(1)+'" cy="'+ty.toFixed(1)+'" r="'+R+'"/>';
+    if(L>10){
+      var bend=(dx>=0?1:-1)*.18*L, qx=(sx+ex)/2-uy*bend, qy=(sy+ey)/2+ux*bend;
+      var ang=Math.atan2(ey-qy,ex-qx), s1=ang+Math.PI-.5, s2=ang+Math.PI+.5;
+      var path='M'+sx.toFixed(1)+' '+sy.toFixed(1)+' Q'+qx.toFixed(1)+' '+qy.toFixed(1)+' '+ex.toFixed(1)+' '+ey.toFixed(1)
+        +' M'+(ex+Math.cos(s1)*HEAD).toFixed(1)+' '+(ey+Math.sin(s1)*HEAD).toFixed(1)+' L'+ex.toFixed(1)+' '+ey.toFixed(1)
+        +' L'+(ex+Math.cos(s2)*HEAD).toFixed(1)+' '+(ey+Math.sin(s2)*HEAD).toFixed(1);
+      out+='<path class="sh" d="'+path+'"/><path class="ln" d="'+path+'"/>';
+    }
+  });
+  svg.innerHTML=out;
+}
+function layoutAll(){ document.querySelectorAll('.fig[data-fig]').forEach(layoutFig); }
+
+var GUIDE = {
+  mapa: { name:'Mapa', special:'map', intro:'Todo el mundo entra por el mismo sitio. Lo que ves cada día cambia según tu nivel y tu rol — este es el mapa completo, de un vistazo.' },
+  empleado: { name:'Empleado', intro:'Aquí aprendes con casos de TU puesto, demuestras que sabes aplicarlo y creces. No es memorizar: es aplicar en tu día a día y que se note.',
+    steps:[
+      {h:'Tu panel', d:'Nada más entrar ves lo importante: qué te toca aplicar esta semana, tus rutas y su estado, y el generador de test y caso práctico.',
+       img:'empleado-dashboard.jpg', annos:[
+         {t:'lo que aplicas esta semana', tx:25.6, ty:13.3, lx:11.5, ly:31, w:21},
+         {t:'genera tu test aquí', tx:29.5, ty:83.2, lx:11.5, ly:66, w:21},
+         {t:'tu coach de voz, siempre', tx:96.2, ty:94, lx:88.5, ly:70, w:21} ]},
+      {h:'Tu ruta', d:'Tu itinerario paso a paso, adaptado a tu sector y puesto. Cada módulo termina con un compromiso de aplicarlo esa semana.', img:'empleado-ruta.jpg'},
+      {h:'Explora y aprende', d:'Contenido y vídeos recomendados para lo que haces. Si algo ya lo dominas, te lo saltas.', img:'empleado-explorar.jpg'},
+      {h:'Tu ranking', d:'Tus puntos de la temporada y tu posición. Los puntos premian aplicar y enseñar a otros, no acumular por acumular.', img:'empleado-ranking.jpg',
+       annos:[{t:'tus puntos', tx:73.9, ty:22.1, lx:88.5, ly:40, w:20},
+              {t:'tu posición en el ranking', tx:50, ty:70.5, lx:11.5, ly:56, w:21}]},
+      {h:'Tus fortalezas', d:'Tu Team DNA: en qué destacas y cómo aprovecharlo con tu equipo.', img:'empleado-team-dna.jpg'},
+      {h:'En el móvil', d:'Todo a un toque: el botón redondo de abajo a la izquierda abre el menú, sin tener que buscar entre pantallas.', img:'empleado-dashboard-mobile.jpg', mob:true,
+       annos:[{t:'menú aquí', tx:8.84, ty:86.04, lx:50, ly:70}]}
+    ]},
+  responsable: { name:'Responsable', intro:'Dejas de medir asistencia y empiezas a medir CAPACIDAD. Ves qué parte del equipo ya aplica cada competencia, dónde tienes riesgo de dependencia, y validas el trabajo real de tu gente.',
+    steps:[
+      {h:'El panel de empresa', d:'La foto de tu equipo: cómo evoluciona su cobertura día a día, quién ya aplica cada competencia, cuántos días tardan en ser autónomos y el riesgo de que un conocimiento dependa de una sola persona. Arriba, el acceso directo al informe de ROI.',
+       img:'responsable-panel.jpg', annos:[{t:'el informe de ROI, a un toque', tx:46.4, ty:15.4, lx:88.5, ly:30, w:21},
+                {t:'cobertura del equipo, día a día', tx:28.5, ty:72.5, lx:11.5, ly:57, w:21}]},
+      {h:'Informe de ROI', d:'Lo que SkillUp aporta a tu empresa en euros: ahorro de formación, eficiencia y conocimiento que se queda dentro. Ideal para enseñar el valor a dirección.',
+       img:'responsable-informe-roi.jpg', annos:[{t:'el retorno, en euros', tx:41.4, ty:20.8, lx:88.5, ly:30, w:20}]},
+      {h:'Validar casos', d:'Cuando alguien de tu equipo entrega un caso práctico, tú lo revisas y decides si sube de nivel. La IA sugiere criterio; decides tú.',
+       img:'responsable-validar.jpg'},
+      {h:'El ranking del equipo', d:'Quién está aplicando y enseñando más esta temporada. Úsalo para reconocer, no para presionar.', img:'responsable-ranking.jpg'}
+    ]},
+  admin: { name:'Administrador', intro:'Configuras cómo funciona SkillUp en tu empresa y tienes la visión de negocio: métricas, ROI y la marcha general.',
+    steps:[
+      {h:'Panel y configuración', d:'Desde aquí gobiernas las competencias, las etiquetas de nivel y las recompensas de tu empresa, y ves la marcha del equipo.', img:'admin-panel.jpg'},
+      {h:'Informe de ROI', d:'El retorno de la formación con el marco FUNDAE: la inversión te sale a coste neto cero y encima ganas en eficiencia. El agente de ROI te lo redacta para dirección.',
+       img:'admin-informe-roi.jpg', annos:[{t:'el retorno, en euros', tx:41.4, ty:20.8, lx:88.5, ly:30, w:20},
+                {t:'tu crédito FUNDAE', tx:32.5, ty:54.6, lx:11.5, ly:70, w:21}]},
+      {h:'Tu panel', d:'Tu punto de entrada con lo esencial del día a día.', img:'admin-dashboard.jpg'}
+    ]},
+  // Resumen de la norma de formación programada por las empresas (RD 694/2017, Ley 30/2015, RD 1189/2025 y web/FAQ de
+  // FUNDAE), revisado el 2026-09-28. No aplica la Orden TMS/368/2019 (es para formación subvencionada, no bonificada).
+  fundae: { name:'FUNDAE', intro:'Cómo pagar SkillUp con el crédito de formación de tu empresa. Es un resumen de la norma vigente; ante cualquier duda, manda lo que diga FUNDAE.',
+    steps:[
+      {h:'Formación online (teleformación)', d:'No hay máximo de alumnos por grupo: lo que se exige es al menos 1 tutor por cada 80 alumnos, con formación o experiencia demostrable en formación online. Con 80 personas basta un coach; con 160, dos. La plataforma debe registrar la actividad, tener chat o mensajería, controles de aprendizaje y guía del curso: SkillUp ya lo hace. Máximo bonificable: 7,50 € por alumno y hora.'},
+      {h:'Formación presencial', d:'Máximo 30 alumnos por grupo. Si sois más, el mismo curso se imparte en varios grupos y cada uno se comunica a FUNDAE con su fecha, horario, lugar y formador, así que pueden ser días o salas distintos. Máximo bonificable: 9 € por alumno y hora (materias generales) o 13 € (especialización o dirección). Una clase por vídeo en directo cuenta como presencial si es en los dos sentidos y los alumnos están identificados.'},
+      {h:'Formación mixta', d:'Combina las dos. Si la parte presencial es el 20 % o menos de las horas, cuenta como online. Cada parte cumple las reglas de su modalidad.'},
+      {h:'Duración y quién la termina', d:'Cada curso dura al menos 2 horas y no más de 8 al día (salvo que todo se haga en una sola jornada). Termina el curso quien completa el 75 % de las horas (presencial) o el 75 % de los controles de aprendizaje (online).'},
+      {h:'Antes de empezar', d:'Informa a la representación de los trabajadores, si la hay: tiene 15 días para opinar y, si te lo saltas, se pierde la bonificación. Comunica el inicio de cada grupo a FUNDAE al menos 2 días naturales antes; los cambios de fecha, horario, lugar o una cancelación, con 1 día natural.'},
+      {h:'Al terminar', d:'Comunica el final del grupo antes de aplicarte la bonificación y siempre antes del boletín de cotización de diciembre. Entrega el diploma en 2 meses como máximo. La formación es siempre gratis para la persona que la hace.'},
+      {h:'Qué hay que guardar (4 años)', d:'Facturas y justificación contable, control de asistencia, registros de actividad de la plataforma, controles de aprendizaje, el cuestionario de calidad de cada alumno que termine, el currículo del tutor y los justificantes de entrega de diplomas. SkillUp te exporta los datos de la plataforma desde la pantalla FUNDAE.'},
+      {h:'Cuánto puedes bonificar', d:'Lo bonificable es lo menor entre tu crédito disponible, el coste real y el máximo por hora (máximo × alumnos × horas). Tu empresa pone una parte mínima según plantilla: de 1 a 5 personas, nada; de 6 a 9, el 5 %; de 10 a 49, el 10 %; de 50 a 249, el 20 %; 250 o más, el 40 %. Cuentan también los sueldos de las horas de formación dentro de la jornada.'},
+      {h:'Fuentes', d:'Real Decreto 694/2017 (arts. 4, 12, 13, 15 y 16), Ley 30/2015 (art. 9), Real Decreto 1189/2025 y la web y preguntas frecuentes de FUNDAE (fundae.es). Revisado en septiembre de 2026.'}
+    ]}
+};
+
+var order=['mapa','empleado','responsable','admin','fundae'];
+
+function mapCard(cls,lvl,title,desc,href){
+  return '<div class="map-card'+(cls?' '+cls:'')+'">'+(lvl?'<span class="lvl">'+E(lvl)+'</span>':'')
+    +'<h4>'+E(title)+'</h4><p>'+E(desc)+'</p>'+(href?'<a class="go" href="'+href+'">abrir →</a>':'')+'</div>';
+}
+function renderMapTab(){
+  var arrow='<span class="arrow">→</span>';
+  var trunk=['<div class="map-row">',
+    mapCard('trunk','','Un problema real','El onboarding empieza por tu situación, no por un temario.'),
+    arrow, mapCard('trunk','','Team DNA','Tu mapa de fortalezas.','/app/team-dna.html'),
+    arrow, mapCard('trunk','','Ficha viva','Lo que SkillUp sabe de ti, con fuente.'),
+    arrow, mapCard('trunk','','Para ti','El contenido se adapta a tu caso real.'),
+  '</div>'].join('');
+  var learn=['<div class="map-lane-label">camino de quien aprende</div><div class="map-row">',
+    mapCard('','N1','En formación','Practicas con pistas, ejemplos y reintentos.'),
+    arrow, mapCard('','N2','Aplica','Entregas un caso real; un referente lo valida con rúbrica.','/app/certificado.html'),
+    arrow, mapCard('','N3','Referente','Validas los casos de otros. Nadie valida el suyo propio.','/app/validar.html'),
+    arrow, mapCard('','N4','Custodio','Formas a otro hasta que es autónomo. Desbloquea funciones avanzadas.'),
+  '</div>'].join('');
+  var manage=['<div class="map-lane-label">camino de quien dirige</div><div class="map-row">',
+    mapCard('','','Panel de equipo','Mezcla de fortalezas, huecos por cubrir.','/app/panel.html'),
+    arrow, mapCard('','','Pirámide de niveles','Quién está en N1-N4 por competencia.','/app/piramides.html'),
+    arrow, mapCard('','','Informe de ROI','Kirkpatrick + Phillips, con lo que falta si falta.','/app/informe-roi.html'),
+  '</div>'].join('');
+  return '<div class="map-track">'+trunk+learn+'<p class="map-cross">✎ lo que valida un empleado es el dato que alimenta la pirámide y el ROI que ve dirección</p>'+manage+'</div>';
+}
+var tabs=document.getElementById('tabs'), profs=document.getElementById('profiles');
+function render(){
+tabs.innerHTML=order.map(function(k){return '<button class="tab" data-k="'+k+'">'+E(GUIDE[k].name)+'</button>';}).join('');
+profs.innerHTML=order.map(function(k){
+  var g=GUIDE[k];
+  var body=g.special==='map' ? renderMapTab() : g.steps.map(function(s,i){
+    return '<div class="step"><span class="n">'+(i+1)+'</span><h3>'+E(s.h)+'</h3>'
+      +'<p class="desc">'+E(s.d)+'</p>'+(s.img?fig(s.img, s.mob, s.annos):'')+'</div>';
+  }).join('');
+  return '<section class="prof" data-k="'+k+'"><div class="pintro"><h2>'+E(g.name)+'</h2><p>'+E(g.intro)+'</p></div>'+body+'</section>';
+}).join('');
+tabs.querySelectorAll('.tab').forEach(function(b){ b.onclick=function(){ show(b.getAttribute('data-k')); }; });
+}
+render();
+
+function show(k){
+  order.forEach(function(x){
+    document.querySelector('.tab[data-k="'+x+'"]').classList.toggle('on', x===k);
+    document.querySelector('.prof[data-k="'+x+'"]').classList.toggle('on', x===k);
+  });
+  layoutAll();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+var ro=window.ResizeObserver?new ResizeObserver(function(es){ es.forEach(function(e){ layoutFig(e.target); }); }):null;
+function bindFigs(){
+  if(ro) document.querySelectorAll('.fig[data-fig]').forEach(function(f){ ro.observe(f); });
+  document.querySelectorAll('.fig img').forEach(function(im){ im.addEventListener('load',function(){ layoutFig(im.parentNode); }); });
+}
+bindFigs();
+addEventListener('resize',layoutAll);
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutAll);
+
+// Abrir por defecto en el perfil del usuario.
+(async function(){
+  var def='empleado';
+  try{ var me=await SkillUp.api('/api/org/me'); var r=me&&me.role;
+    if(r==='team_leader'||r==='inspirador') def='responsable';
+    else if(r==='admin'||r==='direccion'||me.platformAdmin) def='admin';
+    // Guías extra por rol: el servidor decide según el rol REAL de la sesión; el texto no vive en esta página.
+    var cp=(me&&me.capabilities)||{};
+    if(cp['activity.read']||cp['activity.metrics']){
+      var h=await SkillUp.api('/api/analytics/live/help').catch(function(){return null;});
+      if(h&&h.steps&&h.steps.length){
+        GUIDE.live={name:h.name,intro:h.intro,steps:h.steps.map(function(x){return {h:x.h,d:x.d};})};
+        order.push('live'); render(); bindFigs();
+      }
+    }
+  }catch(e){}
+  show(def);
+})();
+</script>
+<script src="/app/nav.js" defer></script>
+</body>
+</html>
