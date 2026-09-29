@@ -1,33 +1,65 @@
-# SkillUp platform — V1.0
+# SkillUp · Brandooers — v1.16.0
 
-Plataforma Brandooers · SkillUp: formación que mide CAPACIDAD aplicada, no asistencia. Multi-tenant + RAG + agentes por rol.
+Formación para equipos que mide lo que la persona **aplica en su trabajo**, no las horas que pasa delante de la pantalla. Cada empresa tiene su espacio, sus tutores de IA y un contenido que se adapta a la situación real de cada persona.
 
-## Qué hace la V1.0
-- **Aprendizaje aplicado por rol**: ruta por sector/puesto, test, caso práctico validado por un humano (no autoservicio), coach de voz, juego de rol.
-- **Panel de empresa**: cobertura por competencia, riesgo de dependencia, transferencia interna, autonomía en días.
-- **Pirámides de conocimiento** por competencia (quién sostiene cada una) + **perks configurables** por empresa.
-- **Informe de ROI** con método Kirkpatrick (niveles 1-4 medidos, con n e intervalo de confianza) y Phillips (ROI solo con costes completos y métricas de negocio aisladas que aporta la empresa; si faltan, «Sin datos suficientes»). Fuentes citadas en el propio informe.
-- **Equipos y seguridad (1.16.0)**: cada coach o team leader ve solo a su equipo asignado desde Panel › Equipos; exámenes ligados a quien los hace y acceso de superadmin atado a la cuenta real.
-- **Circuito de módulo (1.15.0)**: ajuste de nivel al empezar cada curso, entregable y siguiente acción al cerrar cada módulo, y «¿Qué tal fue?» días después para comprobar la aplicación real.
-- **Bienvenida v2 (1.14.0)**: empieza por la situación real que la persona quiere resolver y termina con una micropráctica que le deja algo utilizable desde el primer minuto.
-- **Ficha de la empresa (1.13.0)**: oferta, públicos, terminología, herramientas y límites que valida un responsable; tutor y contenido vivo la usan para que ningún alumno tenga que explicar el contexto.
-- **Ficha viva (1.12.0)**: memoria del alumno con fuente, cita literal y estado de cada dato; alimenta tutor y contenido vivo, y el alumno la ve, corrige o retira en «Así estoy adaptando tu formación». Privada del alumno.
-- **Itinerario a especialista (1.11.0)**: base → especialidad → especialista → coach que atrae a 2 compañeros a su área, con el avance real de cada etapa.
-- **Onboarding unificado (1.10.0)**: bienvenida y Team DNA forman un solo recorrido; con 5 minutos del DNA ya hay un perfil que personaliza tutor, contenido y recursos, y el tiempo y el trato elegidos se usan de verdad.
-- **Contenido vivo (1.9.0)**: cada sección abre con un bloque «Para ti» (ejemplo y práctica) hecho con lo que el alumno ya ha contado; lo que responde en un bloque se usa en el siguiente.
-- **Recursos del curso (1.8.0)**: vídeos, podcasts, libros y herramientas verificados y puntuados por un agente de calidad (calidad, valor y relevancia), en una página tipo Netflix y al final de cada sección; ordenados por utilidad para aprender, según cómo aprende cada persona y su tiempo. La comisión de afiliación nunca cambia el orden y se marca siempre.
-- **Planes y créditos (1.6.0)**: dos planes por persona y mes (Esencial 9 €, Profesional 13 €) y un monedero de créditos de creación por empresa (1 crédito = 0,10 €) para crear contenido con IA, reservado a quien llega a nivel Coach. Ver «Precios».
-- **Idioma (1.5.0)**: cada persona elige español, inglés, catalán, portugués o francés (bienvenida y menú); la IA, la voz, el dictado, la interfaz compartida y los vídeos se adaptan, y los cursos se traducen al vuelo con «ver original». Vídeos filtrados por idioma y ordenados por una nota de calidad con datos reales de YouTube.
-- **Feedback (1.4.0)**: pulgar arriba/abajo con motivos bajo cada respuesta de la IA (tutores, asistente, Explorar, roleplays, evaluación), «Enviar sugerencia» en el menú para todos los roles y bandeja `/app/feedback.html` para el superadmin (estado, nota, glosario, gráficos y resumen con IA) con vista de solo lectura para admin y dirección; quien envía ve cuándo se resuelve.
-- **Supervisión en directo (1.3.0)**: menú «En directo» para coach, team leader, admin, dirección y superadmin: quién aprende ahora y dónde se atasca, ficha por persona con progreso, vista previa de su página, su chat con el tutor (y escribirle con tu nombre), métricas de uso tipo Odoo y resumen con IA. Transparente por ley: la persona ve cuándo la siguen; nada de pantalla, teclado ni cámara; datos 90 días.
-- **Métricas e insights (1.4.0)**: un cuadro de mando por rol con dos pestañas: Métricas (solo datos medidos, gráficos 7/30/90 días, CSV) e Insights (qué significan y qué hacer, con enlace al dato y a la acción). Superadmin: salud y riesgo de baja de cada empresa, coste IA frente a ingresos, cursos a arreglar y acceso de solo lectura a cualquier empresa. Admin: adopción, resultados, ROI y dónde apoyar. Team leader: quién necesita ayuda hoy.
-- **Evaluación y certificación (1.2.0)**: test personalizado al terminar cada bloque, roleplay de control cada N bloques con entrevista previa, menú «Roleplays» para practicar cuando quieras, examen final difícil (mínimo 80/100, con tiempo, intentos limitados) y certificado interno de Brandooers imprimible y verificable. Los responsables asignan tests, exámenes, roleplays y casos con fecha y ven el resultado (`/app/asignar.html`).
-- **Gamificación**: puntos por aplicar/enseñar, ranking de temporada, rangos.
-- **Consola de superadmin**: agentes (prompt+herramientas+memoria+cerebro), métricas por empresa, gestión de usuarios y contraseñas.
-- **Panel de ayuda por perfil** con pantallazos reales y guía visual.
-- **Seguridad**: aislamiento multi-tenant, tope de gasto de IA por empresa, rate-limit, cabeceras de seguridad, curador de datos (anti-fuga entre usuarios).
+En producción: https://skillup.brandooers.com · Última actualización: 2026-09-29 · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
 
-Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle por versión.
+## Qué problema resuelve
+
+- Los cursos de siempre se miden por asistencia y horas; nadie sabe si la persona luego lo aplica.
+- El contenido es igual para todos: el alumno tiene que traducirlo a su puesto, su empresa y su cliente.
+- Los responsables no saben quién se está quedando atrás hasta que es tarde.
+- La empresa no puede demostrar el retorno de lo que invierte en formación, ni justificarlo ante FUNDAE.
+
+## Cómo lo resuelve
+
+Cada curso empieza por la situación que la persona quiere resolver en las próximas semanas y termina con algo que puede usar ya: un guion, una lista, un plan. Los tutores de IA conocen a la empresa (ficha validada por un responsable) y a la persona (ficha viva que ella misma ve y corrige). La capacidad solo se acredita cuando una persona de la empresa valida un caso real. El responsable ve dónde se atasca su equipo, y dirección ve la cobertura de competencias y el retorno con método Kirkpatrick y Phillips.
+
+## Qué hace hoy
+
+Todo lo de esta lista está en producción. Entre paréntesis, la versión en que llegó.
+
+**Para quien aprende**
+- **Bienvenida en un solo recorrido** (1.10.0, 1.14.0): empieza por su situación real y lo que ya ha probado, sigue con una micropráctica de un minuto que le deja un entregable útil y enlaza con el Team DNA; con 5 minutos ya hay un perfil que personaliza tutor, contenido y recursos.
+- **Team DNA** (1.1.0): perfil profesional en 10 bloques cortos (Big Five, Eneagrama como autoconocimiento, tipos de jugador y preferencias de aprendizaje con evidencia). Decide tono, ritmo y formato; nunca se usa para evaluar a nadie.
+- **Contenido vivo** (1.9.0): cada sección abre con un bloque «Para ti» (ejemplo y práctica) hecho con lo que la persona ya ha contado; lo que responde en un bloque se usa en el siguiente.
+- **Circuito de módulo** (1.15.0): ajuste de nivel al empezar cada curso, entregable y siguiente acción al cerrar cada módulo, y «¿Qué tal fue?» a los 3 días para comprobar si lo aplicó.
+- **Ficha viva** (1.12.0): lo que la plataforma sabe de la persona, con fuente, cita literal y estado de cada dato. Ella la ve, corrige o retira en «Así estoy adaptando tu formación». Privada.
+- **Recursos del curso** (1.7.0, 1.8.0): vídeos, podcasts, libros y herramientas que existen de verdad, verificados y puntuados por un agente de calidad (calidad, valor, relevancia). Página tipo Netflix y recursos al final de cada sección. La comisión de afiliación nunca cambia el orden y siempre se marca. Nunca se recomiendan plataformas de formación ni competidores de las herramientas de la empresa.
+- **Tutores de IA con voz y dictado**: un tutor por rol, que responde con el contexto de la empresa y de la persona. Glosario que aprende de las correcciones («se dice partner manager»).
+- **Evaluación y certificación** (1.2.0): test al terminar cada bloque, roleplays de control y libres, examen final (mínimo 80/100, con tiempo e intentos limitados) y certificado interno verificable.
+- **Itinerario a especialista** (1.11.0): base → especialidad → especialista → coach que atrae a 2 compañeros a su área, con el avance real de cada etapa.
+- **Idiomas** (1.5.0): español, inglés, catalán, portugués y francés. La IA, la voz, el dictado y la interfaz principal se adaptan; los cursos se traducen al vuelo con «ver original».
+- **Gamificación**: puntos por aplicar y enseñar, ranking de temporada y rangos.
+
+**Para responsables (coach, team leader)**
+- **En directo** (1.3.0): quién aprende ahora y dónde se atasca, ficha por persona, su chat con el tutor y mensajes con tu nombre. Transparente: la persona ve cuándo la siguen; nada de pantalla, teclado ni cámara; los datos se guardan 90 días.
+- **Mi equipo real** (1.16.0): cada responsable ve solo a las personas que le asigna un administrador y a quienes acompaña como coach. Sin asignación, no ve a nadie.
+- **Validación humana**: los casos prácticos los valida un referente con la rúbrica de la competencia; una decisión por caso.
+- **Asignaciones** (1.2.0): tests, exámenes, roleplays y casos con fecha, con su resultado.
+
+**Para la empresa (admin y dirección)**
+- **Métricas e insights** (1.4.0): solo datos medidos, gráficos a 7/30/90 días y CSV; y una pestaña que explica qué significan y qué hacer.
+- **Informe de ROI**: Kirkpatrick niveles 1-4 medidos (con n e intervalo de confianza) y Phillips solo con costes completos y métricas de negocio que aporta la empresa; si faltan, «Sin datos suficientes».
+- **Cobertura de competencias**: pirámides de quién sostiene cada competencia, riesgo de dependencia, autonomía en días y perks configurables.
+- **Ficha de la empresa** (1.13.0): oferta, públicos, terminología, herramientas autorizadas y excluidas y límites. Se prepara un borrador desde la web y solo se usa cuando un responsable la valida.
+- **Panel › Equipos** (1.16.0): admin y dirección asignan el equipo de cada coach o team leader.
+- **Planes y créditos** (1.6.0): suscripción por persona y monedero de créditos para crear contenido con IA. Ver «Precios».
+- **Sugerencias** (1.4.0): pulgar arriba/abajo con motivo en cada respuesta de la IA y «Enviar sugerencia» en el menú; quien envía ve cuándo se resuelve.
+
+**Para Brandooers (superadmin)**
+- Consola de agentes (prompt, herramientas, memoria), usuarios y contraseñas, salud y riesgo de baja de cada empresa, coste de IA frente a ingresos, cursos a arreglar y bandeja de sugerencias.
+
+**Privacidad y seguridad**
+- Cada empresa aislada de las demás; tope de gasto de IA por empresa; límites de peticiones; cabeceras de seguridad; filtro que impide que datos de una persona lleguen a otra.
+- Exámenes ligados a quien los hace; superadmin atado a la cuenta real, no solo al correo (1.16.0).
+- «Descargar mis datos» y borrado a petición de la persona, acotado a su empresa.
+
+**Todavía no** (con motivo): voz narrada y vídeos con avatar se venden con créditos pero están «Próximamente»; el envío automático de informes de ROI necesita programador en el VPS y la clave de correo.
+
+## Para quién
+
+Empresas con equipos comerciales, de consultoría o de atención que necesitan que la formación se note en el trabajo: desde una pyme con un equipo de 5 personas hasta una empresa con varios equipos y responsables. El primer caso real es un equipo de Odoo. Encaja especialmente con empresas que bonifican formación con FUNDAE.
 
 ## Precios
 
@@ -53,52 +85,60 @@ Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle por versión.
 
 Solo gasta créditos quien tiene nivel N4 (Coach) en alguna competencia, rol coach/admin/dirección o es superadmin. Admin y dirección compran packs y ven los movimientos. La compra se abona en el webhook de Stripe (`checkout.session.completed`), una sola vez por sesión.
 
+## Primeros pasos de una empresa
+
+1. El administrador crea la cuenta de la empresa y elige plan.
+2. Prepara la **Ficha de la empresa** desde su web, la revisa y la valida (Panel).
+3. Invita al equipo y fija el rol de cada persona.
+4. Asigna el equipo de cada coach o team leader en **Panel › Equipos**.
+5. Cada persona hace la bienvenida (situación real, micropráctica y Team DNA) y empieza su primer curso.
+
 ## Stack
-- **Postgres + Drizzle ORM** (datos, multi-tenant por `organizationId`).
-- **better-auth** con plugin `organization` (una empresa = una organización; escala de 1 usuario a multinacional).
-- **RAG** propio: embeddings pluggables (`dev` offline / `openai`) + store en Postgres (coseno en app; pgvector como mejora).
-- **Agentes** por rol del organigrama (empleado, coach, team_leader, inspirador, admin, direccion), conversacionales, con contexto RAG. LLM: Anthropic (Sonnet 4.6 / Haiku 4.5), con mock sin clave.
-- **Hono** (API HTTP).
+
+- **Hono** (API HTTP) sobre Node con `tsx`, sin paso de compilación.
+- **PostgreSQL + Drizzle ORM**, multiempresa por `organizationId` en cada consulta.
+- **better-auth** con plugin `organization` (una empresa = una organización).
+- **IA**: Anthropic, Claude Sonnet 4.6 (`MODEL_SENIOR`) y Haiku 4.5 (`MODEL_FAST`), con respuestas simuladas si no hay clave. RAG propio (embeddings `dev` offline u `openai`, almacenados en Postgres).
+- **Voz**: ElevenLabs (voz de Marc con los ajustes de su panel; el resto, multilingües). **Pagos**: Stripe. **Correo**: Resend.
+- **Pruebas**: vitest (`tests/`).
 
 ## Puesta en marcha
+
 ```bash
 cd platform
 npm install
 cp .env.example .env.local     # rellena DATABASE_URL (Postgres local en :5432)
-npm run db:generate            # genera el SQL de migración desde el esquema
-npm run db:migrate             # aplica migraciones (requiere DATABASE_URL válido)
+npm run db:migrate             # aplica las migraciones de drizzle/
 npm run dev                    # arranca en :8080
 ```
 
+Para cambiar el esquema: editar `src/db/schema.ts`, `npx drizzle-kit generate --name <nombre>` y dejar el SQL idempotente (`IF NOT EXISTS`).
+
 ## Verificación
+
 ```bash
 npm run typecheck              # el código compila
-npm test                      # tests unitarios (RAG + agentes, offline)
+npm test                       # pruebas unitarias (offline)
 curl localhost:8080/health     # {"ok":true}
 ```
 
-## Endpoints (Fase 0)
-- `GET  /health`
-- `ALL  /api/auth/*` — better-auth (registro/login/organización/invitaciones).
-- `POST /api/agent/chat` — turno con el agente del rol de la sesión (el cliente no elige rol). Body: `{ message, threadId? }`.
-- `POST /api/rag/ingest` — ingesta contenido al RAG (admin/inspirador). Body: `{ title, text, kind?, refId? }`.
-
 ## Despliegue (producción, VPS `brandooers-vps`)
+
 Siempre desde git, nunca con scp ni editando en el servidor:
+
 ```bash
 git push origin <rama>                                   # desde tu equipo
 ssh brandooers-vps 'bash /var/www/brandooers/platform/deploy/deploy.sh <rama>'
 ```
+
 `deploy/deploy.sh` se niega a correr si hay ficheros versionados editados en el servidor, y antes de reiniciar pasa typecheck + tests + backup fresco de Postgres + migraciones; si algo falla vuelve al commit anterior. Otros ficheros de `deploy/`: `skillup-backup.sh` (instalado en `/usr/local/bin`, cron diario 3:30 en `/etc/cron.d/skillup-backup`, 14 días en `/var/backups/skillup`) y `skillup.service.hardening.conf` (drop-in de systemd: el servicio corre como `brandooers`, sin root, sistema de ficheros en solo lectura).
 
-Fuera del repo, en el VPS: `/etc/brandooers/mail.env` es la ÚNICA ficha de correo (la leen `skillup.service` y `brandooers-aff.service`): poner ahí `RESEND_API_KEY=` y `MAIL_FROM=` (dirección sola, sin nombre; el dominio tiene que estar verificado en Resend: hoy solo lo está boomatik.com, así que `MAIL_FROM=no-reply@boomatik.com`) y reiniciar ambos servicios. Sin clave, la recuperación de contraseña y los avisos no salen (el enlace queda solo en `journalctl -u skillup`). nginx (`/etc/nginx/nginx.conf`, bloque skillup): cabeceras nosniff/X-Frame-Options/Referrer-Policy/HSTS y 404 para `/.*`, `/platform/`, `/affiliate/`, `/server/`, `*.bak*` y extensiones de código/datos (el docroot es el checkout git entero).
+Fuera del repo, en el VPS: `/etc/brandooers/mail.env` es la ÚNICA ficha de correo (la leen `skillup.service` y `brandooers-aff.service`): poner ahí `RESEND_API_KEY=` y `MAIL_FROM=` (dirección sola, sin nombre; el dominio tiene que estar verificado en Resend: hoy solo lo está boomatik.com, así que `MAIL_FROM=no-reply@boomatik.com`) y reiniciar ambos servicios. Sin clave, la recuperación de contraseña y los avisos no salen (el enlace queda solo en `journalctl -u skillup`). nginx (`/etc/nginx/nginx.conf`, bloque skillup): cabeceras nosniff/X-Frame-Options/Referrer-Policy/HSTS, lista de prefijos `/api` permitidos y 404 para `/.*`, `/platform/`, `/affiliate/`, `/server/`, `*.bak*` y extensiones de código/datos (el docroot es el checkout git entero). Una ruta `/api` nueva con prefijo nuevo hay que añadirla a esa lista.
 
-## Autenticación en dev
-Con `DEV_AUTH=true`, pasa cabeceras `X-Org-Id`, `X-User-Id`, `X-Role` (y opcional `X-Org-Name`, `X-User-Name`). En producción se usa la sesión de better-auth + organización activa. Nunca dejar `DEV_AUTH=true` en producción.
+## Autenticación en desarrollo
 
-## Qué es esto y qué NO
-Es la **Fase 0** del `GOAL-BRANDOOERS.md`: los cimientos (datos, auth, RAG, agentes) sobre los que las fases 1-9 montan validación, niveles, panel ROI, FUNDAE, etc. No incluye aún esas funcionalidades.
+Con `DEV_AUTH=true`, pasa cabeceras `X-Org-Id`, `X-User-Id`, `X-Role` (y opcional `X-Org-Name`, `X-User-Name`). En producción se usa la sesión de better-auth + organización activa. Nunca dejar `DEV_AUTH=true` en producción. El superadmin se define con `PLATFORM_ADMIN_EMAILS` y `PLATFORM_ADMIN_USER_IDS` (hacen falta los dos).
 
-## Cambios
-- **0.2.1 (2026-09-21) — fallos de la prueba funcional:** cerrar sesión invalida de verdad la sesión (antes seguía viva); cambiar la contraseña cierra las sesiones abiertas; matrícula solo en rutas/competencias de la propia empresa; «Descargar mis datos» incluye notas, subrayados, preguntas y roleplays; «Terminar», «Formaciones», lección y onboarding ya no mandan al login antiguo y los enlaces entre cursos abren el visor; aceptar invitación entra por el inicio nuevo; correo de invitación con marca y enlace para copiar en el panel de empresa; registrarse de nuevo con el mismo email ya no crea una segunda empresa; errores de acceso en español; la cola de validación muestra nombres y no incluye el caso propio; rol legible en el perfil; borrar una nota ajena devuelve 404.
-- **0.2.0 (2026-09-21) — endurecimiento pre-producción:** estado de cuenta no manipulable por el usuario y cuentas desactivadas bloqueadas en toda la app; validación humana atómica (una decisión por caso: sin puntos ni certificados dobles); borrado RGPD acotado a la propia empresa y que incluye notas y roleplays; hilos de chat, roleplays, entregas y evidencias solo del propio alumno; filtro anti-SSRF en el análisis de la web de empresa; límite de peticiones en vídeos; timeouts en YouTube y correo; migración 0016 que recoge las tablas/columnas creadas a mano en producción; typecheck y tests en verde; despliegue reproducible (`deploy/`). Contraseñas: botón «Restablecer contraseña» en Consola > Usuarios y roles (envía el enlace por correo; si el correo no sale, el enlace aparece solo al superadmin para pasarlo en mano), correo de recuperación con marca y «He olvidado mi contraseña» del login con validación, estado «Enviando…» y sin dobles envíos.
+## Documentación relacionada
+
+En la raíz del repo: `GOAL-BRANDOOERS.md` (objetivo y fases), `DATA-MODEL.md`, `AGENT-PROMPTS.md`, `GAMIFICATION-SPEC.md`, `MONETIZATION.md` y `SKILLUP-V2-SPEC.md`.
