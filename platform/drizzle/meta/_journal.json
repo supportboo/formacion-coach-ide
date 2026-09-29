@@ -222,8 +222,8 @@
     {
       "idx": 31,
       "version": "7",
-      "when": 1790721089225,
-      "tag": "0031_rubric_version",
+      "when": 1790721522557,
+      "tag": "0031_training_session",
       "breakpoints": true
     }
   ]

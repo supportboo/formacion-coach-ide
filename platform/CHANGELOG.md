@@ -1,5 +1,15 @@
 # Changelog · SkillUp platform
 
+## 1.22.0 — 2026-09-30
+
+### Formaciones que impartes: análisis de sesiones reales (Google Meet o transcripción)
+- **Nueva página** «Formaciones que impartes» (`/app/sesiones.html`, en el menú): la persona importa de Google Meet una reunión en la que formó a su equipo, o sube la transcripción (.txt del documento de Meet, .vtt, .srt o texto pegado), dice quién es en la transcripción y confirma que los asistentes sabían que se grababa.
+- **Google Meet**: la conexión de Google que ya existía (Calendar) pide con un clic más el permiso de leer las transcripciones de sus reuniones (`meetings.space.readonly`, sin Drive ni grabaciones). Lista sus reuniones de los últimos 30 días con transcripción (Google las borra a los 30 días). Requiere Google Workspace con transcripciones (Business Standard o superior).
+- **Qué devuelve**: métricas fijas (duración, tiempo de palabra, preguntas que hizo, comprobaciones de comprensión, ejemplos, intervenciones del grupo, tramo más largo hablando), 7 criterios de buena formación (objetivo, estructura, ejemplos, comprobar comprensión, participación, respuesta a preguntas, cierre) cada uno con frase literal suya como prueba, momentos concretos para mejorar, afirmaciones a revisar, dudas que tuvo el grupo (para reforzarlas), lo que más le conviene practicar como formador y formaciones recomendadas del catálogo real.
+- **Adapta su formación**: lo que más le conviene trabajar pasa a su ficha viva (capa «enseñanza», con cita literal) y la sesión cuenta como evidencia de transferencia en «Tu capacidad» (hasta 40 puntos; nueva casilla «Ha impartido una formación real»).
+- **Privacidad por diseño**: solo se evalúa a quien forma; el resto de voces y los nombres dichos dentro de las frases se anonimizan («Participante 1…») antes de llegar a la IA; la transcripción no se guarda (1 h en memoria); el resultado lo ve solo la persona y lo puede borrar; incluido en «Descargar mis datos» y en el borrado. Arreglo: las evidencias de la 1.19 tampoco estaban en la exportación y el borrado; ya están.
+- `POST /api/sessions/prepare`, `GET /api/sessions/meet/status|connect|recent`, `POST /api/sessions/meet/load`, `POST /api/sessions/analyze` (6 al día), `GET /api/sessions[/:id]`, `DELETE /api/sessions/:id`; tabla `training_session` (migración 0031).
+
 ## 1.21.0 — 2026-09-30
 
 ### V2 fase 8: mapa de riesgo del conocimiento (para dirección)

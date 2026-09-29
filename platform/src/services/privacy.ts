@@ -1,7 +1,7 @@
 import { and, eq, inArray, ne, or } from "drizzle-orm";
 import {
   agentMessage, agentThread, annotation, appliedCase, assessmentAttempt, auditLog, certificate, coaching,
-  enrollment, evidence, feedback, fundaeParticipation, learnerFact, levelByCompetency, member, onboardingProfile,
+  enrollment, evidence, evidenceEvent, feedback, fundaeParticipation, trainingSession, learnerFact, levelByCompetency, member, onboardingProfile,
   pointsLedger, rewardGrant, roleplaySession, teamDna, teamProfile, testAttempt, user, validation,
 } from "../db/schema.js";
 import type { SvcDeps } from "./org.js";
@@ -72,6 +72,11 @@ export async function exportUserData(deps: SvcDeps, orgId: string, userId: strin
       caseIds.length ? and(eq(evidence.ownerType, "applied_case"), inArray(evidence.ownerId, caseIds)) : undefined))),
     // 1.3.0: actividad en directo (páginas, secciones, tiempo activo, acciones, avisos recibidos). Máx. 90 días.
     activity: await exportActivity(deps, orgId, userId),
+    // 1.19.0-1.22.0: demostraciones, teach-back, repasos y formaciones reales analizadas (sin transcripciones: no se guardan).
+    capabilityEvidence: await deps.db.select().from(evidenceEvent)
+      .where(and(eq(evidenceEvent.organizationId, orgId), eq(evidenceEvent.userId, userId))),
+    trainingSessions: await deps.db.select().from(trainingSession)
+      .where(and(eq(trainingSession.organizationId, orgId), eq(trainingSession.userId, userId))),
     // 1.4.0: valoraciones de respuestas de la IA y sugerencias enviadas.
     feedback: await deps.db.select().from(feedback)
       .where(and(eq(feedback.organizationId, orgId), eq(feedback.userId, userId))),
@@ -107,6 +112,9 @@ export async function eraseUserData(deps: SvcDeps, orgId: string, userId: string
   await deps.db.delete(teamProfile).where(and(eq(teamProfile.organizationId, orgId), eq(teamProfile.userId, userId)));
   await deps.db.delete(learnerFact).where(and(eq(learnerFact.organizationId, orgId), eq(learnerFact.userId, userId)));
   await eraseActivity(deps, orgId, userId);
+  // Evidencias propias y análisis de formaciones: contienen frases literales de la persona.
+  await deps.db.delete(evidenceEvent).where(and(eq(evidenceEvent.organizationId, orgId), eq(evidenceEvent.userId, userId)));
+  await deps.db.delete(trainingSession).where(and(eq(trainingSession.organizationId, orgId), eq(trainingSession.userId, userId)));
   // Ratings and suggestions carry free text and conversation snapshots.
   await deps.db.delete(feedback).where(and(eq(feedback.organizationId, orgId), eq(feedback.userId, userId)));
   await deps.db.delete(roleplaySession).where(and(eq(roleplaySession.organizationId, orgId), eq(roleplaySession.userId, userId)));

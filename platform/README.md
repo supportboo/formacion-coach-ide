@@ -1,8 +1,8 @@
-# SkillUp · Brandooers — v1.21.0
+# SkillUp · Brandooers — v1.22.0
 
 Formación para equipos que mide lo que la persona **aplica en su trabajo**, no las horas que pasa delante de la pantalla. Cada empresa tiene su espacio, sus tutores de IA y un contenido que se adapta a la situación real de cada persona.
 
-En producción: https://skillup.brandooers.com · Última actualización: 2026-09-30 (1.21.0) · Hacia dónde va: [ARQUITECTURA-V2.md](./ARQUITECTURA-V2.md) · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
+En producción: https://skillup.brandooers.com · Última actualización: 2026-09-30 (1.22.0) · Hacia dónde va: [ARQUITECTURA-V2.md](./ARQUITECTURA-V2.md) · Detalle por versión en [CHANGELOG.md](./CHANGELOG.md).
 
 ## Qué problema resuelve
 
@@ -20,6 +20,7 @@ Cada curso empieza por la situación que la persona quiere resolver en las próx
 Todo lo de esta lista está en producción. Entre paréntesis, la versión en que llegó.
 
 **Para quien aprende**
+- **Formaciones que impartes** (1.22.0): importa de Google Meet (o sube la transcripción de) una sesión en la que formaste a tu equipo y recibe feedback con frases tuyas como prueba, las dudas del grupo, qué practicar y formaciones recomendadas; cuenta como evidencia de transferencia. Solo se evalúa a quien forma y la transcripción no se guarda.
 - **Repaso de 3 minutos** (1.20.0): las preguntas que la persona falló, unos días después y espaciadas hasta que las acierta dos veces, más «¿dónde lo vas a usar esta semana?».
 - **Demostrar sin ayuda y enseñar** (1.19.0): prácticas sin tutor sacadas del contenido real del curso y «explícaselo a un compañero»; se revisan con frases literales de la respuesta como prueba y separan en la ficha lo que la persona hace con ayuda y sin ayuda de la IA.
 - **Tu capacidad y tu siguiente mejor paso** (1.18.0): por cada competencia, conocimiento, aplicación, autonomía y transferencia calculados solo con sus evidencias, con confianza, vigencia y «¿Por qué creemos esto?»; en Inicio, una sola acción recomendada con su porqué.
@@ -108,6 +109,7 @@ Solo gasta créditos quien tiene nivel N4 (Coach) en alguna competencia, rol coa
 - **PostgreSQL + Drizzle ORM**, multiempresa por `organizationId` en cada consulta.
 - **better-auth** con plugin `organization` (una empresa = una organización).
 - **IA**: Anthropic, Claude Sonnet 4.6 (`MODEL_SENIOR`) y Haiku 4.5 (`MODEL_FAST`), con respuestas simuladas si no hay clave. RAG propio (embeddings `dev` offline u `openai`, almacenados en Postgres).
+- **Google**: Calendar (sincronizar la ruta) y Meet REST API v2 (transcripciones, `meetings.space.readonly`), con OAuth por usuario.
 - **Voz**: ElevenLabs (voz de Marc con los ajustes de su panel; el resto, multilingües). **Pagos**: Stripe. **Correo**: Resend.
 - **Pruebas**: vitest (`tests/`).
 
